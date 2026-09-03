@@ -6,6 +6,10 @@
 
 </div>
 
+<div align="center">
+
+<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="140" alt="Logo Senac" />
+
 # Recife Saudável
 
 **Sua saúde na palma da mão.**
