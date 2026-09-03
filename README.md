@@ -50,4 +50,4 @@ O **App Recife Saudável** é um aplicativo móvel desenvolvido para facilitar a
 
 **Professor Focal**: Prof. Ícaro Santos Ferreira  
 **Instituição**: Faculdade de Análise e Desenvolvimento de Sistemas — Senac PE
-**Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; — App Recife Saudável — Senac PE. Todos os direitos reservados.**
+- **Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; — App Recife Saudável — Senac PE. Todos os direitos reservados.**
