@@ -4,3 +4,9 @@ ktor:
   application:
     modules:
       - grupotp.recifesaudavel.server.ApplicationKt.module
+
+database:
+  jdbcUrl: "$DATABASE_JDBC_URL:jdbc:h2:file:./data/recife-saudavel"
+  driver: "$DATABASE_DRIVER:org.h2.Driver"
+  user: "$DATABASE_USER:sa"
+  password: "$DATABASE_PASSWORD:"

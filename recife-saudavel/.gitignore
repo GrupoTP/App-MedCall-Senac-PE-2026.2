@@ -2,4 +2,7 @@
 build/
 .kotlin/
 node_modules/
+data/
+*.mv.db
+*.trace.db
 *.log

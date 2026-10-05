@@ -1,6 +1,6 @@
 # Recife Saudável
 
-Esqueleto Kotlin Multiplatform do app. Esta etapa só sobe os três módulos. As telas do protótipo, o manifesto, o service worker e o banco ficam para as tarefas seguintes.
+Esqueleto Kotlin Multiplatform do app. As telas do protótipo, o manifesto e o service worker ficam para as tarefas seguintes.
 
 ## Módulos
 
@@ -23,6 +23,8 @@ Na pasta `recife-saudavel`:
 ```
 
 O servidor responde em `http://localhost:8080/healthz` e `http://localhost:8080/readyz`.
+
+O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de execução do servidor. Para apontar outro lugar, defina `DATABASE_JDBC_URL`, `DATABASE_DRIVER`, `DATABASE_USER` e `DATABASE_PASSWORD`.
 
 ```bash
 ./gradlew :recife-saudavel-app:jsBrowserDevelopmentRun

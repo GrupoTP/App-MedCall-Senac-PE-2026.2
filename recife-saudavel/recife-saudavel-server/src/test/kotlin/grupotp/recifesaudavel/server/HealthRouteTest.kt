@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.server
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.HttpStatusCode
+import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.testing.testApplication
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,8 +12,8 @@ class HealthRouteTest {
     @Test
     fun healthzReportsApplicationUp() = testApplication {
         // Arrange
-        application {
-            module()
+        environment {
+            config = ApplicationConfig("application.yaml")
         }
 
         // Act
@@ -26,8 +27,8 @@ class HealthRouteTest {
     @Test
     fun readyzReportsApplicationUp() = testApplication {
         // Arrange
-        application {
-            module()
+        environment {
+            config = ApplicationConfig("application.yaml")
         }
 
         // Act
