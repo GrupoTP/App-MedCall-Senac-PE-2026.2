@@ -4,6 +4,8 @@ ktor = "3.6.0"
 kotlinx-serialization = "1.11.0"
 kotlin-wrappers = "2026.8.5-19.2.8"
 logback = "1.5.18"
+ktor-health-check = "2.0.0"
+koin = "4.2.2"
 
 [libraries]
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
@@ -18,6 +20,9 @@ ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref 
 kotlin-react = { module = "org.jetbrains.kotlin-wrappers:kotlin-react", version.ref = "kotlin-wrappers" }
 kotlin-react-dom = { module = "org.jetbrains.kotlin-wrappers:kotlin-react-dom", version.ref = "kotlin-wrappers" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+ktor-health-check = { module = "cc.rbbl:ktor-health-check", version.ref = "ktor-health-check" }
+koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
+koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
 
 [plugins]
 kotlin-multiplatform = { id = "org.jetbrains.kotlin.multiplatform", version.ref = "kotlin" }

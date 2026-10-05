@@ -22,7 +22,7 @@ Na pasta `recife-saudavel`:
 ./gradlew :recife-saudavel-server:run
 ```
 
-O servidor responde em `http://localhost:8080/api/v1/health`.
+O servidor responde em `http://localhost:8080/healthz` e `http://localhost:8080/readyz`.
 
 ```bash
 ./gradlew :recife-saudavel-app:jsBrowserDevelopmentRun

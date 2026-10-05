@@ -8,7 +8,10 @@ class HealthStatusTest {
     @Test
     fun serializesAndDeserializesHealthStatus() {
         // Arrange
-        val status = healthStatus()
+        val status = HealthStatus(
+            service = "Recife Saudável",
+            status = "ok",
+        )
 
         // Act
         val encoded = Json.encodeToString(status)
