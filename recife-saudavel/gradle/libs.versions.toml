@@ -21,6 +21,7 @@ kotlin-react = { module = "org.jetbrains.kotlin-wrappers:kotlin-react", version.
 kotlin-react-dom = { module = "org.jetbrains.kotlin-wrappers:kotlin-react-dom", version.ref = "kotlin-wrappers" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 ktor-health-check = { module = "cc.rbbl:ktor-health-check", version.ref = "ktor-health-check" }
+koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
 koin-ktor = { module = "io.insert-koin:koin-ktor", version.ref = "koin" }
 koin-logger-slf4j = { module = "io.insert-koin:koin-logger-slf4j", version.ref = "koin" }
 

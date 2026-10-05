@@ -14,6 +14,7 @@ kotlin {
                 }
             }
         }
+        nodejs()
         binaries.executable()
     }
 
@@ -22,6 +23,10 @@ kotlin {
             implementation(projects.recifeSaudavelCommon)
             implementation(libs.kotlin.react)
             implementation(libs.kotlin.react.dom)
+            implementation(libs.koin.core)
+        }
+        jsTest.dependencies {
+            implementation(libs.kotlin.test)
         }
     }
 }
