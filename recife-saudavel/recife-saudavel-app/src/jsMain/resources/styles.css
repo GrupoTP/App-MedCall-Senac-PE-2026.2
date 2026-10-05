@@ -1,0 +1,12 @@
+body {
+    margin: 0;
+    font-family: "Segoe UI", sans-serif;
+    background: #f4f8fb;
+    color: #12324d;
+}
+
+#root {
+    max-width: 40rem;
+    margin: 2rem auto;
+    padding: 1.5rem;
+}
