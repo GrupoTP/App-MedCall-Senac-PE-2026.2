@@ -9,4 +9,5 @@ internal const val FOOTER_TEXT =
 
 internal fun AuthError.toMessage(): String = when (this) {
     AuthError.NotImplemented -> NOT_IMPLEMENTED_MESSAGE
+    is AuthError.Rejected -> message
 }

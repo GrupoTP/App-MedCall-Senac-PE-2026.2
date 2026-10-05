@@ -20,6 +20,7 @@ fun main() {
             signIn = koin.get()
             registerAccount = koin.get()
             requestPasswordRecovery = koin.get()
+            listUpcomingAppointments = koin.get()
         },
     )
 }

@@ -3,13 +3,21 @@ package grupotp.recifesaudavel.app.ui
 import grupotp.recifesaudavel.app.usecase.AuthResult
 import grupotp.recifesaudavel.app.usecase.RequestPasswordRecovery
 import grupotp.recifesaudavel.app.usecase.SignIn
-import grupotp.recifesaudavel.app.usecase.SignInCommand
+import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.SignInRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import react.FC
 import react.Props
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.form
 import react.dom.html.ReactHTML.p
+import react.useEffectOnce
+import react.useRef
 import react.useState
 
 internal external interface LoginScreenProps : Props {
@@ -17,6 +25,7 @@ internal external interface LoginScreenProps : Props {
     var requestPasswordRecovery: RequestPasswordRecovery
     var onRegister: () -> Unit
     var onBack: () -> Unit
+    var onAuthenticated: (AuthenticatedAccount) -> Unit
 }
 
 internal val LoginScreen = FC<LoginScreenProps> { props ->
@@ -24,6 +33,15 @@ internal val LoginScreen = FC<LoginScreenProps> { props ->
     var password by useState("")
     var showPassword by useState(false)
     var submissionError by useState<String?>(null)
+    val scopeHolder = useRef<CoroutineScope>(null)
+    val scope = scopeHolder.current ?: CoroutineScope(SupervisorJob()).also { scopeHolder.current = it }
+    useEffectOnce {
+        try {
+            awaitCancellation()
+        } finally {
+            scope.cancel()
+        }
+    }
 
     fun clearError() {
         submissionError = null
@@ -36,8 +54,13 @@ internal val LoginScreen = FC<LoginScreenProps> { props ->
             className = classNames("screen-scroll")
             onSubmit = { event ->
                 event.preventDefault()
-                val result = props.signIn(SignInCommand(email = email, password = password))
-                submissionError = result.errorMessage()
+                scope.launch {
+                    val result = props.signIn(SignInRequest(email = email, password = password))
+                    when (result) {
+                        is AuthResult.Success -> props.onAuthenticated(result.account)
+                        is AuthResult.Failed -> submissionError = result.error.toMessage()
+                    }
+                }
             }
             div {
                 className = classNames("screen-content")
@@ -85,8 +108,13 @@ internal val LoginScreen = FC<LoginScreenProps> { props ->
                         type = buttonKind
                         className = classNames("text-link")
                         onClick = {
-                            val result = props.requestPasswordRecovery(email)
-                            submissionError = result.errorMessage()
+                            scope.launch {
+                                val result = props.requestPasswordRecovery(email)
+                                submissionError = when (result) {
+                                    is AuthResult.Success -> null
+                                    is AuthResult.Failed -> result.error.toMessage()
+                                }
+                            }
                         }
                         +"Esqueci minha senha"
                     }
@@ -111,7 +139,3 @@ internal val LoginScreen = FC<LoginScreenProps> { props ->
     }
 }
 
-private fun AuthResult.errorMessage(): String? = when (this) {
-    AuthResult.Success -> null
-    is AuthResult.Failed -> error.toMessage()
-}

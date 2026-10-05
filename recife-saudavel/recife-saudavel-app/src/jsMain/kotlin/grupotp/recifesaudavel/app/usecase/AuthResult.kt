@@ -1,19 +1,15 @@
 package grupotp.recifesaudavel.app.usecase
 
-/**
- * Outcome of an authentication use case.
- */
-sealed interface AuthResult {
-    data object Success : AuthResult
+import grupotp.recifesaudavel.common.AuthenticatedAccount
 
-    data class Failed(
-        val error: AuthError,
-    ) : AuthResult
+sealed interface AuthResult {
+    data class Success(val account: AuthenticatedAccount) : AuthResult
+
+    data class Failed(val error: AuthError) : AuthResult
 }
 
-/**
- * Reason an authentication use case did not complete.
- */
 sealed interface AuthError {
     data object NotImplemented : AuthError
+
+    data class Rejected(val message: String) : AuthError
 }

@@ -120,6 +120,49 @@ internal fun ChildrenBuilder.eyeOffIcon() {
     }
 }
 
+internal fun ChildrenBuilder.clipboardIcon() {
+    strokeIcon(size = 20) {
+        path {
+            d = "M9 11l3 3L22 4"
+        }
+        path {
+            d = "M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"
+        }
+    }
+}
+
+internal fun ChildrenBuilder.listIcon() {
+    strokeIcon(size = 20) {
+        line { x1 = 8.0; y1 = 6.0; x2 = 21.0; y2 = 6.0 }
+        line { x1 = 8.0; y1 = 12.0; x2 = 21.0; y2 = 12.0 }
+        line { x1 = 8.0; y1 = 18.0; x2 = 21.0; y2 = 18.0 }
+        line { x1 = 3.0; y1 = 6.0; x2 = 3.01; y2 = 6.0 }
+        line { x1 = 3.0; y1 = 12.0; x2 = 3.01; y2 = 12.0 }
+        line { x1 = 3.0; y1 = 18.0; x2 = 3.01; y2 = 18.0 }
+    }
+}
+
+internal fun ChildrenBuilder.chevronIcon() {
+    strokeIcon(size = 16, strokeWidth = 2.5) {
+        path {
+            d = "M9 18l6-6-6-6"
+        }
+    }
+}
+
+internal fun ChildrenBuilder.settingsIcon() {
+    strokeIcon(size = 18) {
+        circle {
+            cx = 12.0
+            cy = 12.0
+            r = 3.0
+        }
+        path {
+            d = "M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+        }
+    }
+}
+
 internal fun ChildrenBuilder.alertIcon() {
     strokeIcon(size = 16, strokeWidth = 2.5) {
         circle {

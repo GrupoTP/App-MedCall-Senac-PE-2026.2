@@ -2,9 +2,17 @@ package grupotp.recifesaudavel.app.ui
 
 import grupotp.recifesaudavel.app.usecase.AuthResult
 import grupotp.recifesaudavel.app.usecase.RegisterAccount
-import grupotp.recifesaudavel.app.usecase.RegisterAccountCommand
+import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.RegisterAccountRequest
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import react.FC
 import react.Props
+import react.useEffectOnce
+import react.useRef
 import react.dom.html.ReactHTML.button
 import react.dom.html.ReactHTML.div
 import react.dom.html.ReactHTML.form
@@ -17,6 +25,7 @@ import react.useState
 internal external interface RegisterScreenProps : Props {
     var registerAccount: RegisterAccount
     var onBack: () -> Unit
+    var onAuthenticated: (AuthenticatedAccount) -> Unit
 }
 
 private data class RegisterDraft(
@@ -66,6 +75,15 @@ private val consentOptions = listOf(
 internal val RegisterScreen = FC<RegisterScreenProps> { props ->
     var draft by useState(RegisterDraft())
     var submissionError by useState<String?>(null)
+    val scopeHolder = useRef<CoroutineScope>(null)
+    val scope = scopeHolder.current ?: CoroutineScope(SupervisorJob()).also { scopeHolder.current = it }
+    useEffectOnce {
+        try {
+            awaitCancellation()
+        } finally {
+            scope.cancel()
+        }
+    }
 
     fun update(next: RegisterDraft) {
         draft = next
@@ -79,10 +97,12 @@ internal val RegisterScreen = FC<RegisterScreenProps> { props ->
             className = classNames("screen-scroll")
             onSubmit = { event ->
                 event.preventDefault()
-                val result = props.registerAccount(draft.toCommand())
-                submissionError = when (result) {
-                    AuthResult.Success -> null
-                    is AuthResult.Failed -> result.error.toMessage()
+                scope.launch {
+                    val result = props.registerAccount(draft.toRequest())
+                    when (result) {
+                        is AuthResult.Success -> props.onAuthenticated(result.account)
+                        is AuthResult.Failed -> submissionError = result.error.toMessage()
+                    }
                 }
             }
             div {
@@ -223,7 +243,7 @@ internal val RegisterScreen = FC<RegisterScreenProps> { props ->
     }
 }
 
-private fun RegisterDraft.toCommand(): RegisterAccountCommand = RegisterAccountCommand(
+private fun RegisterDraft.toRequest(): RegisterAccountRequest = RegisterAccountRequest(
     fullName = fullName,
     socialName = socialName,
     email = email,

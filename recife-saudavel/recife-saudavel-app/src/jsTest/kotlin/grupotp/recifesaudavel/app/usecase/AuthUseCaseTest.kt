@@ -1,20 +1,64 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.app.gateway.NotImplementedAuthGateway
 import grupotp.recifesaudavel.app.ui.NOT_IMPLEMENTED_MESSAGE
 import grupotp.recifesaudavel.app.ui.toMessage
+import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.RegisterAccountRequest
+import grupotp.recifesaudavel.common.SignInRequest
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class AuthUseCaseTest {
     @Test
-    fun signInReportsThatAccessIsNotImplemented() {
+    fun signInDelegatesTheJsonRequest() = runTest {
         // Arrange
-        val useCase = SignIn(NotImplementedAuthGateway())
-        val command = SignInCommand(email = "maria@email.com", password = "segredo")
+        val request = SignInRequest(email = "maria@email.com", password = "segredo")
+        val account = AuthenticatedAccount(
+            id = "1",
+            fullName = "Maria das Graças Silva",
+            socialName = "Graça",
+            email = "maria@email.com",
+        )
+        val gateway = FakeAuthGateway(signInResult = AuthResult.Success(account))
+        val useCase = SignIn(gateway)
 
         // Act
-        val result = useCase(command)
+        val result = useCase(request)
+
+        // Assert
+        assertEquals(request, gateway.signInRequest)
+        assertEquals(AuthResult.Success(account), result)
+    }
+
+    @Test
+    fun registerDelegatesTheJsonRequest() = runTest {
+        // Arrange
+        val request = sampleRegistration()
+        val gateway = FakeAuthGateway(
+            registerResult = AuthResult.Failed(AuthError.Rejected("E-mail já cadastrado.")),
+        )
+        val useCase = RegisterAccount(gateway)
+
+        // Act
+        val result = useCase(request)
+
+        // Assert
+        assertEquals(request, gateway.registerRequest)
+        assertEquals("E-mail já cadastrado.", (result as AuthResult.Failed).error.toMessage())
+    }
+
+    @Test
+    fun passwordRecoveryStaysUnavailable() = runTest {
+        // Arrange
+        val gateway = FakeAuthGateway(
+            recoveryResult = AuthResult.Failed(AuthError.NotImplemented),
+        )
+        val useCase = RequestPasswordRecovery(gateway)
+
+        // Act
+        val result = useCase("maria@email.com")
 
         // Assert
         assertEquals(AuthResult.Failed(AuthError.NotImplemented), result)
@@ -22,41 +66,51 @@ class AuthUseCaseTest {
     }
 
     @Test
-    fun registerReportsThatAccessIsNotImplemented() {
+    fun upcomingAppointmentsAreNotImplemented() {
         // Arrange
-        val useCase = RegisterAccount(NotImplementedAuthGateway())
-        val command = RegisterAccountCommand(
-            fullName = "Maria das Graças Silva",
-            socialName = "Graça",
-            email = "maria@email.com",
-            password = "segredo",
-            primaryPhone = "(81) 99999-9999",
-            primaryPhoneWhatsapp = true,
-            secondaryPhone = "",
-            secondaryPhoneWhatsapp = false,
-            emergencyContactName = "Ana Silva",
-            emergencyContactPhone = "(81) 98888-7777",
-            acceptedPrivacyPolicy = true,
-            acceptedTreatment = true,
-            wantsNotifications = false,
-        )
+        val useCase = ListUpcomingAppointments()
 
         // Act
-        val result = useCase(command)
+        val result = useCase()
 
         // Assert
-        assertEquals(AuthResult.Failed(AuthError.NotImplemented), result)
+        assertIs<UpcomingAppointmentsResult.NotImplemented>(result)
     }
 
-    @Test
-    fun passwordRecoveryReportsThatAccessIsNotImplemented() {
-        // Arrange
-        val useCase = RequestPasswordRecovery(NotImplementedAuthGateway())
+    private fun sampleRegistration() = RegisterAccountRequest(
+        fullName = "Maria das Graças Silva",
+        socialName = "Graça",
+        email = "maria@email.com",
+        password = "segredo",
+        primaryPhone = "(81) 99999-9999",
+        primaryPhoneWhatsapp = true,
+        secondaryPhone = "",
+        secondaryPhoneWhatsapp = false,
+        emergencyContactName = "Ana Silva",
+        emergencyContactPhone = "(81) 98888-7777",
+        acceptedPrivacyPolicy = true,
+        acceptedTreatment = true,
+        wantsNotifications = false,
+    )
+}
 
-        // Act
-        val result = useCase("maria@email.com")
+private class FakeAuthGateway(
+    private val signInResult: AuthResult = AuthResult.Failed(AuthError.NotImplemented),
+    private val registerResult: AuthResult = AuthResult.Failed(AuthError.NotImplemented),
+    private val recoveryResult: AuthResult = AuthResult.Failed(AuthError.NotImplemented),
+) : AuthGateway {
+    var signInRequest: SignInRequest? = null
+    var registerRequest: RegisterAccountRequest? = null
 
-        // Assert
-        assertEquals(AuthResult.Failed(AuthError.NotImplemented), result)
+    override suspend fun signIn(request: SignInRequest): AuthResult {
+        signInRequest = request
+        return signInResult
     }
+
+    override suspend fun register(request: RegisterAccountRequest): AuthResult {
+        registerRequest = request
+        return registerResult
+    }
+
+    override suspend fun requestPasswordRecovery(email: String): AuthResult = recoveryResult
 }

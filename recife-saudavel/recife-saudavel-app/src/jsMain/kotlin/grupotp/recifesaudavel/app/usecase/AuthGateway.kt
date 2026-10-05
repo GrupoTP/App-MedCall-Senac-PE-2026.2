@@ -1,13 +1,15 @@
 package grupotp.recifesaudavel.app.usecase
 
+import grupotp.recifesaudavel.common.RegisterAccountRequest
+import grupotp.recifesaudavel.common.SignInRequest
+
 /**
  * Boundary the authentication use cases call.
- * The interface stays free of HTTP so a later adapter can reach the server.
  */
 interface AuthGateway {
-    fun signIn(command: SignInCommand): AuthResult
+    suspend fun signIn(request: SignInRequest): AuthResult
 
-    fun register(command: RegisterAccountCommand): AuthResult
+    suspend fun register(request: RegisterAccountRequest): AuthResult
 
-    fun requestPasswordRecovery(email: String): AuthResult
+    suspend fun requestPasswordRecovery(email: String): AuthResult
 }

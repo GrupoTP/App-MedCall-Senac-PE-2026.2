@@ -24,9 +24,12 @@ kotlin {
             implementation(libs.kotlin.react)
             implementation(libs.kotlin.react.dom)
             implementation(libs.koin.core)
+            implementation(libs.kotlinx.serialization.json)
+            implementation(libs.kotlinx.coroutines.core)
         }
         jsTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }
