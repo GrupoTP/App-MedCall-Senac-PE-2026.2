@@ -11,5 +11,7 @@ sealed interface AuthResult {
 sealed interface AuthError {
     data object NotImplemented : AuthError
 
+    data object Offline : AuthError
+
     data class Rejected(val message: String) : AuthError
 }

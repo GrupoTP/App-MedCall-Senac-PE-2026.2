@@ -19,4 +19,5 @@ include(
     "recife-saudavel-common",
     "recife-saudavel-server",
     "recife-saudavel-app",
+    "recife-saudavel-worker",
 )

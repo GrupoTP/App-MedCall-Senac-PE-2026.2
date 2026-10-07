@@ -33,3 +33,25 @@ kotlin {
         }
     }
 }
+
+val syncServiceWorkerBundle = tasks.register<Copy>("syncServiceWorkerBundle") {
+    dependsOn(":recife-saudavel-worker:jsBrowserProductionWebpack")
+    from(project(":recife-saudavel-worker").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))
+    include("recife-saudavel-worker.js")
+    into(layout.buildDirectory.dir("processedResources/js/main"))
+    doLast {
+        copy {
+            from(project(":recife-saudavel-worker").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))
+            include("recife-saudavel-worker.js")
+            into(rootProject.layout.buildDirectory.dir("js/packages/recife-saudavel-recife-saudavel-app/kotlin"))
+        }
+    }
+}
+
+tasks.named("jsBrowserDevelopmentRun") {
+    dependsOn(syncServiceWorkerBundle)
+}
+
+syncServiceWorkerBundle.configure {
+    mustRunAfter("jsProcessResources")
+}

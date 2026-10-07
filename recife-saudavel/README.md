@@ -1,12 +1,13 @@
 # Recife Saudável
 
-Esqueleto Kotlin Multiplatform do app. As telas do protótipo, o manifesto e o service worker ficam para as tarefas seguintes.
+App Kotlin Multiplatform do Recife Saudável. O manifesto e o `sw.js` fazem parte da PWA. O `sw.js` só inicia o bundle Kotlin do worker, que guarda a interface em cache e o cadastro autenticado no banco local.
 
 ## Módulos
 
 - `recife-saudavel-common`: código compartilhado, com kotlinx-serialization. Alvos JVM e JavaScript.
 - `recife-saudavel-server`: backend Kotlin/JVM com Ktor, na porta 8080.
 - `recife-saudavel-app`: cliente Kotlin/JS com Kotlin React, na porta 8081.
+- `recife-saudavel-worker`: service worker em Kotlin/JS, carregado por `sw.js`.
 
 ## Pré-requisitos
 

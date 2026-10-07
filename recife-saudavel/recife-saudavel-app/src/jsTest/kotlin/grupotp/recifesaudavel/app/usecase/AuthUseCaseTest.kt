@@ -1,6 +1,7 @@
 package grupotp.recifesaudavel.app.usecase
 
 import grupotp.recifesaudavel.app.ui.NOT_IMPLEMENTED_MESSAGE
+import grupotp.recifesaudavel.app.ui.OFFLINE_MESSAGE
 import grupotp.recifesaudavel.app.ui.toMessage
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import grupotp.recifesaudavel.common.RegisterAccountRequest
@@ -63,6 +64,7 @@ class AuthUseCaseTest {
         // Assert
         assertEquals(AuthResult.Failed(AuthError.NotImplemented), result)
         assertEquals(NOT_IMPLEMENTED_MESSAGE, AuthError.NotImplemented.toMessage())
+        assertEquals(OFFLINE_MESSAGE, AuthError.Offline.toMessage())
     }
 
     @Test

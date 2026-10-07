@@ -1,6 +1,9 @@
 package grupotp.recifesaudavel.app
 
 import grupotp.recifesaudavel.app.di.appModule
+import grupotp.recifesaudavel.app.usecase.LoadSignedInAccount
+import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
+import grupotp.recifesaudavel.app.usecase.RememberSignedInAccount
 import org.koin.core.context.startKoin
 import org.koin.mp.KoinPlatform
 import react.create
@@ -21,6 +24,9 @@ fun main() {
             registerAccount = koin.get()
             requestPasswordRecovery = koin.get()
             listUpcomingAppointments = koin.get()
+            prepareOfflineShell = koin.get<PrepareOfflineShell>()
+            rememberSignedInAccount = koin.get<RememberSignedInAccount>()
+            loadSignedInAccount = koin.get<LoadSignedInAccount>()
         },
     )
 }

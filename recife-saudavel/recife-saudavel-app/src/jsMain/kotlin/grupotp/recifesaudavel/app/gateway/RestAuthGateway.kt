@@ -35,7 +35,14 @@ class RestAuthGateway(
         AuthResult.Failed(AuthError.NotImplemented)
 
     private suspend inline fun <reified T> post(path: String, body: T): AuthResult {
-        val (status, text) = postJson("$baseUrl$path", json.encodeToString(body))
+        val (status, text) = try {
+            postJson("$baseUrl$path", json.encodeToString(body))
+        } catch (_: IllegalStateException) {
+            return AuthResult.Failed(AuthError.Offline)
+        }
+        if (status == 0.toShort()) {
+            return AuthResult.Failed(AuthError.Offline)
+        }
         return if (status in 200..299) {
             AuthResult.Success(json.decodeFromString<AuthenticatedAccount>(text))
         } else {

@@ -1,0 +1,137 @@
+package grupotp.recifesaudavel.worker
+
+import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.worker.cache.ShellCache
+import grupotp.recifesaudavel.worker.routing.WorkerRequestRouter
+import grupotp.recifesaudavel.worker.routing.WorkerRoute
+import grupotp.recifesaudavel.worker.routing.pathOf
+import grupotp.recifesaudavel.worker.storage.LocalAccountDatabase
+import js.promise.Promise
+import js.promise.await
+import js.reflect.unsafeCast
+import js.void.Void
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.promise
+import kotlinx.serialization.json.Json
+import web.events.EventHandler
+import web.http.Request
+import web.http.Response
+import web.serviceworker.ExtendableEvent
+import web.serviceworker.FetchEvent
+import web.serviceworker.ServiceWorkerGlobalScope
+import web.serviceworker.ServiceWorkerModule
+
+private val json = Json { ignoreUnknownKeys = true }
+private val background = CoroutineScope(SupervisorJob())
+
+fun main() {
+    val router = WorkerRequestRouter()
+    val shell = ShellCache()
+    val accounts = LocalAccountDatabase()
+
+    ServiceWorkerModule { self ->
+        val onInstall: (ExtendableEvent) -> Unit = { event ->
+            event.waitUntil(
+                workerPromise {
+                    shell.install()
+                    self.skipWaitingAsync().await<Void>()
+                },
+            )
+        }
+        val onActivate: (ExtendableEvent) -> Unit = { event ->
+            event.waitUntil(
+                workerPromise {
+                    shell.deleteRetiredCaches()
+                    self.clients.claimAsync().await<Void>()
+                },
+            )
+        }
+        val onFetch: (FetchEvent) -> Unit = { event ->
+            when (router.route(event.request.url)) {
+                WorkerRoute.Server, WorkerRoute.Ignore -> Unit
+                else -> event.respondWith(
+                    responsePromise {
+                        respond(shell, accounts, router, event.request)
+                    },
+                )
+            }
+        }
+        self.oninstall = unsafeCast<EventHandler<ExtendableEvent, ServiceWorkerGlobalScope, ServiceWorkerGlobalScope>>(onInstall)
+        self.onactivate = unsafeCast<EventHandler<ExtendableEvent, ServiceWorkerGlobalScope, ServiceWorkerGlobalScope>>(onActivate)
+        self.onfetch = unsafeCast<EventHandler<FetchEvent, ServiceWorkerGlobalScope, ServiceWorkerGlobalScope>>(onFetch)
+    }
+}
+
+private suspend fun respond(
+    shell: ShellCache,
+    accounts: LocalAccountDatabase,
+    router: WorkerRequestRouter,
+    request: Request,
+): Response = when (router.route(request.url)) {
+    WorkerRoute.LocalAccount -> localAccount(accounts, request)
+    WorkerRoute.Shell -> shellAsset(shell, request)
+    WorkerRoute.Server, WorkerRoute.Ignore -> error("O navegador deveria atender este pedido.")
+}
+
+private suspend fun localAccount(accounts: LocalAccountDatabase, request: Request): Response = when (request.method.toString()) {
+    "GET" -> {
+        val account = accounts.load()
+        if (account == null) {
+            emptyResponse(204)
+        } else {
+            jsonResponse(200, json.encodeToString(account))
+        }
+    }
+    "PUT" -> {
+        val account = json.decodeFromString<AuthenticatedAccount>(request.textAsync().await())
+        accounts.save(account)
+        emptyResponse(204)
+    }
+    else -> jsonResponse(405, """{"message":"Método não permitido."}""")
+}
+
+private suspend fun shellAsset(shell: ShellCache, request: Request): Response {
+    val path = pathOf(request.url)
+    shell.matchPath(path)?.let { return it }
+    return try {
+        val fresh = fetch(request).await()
+        if (fresh.ok) {
+            shell.store(path, fresh.clone())
+        }
+        fresh
+    } catch (_: Throwable) {
+        shell.matchPath("/") ?: offlineDocument()
+    }
+}
+
+private fun jsonResponse(status: Int, body: String): Response = response(status, body, "application/json")
+
+private fun emptyResponse(status: Int): Response = response(status, "", "text/plain")
+
+private fun offlineDocument(): Response = response(
+    status = 503,
+    body = "Sem conexão. Abra o Recife Saudável uma vez com internet para guardar a interface neste aparelho.",
+    contentType = "text/plain; charset=utf-8",
+)
+
+private fun response(status: Int, body: String, contentType: String): Response =
+    createResponse(status, body, contentType)
+
+private val responseFactory: Any = js(
+    """
+    function (status, body, contentType) {
+      return new Response(body, { status: status, headers: { "Content-Type": contentType } });
+    }
+    """,
+)
+
+private val createResponse: (Int, String, String) -> Response = unsafeCast(responseFactory)
+
+private fun workerPromise(block: suspend () -> Unit): Promise<Void> =
+    unsafeCast(background.promise { block() })
+
+private fun responsePromise(block: suspend () -> Response): Promise<Response> =
+    unsafeCast(background.promise { block() })
+
+private external fun fetch(request: Request): Promise<Response>
