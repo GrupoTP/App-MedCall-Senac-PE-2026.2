@@ -1,0 +1,3 @@
+[submodule "recife-saudavel/ojaynico-kotlin-react-native"]
+	path = recife-saudavel/ojaynico-kotlin-react-native
+	url = git@github.com:Polyana-Fontes/ojaynico-kotlin-react-native.git

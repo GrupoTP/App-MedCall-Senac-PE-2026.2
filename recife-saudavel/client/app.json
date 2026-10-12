@@ -1,0 +1,33 @@
+{
+  "expo": {
+    "name": "Recife Saudável",
+    "slug": "recife-saudavel",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": true
+    },
+    "android": {
+      "package": "br.senac.recifesaudavel",
+      "usesCleartextTraffic": true,
+      "adaptiveIcon": {
+        "backgroundColor": "#E6F4FE",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      }
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/favicon.png",
+      "name": "Recife Saudável",
+      "shortName": "Recife Saudável",
+      "themeColor": "#0f6b4c",
+      "backgroundColor": "#f4f7f5",
+      "display": "standalone"
+    }
+  }
+}

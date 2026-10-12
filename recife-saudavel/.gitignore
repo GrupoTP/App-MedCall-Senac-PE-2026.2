@@ -1,0 +1,11 @@
+.gradle/
+.kotlin/
+build/
+kotlin-js-store/
+node_modules/
+.expo/
+dist/
+*.log
+.idea/
+*.iml
+local.properties
