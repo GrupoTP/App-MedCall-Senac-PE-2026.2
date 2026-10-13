@@ -55,13 +55,23 @@ O cliente abre em `http://localhost:8081`, a única origem que o CORS do servido
 ./gradlew :client:expo:serveWeb
 ```
 
+Celular na mesma rede Wi‑Fi, pelo Expo Go:
+
+```bash
+./gradlew :client:expo:startLan
+```
+
+A task mostra o QR code e a URL `exp://IP:8081`. O `expo start` só desenha o QR code quando a saída é um terminal, e sob o Gradle não é. Por isso o `scripts/start-lan.js` escolhe o IP da rede como o Expo CLI faz, mostra o QR code e sobe o Metro nesse IP. Deixe o `:server:run` rodando: no Expo Go o app chama o servidor no mesmo IP do Metro (`hostUri` do expo-constants), na porta 8080. Na primeira vez, o Firewall do Windows pede para liberar o Java na rede privada.
+
+A PWA não funciona aberta pelo IP da rede (`http://IP:8081`): o navegador só libera service worker em HTTPS ou em `localhost`.
+
 Android, com o aparelho conectado por USB e o servidor rodando (`adb reverse tcp:8080 tcp:8080` e `npx expo run:android --variant release`; o `adb` precisa estar no `PATH`):
 
 ```bash
 ./gradlew :client:expo:runAndroid
 ```
 
-O app chama `http://localhost:8080`, que o `adb reverse` leva ao computador. Por isso o `app.json` libera HTTP sem TLS (`usesCleartextTraffic`, via `expo-build-properties`). Isso é só para desenvolvimento; em produção a API deve usar HTTPS e essa opção sai.
+No build release o app chama `http://localhost:8080`, que o `adb reverse` leva ao computador. Por isso o `app.json` libera HTTP sem TLS (`usesCleartextTraffic`, via `expo-build-properties`). Isso é só para desenvolvimento; em produção a API deve usar HTTPS e essa opção sai.
 
 A pasta `android/` é gerada pelo `expo prebuild` e não vai para o git. Ajustes nativos ficam no config plugin `plugins/withKotlinAndroidBuild.js`, registrado no `app.json`. Ele faz a task de bundle do React Native acompanhar o bundle Kotlin, que fica fora da pasta do cliente: depois de rodar `buildClientBundle`, o próximo build Android já empacota o bundle novo.
 

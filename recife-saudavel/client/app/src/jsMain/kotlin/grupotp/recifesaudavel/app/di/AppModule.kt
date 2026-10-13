@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.app.di
 import grupotp.recifesaudavel.app.gateway.BrowserOfflineShell
 import grupotp.recifesaudavel.app.gateway.RestAuthGateway
 import grupotp.recifesaudavel.app.gateway.SqliteLocalAccounts
+import grupotp.recifesaudavel.app.platform.apiBaseUrl
 import grupotp.recifesaudavel.app.usecase.AppShellGateway
 import grupotp.recifesaudavel.app.usecase.AuthGateway
 import grupotp.recifesaudavel.app.usecase.ListUpcomingAppointments
@@ -26,7 +27,7 @@ private const val WEB = "web"
  * Android has none, so the local account lives in SQLite.
  */
 fun appModule(platform: String): Module = module {
-    single { RestAuthGateway() } bind AuthGateway::class
+    single { RestAuthGateway(apiBaseUrl(platform)) } bind AuthGateway::class
     if (platform == WEB) {
         single { BrowserOfflineShell() } binds arrayOf(AppShellGateway::class, LocalAccountGateway::class)
     } else {

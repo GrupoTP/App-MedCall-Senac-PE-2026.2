@@ -19,10 +19,8 @@ import kotlin.coroutines.resumeWithException
 
 private val postMethod: RequestMethod = unsafeCast("POST")
 
-private const val API_BASE_URL = "http://localhost:8080"
-
 class RestAuthGateway(
-    private val baseUrl: String = API_BASE_URL,
+    private val baseUrl: String,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : AuthGateway {
     override suspend fun signIn(request: SignInRequest): AuthResult =

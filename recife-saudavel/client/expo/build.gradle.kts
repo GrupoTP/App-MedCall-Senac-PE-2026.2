@@ -29,7 +29,16 @@ tasks.register<Exec>("startWeb") {
     expo("start", "--web")
 }
 
-val exportWeb = tasks.register<Exec>("exportWeb") {
+// Under Gradle stdout is not a terminal, so `expo start` would skip the QR code; the script prints it.
+tasks.register<Exec>("startLan") {
+    group = "recife saudavel"
+    description = "Starts Metro on the local network and prints the Expo Go QR code."
+    dependsOn(npmInstall, ":client:app:buildClientBundle")
+    standardInput = System.`in`
+    commandLine("node", "scripts/start-lan.js")
+}
+
+val exportWeb =tasks.register<Exec>("exportWeb") {
     description = "Exports the PWA to client/expo/dist (npx expo export --platform web)."
     expo("export", "--platform", "web")
 }
