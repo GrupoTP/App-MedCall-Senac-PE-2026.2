@@ -8,8 +8,7 @@ Na web, o `sw.js` inicia o bundle Kotlin do worker, que guarda a interface em ca
 
 - `common`: código compartilhado, com kotlinx-serialization. Alvos JVM e JavaScript.
 - `server`: backend Kotlin/JVM com Ktor, na porta 8080.
-- `client/app-core`: casos de uso do cliente, sem React. Os testes rodam em Node.
-- `client/app`: interface Kotlin/JS com React Native (wrappers do `grupotp-kotlin-react-native`) e gateways de cada plataforma.
+- `client/app`: interface Kotlin/JS com React Native (wrappers do `grupotp-kotlin-react-native`), casos de uso e gateways de cada plataforma. Os testes unitários rodam em Node; o `test-support/native-module-stubs.js` troca os módulos do React Native e do Expo por stubs, porque eles só existem no `client/expo`.
 - `client/worker`: service worker em Kotlin/JS, carregado por `sw.js`.
 - `client/expo`: shell Expo (Metro) que empacota o bundle Kotlin para a web e para o Android.
 - `grupotp-kotlin-react-native`: submódulo com o fork da biblioteca de wrappers, branch `modern`, incluído via `includeBuild`.
@@ -34,7 +33,7 @@ Na pasta `recife-saudavel`:
 ```bash
 ./gradlew :common:allTests
 ./gradlew :server:test
-./gradlew :client:app-core:jsNodeTest
+./gradlew :client:app:jsNodeTest
 ./gradlew :client:worker:jsNodeTest
 ./gradlew :server:run
 ```

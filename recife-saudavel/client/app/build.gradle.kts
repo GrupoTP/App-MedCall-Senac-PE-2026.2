@@ -10,6 +10,14 @@ kotlin {
             commonWebpackConfig {
                 outputFileName = "app.js"
             }
+            // Karma can't run the CommonJS bundle ("module is not defined"). Tests run on Node instead.
+            testTask { enabled = false }
+        }
+        // Node only runs the unit tests. React Native and Expo modules are stubbed, see test-support/.
+        nodejs {
+            testTask {
+                nodeJsArgs += listOf("--require", file("test-support/native-module-stubs.js").absolutePath)
+            }
         }
         binaries.executable()
         useCommonJs()
@@ -17,7 +25,7 @@ kotlin {
 
     sourceSets {
         jsMain.dependencies {
-            implementation(projects.client.appCore)
+            implementation(projects.common)
             implementation(kotlinWrappers.js)
             implementation(kotlinWrappers.browser)
             implementation(kotlinWrappers.react)
@@ -25,6 +33,10 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
+        }
+        jsTest.dependencies {
+            implementation(libs.kotlin.test)
+            implementation(libs.kotlinx.coroutines.test)
         }
     }
 }

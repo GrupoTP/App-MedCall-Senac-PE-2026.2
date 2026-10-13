@@ -22,4 +22,4 @@ includeBuild("grupotp-kotlin-react-native")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include(":common", ":server", ":client:app-core", ":client:app", ":client:worker")
+include(":common", ":server", ":client:app", ":client:worker")
