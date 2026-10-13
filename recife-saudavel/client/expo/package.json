@@ -1,5 +1,5 @@
 {
-  "name": "recife-saudavel-client",
+  "name": "expo",
   "version": "1.0.0",
   "main": "index.js",
   "dependencies": {
@@ -20,7 +20,7 @@
     "react-native-web": "^0.21.2"
   },
   "scripts": {
-    "build:kotlin": "cd .. && gradlew :recife-saudavel-app:buildClientBundle",
+    "build:kotlin": "cd .. && gradlew :client:app:buildClientBundle",
     "start": "expo start",
     "android": "expo run:android",
     "web": "expo start --web",

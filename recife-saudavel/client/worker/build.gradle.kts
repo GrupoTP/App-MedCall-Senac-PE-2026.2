@@ -7,7 +7,7 @@ kotlin {
     js {
         browser {
             commonWebpackConfig {
-                outputFileName = "recife-saudavel-worker.js"
+                outputFileName = "worker.js"
             }
         }
         nodejs()
@@ -16,7 +16,7 @@ kotlin {
 
     sourceSets {
         jsMain.dependencies {
-            implementation(projects.recifeSaudavelCommon)
+            implementation(projects.common)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
             implementation(kotlinWrappers.js)

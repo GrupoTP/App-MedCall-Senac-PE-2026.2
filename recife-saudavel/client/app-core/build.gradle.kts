@@ -12,7 +12,7 @@ kotlin {
 
     sourceSets {
         jsMain.dependencies {
-            api(projects.recifeSaudavelCommon)
+            api(projects.common)
             implementation(libs.kotlinx.coroutines.core)
         }
         jsTest.dependencies {

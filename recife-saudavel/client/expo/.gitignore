@@ -40,5 +40,5 @@ yarn-error.*
 /ios
 /android
 
-# Kotlin service worker bundle, copied by :recife-saudavel-app:buildClientBundle
-/public/recife-saudavel-worker.js
+# Kotlin service worker bundle, copied by :client:app:buildClientBundle
+/public/worker.js

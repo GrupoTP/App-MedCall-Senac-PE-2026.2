@@ -16,7 +16,7 @@ const { withAppBuildGradle, withDangerousMod, CodeGenerator } = require("expo/co
 const MIN_CMAKE = [4, 1, 2];
 
 const KOTLIN_BUNDLE_GRADLE = `// The Kotlin UI bundle lives outside the React Native root; track it so release bundles rebuild.
-def kotlinUiBundleDir = new File(projectRoot, "../recife-saudavel-app/build/kotlin-webpack/js/productionExecutable")
+def kotlinUiBundleDir = new File(projectRoot, "../app/build/kotlin-webpack/js/productionExecutable")
 tasks.withType(com.facebook.react.tasks.BundleHermesCTask).configureEach {
     inputs.files(fileTree(kotlinUiBundleDir) { include "*.js" })
         .withPropertyName("kotlinUiBundle")

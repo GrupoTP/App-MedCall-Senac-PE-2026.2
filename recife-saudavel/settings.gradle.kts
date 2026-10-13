@@ -22,10 +22,4 @@ includeBuild("grupotp-kotlin-react-native")
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include(
-    "recife-saudavel-common",
-    "recife-saudavel-server",
-    "recife-saudavel-app-core",
-    "recife-saudavel-app",
-    "recife-saudavel-worker",
-)
+include(":common", ":server", ":client:app-core", ":client:app", ":client:worker")

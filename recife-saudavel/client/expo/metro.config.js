@@ -4,7 +4,7 @@ const path = require("path");
 const projectRoot = __dirname;
 const uiBundle = path.resolve(
   projectRoot,
-  "../recife-saudavel-app/build/kotlin-webpack/js/productionExecutable",
+  "../app/build/kotlin-webpack/js/productionExecutable",
 );
 
 const config = getDefaultConfig(projectRoot);

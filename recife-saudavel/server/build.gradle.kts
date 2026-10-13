@@ -13,7 +13,7 @@ application {
 }
 
 dependencies {
-    implementation(projects.recifeSaudavelCommon)
+    implementation(projects.common)
     implementation(libs.ktor.server.core)
     implementation(libs.ktor.server.netty)
     implementation(libs.ktor.server.content.negotiation)

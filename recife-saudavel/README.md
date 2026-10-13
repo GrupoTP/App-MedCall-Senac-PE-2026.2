@@ -1,17 +1,17 @@
 # Recife Saudável
 
-App Kotlin Multiplatform do Recife Saudável. A interface é escrita só em Kotlin, com React Native, e o mesmo código roda como PWA no navegador e como app Android. O shell Expo em `recife-saudavel-client` só registra o componente Kotlin; no navegador o Metro troca `react-native` por `react-native-web`.
+App Kotlin Multiplatform do Recife Saudável. A interface é escrita só em Kotlin, com React Native, e o mesmo código roda como PWA no navegador e como app Android. O shell Expo em `client/expo` só registra o componente Kotlin; no navegador o Metro troca `react-native` por `react-native-web`.
 
 Na web, o `sw.js` inicia o bundle Kotlin do worker, que guarda a interface em cache e o cadastro autenticado no IndexedDB. No Android não existe service worker: o cadastro autenticado fica em SQLite (expo-sqlite), pelo mesmo gateway Kotlin.
 
 ## Módulos
 
-- `recife-saudavel-common`: código compartilhado, com kotlinx-serialization. Alvos JVM e JavaScript.
-- `recife-saudavel-server`: backend Kotlin/JVM com Ktor, na porta 8080.
-- `recife-saudavel-app-core`: casos de uso do cliente, sem React. Os testes rodam em Node.
-- `recife-saudavel-app`: interface Kotlin/JS com React Native (wrappers do `grupotp-kotlin-react-native`) e gateways de cada plataforma.
-- `recife-saudavel-worker`: service worker em Kotlin/JS, carregado por `sw.js`.
-- `recife-saudavel-client`: shell Expo (Metro) que empacota o bundle Kotlin para a web e para o Android.
+- `common`: código compartilhado, com kotlinx-serialization. Alvos JVM e JavaScript.
+- `server`: backend Kotlin/JVM com Ktor, na porta 8080.
+- `client/app-core`: casos de uso do cliente, sem React. Os testes rodam em Node.
+- `client/app`: interface Kotlin/JS com React Native (wrappers do `grupotp-kotlin-react-native`) e gateways de cada plataforma.
+- `client/worker`: service worker em Kotlin/JS, carregado por `sw.js`.
+- `client/expo`: shell Expo (Metro) que empacota o bundle Kotlin para a web e para o Android.
 - `grupotp-kotlin-react-native`: submódulo com o fork da biblioteca de wrappers, branch `modern`, incluído via `includeBuild`.
 
 ## Pré-requisitos
@@ -24,7 +24,7 @@ Depois de clonar:
 
 ```bash
 git submodule update --init
-cd recife-saudavel-client && npm install
+cd client/expo && npm install
 ```
 
 ## Comandos
@@ -32,11 +32,11 @@ cd recife-saudavel-client && npm install
 Na pasta `recife-saudavel`:
 
 ```bash
-./gradlew :recife-saudavel-common:allTests
-./gradlew :recife-saudavel-server:test
-./gradlew :recife-saudavel-app-core:jsNodeTest
-./gradlew :recife-saudavel-worker:jsNodeTest
-./gradlew :recife-saudavel-server:run
+./gradlew :common:allTests
+./gradlew :server:test
+./gradlew :client:app-core:jsNodeTest
+./gradlew :client:worker:jsNodeTest
+./gradlew :server:run
 ```
 
 O servidor responde em `http://localhost:8080/healthz` e `http://localhost:8080/readyz`.
@@ -48,10 +48,10 @@ O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de ex
 O Metro lê o bundle Kotlin já compilado. Gere o bundle da interface e o do service worker antes de abrir o cliente, e de novo depois de mudar código Kotlin:
 
 ```bash
-./gradlew :recife-saudavel-app:buildClientBundle
+./gradlew :client:app:buildClientBundle
 ```
 
-PWA, na pasta `recife-saudavel-client`:
+PWA, na pasta `client/expo`:
 
 ```bash
 npx expo start --web

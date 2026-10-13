@@ -2,11 +2,11 @@
 # can be built without Dropbox syncing gigabytes of generated files or locking them mid-build.
 # Missing folders are created first, because the flag only sticks to an existing folder.
 # Run again after `gradlew clean`, which deletes the build/ folders. `expo prebuild` recreates android/,
-# and the config plugin in recife-saudavel-client/plugins flags it again.
+# and the config plugin in client/expo/plugins flags it again.
 $ErrorActionPreference = "Stop"
 
 $repo = Split-Path -Parent $PSScriptRoot
-$client = Join-Path $repo "recife-saudavel-client"
+$client = Join-Path $repo "client/expo"
 $targets = [System.Collections.Generic.List[string]]::new()
 
 # Every Gradle project, including the native modules inside node_modules: its build/ and, for native
