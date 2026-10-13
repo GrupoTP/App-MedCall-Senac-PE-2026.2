@@ -17,9 +17,13 @@ import web.events.EventHandler
 import web.http.Request
 import web.http.Response
 import web.serviceworker.ExtendableEvent
+import web.serviceworker.ExtendableMessageEvent
 import web.serviceworker.FetchEvent
 import web.serviceworker.ServiceWorkerGlobalScope
 import web.serviceworker.ServiceWorkerModule
+
+/** Sent by client/app BrowserOfflineShell; keep both in sync. */
+private const val CLAIM_MESSAGE = "recife-saudavel:claim"
 
 private val json = Json { ignoreUnknownKeys = true }
 private val background = CoroutineScope(SupervisorJob())
@@ -46,6 +50,13 @@ fun main() {
                 },
             )
         }
+        // A hard reload (Shift+F5) opens the page without a controller, and an active worker only
+        // claims pages when it activates. The page asks for it again with this message.
+        val onMessage: (ExtendableMessageEvent) -> Unit = { event ->
+            if (event.data?.toString() == CLAIM_MESSAGE) {
+                event.waitUntil(self.clients.claimAsync())
+            }
+        }
         val onFetch: (FetchEvent) -> Unit = { event ->
             when (router.route(event.request.url)) {
                 WorkerRoute.Server, WorkerRoute.Ignore -> Unit
@@ -59,6 +70,7 @@ fun main() {
         self.oninstall = unsafeCast<EventHandler<ExtendableEvent, ServiceWorkerGlobalScope, ServiceWorkerGlobalScope>>(onInstall)
         self.onactivate = unsafeCast<EventHandler<ExtendableEvent, ServiceWorkerGlobalScope, ServiceWorkerGlobalScope>>(onActivate)
         self.onfetch = unsafeCast<EventHandler<FetchEvent, ServiceWorkerGlobalScope, ServiceWorkerGlobalScope>>(onFetch)
+        self.onmessage = unsafeCast<EventHandler<ExtendableMessageEvent, ServiceWorkerGlobalScope, ServiceWorkerGlobalScope>>(onMessage)
     }
 }
 

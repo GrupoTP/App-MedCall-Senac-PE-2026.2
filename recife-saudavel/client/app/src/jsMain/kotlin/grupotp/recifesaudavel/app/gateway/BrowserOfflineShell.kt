@@ -8,6 +8,7 @@ import js.reflect.unsafeCast
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.serialization.json.Json
 import web.events.EventHandler
 import web.events.ProgressEvent
@@ -17,9 +18,14 @@ import web.serviceworker.ServiceWorkerContainer
 import web.xhr.XMLHttpRequest
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
+import kotlin.time.Duration.Companion.seconds
 
 private const val LOCAL_ACCOUNT_URL = "/local/account"
 private const val SERVICE_WORKER_URL = "/sw.js"
+
+/** Handled by client/worker Main.kt; keep both in sync. */
+private const val CLAIM_MESSAGE = "recife-saudavel:claim"
+private val CONTROLLER_TIMEOUT = 10.seconds
 
 private val getMethod: RequestMethod = unsafeCast("GET")
 private val putMethod: RequestMethod = unsafeCast("PUT")
@@ -75,20 +81,26 @@ class BrowserOfflineShell(
         }
     }
 
+    /**
+     * On the first visit the worker claims the page when it activates. After a hard reload
+     * (Shift+F5) the page opens without a controller while the worker is already active, so it
+     * would never claim it on its own: we ask for it.
+     */
     private suspend fun registerAndClaim() {
         val container = navigator.serviceWorker
         container.registerAsync(SERVICE_WORKER_URL).await()
         if (container.controller != null) {
             return
         }
-        suspendCancellableCoroutine { continuation ->
-            val onChange: () -> Unit = {
-                if (continuation.isActive) {
-                    continuation.resume(Unit)
-                }
-            }
-            container.oncontrollerchange = unsafeCast<EventHandler<web.events.Event, ServiceWorkerContainer, ServiceWorkerContainer>>(onChange)
+        val controlled = CompletableDeferred<Unit>()
+        val onChange: () -> Unit = { controlled.complete(Unit) }
+        container.oncontrollerchange = unsafeCast<EventHandler<web.events.Event, ServiceWorkerContainer, ServiceWorkerContainer>>(onChange)
+        if (container.controller != null) {
+            return
         }
+        container.ready.await().active?.postMessage(CLAIM_MESSAGE)
+        withTimeoutOrNull(CONTROLLER_TIMEOUT) { controlled.await() }
+            ?: throw IllegalStateException("O service worker não assumiu a página.")
     }
 
     private suspend fun request(method: RequestMethod, body: String?): Pair<Short, String> =
