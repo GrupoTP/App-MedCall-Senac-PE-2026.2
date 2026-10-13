@@ -11,8 +11,11 @@ config.externals = [
   },
 ];
 
+// The Kotlin plugin names the library after the output file ("app"), which would nest the exports
+// under module.exports.app. client/expo/index.js reads them straight from module.exports.
 config.output = config.output || {};
-config.output.libraryTarget = "commonjs2";
+delete config.output.libraryTarget;
+config.output.library = { type: "commonjs2" };
 
 // Hermes cannot parse eval-based source maps, and Terser has broken Kotlin/JS output before.
 config.devtool = false;
