@@ -37,3 +37,5 @@ includeBuild(reactNativeWrappers)
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
 include(":common", ":server", ":client:app", ":client:worker", ":client:expo")
+
+apply(from = "gradle/dropbox-ignore.settings.gradle.kts")

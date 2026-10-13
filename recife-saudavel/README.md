@@ -92,8 +92,7 @@ O código C++ gerado pelo React Native para `react-native-svg` e `react-native-s
    ```
 
 2. Instale o CMake 4.1.2 ou mais novo pelo SDK Manager do Android Studio (SDK Tools, Show Package Details). Ele traz o ninja 1.12, que aceita caminhos longos. No Windows, o `expo prebuild` grava em `android/local.properties` o `cmake.dir` do CMake mais novo (4.1.2 ou acima) que encontrar em `ANDROID_HOME/cmake`. Se o arquivo já tiver um `cmake.dir`, ele é mantido.
-3. Se o clone estiver numa pasta do Dropbox, marque as saídas de build (`build/`, `.gradle/`, `.kotlin/`, `android/`, `.cxx/`) para o Dropbox ignorar. Assim ele não sincroniza gigabytes de arquivos gerados nem trava arquivos no meio do build. O script cria as pastas que faltam e grava o atributo `com.dropbox.ignored`. O `expo prebuild` recria `android/` e o config plugin marca a pasta de novo; já o `gradlew clean` apaga as pastas `build/`, então rode o script de novo depois dele:
 
-   ```powershell
-   powershell -ExecutionPolicy Bypass -File scripts\dropbox-ignore.ps1
-   ```
+### Dropbox
+
+Se o clone estiver dentro de uma pasta do Dropbox, o Gradle marca as pastas geradas para o Dropbox ignorar, a cada execução e antes de qualquer task: `build/`, `.gradle/` e `.kotlin/` de cada build, `client/expo/node_modules`, `.expo`, `dist` e `android/`, e `server/data` (o banco H2 de desenvolvimento). Assim o código não commitado continua sincronizado entre computadores, mas cada um gera e instala as próprias saídas, e o Dropbox não sincroniza gigabytes de arquivos gerados, não trava arquivos no meio de um build nem copia o banco enquanto o servidor escreve. As pastas que somem com `clean`, `npm ci` ou `expo export` são marcadas de novo ao fim dessas tasks. A marcação é o atributo `com.dropbox.ignored` (stream NTFS no Windows, atributo estendido no Linux e no macOS), feita em `gradle/dropbox-ignore.settings.gradle.kts`.
