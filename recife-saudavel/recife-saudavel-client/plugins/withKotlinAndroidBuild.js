@@ -6,6 +6,8 @@
 // 2. On Windows the native code of react-native-svg and react-native-safe-area-context needs
 //    CMake 4.1.2+ (ninja 1.12 accepts paths over 260 characters). We point `cmake.dir` in
 //    android/local.properties at the newest CMake found in the Android SDK.
+// 3. When the project sits in a Dropbox folder on Windows, prebuild recreates android/ without the
+//    com.dropbox.ignored flag set by scripts/dropbox-ignore.ps1, so we set it again.
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
@@ -100,4 +102,33 @@ const withWindowsCmake = (config) =>
     },
   ]);
 
-module.exports = (config) => withWindowsCmake(withKotlinBundleInput(config));
+function dropboxRoots() {
+  const localAppData = process.env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local");
+  try {
+    const info = JSON.parse(fs.readFileSync(path.join(localAppData, "Dropbox", "info.json"), "utf8"));
+    return Object.values(info).map((account) => account.path).filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+const isInside = (dir, root) => {
+  const relative = path.relative(root, dir);
+  return relative !== "" && !relative.startsWith("..") && !path.isAbsolute(relative);
+};
+
+const withDropboxIgnoredAndroid = (config) =>
+  withDangerousMod(config, [
+    "android",
+    (config) => {
+      if (process.platform !== "win32") return config;
+      const androidDir = config.modRequest.platformProjectRoot;
+      if (dropboxRoots().some((root) => isInside(androidDir, root))) {
+        // NTFS alternate data stream read by the Dropbox client.
+        fs.writeFileSync(`${androidDir}:com.dropbox.ignored`, "1");
+      }
+      return config;
+    },
+  ]);
+
+module.exports = (config) => withDropboxIgnoredAndroid(withWindowsCmake(withKotlinBundleInput(config)));
