@@ -1,0 +1,30 @@
+{
+  "name": "recife-saudavel-client",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "@expo-google-fonts/nunito": "^0.4.2",
+    "@expo-google-fonts/poppins": "^0.4.1",
+    "@expo/log-box": "^57.0.4",
+    "expo": "~57.0.27",
+    "expo-build-properties": "~57.0.22",
+    "expo-crypto": "~57.0.4",
+    "expo-font": "~57.0.4",
+    "expo-sqlite": "~57.0.4",
+    "expo-status-bar": "~57.0.1",
+    "react": "19.2.3",
+    "react-dom": "19.2.3",
+    "react-native": "0.86.3",
+    "react-native-safe-area-context": "~5.7.0",
+    "react-native-svg": "15.15.4",
+    "react-native-web": "^0.21.2"
+  },
+  "scripts": {
+    "build:kotlin": "cd .. && gradlew :recife-saudavel-app:buildClientBundle",
+    "start": "expo start",
+    "android": "expo run:android",
+    "web": "expo start --web",
+    "export:web": "expo export --platform web"
+  },
+  "private": true
+}

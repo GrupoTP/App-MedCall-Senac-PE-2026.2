@@ -1,0 +1,393 @@
+package grupotp.recifesaudavel.app.ui
+
+import ojaynico.kotlin.react.TextStyle
+import ojaynico.kotlin.react.ViewStyle
+
+/**
+ * React Native port of the prototype stylesheet. Sizes are the CSS rem values times 16.
+ * React Native has no relative line height, so each text style states it in pixels.
+ */
+internal object Styles {
+    // Shared
+
+    val fill = ViewStyle(
+        position = "absolute",
+        top = 0,
+        right = 0,
+        bottom = 0,
+        left = 0,
+    )
+    val pressed = ViewStyle(transform = arrayOf(scale(0.98)))
+    val screen = ViewStyle(flex = 1, backgroundColor = Palette.CANVAS)
+    val scroll = ViewStyle(flex = 1)
+    val scrollContent = ViewStyle(
+        width = "100%",
+        maxWidth = CONTENT_MAX_WIDTH,
+        alignSelf = "center",
+        gap = 16,
+        paddingTop = 16,
+        paddingHorizontal = 16,
+        paddingBottom = 32,
+    )
+    val card = ViewStyle(
+        gap = 16,
+        padding = 20,
+        borderWidth = 1,
+        borderColor = Palette.LINE,
+        borderRadius = 16,
+        backgroundColor = Palette.WHITE,
+    )
+    val cardCompact = ViewStyle(
+        padding = 16,
+        borderWidth = 1,
+        borderColor = Palette.LINE,
+        borderRadius = 16,
+        backgroundColor = Palette.WHITE,
+    )
+
+    // Welcome
+
+    val welcome = ViewStyle(flex = 1, backgroundColor = Palette.BLUE_DARK)
+    val welcomeScrollContent = ViewStyle(flexGrow = 1)
+    val welcomeBody = ViewStyle(
+        flex = 1,
+        alignItems = "center",
+        justifyContent = "center",
+        paddingTop = 48,
+    )
+    val welcomeInner = ViewStyle(
+        width = "100%",
+        maxWidth = WELCOME_MAX_WIDTH,
+        paddingHorizontal = 32,
+        paddingBottom = 24,
+    )
+    val logoBadge = ViewStyle(
+        width = 96,
+        height = 96,
+        alignSelf = "center",
+        alignItems = "center",
+        justifyContent = "center",
+        marginBottom = 24,
+        borderRadius = 24,
+        borderWidth = 1,
+        borderColor = "rgba(255, 255, 255, 0.25)",
+        backgroundColor = "rgba(255, 255, 255, 0.15)",
+        boxShadow = "0px 20px 25px -5px rgba(0, 0, 0, 0.2)",
+    )
+    val welcomeTitle = text(
+        size = 36,
+        lineHeight = 41.4,
+        color = Palette.WHITE,
+        family = FontFamily.DISPLAY,
+        align = "center",
+        marginBottom = 8,
+    )
+    val welcomeTagline = text(size = 16, lineHeight = 24, color = Palette.SOFT, align = "center", marginBottom = 4)
+    val welcomeSubtitle = text(size = 14, lineHeight = 21, color = Palette.SOFTER, align = "center", marginBottom = 32)
+    val featureList = ViewStyle(gap = 24, marginBottom = 32)
+    val feature = ViewStyle(
+        flexDirection = "row",
+        alignItems = "flex-start",
+        gap = 16,
+        paddingHorizontal = 4,
+    )
+    val featureIcon = ViewStyle(marginTop = 2)
+    val featureCopy = ViewStyle(flex = 1)
+    val featureTitle = text(size = 16, lineHeight = 21.6, color = Palette.WHITE, family = FontFamily.DISPLAY)
+    val featureSubtitle = text(size = 14, lineHeight = 18.9, color = Palette.SOFT, marginTop = 2)
+    val welcomeActions = ViewStyle(
+        width = "100%",
+        maxWidth = WELCOME_MAX_WIDTH,
+        alignSelf = "center",
+        gap = 12,
+        paddingHorizontal = 24,
+        paddingBottom = 16,
+    )
+    val welcomePrimaryButton = ViewStyle(
+        alignItems = "center",
+        padding = 16,
+        borderRadius = 16,
+        backgroundColor = Palette.WHITE,
+        boxShadow = "0px 10px 15px -3px rgba(0, 0, 0, 0.18)",
+    )
+    val welcomePrimaryButtonText = text(size = 15, lineHeight = 22.5, color = Palette.BLUE)
+    val welcomeSecondaryButton = ViewStyle(
+        alignItems = "center",
+        padding = 16,
+        borderRadius = 16,
+        borderWidth = 1,
+        borderColor = "rgba(255, 255, 255, 0.2)",
+        backgroundColor = "rgba(255, 255, 255, 0.1)",
+    )
+    val welcomeSecondaryButtonText = text(size = 15, lineHeight = 22.5, color = Palette.WHITE)
+    val welcomeNote = text(size = 12, lineHeight = 18, color = Palette.SOFTER, align = "center", paddingVertical = 4)
+    val welcomeFooter = text(size = 10, lineHeight = 15, color = Palette.FOOTER, align = "center", paddingBottom = 8)
+
+    // Inner screen chrome
+
+    val screenHeader = ViewStyle(
+        borderBottomWidth = 1,
+        borderBottomColor = Palette.LINE,
+        backgroundColor = Palette.WHITE,
+    )
+    val screenHeaderInner = ViewStyle(
+        width = "100%",
+        maxWidth = CONTENT_MAX_WIDTH,
+        alignSelf = "center",
+        flexDirection = "row",
+        alignItems = "center",
+        gap = 12,
+        paddingHorizontal = 16,
+        paddingVertical = 14,
+    )
+    val backButton = ViewStyle(
+        width = 36,
+        height = 36,
+        alignItems = "center",
+        justifyContent = "center",
+        borderRadius = 12,
+        backgroundColor = Palette.CANVAS,
+    )
+    val screenTitle = text(size = 16, lineHeight = 24, family = FontFamily.DISPLAY, flex = 1)
+    val appFooter = ViewStyle(
+        borderTopWidth = 1,
+        borderTopColor = Palette.LINE,
+        backgroundColor = Palette.WHITE,
+        paddingHorizontal = 16,
+        paddingTop = 12,
+    )
+    val appFooterText = text(size = 10, lineHeight = 15, color = Palette.FOOTER_ON_WHITE, align = "center")
+
+    // Forms
+
+    val sectionTitle = ViewStyle(
+        flexDirection = "row",
+        alignItems = "center",
+        gap = 12,
+        marginVertical = 4,
+    )
+    val sectionRule = ViewStyle(flex = 1, height = 1, backgroundColor = Palette.LINE)
+    val sectionTitleText = text(
+        size = 11,
+        lineHeight = 16.5,
+        color = Palette.MUTED,
+        family = FontFamily.DISPLAY,
+        letterSpacing = 1.1,
+        uppercase = true,
+    )
+    val field = ViewStyle(gap = 4)
+    val fieldLabel = text(size = 14, lineHeight = 20)
+    val required = text(size = 14, lineHeight = 20, color = Palette.REQUIRED)
+    val fieldHint = text(size = 12, lineHeight = 16, color = Palette.MUTED)
+    val fieldInput = TextStyle(
+        fontFamily = FontFamily.BODY,
+        fontSize = 15,
+        lineHeight = 22.5,
+        color = Palette.INK,
+        width = "100%",
+        borderWidth = 2,
+        borderColor = Palette.LINE,
+        borderRadius = 12,
+        backgroundColor = Palette.WHITE,
+        paddingVertical = 12,
+        paddingHorizontal = 16,
+    )
+    val fieldInputFocused = ViewStyle(
+        borderColor = Palette.BLUE,
+        boxShadow = "0px 0px 0px 2px rgba(45, 125, 210, 0.2)",
+    )
+    val fieldInputWithIcon = ViewStyle(paddingRight = 48)
+    val passwordField = ViewStyle(justifyContent = "center")
+    val passwordToggle = ViewStyle(
+        position = "absolute",
+        right = 12,
+        padding = 4,
+    )
+    val checkLine = ViewStyle(
+        flexDirection = "row",
+        alignItems = "center",
+        gap = 8,
+        marginTop = 4,
+    )
+    val checkCopy = text(size = 14, lineHeight = 21, color = Palette.MUTED)
+    val whatsapp = text(size = 14, lineHeight = 21, color = Palette.WHATSAPP)
+    val checkbox = ViewStyle(
+        width = 16,
+        height = 16,
+        alignItems = "center",
+        justifyContent = "center",
+        borderWidth = 1.5,
+        borderColor = Palette.MUTED,
+        borderRadius = 3,
+        backgroundColor = Palette.WHITE,
+    )
+    val checkboxChecked = ViewStyle(borderColor = Palette.BLUE, backgroundColor = Palette.BLUE)
+    val consentList = ViewStyle(gap = 16)
+    val consent = ViewStyle(
+        flexDirection = "row",
+        alignItems = "flex-start",
+        gap = 8,
+        padding = 12,
+        borderWidth = 2,
+        borderColor = Palette.LINE,
+        borderRadius = 12,
+        backgroundColor = Palette.WHITE,
+    )
+    val consentSelected = ViewStyle(borderColor = Palette.BLUE, backgroundColor = Palette.CANVAS)
+    val consentCheckbox = ViewStyle(marginTop = 3)
+    val consentCopy = text(size = 14, lineHeight = 21, flex = 1)
+    val alert = ViewStyle(
+        flexDirection = "row",
+        alignItems = "flex-start",
+        gap = 8,
+        paddingVertical = 10,
+        paddingHorizontal = 12,
+        borderWidth = 1,
+        borderColor = Palette.ERROR_BORDER,
+        borderRadius = 12,
+        backgroundColor = Palette.ERROR_BACKGROUND,
+    )
+    val alertIcon = ViewStyle(marginTop = 2)
+    val alertText = text(size = 14, lineHeight = 21, color = Palette.ERROR_TEXT, flex = 1)
+    val formActions = ViewStyle(gap = 12)
+    val primaryButton = ViewStyle(
+        alignItems = "center",
+        paddingVertical = 14,
+        paddingHorizontal = 24,
+        borderRadius = 12,
+        backgroundColor = Palette.BLUE,
+        boxShadow = "0px 1px 2px rgba(0, 0, 0, 0.08)",
+    )
+    val primaryButtonText = text(size = 15, lineHeight = 22.5, color = Palette.WHITE)
+    val textLink = ViewStyle(alignSelf = "flex-start")
+    val textLinkCenter = ViewStyle(alignItems = "center", paddingVertical = 8)
+    val textLinkText = text(size = 14, lineHeight = 21, color = Palette.BLUE)
+    val textLinkTextCenter = text(size = 14, lineHeight = 21, color = Palette.BLUE, align = "center")
+    val requiredNote = text(size = 12, lineHeight = 16, color = Palette.MUTED)
+
+    // Home
+
+    val homeHeader = ViewStyle(paddingTop = 16, paddingBottom = 24, backgroundColor = Palette.BLUE_HOVER)
+    val homeHeaderInner = ViewStyle(
+        width = "100%",
+        maxWidth = CONTENT_MAX_WIDTH,
+        alignSelf = "center",
+        paddingHorizontal = 16,
+    )
+    val homeHeaderTools = ViewStyle(flexDirection = "row", justifyContent = "flex-end", marginBottom = 16)
+    val homeIconButton = ViewStyle(
+        width = 36,
+        height = 36,
+        alignItems = "center",
+        justifyContent = "center",
+        borderRadius = 12,
+        backgroundColor = "rgba(255, 255, 255, 0.15)",
+    )
+    val homeGreeting = text(size = 14, lineHeight = 21, color = Palette.GREETING)
+    val homeName = text(size = 22, lineHeight = 27.5, color = Palette.WHITE, family = FontFamily.DISPLAY, marginTop = 2)
+    val homeEmail = text(size = 12, lineHeight = 18, color = Palette.SOFTER, marginTop = 4)
+    val disclaimer = ViewStyle(
+        flexDirection = "row",
+        alignItems = "flex-start",
+        gap = 8,
+        paddingVertical = 10,
+        paddingHorizontal = 12,
+        borderWidth = 1,
+        borderColor = Palette.WARNING_BORDER,
+        borderRadius = 12,
+        backgroundColor = Palette.WARNING_BACKGROUND,
+    )
+    val disclaimerText = text(size = 12, lineHeight = 18, color = Palette.WARNING_TEXT, flex = 1)
+    val eyebrow = text(
+        size = 11,
+        lineHeight = 16.5,
+        color = Palette.MUTED,
+        family = FontFamily.DISPLAY,
+        letterSpacing = 1.1,
+        uppercase = true,
+        marginBottom = 12,
+    )
+    val eyebrowInline = text(
+        size = 11,
+        lineHeight = 16.5,
+        color = Palette.MUTED,
+        family = FontFamily.DISPLAY,
+        letterSpacing = 1.1,
+        uppercase = true,
+    )
+    val sectionRow = ViewStyle(
+        flexDirection = "row",
+        alignItems = "center",
+        justifyContent = "space-between",
+        marginBottom = 12,
+    )
+    val quickGrid = ViewStyle(gap = 12)
+    val quickRow = ViewStyle(flexDirection = "row", gap = 12)
+    val quickTile = ViewStyle(
+        flex = 1,
+        gap = 12,
+        padding = 16,
+        borderWidth = 2,
+        borderColor = Palette.LINE,
+        borderRadius = 12,
+        backgroundColor = Palette.CANVAS,
+    )
+    val quickTileGreen = ViewStyle(borderColor = Palette.GREEN_BORDER, backgroundColor = Palette.GREEN_BACKGROUND)
+    val quickWide = ViewStyle(
+        flexDirection = "row",
+        alignItems = "center",
+        gap = 12,
+        padding = 16,
+        borderWidth = 2,
+        borderColor = Palette.PURPLE_BORDER,
+        borderRadius = 12,
+        backgroundColor = Palette.PURPLE_BACKGROUND,
+    )
+    val quickIcon = ViewStyle(
+        width = 40,
+        height = 40,
+        alignItems = "center",
+        justifyContent = "center",
+        borderRadius = 12,
+        backgroundColor = Palette.BLUE_ICON_BACKGROUND,
+    )
+    val quickIconGreen = ViewStyle(backgroundColor = Palette.GREEN_BACKGROUND)
+    val quickIconPurple = ViewStyle(backgroundColor = Palette.PURPLE_ICON_BACKGROUND)
+    val quickCopy = ViewStyle(flex = 1)
+    val quickTitle = text(size = 14, lineHeight = 20, family = FontFamily.DISPLAY)
+    val quickSubtitle = text(size = 12, lineHeight = 16, color = Palette.MUTED, marginTop = 2)
+}
+
+private fun text(
+    size: Number,
+    lineHeight: Number,
+    color: String = Palette.INK,
+    family: String = FontFamily.BODY,
+    align: String? = undefined,
+    letterSpacing: Number? = undefined,
+    uppercase: Boolean = false,
+    flex: Number? = undefined,
+    marginTop: Number? = undefined,
+    marginBottom: Number? = undefined,
+    paddingVertical: Number? = undefined,
+    paddingBottom: Number? = undefined,
+) = TextStyle(
+    fontFamily = family,
+    fontSize = size,
+    lineHeight = lineHeight,
+    color = color,
+    textAlign = align,
+    letterSpacing = letterSpacing,
+    textTransform = if (uppercase) "uppercase" else undefined,
+    flex = flex,
+    marginTop = marginTop,
+    marginBottom = marginBottom,
+    paddingVertical = paddingVertical,
+    paddingBottom = paddingBottom,
+)
+
+private fun scale(value: Double): dynamic {
+    val transform: dynamic = js("({})")
+    transform.scale = value
+    return transform
+}

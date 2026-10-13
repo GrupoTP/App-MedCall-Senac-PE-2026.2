@@ -15,6 +15,10 @@ class ShellCache {
         for (path in WorkerRequestRouter.ESSENTIAL_PATHS) {
             cache.addAsync(path).await()
         }
+        val document = cache.matchAsync(WorkerRequestRouter.ROOT_DOCUMENT).await() ?: return
+        for (path in WorkerRequestRouter.buildOutputIn(document.textAsync().await())) {
+            cache.addAsync(path).await()
+        }
     }
 
     suspend fun deleteRetiredCaches() {
@@ -25,10 +29,10 @@ class ShellCache {
         }
     }
 
-    suspend fun matchPath(path: String): Response? =
-        caches.openAsync(WorkerRequestRouter.SHELL_CACHE_NAME).await().matchAsync(path).await()
+    suspend fun match(key: String): Response? =
+        caches.openAsync(WorkerRequestRouter.SHELL_CACHE_NAME).await().matchAsync(key).await()
 
-    suspend fun store(path: String, response: Response) {
-        caches.openAsync(WorkerRequestRouter.SHELL_CACHE_NAME).await().putAsync(path, response).await()
+    suspend fun store(key: String, response: Response) {
+        caches.openAsync(WorkerRequestRouter.SHELL_CACHE_NAME).await().putAsync(key, response).await()
     }
 }

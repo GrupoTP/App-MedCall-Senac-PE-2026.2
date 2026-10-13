@@ -1,0 +1,4 @@
+[submodule "recife-saudavel/grupotp-kotlin-react-native"]
+	path = recife-saudavel/grupotp-kotlin-react-native
+	url = git@github.com:Polyana-Fontes/ojaynico-kotlin-react-native.git
+	branch = modern

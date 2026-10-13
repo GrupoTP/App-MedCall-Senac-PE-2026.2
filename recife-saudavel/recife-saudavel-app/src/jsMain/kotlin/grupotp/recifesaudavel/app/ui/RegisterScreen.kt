@@ -2,24 +2,16 @@ package grupotp.recifesaudavel.app.ui
 
 import grupotp.recifesaudavel.app.usecase.AuthResult
 import grupotp.recifesaudavel.app.usecase.RegisterAccount
+import grupotp.recifesaudavel.app.usecase.toMessage
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import grupotp.recifesaudavel.common.RegisterAccountRequest
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import ojaynico.kotlin.react.native.component.ScrollView
+import ojaynico.kotlin.react.native.component.Text
+import ojaynico.kotlin.react.native.component.View
 import react.FC
+import react.Key
 import react.Props
-import react.useEffectOnce
-import react.useRef
-import react.dom.html.ReactHTML.button
-import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.form
-import react.dom.html.ReactHTML.input
-import react.dom.html.ReactHTML.label
-import react.dom.html.ReactHTML.p
-import react.dom.html.ReactHTML.span
 import react.useState
 
 internal external interface RegisterScreenProps : Props {
@@ -75,28 +67,148 @@ private val consentOptions = listOf(
 internal val RegisterScreen = FC<RegisterScreenProps> { props ->
     var draft by useState(RegisterDraft())
     var submissionError by useState<String?>(null)
-    val scopeHolder = useRef<CoroutineScope>(null)
-    val scope = scopeHolder.current ?: CoroutineScope(SupervisorJob()).also { scopeHolder.current = it }
-    useEffectOnce {
-        try {
-            awaitCancellation()
-        } finally {
-            scope.cancel()
-        }
-    }
+    val scope = useScreenScope()
 
     fun update(next: RegisterDraft) {
         draft = next
         submissionError = null
     }
 
-    div {
-        className = classNames("screen")
-        screenHeader(title = "Criar cadastro", onBack = props.onBack)
-        form {
-            className = classNames("screen-scroll")
-            onSubmit = { event ->
-                event.preventDefault()
+    View {
+        style = Styles.screen
+        ScreenHeader {
+            title = "Criar cadastro"
+            onBack = props.onBack
+        }
+        ScrollView {
+            style = Styles.scroll
+            contentContainerStyle = Styles.scrollContent
+            keyboardShouldPersistTaps = "handled"
+            View {
+                style = Styles.card
+                sectionTitle("Identificação")
+                formField(caption = "Nome completo", required = true) {
+                    TextField {
+                        label = "Nome completo"
+                        value = draft.fullName
+                        placeholder = "Ex: Maria das Graças Silva"
+                        kind = FieldKind.Name
+                        onValue = { update(draft.copy(fullName = it)) }
+                    }
+                }
+                formField(
+                    caption = "Nome Social",
+                    hint = "Como prefere ser chamado(a). Editável nas configurações.",
+                ) {
+                    TextField {
+                        label = "Nome Social"
+                        value = draft.socialName
+                        placeholder = "Ex: Graça"
+                        kind = FieldKind.Name
+                        onValue = { update(draft.copy(socialName = it)) }
+                    }
+                }
+                formField(caption = "E-mail", required = true) {
+                    TextField {
+                        label = "E-mail"
+                        value = draft.email
+                        placeholder = "seu@email.com"
+                        kind = FieldKind.Email
+                        onValue = { update(draft.copy(email = it)) }
+                    }
+                }
+                formField(caption = "Senha", required = true, hint = "Mínimo 6 caracteres") {
+                    TextField {
+                        label = "Senha"
+                        value = draft.password
+                        placeholder = "••••••••"
+                        kind = FieldKind.NewPassword
+                        onValue = { update(draft.copy(password = it)) }
+                    }
+                }
+            }
+            View {
+                style = Styles.card
+                sectionTitle("Contato")
+                phoneField(
+                    caption = "Telefone principal",
+                    value = draft.primaryPhone,
+                    whatsapp = draft.primaryPhoneWhatsapp,
+                    required = true,
+                    onValue = { update(draft.copy(primaryPhone = it)) },
+                    onWhatsapp = { update(draft.copy(primaryPhoneWhatsapp = it)) },
+                )
+                phoneField(
+                    caption = "Telefone alternativo",
+                    value = draft.secondaryPhone,
+                    whatsapp = draft.secondaryPhoneWhatsapp,
+                    onValue = { update(draft.copy(secondaryPhone = it)) },
+                    onWhatsapp = { update(draft.copy(secondaryPhoneWhatsapp = it)) },
+                )
+            }
+            View {
+                style = Styles.card
+                sectionTitle("Contato de emergência")
+                formField(caption = "Nome do contato") {
+                    TextField {
+                        label = "Nome do contato"
+                        value = draft.emergencyContactName
+                        placeholder = "Ex: Ana Silva (filha)"
+                        kind = FieldKind.Name
+                        onValue = { update(draft.copy(emergencyContactName = it)) }
+                    }
+                }
+                formField(caption = "Telefone do contato") {
+                    TextField {
+                        label = "Telefone do contato"
+                        value = draft.emergencyContactPhone
+                        placeholder = "(81) 99888-7766"
+                        kind = FieldKind.Phone
+                        onValue = { update(draft.copy(emergencyContactPhone = it)) }
+                    }
+                }
+            }
+            View {
+                style = Styles.card
+                sectionTitle("Consentimentos")
+                Text {
+                    style = Styles.fieldHint
+                    +"Escolhas independentes. Leia cada item antes de marcar."
+                }
+                for (option in consentOptions) {
+                    val selected = option.selected(draft)
+                    CheckBox {
+                        key = Key(option.caption)
+                        checked = selected
+                        label = option.caption
+                        style = arrayOf(Styles.consent, if (selected) Styles.consentSelected else null)
+                        boxStyle = Styles.consentCheckbox
+                        onToggle = { update(option.update(draft, it)) }
+                        Text {
+                            style = Styles.consentCopy
+                            +option.caption
+                            if (option.required) {
+                                Text {
+                                    style = Styles.required
+                                    +" *"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            Text {
+                style = Styles.requiredNote
+                Text {
+                    style = Styles.required
+                    +"*"
+                }
+                +" Campos e consentimentos obrigatórios"
+            }
+            submissionError?.let { message ->
+                errorAlert(message)
+            }
+            primaryButton("Criar conta") {
                 scope.launch {
                     val result = props.registerAccount(draft.toRequest())
                     when (result) {
@@ -105,141 +217,8 @@ internal val RegisterScreen = FC<RegisterScreenProps> { props ->
                     }
                 }
             }
-            div {
-                className = classNames("screen-content")
-                div {
-                    className = classNames("card")
-                    sectionTitle("Identificação")
-                    formField(caption = "Nome completo", required = true) {
-                        textInput(
-                            id = "register-name",
-                            value = draft.fullName,
-                            placeholder = "Ex: Maria das Graças Silva",
-                            onValue = { update(draft.copy(fullName = it)) },
-                        )
-                    }
-                    formField(
-                        caption = "Nome Social",
-                        hint = "Como prefere ser chamado(a). Editável nas configurações.",
-                    ) {
-                        textInput(
-                            id = "register-social-name",
-                            value = draft.socialName,
-                            placeholder = "Ex: Graça",
-                            onValue = { update(draft.copy(socialName = it)) },
-                        )
-                    }
-                    formField(caption = "E-mail", required = true) {
-                        textInput(
-                            id = "register-email",
-                            value = draft.email,
-                            placeholder = "seu@email.com",
-                            type = emailKind,
-                            onValue = { update(draft.copy(email = it)) },
-                        )
-                    }
-                    formField(caption = "Senha", required = true, hint = "Mínimo 6 caracteres") {
-                        textInput(
-                            id = "register-password",
-                            value = draft.password,
-                            placeholder = "••••••••",
-                            type = passwordKind,
-                            onValue = { update(draft.copy(password = it)) },
-                        )
-                    }
-                }
-                div {
-                    className = classNames("card")
-                    sectionTitle("Contato")
-                    phoneField(
-                        caption = "Telefone principal",
-                        value = draft.primaryPhone,
-                        whatsapp = draft.primaryPhoneWhatsapp,
-                        required = true,
-                        onValue = { update(draft.copy(primaryPhone = it)) },
-                        onWhatsapp = { update(draft.copy(primaryPhoneWhatsapp = it)) },
-                    )
-                    phoneField(
-                        caption = "Telefone alternativo",
-                        value = draft.secondaryPhone,
-                        whatsapp = draft.secondaryPhoneWhatsapp,
-                        onValue = { update(draft.copy(secondaryPhone = it)) },
-                        onWhatsapp = { update(draft.copy(secondaryPhoneWhatsapp = it)) },
-                    )
-                }
-                div {
-                    className = classNames("card")
-                    sectionTitle("Contato de emergência")
-                    formField(caption = "Nome do contato") {
-                        textInput(
-                            id = "register-emergency-name",
-                            value = draft.emergencyContactName,
-                            placeholder = "Ex: Ana Silva (filha)",
-                            onValue = { update(draft.copy(emergencyContactName = it)) },
-                        )
-                    }
-                    formField(caption = "Telefone do contato") {
-                        textInput(
-                            id = "register-emergency-phone",
-                            value = draft.emergencyContactPhone,
-                            placeholder = "(81) 99888-7766",
-                            type = telKind,
-                            onValue = { update(draft.copy(emergencyContactPhone = it)) },
-                        )
-                    }
-                }
-                div {
-                    className = classNames("card")
-                    sectionTitle("Consentimentos")
-                    p {
-                        className = classNames("field-hint")
-                        +"Escolhas independentes. Leia cada item antes de marcar."
-                    }
-                    for (option in consentOptions) {
-                        label {
-                            className = classNames(
-                                "consent",
-                                if (option.selected(draft)) "consent-selected" else null,
-                            )
-                            input {
-                                type = checkboxKind
-                                checked = option.selected(draft)
-                                onChange = { event ->
-                                    update(option.update(draft, event.target.checked))
-                                }
-                            }
-                            span {
-                                className = classNames("consent-copy")
-                                +option.caption
-                                if (option.required) {
-                                    span {
-                                        className = classNames("required")
-                                        +"*"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                p {
-                    className = classNames("required-note")
-                    span {
-                        className = classNames("required")
-                        +"*"
-                    }
-                    +" Campos e consentimentos obrigatórios"
-                }
-                submissionError?.let { message ->
-                    errorAlert(message)
-                }
-                button {
-                    type = submitKind
-                    className = classNames("btn-primary")
-                    +"Criar conta"
-                }
-            }
         }
-        appFooter()
+        AppFooter()
     }
 }
 

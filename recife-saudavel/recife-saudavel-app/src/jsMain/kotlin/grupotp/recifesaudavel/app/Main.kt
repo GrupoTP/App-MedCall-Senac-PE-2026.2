@@ -1,32 +1,27 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package grupotp.recifesaudavel.app
 
 import grupotp.recifesaudavel.app.di.appModule
-import grupotp.recifesaudavel.app.usecase.LoadSignedInAccount
-import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
-import grupotp.recifesaudavel.app.usecase.RememberSignedInAccount
+import grupotp.recifesaudavel.app.platform.ensureSecureRandom
+import ojaynico.kotlin.react.native.api.Platform
 import org.koin.core.context.startKoin
-import org.koin.mp.KoinPlatform
-import react.create
-import react.dom.client.createRoot
-import web.dom.ElementId
-import web.dom.document
-import web.html.HTMLElement
+
+private val root: dynamic by lazy {
+    ensureSecureRandom()
+    startKoin {
+        modules(appModule(Platform.OS))
+    }
+    Root
+}
+
+/**
+ * Root component for the Expo shell, which registers it on Android and on the web.
+ */
+@JsExport
+fun createApp(): dynamic = root
 
 fun main() {
-    startKoin {
-        modules(appModule)
-    }
-    val koin = KoinPlatform.getKoin()
-    val container = document.getElementById(ElementId("root")) as HTMLElement
-    createRoot(container).render(
-        App.create {
-            signIn = koin.get()
-            registerAccount = koin.get()
-            requestPasswordRecovery = koin.get()
-            listUpcomingAppointments = koin.get()
-            prepareOfflineShell = koin.get<PrepareOfflineShell>()
-            rememberSignedInAccount = koin.get<RememberSignedInAccount>()
-            loadSignedInAccount = koin.get<LoadSignedInAccount>()
-        },
-    )
+    // Referencing the export here keeps it in the webpack bundle.
+    createApp()
 }

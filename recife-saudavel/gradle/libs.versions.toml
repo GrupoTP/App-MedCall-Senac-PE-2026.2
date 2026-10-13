@@ -1,9 +1,7 @@
 [versions]
-kotlin = "2.4.10"
+kotlin = "2.4.20"
 ktor = "3.6.0"
 kotlinx-serialization = "1.11.0"
-kotlin-wrappers = "2026.8.5-19.2.8"
-kotlin-browser = "2026.8.5"
 logback = "1.5.18"
 ktor-health-check = "2.0.0"
 koin = "4.2.2"
@@ -21,9 +19,6 @@ ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negoti
 ktor-serialization-kotlinx-json = { module = "io.ktor:ktor-serialization-kotlinx-json", version.ref = "ktor" }
 ktor-server-config-yaml = { module = "io.ktor:ktor-server-config-yaml", version.ref = "ktor" }
 ktor-server-test-host = { module = "io.ktor:ktor-server-test-host", version.ref = "ktor" }
-kotlin-browser = { module = "org.jetbrains.kotlin-wrappers:kotlin-browser", version.ref = "kotlin-browser" }
-kotlin-react = { module = "org.jetbrains.kotlin-wrappers:kotlin-react", version.ref = "kotlin-wrappers" }
-kotlin-react-dom = { module = "org.jetbrains.kotlin-wrappers:kotlin-react-dom", version.ref = "kotlin-wrappers" }
 logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
 ktor-health-check = { module = "cc.rbbl:ktor-health-check", version.ref = "ktor-health-check" }
 koin-core = { module = "io.insert-koin:koin-core", version.ref = "koin" }
@@ -34,6 +29,7 @@ exposed-jdbc = { module = "org.jetbrains.exposed:exposed-jdbc", version.ref = "e
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 kotlinx-coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
+grupotp-kotlin-react-native = { module = "com.github.ojaynico:ojaynico-kotlin-react-native", version = "1.2.1" }
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "coroutines" }
 
 [plugins]

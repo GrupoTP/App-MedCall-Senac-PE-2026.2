@@ -8,50 +8,40 @@ kotlin {
     js {
         browser {
             commonWebpackConfig {
-                outputFileName = "recife-saudavel.js"
-                devServer = (devServer ?: org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig.DevServer()).apply {
-                    port = 8081
-                }
+                outputFileName = "recife-saudavel-app.js"
             }
         }
-        nodejs()
         binaries.executable()
+        useCommonJs()
     }
 
     sourceSets {
         jsMain.dependencies {
-            implementation(projects.recifeSaudavelCommon)
-            implementation(libs.kotlin.react)
-            implementation(libs.kotlin.react.dom)
+            implementation(projects.recifeSaudavelAppCore)
+            implementation(kotlinWrappers.js)
+            implementation(kotlinWrappers.browser)
+            implementation(kotlinWrappers.react)
+            implementation(libs.grupotp.kotlin.react.native)
             implementation(libs.koin.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
         }
-        jsTest.dependencies {
-            implementation(libs.kotlin.test)
-            implementation(libs.kotlinx.coroutines.test)
-        }
     }
 }
 
+val clientDirectory = rootProject.layout.projectDirectory.dir("recife-saudavel-client")
+
+// The Expo shell serves `public/` as-is on the web, next to `sw.js` and the manifest.
 val syncServiceWorkerBundle = tasks.register<Copy>("syncServiceWorkerBundle") {
     dependsOn(":recife-saudavel-worker:jsBrowserProductionWebpack")
     from(project(":recife-saudavel-worker").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))
     include("recife-saudavel-worker.js")
-    into(layout.buildDirectory.dir("processedResources/js/main"))
-    doLast {
-        copy {
-            from(project(":recife-saudavel-worker").layout.buildDirectory.dir("kotlin-webpack/js/productionExecutable"))
-            include("recife-saudavel-worker.js")
-            into(rootProject.layout.buildDirectory.dir("js/packages/recife-saudavel-recife-saudavel-app/kotlin"))
-        }
-    }
+    into(clientDirectory.dir("public"))
 }
 
-tasks.named("jsBrowserDevelopmentRun") {
-    dependsOn(syncServiceWorkerBundle)
-}
-
-syncServiceWorkerBundle.configure {
-    mustRunAfter("jsProcessResources")
+// Metro reads the Kotlin bundle from here on both Android and the web.
+tasks.register("buildClientBundle") {
+    group = "recife saudavel"
+    description = "Builds the Kotlin UI and service worker bundles consumed by recife-saudavel-client."
+    dependsOn("jsBrowserProductionWebpack", syncServiceWorkerBundle)
 }

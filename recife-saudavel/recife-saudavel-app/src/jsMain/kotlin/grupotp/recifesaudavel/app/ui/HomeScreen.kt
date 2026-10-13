@@ -1,17 +1,19 @@
 package grupotp.recifesaudavel.app.ui
 
 import grupotp.recifesaudavel.app.usecase.ListUpcomingAppointments
+import grupotp.recifesaudavel.app.usecase.NOT_IMPLEMENTED_MESSAGE
 import grupotp.recifesaudavel.app.usecase.UpcomingAppointmentsResult
 import grupotp.recifesaudavel.common.AuthenticatedAccount
+import ojaynico.kotlin.react.json
+import ojaynico.kotlin.react.native.component.Pressable
+import ojaynico.kotlin.react.native.component.ScrollView
+import ojaynico.kotlin.react.native.component.Text
+import ojaynico.kotlin.react.native.component.View
+import ojaynico.kotlin.react.native.safearea.useSafeAreaInsets
+import react.ChildrenBuilder
 import react.FC
 import react.Props
-import react.dom.html.ReactHTML.button
-import react.dom.html.ReactHTML.div
-import react.dom.html.ReactHTML.h2
-import react.dom.html.ReactHTML.p
-import react.dom.html.ReactHTML.span
 import react.useState
-import web.html.ButtonType
 import kotlin.js.Date
 
 internal external interface HomeScreenProps : Props {
@@ -21,6 +23,7 @@ internal external interface HomeScreenProps : Props {
 
 internal val HomeScreen = FC<HomeScreenProps> { props ->
     var unavailableAction by useState<String?>(null)
+    val insets = useSafeAreaInsets()
     val upcoming = when (props.listUpcomingAppointments()) {
         UpcomingAppointmentsResult.NotImplemented -> NOT_IMPLEMENTED_MESSAGE
     }
@@ -30,141 +33,145 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
         unavailableAction = NOT_IMPLEMENTED_MESSAGE
     }
 
-    div {
-        className = classNames("screen")
-        div {
-            className = classNames("home-header")
-            div {
-                className = classNames("home-header-inner")
-                div {
-                    className = classNames("home-header-tools")
-                    button {
-                        type = buttonKind
-                        className = classNames("home-icon-button")
-                        ariaLabel = "Configurações"
-                        onClick = { markUnavailable() }
-                        settingsIcon()
+    View {
+        style = Styles.screen
+        View {
+            style = arrayOf(Styles.homeHeader, json { paddingTop = 16 + insets.top })
+            verticalGradient(id = "home-gradient", from = Palette.BLUE, to = Palette.BLUE_HOVER)
+            View {
+                style = Styles.homeHeaderInner
+                View {
+                    style = Styles.homeHeaderTools
+                    Pressable {
+                        style = pressable(Styles.homeIconButton)
+                        accessibilityRole = "button"
+                        accessibilityLabel = "Configurações"
+                        onPress = { markUnavailable() }
+                        settingsIcon(Palette.WHITE)
                     }
                 }
-                p {
-                    className = classNames("home-greeting")
+                Text {
+                    style = Styles.homeGreeting
                     +"${greeting()},"
                 }
-                h2 {
-                    className = classNames("home-name")
+                Text {
+                    style = Styles.homeName
+                    accessibilityRole = "header"
                     +displayName
                 }
-                p {
-                    className = classNames("home-email")
+                Text {
+                    style = Styles.homeEmail
                     +props.account.email
                 }
             }
         }
-        div {
-            className = classNames("screen-scroll")
-            div {
-                className = classNames("screen-content")
-                div {
-                    className = classNames("disclaimer")
-                    alertIcon()
-                    p {
-                        +"O Recife Saudável não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU)."
-                    }
+        ScrollView {
+            style = Styles.scroll
+            contentContainerStyle = Styles.scrollContent
+            View {
+                style = Styles.disclaimer
+                View {
+                    style = Styles.alertIcon
+                    alertIcon(Palette.WARNING_TEXT)
                 }
-                unavailableAction?.let { message ->
-                    errorAlert(message)
+                Text {
+                    style = Styles.disclaimerText
+                    +"O Recife Saudável não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU)."
                 }
-                div {
-                    className = classNames("card card-compact")
-                    p {
-                        className = classNames("eyebrow")
-                        +"Ações rápidas"
-                    }
-                    div {
-                        className = classNames("quick-grid")
+            }
+            unavailableAction?.let { message ->
+                errorAlert(message)
+            }
+            View {
+                style = Styles.cardCompact
+                Text {
+                    style = Styles.eyebrow
+                    accessibilityRole = "header"
+                    +"Ações rápidas"
+                }
+                View {
+                    style = Styles.quickGrid
+                    View {
+                        style = Styles.quickRow
                         quickAction(
                             title = "Pré-triagem",
                             subtitle = "Informe sintomas",
-                            tone = "blue",
-                            onClick = { markUnavailable() },
-                        ) { clipboardIcon() }
+                            green = false,
+                            onPress = ::markUnavailable,
+                        ) { clipboardIcon(it) }
                         quickAction(
                             title = "Agendar",
                             subtitle = "Escolha data e hora",
-                            tone = "green",
-                            onClick = { markUnavailable() },
-                        ) { calendarIcon() }
-                        button {
-                            type = buttonKind
-                            className = classNames("quick-wide")
-                            onClick = { markUnavailable() }
-                            span {
-                                className = classNames("quick-icon purple")
-                                listIcon()
-                            }
-                            div {
-                                className = classNames("quick-copy")
-                                p {
-                                    className = classNames("quick-title")
-                                    +"Minhas consultas"
-                                }
-                                p {
-                                    className = classNames("quick-subtitle")
-                                    +"Ver e gerenciar agendamentos"
-                                }
-                            }
-                            chevronIcon()
-                        }
+                            green = true,
+                            onPress = ::markUnavailable,
+                        ) { calendarIcon(it) }
                     }
-                }
-                div {
-                    className = classNames("card card-compact")
-                    div {
-                        className = classNames("section-row")
-                        p {
-                            className = classNames("eyebrow")
-                            +"Próximas consultas"
+                    Pressable {
+                        style = pressable(Styles.quickWide)
+                        accessibilityRole = "button"
+                        onPress = { markUnavailable() }
+                        View {
+                            style = arrayOf(Styles.quickIcon, Styles.quickIconPurple)
+                            listIcon(Palette.PURPLE_TEXT)
                         }
-                        button {
-                            type = buttonKind
-                            className = classNames("text-link")
-                            onClick = { markUnavailable() }
-                            +"Ver todas"
+                        View {
+                            style = Styles.quickCopy
+                            Text {
+                                style = Styles.quickTitle
+                                +"Minhas consultas"
+                            }
+                            Text {
+                                style = Styles.quickSubtitle
+                                +"Ver e gerenciar agendamentos"
+                            }
                         }
-                    }
-                    p {
-                        className = classNames("field-hint")
-                        +upcoming
+                        chevronIcon(Palette.INK)
                     }
                 }
             }
+            View {
+                style = Styles.cardCompact
+                View {
+                    style = Styles.sectionRow
+                    Text {
+                        style = Styles.eyebrowInline
+                        accessibilityRole = "header"
+                        +"Próximas consultas"
+                    }
+                    textLink("Ver todas", onPress = ::markUnavailable)
+                }
+                Text {
+                    style = Styles.fieldHint
+                    +upcoming
+                }
+            }
         }
-        appFooter()
+        AppFooter()
     }
 }
 
-private fun react.ChildrenBuilder.quickAction(
+private fun ChildrenBuilder.quickAction(
     title: String,
     subtitle: String,
-    tone: String,
-    onClick: () -> Unit,
-    icon: react.ChildrenBuilder.() -> Unit,
+    green: Boolean,
+    onPress: () -> Unit,
+    icon: ChildrenBuilder.(color: String) -> Unit,
 ) {
-    button {
-        type = buttonKind
-        className = classNames("quick-tile", tone)
-        this.onClick = { onClick() }
-        span {
-            className = classNames("quick-icon", tone)
-            icon()
+    Pressable {
+        style = pressable(Styles.quickTile, if (green) Styles.quickTileGreen else null)
+        accessibilityRole = "button"
+        this.onPress = onPress
+        View {
+            style = arrayOf(Styles.quickIcon, if (green) Styles.quickIconGreen else null)
+            icon(this, if (green) Palette.GREEN_TEXT else Palette.BLUE)
         }
-        div {
-            p {
-                className = classNames("quick-title")
+        View {
+            Text {
+                style = Styles.quickTitle
                 +title
             }
-            p {
-                className = classNames("quick-subtitle")
+            Text {
+                style = Styles.quickSubtitle
                 +subtitle
             }
         }

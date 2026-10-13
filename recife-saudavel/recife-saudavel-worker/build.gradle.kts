@@ -19,7 +19,8 @@ kotlin {
             implementation(projects.recifeSaudavelCommon)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
-            implementation(libs.kotlin.browser)
+            implementation(kotlinWrappers.js)
+            implementation(kotlinWrappers.browser)
         }
         jsTest.dependencies {
             implementation(libs.kotlin.test)

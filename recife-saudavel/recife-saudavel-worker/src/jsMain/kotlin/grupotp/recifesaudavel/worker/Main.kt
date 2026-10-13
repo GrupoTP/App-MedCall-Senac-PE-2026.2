@@ -4,7 +4,6 @@ import grupotp.recifesaudavel.common.AuthenticatedAccount
 import grupotp.recifesaudavel.worker.cache.ShellCache
 import grupotp.recifesaudavel.worker.routing.WorkerRequestRouter
 import grupotp.recifesaudavel.worker.routing.WorkerRoute
-import grupotp.recifesaudavel.worker.routing.pathOf
 import grupotp.recifesaudavel.worker.storage.LocalAccountDatabase
 import js.promise.Promise
 import js.promise.await
@@ -70,7 +69,8 @@ private suspend fun respond(
     request: Request,
 ): Response = when (router.route(request.url)) {
     WorkerRoute.LocalAccount -> localAccount(accounts, request)
-    WorkerRoute.Shell -> shellAsset(shell, request)
+    WorkerRoute.Document -> document(shell, request)
+    WorkerRoute.Shell -> shellAsset(shell, router, request)
     WorkerRoute.Server, WorkerRoute.Ignore -> error("O navegador deveria atender este pedido.")
 }
 
@@ -91,23 +91,34 @@ private suspend fun localAccount(accounts: LocalAccountDatabase, request: Reques
     else -> jsonResponse(405, """{"message":"Método não permitido."}""")
 }
 
-private suspend fun shellAsset(shell: ShellCache, request: Request): Response {
-    val path = pathOf(request.url)
-    shell.matchPath(path)?.let { return it }
+private suspend fun document(shell: ShellCache, request: Request): Response = try {
+    val fresh = fetch(request).await()
+    if (fresh.ok) {
+        shell.store(WorkerRequestRouter.ROOT_DOCUMENT, fresh.clone())
+    }
+    fresh
+} catch (_: Throwable) {
+    shell.match(WorkerRequestRouter.ROOT_DOCUMENT) ?: offlineDocument()
+}
+
+private suspend fun shellAsset(shell: ShellCache, router: WorkerRequestRouter, request: Request): Response {
+    val key = router.cacheKey(request.url)
+    shell.match(key)?.let { return it }
     return try {
         val fresh = fetch(request).await()
         if (fresh.ok) {
-            shell.store(path, fresh.clone())
+            shell.store(key, fresh.clone())
         }
         fresh
     } catch (_: Throwable) {
-        shell.matchPath("/") ?: offlineDocument()
+        shell.match(WorkerRequestRouter.ROOT_DOCUMENT) ?: offlineDocument()
     }
 }
 
 private fun jsonResponse(status: Int, body: String): Response = response(status, body, "application/json")
 
-private fun emptyResponse(status: Int): Response = response(status, "", "text/plain")
+// 204 and friends must not carry a body, not even an empty string, or the Response constructor throws.
+private fun emptyResponse(status: Int): Response = response(status, null, "text/plain")
 
 private fun offlineDocument(): Response = response(
     status = 503,
@@ -115,7 +126,7 @@ private fun offlineDocument(): Response = response(
     contentType = "text/plain; charset=utf-8",
 )
 
-private fun response(status: Int, body: String, contentType: String): Response =
+private fun response(status: Int, body: String?, contentType: String): Response =
     createResponse(status, body, contentType)
 
 private val responseFactory: Any = js(
@@ -126,7 +137,7 @@ private val responseFactory: Any = js(
     """,
 )
 
-private val createResponse: (Int, String, String) -> Response = unsafeCast(responseFactory)
+private val createResponse: (Int, String?, String) -> Response = unsafeCast(responseFactory)
 
 private fun workerPromise(block: suspend () -> Unit): Promise<Void> =
     unsafeCast(background.promise { block() })
