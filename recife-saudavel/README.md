@@ -19,12 +19,9 @@ Na web, o `sw.js` inicia o bundle Kotlin do worker, que guarda a interface em ca
 - Node.js 24
 - Android: Android SDK com CMake 4.1.2 ou mais novo (ver [Android no Windows](#android-no-windows))
 
-Depois de clonar:
+Depois de clonar não há passo manual. O primeiro `./gradlew` baixa o submódulo (`git submodule update --init`), pelo `settings.gradle.kts`: o build incluído precisa existir antes de qualquer task rodar. As dependências npm do `client/expo` ficam com a task `:client:expo:npmInstall` (`npm ci`), que as tasks do cliente chamam sozinhas. Ela só roda quando `package.json` ou `package-lock.json` mudam ou a pasta `node_modules` some; fora isso fica `UP-TO-DATE`.
 
-```bash
-git submodule update --init
-cd client/expo && npm install
-```
+No Windows, use `gradlew` no lugar de `./gradlew`.
 
 ## Comandos
 
@@ -44,30 +41,24 @@ O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de ex
 
 ### Cliente
 
-O Metro lê o bundle Kotlin já compilado. Gere o bundle da interface e o do service worker antes de abrir o cliente, e de novo depois de mudar código Kotlin:
+O Metro lê o bundle Kotlin já compilado. As tasks do `:client:expo` geram antes o bundle da interface e o do service worker (`:client:app:buildClientBundle`) e instalam as dependências npm. Se o Metro já estiver aberto, rode `buildClientBundle` de novo depois de mudar código Kotlin.
+
+PWA (`npx expo start --web`):
 
 ```bash
-./gradlew :client:app:buildClientBundle
+./gradlew :client:expo:startWeb
 ```
 
-PWA, na pasta `client/expo`:
+O cliente abre em `http://localhost:8081`, a única origem que o CORS do servidor aceita. Para testar a PWA instalável e o modo offline, gere o export e sirva o `dist` na mesma porta (`npx expo export --platform web` e `npx expo serve --port 8081`):
 
 ```bash
-npx expo start --web
+./gradlew :client:expo:serveWeb
 ```
 
-O cliente abre em `http://localhost:8081`, a única origem que o CORS do servidor aceita. Para testar a PWA instalável e o modo offline, gere o export e sirva o `dist` na mesma porta:
+Android, com o aparelho conectado por USB e o servidor rodando (`adb reverse tcp:8080 tcp:8080` e `npx expo run:android --variant release`; o `adb` precisa estar no `PATH`):
 
 ```bash
-npx expo export --platform web
-npx expo serve --port 8081
-```
-
-Android, com o aparelho conectado por USB e o servidor rodando:
-
-```bash
-adb reverse tcp:8080 tcp:8080
-npx expo run:android --variant release
+./gradlew :client:expo:runAndroid
 ```
 
 O app chama `http://localhost:8080`, que o `adb reverse` leva ao computador. Por isso o `app.json` libera HTTP sem TLS (`usesCleartextTraffic`, via `expo-build-properties`). Isso é só para desenvolvimento; em produção a API deve usar HTTPS e essa opção sai.
