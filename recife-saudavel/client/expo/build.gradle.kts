@@ -24,7 +24,7 @@ fun Exec.expo(vararg args: String) {
     commandLine(nodeCommand("npx", "expo", *args))
 }
 
-// Metro plus a continuous Gradle build of the Kotlin bundle, so Kotlin changes reload the app.
+// Metro plus a watcher that rebuilds the Kotlin bundle on change, so Kotlin changes reload the app.
 fun Exec.metro(mode: String) {
     group = "recife saudavel"
     dependsOn(npmInstall, ":client:app:buildClientBundle")
@@ -54,10 +54,30 @@ tasks.register<Exec>("serveWeb") {
 }
 
 // The app calls http://localhost:8080; adb reverse forwards it to the server on this machine.
+// adb is rarely on PATH; find it in the Android SDK the way the Android tools do.
+fun androidSdkDir(): File? {
+    val fromEnv = listOf("ANDROID_HOME", "ANDROID_SDK_ROOT").firstNotNullOfOrNull { System.getenv(it) }
+    val fromLocalProperties = rootProject.file("local.properties").takeIf { it.isFile }?.let { file ->
+        java.util.Properties().apply { file.inputStream().use(::load) }.getProperty("sdk.dir")
+    }
+    val default = if (isWindows) {
+        System.getenv("LOCALAPPDATA")?.let { "$it/Android/Sdk" }
+    } else {
+        "${System.getProperty("user.home")}/Android/Sdk"
+    }
+    return listOfNotNull(fromEnv, fromLocalProperties, default).map(::File).firstOrNull { it.isDirectory }
+}
+
+val adb: String = androidSdkDir()
+    ?.resolve("platform-tools/" + if (isWindows) "adb.exe" else "adb")
+    ?.takeIf { it.isFile }
+    ?.absolutePath
+    ?: "adb"
+
 val adbReverse = tasks.register<Exec>("adbReverse") {
     group = "recife saudavel"
     description = "Forwards the device port 8080 to this machine (adb reverse tcp:8080 tcp:8080)."
-    commandLine("adb", "reverse", "tcp:8080", "tcp:8080")
+    commandLine(adb, "reverse", "tcp:8080", "tcp:8080")
 }
 
 tasks.register<Exec>("runAndroid") {
