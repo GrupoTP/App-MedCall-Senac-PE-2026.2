@@ -49,7 +49,7 @@ O Metro só lê o bundle Kotlin já compilado (`:client:app:buildClientBundle`).
 ./gradlew :client:expo:startWeb
 ```
 
-Sobe o Metro com recarga automática (`expo start --web`). O cliente abre em `http://localhost:8081`, a única origem que o CORS do servidor aceita.
+Sobe o Metro com recarga automática (`expo start --web`). O cliente abre em `http://localhost:8081`, a única origem que o CORS do servidor aceita. Esse modo não funciona offline: o bundle de desenvolvimento vem do Metro a cada carga e o service worker não o guarda.
 
 #### PWA instalável e modo offline
 
@@ -57,7 +57,7 @@ Sobe o Metro com recarga automática (`expo start --web`). O cliente abre em `ht
 ./gradlew :client:expo:serveWeb
 ```
 
-Gera a versão de produção em `client/expo/dist` (`expo export --platform web`) e a serve em `http://localhost:8081` (`expo serve`). Não tem recarga automática: depois de mudar o código, rode a task de novo.
+Gera a versão de produção em `client/expo/dist` (`expo export --platform web`) e a serve em `http://localhost:8081` (`expo serve`). Não tem recarga automática: depois de mudar o código, rode a task de novo. Para testar offline, abra a página (ou a PWA instalada) uma vez com a task rodando, para o service worker guardar a interface, e então pare a task.
 
 #### Celular na mesma rede Wi‑Fi (Expo Go)
 
