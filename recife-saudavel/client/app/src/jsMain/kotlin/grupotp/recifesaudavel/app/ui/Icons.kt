@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.app.ui
 
+import ojaynico.kotlin.react.native.api.Platform
 import ojaynico.kotlin.react.native.svg.Circle
 import ojaynico.kotlin.react.native.svg.Defs
 import ojaynico.kotlin.react.native.svg.Line
@@ -8,7 +9,17 @@ import ojaynico.kotlin.react.native.svg.Path
 import ojaynico.kotlin.react.native.svg.Rect
 import ojaynico.kotlin.react.native.svg.Stop
 import ojaynico.kotlin.react.native.svg.Svg
+import ojaynico.kotlin.react.native.svg.SvgProps
 import react.ChildrenBuilder
+
+// On the web react-native-svg hands its props to <svg>, and React rejects this Android-only prop.
+private val hideFromAccessibility = Platform.OS != "web"
+
+private fun SvgProps.decorative() {
+    if (hideFromAccessibility) {
+        importantForAccessibility = "no-hide-descendants"
+    }
+}
 
 internal fun ChildrenBuilder.strokeIcon(
     size: Int,
@@ -25,7 +36,7 @@ internal fun ChildrenBuilder.strokeIcon(
         this.strokeWidth = strokeWidth
         strokeLinecap = "round"
         strokeLinejoin = "round"
-        importantForAccessibility = "no-hide-descendants"
+        decorative()
         draw()
     }
 }
@@ -62,7 +73,7 @@ internal fun ChildrenBuilder.verticalGradient(id: String, from: String, to: Stri
         width = "100%"
         height = "100%"
         preserveAspectRatio = "none"
-        importantForAccessibility = "no-hide-descendants"
+        decorative()
         Defs {
             LinearGradient {
                 this.id = id
