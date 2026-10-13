@@ -73,7 +73,7 @@ npx expo run:android --variant release
 
 O app chama `http://localhost:8080`, que o `adb reverse` leva ao computador. Por isso o `app.json` libera HTTP sem TLS (`usesCleartextTraffic`, via `expo-build-properties`). Isso é só para desenvolvimento; em produção a API deve usar HTTPS e essa opção sai.
 
-O plugin Gradle do React Native não percebe mudanças no bundle Kotlin, que fica fora da pasta do cliente. Depois de rodar `buildClientBundle`, apague `android/app/build/generated/assets/react` antes de compilar o Android, ou o APK sai com o bundle antigo.
+A pasta `android/` é gerada pelo `expo prebuild` e não vai para o git. Ajustes nativos ficam no config plugin `plugins/withKotlinAndroidBuild.js`, registrado no `app.json`. Ele faz a task de bundle do React Native acompanhar o bundle Kotlin, que fica fora da pasta do cliente: depois de rodar `buildClientBundle`, o próximo build Android já empacota o bundle novo.
 
 ### Android no Windows
 
@@ -85,11 +85,5 @@ O código C++ gerado pelo React Native para `react-native-svg` e `react-native-s
    New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
    ```
 
-2. Instale o CMake 4.1.2 ou mais novo pelo SDK Manager do Android Studio (SDK Tools, Show Package Details). Ele traz o ninja 1.12, que aceita caminhos longos.
-3. Aponte o CMake novo em `recife-saudavel-client/android/local.properties`. A pasta `android/` é gerada pelo `expo prebuild`, que apaga esse arquivo, então recrie-o depois de cada prebuild:
-
-   ```properties
-   cmake.dir=C\:/Users/<usuario>/AppData/Local/Android/Sdk/cmake/4.1.2
-   ```
-
-4. Prefira clonar o repositório num caminho curto, fora de pastas sincronizadas como Dropbox ou OneDrive (por exemplo, `C:\30-codigo-fonte`).
+2. Instale o CMake 4.1.2 ou mais novo pelo SDK Manager do Android Studio (SDK Tools, Show Package Details). Ele traz o ninja 1.12, que aceita caminhos longos. No Windows, o `expo prebuild` grava em `android/local.properties` o `cmake.dir` do CMake mais novo (4.1.2 ou acima) que encontrar em `ANDROID_HOME/cmake`. Se o arquivo já tiver um `cmake.dir`, ele é mantido.
+3. Prefira clonar o repositório num caminho curto, fora de pastas sincronizadas como Dropbox ou OneDrive (por exemplo, `C:\30-codigo-fonte`).

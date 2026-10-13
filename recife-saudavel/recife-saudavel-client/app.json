@@ -33,7 +33,8 @@
             "usesCleartextTraffic": true
           }
         }
-      ]
+      ],
+      "./plugins/withKotlinAndroidBuild"
     ]
   }
 }
