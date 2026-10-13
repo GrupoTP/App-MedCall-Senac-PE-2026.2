@@ -24,21 +24,26 @@ const expoCliDir = path.dirname(
 );
 const fromExpoCli = (name) => require(require.resolve(name, { paths: [expoCliDir] }));
 
-// Same rendering as the Expo CLI: two QR rows per line with half-block characters.
+// Draws each module as two spaces with an ANSI background colour. The Expo CLI uses Unicode
+// half-blocks, but Gradle hands our UTF-8 bytes to a console that may decode them with another
+// code page (cp850 on a Portuguese Windows), which garbles the code. ANSI sequences are plain ASCII.
+const QUIET_ZONE = 2;
 function renderQR(url) {
   const data = fromExpoCli("toqr").toQR(url);
   const extent = Math.sqrt(data.byteLength) | 0;
-  const chars = ["\u2588", "\u2580", "\u2584", " "];
-  let output = "\u2584".repeat(extent + 2);
-  for (let row = 0; row < extent; row += 2) {
-    output += "\n\u2588";
-    for (let col = 0; col < extent; col++) {
-      output += chars[(data[row * extent + col] << 1) | data[(row + 1) * extent + col]];
+  const dark = "\x1b[40m  ";
+  const light = "\x1b[107m  ";
+  const isDark = (row, col) =>
+    row >= 0 && row < extent && col >= 0 && col < extent && data[row * extent + col] === 1;
+  const lines = [];
+  for (let row = -QUIET_ZONE; row < extent + QUIET_ZONE; row++) {
+    let line = "";
+    for (let col = -QUIET_ZONE; col < extent + QUIET_ZONE; col++) {
+      line += isDark(row, col) ? dark : light;
     }
-    output += "\u2588";
+    lines.push(line + "\x1b[0m");
   }
-  if (extent % 2 === 0) output += "\n" + "\u2580".repeat(extent + 2);
-  return output;
+  return lines.join("\n");
 }
 
 function lanAddress() {
