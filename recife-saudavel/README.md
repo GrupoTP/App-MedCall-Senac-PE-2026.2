@@ -41,39 +41,45 @@ O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de ex
 
 ### Cliente
 
-O Metro lê o bundle Kotlin já compilado. As tasks do `:client:expo` geram antes o bundle da interface e o do service worker (`:client:app:buildClientBundle`) e instalam as dependências npm. Se o Metro já estiver aberto, rode `buildClientBundle` de novo depois de mudar código Kotlin.
+O Metro só lê o bundle Kotlin já compilado (`:client:app:buildClientBundle`). As tasks abaixo geram esse bundle e instalam as dependências npm antes de abrir o cliente. O `startWeb` e o `startLan` também acompanham o código Kotlin enquanto rodam: ao salvar um arquivo de `common`, `client/app`, `client/worker` ou do submódulo, o bundle é gerado de novo e o Metro recarrega o app. Para parar, use Ctrl+C.
 
-PWA (`npx expo start --web`):
+#### PWA em desenvolvimento
 
 ```bash
 ./gradlew :client:expo:startWeb
 ```
 
-O cliente abre em `http://localhost:8081`, a única origem que o CORS do servidor aceita. Para testar a PWA instalável e o modo offline, gere o export e sirva o `dist` na mesma porta (`npx expo export --platform web` e `npx expo serve --port 8081`):
+Sobe o Metro com recarga automática (`expo start --web`). O cliente abre em `http://localhost:8081`, a única origem que o CORS do servidor aceita.
+
+#### PWA instalável e modo offline
 
 ```bash
 ./gradlew :client:expo:serveWeb
 ```
 
-Celular na mesma rede Wi‑Fi, pelo Expo Go:
+Gera a versão de produção em `client/expo/dist` (`expo export --platform web`) e a serve em `http://localhost:8081` (`expo serve`). Não tem recarga automática: depois de mudar o código, rode a task de novo.
+
+#### Celular na mesma rede Wi‑Fi (Expo Go)
 
 ```bash
 ./gradlew :client:expo:startLan
 ```
 
-A task mostra o QR code e a URL `exp://IP:8081`. O `expo start` só desenha o QR code quando a saída é um terminal, e sob o Gradle não é. Por isso o `scripts/start-lan.js` escolhe o IP da rede como o Expo CLI faz, mostra o QR code e sobe o Metro nesse IP. Deixe o `:server:run` rodando: no Expo Go o app chama o servidor no mesmo IP do Metro (`hostUri` do expo-constants), na porta 8080. Na primeira vez, o Firewall do Windows pede para liberar o Java na rede privada.
+Mostra o QR code e a URL `exp://IP:8081` para abrir no Expo Go. O `expo start` só desenha o QR code quando a saída é um terminal, e sob o Gradle não é; por isso o `scripts/start-metro.js` escolhe o IP da rede como o Expo CLI faz e mostra o QR code. Deixe o `:server:run` rodando: no Expo Go o app chama o servidor no mesmo IP do Metro (`hostUri` do expo-constants), na porta 8080. Na primeira vez, o Firewall do Windows pede para liberar o Java na rede privada.
 
 A PWA não funciona aberta pelo IP da rede (`http://IP:8081`): o navegador só libera service worker em HTTPS ou em `localhost`.
 
-Android, com o aparelho conectado por USB e o servidor rodando (`adb reverse tcp:8080 tcp:8080` e `npx expo run:android --variant release`; o `adb` precisa estar no `PATH`):
+#### Android por USB
 
 ```bash
 ./gradlew :client:expo:runAndroid
 ```
 
+Com o aparelho conectado e o servidor rodando, faz o `adb reverse tcp:8080 tcp:8080` e instala o build release (`expo run:android --variant release`). O `adb` precisa estar no `PATH`.
+
 No build release o app chama `http://localhost:8080`, que o `adb reverse` leva ao computador. Por isso o `app.json` libera HTTP sem TLS (`usesCleartextTraffic`, via `expo-build-properties`). Isso é só para desenvolvimento; em produção a API deve usar HTTPS e essa opção sai.
 
-A pasta `android/` é gerada pelo `expo prebuild` e não vai para o git. Ajustes nativos ficam no config plugin `plugins/withKotlinAndroidBuild.js`, registrado no `app.json`. Ele faz a task de bundle do React Native acompanhar o bundle Kotlin, que fica fora da pasta do cliente: depois de rodar `buildClientBundle`, o próximo build Android já empacota o bundle novo.
+A pasta `android/` é gerada pelo `expo prebuild` e não vai para o git. Ajustes nativos ficam no config plugin `plugins/withKotlinAndroidBuild.js`, registrado no `app.json`. Ele faz a task de bundle do React Native acompanhar o bundle Kotlin, que fica fora da pasta do cliente, para o APK sempre levar o bundle novo.
 
 ### Android no Windows
 

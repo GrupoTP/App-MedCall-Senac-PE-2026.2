@@ -24,21 +24,25 @@ fun Exec.expo(vararg args: String) {
     commandLine(nodeCommand("npx", "expo", *args))
 }
 
-tasks.register<Exec>("startWeb") {
-    description = "Starts the PWA on http://localhost:8081 (npx expo start --web)."
-    expo("start", "--web")
-}
-
-// Under Gradle stdout is not a terminal, so `expo start` would skip the QR code; the script prints it.
-tasks.register<Exec>("startLan") {
+// Metro plus a continuous Gradle build of the Kotlin bundle, so Kotlin changes reload the app.
+fun Exec.metro(mode: String) {
     group = "recife saudavel"
-    description = "Starts Metro on the local network and prints the Expo Go QR code."
     dependsOn(npmInstall, ":client:app:buildClientBundle")
     standardInput = System.`in`
-    commandLine("node", "scripts/start-lan.js")
+    commandLine("node", "scripts/start-metro.js", mode)
 }
 
-val exportWeb =tasks.register<Exec>("exportWeb") {
+tasks.register<Exec>("startWeb") {
+    description = "Starts the PWA in development on http://localhost:8081, rebuilding the Kotlin bundle on change."
+    metro("web")
+}
+
+tasks.register<Exec>("startLan") {
+    description = "Starts Expo Go on the local network with a QR code, rebuilding the Kotlin bundle on change."
+    metro("lan")
+}
+
+val exportWeb = tasks.register<Exec>("exportWeb") {
     description = "Exports the PWA to client/expo/dist (npx expo export --platform web)."
     expo("export", "--platform", "web")
 }
