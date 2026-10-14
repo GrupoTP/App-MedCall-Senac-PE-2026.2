@@ -4,7 +4,7 @@ import grupotp.recifesaudavel.app.usecase.AppointmentsSnapshot
 import grupotp.recifesaudavel.app.usecase.CancelAppointment
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
-import grupotp.recifesaudavel.app.usecase.toMessage
+import grupotp.recifesaudavel.app.usecase.toCancellationMessage
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AppointmentStatus
@@ -95,7 +95,7 @@ internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
                 if (failure is SchedulingError.SessionExpired) {
                     sessionExpiredAlert(failure, props.onSignOut)
                 } else if (failure != null) {
-                    errorAlert(failure.toMessage())
+                    errorAlert(failure.toCancellationMessage())
                 }
                 if (current.appointments.isEmpty()) {
                     View {

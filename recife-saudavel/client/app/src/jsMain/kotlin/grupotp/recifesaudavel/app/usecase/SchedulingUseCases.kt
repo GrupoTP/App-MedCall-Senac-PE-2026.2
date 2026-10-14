@@ -146,6 +146,9 @@ private fun sortedByTime(appointments: List<Appointment>): List<Appointment> =
 const val SCHEDULING_OFFLINE_MESSAGE =
     "O agendamento precisa de internet. Conecte-se e tente de novo. Nenhuma consulta foi marcada."
 
+const val CANCELLATION_OFFLINE_MESSAGE =
+    "O cancelamento precisa de internet. Conecte-se e tente de novo. Nenhuma consulta foi cancelada."
+
 const val SESSION_EXPIRED_MESSAGE = "Sua sessão expirou. Entre de novo para continuar."
 
 fun SchedulingError.toMessage(): String = when (this) {
@@ -153,3 +156,10 @@ fun SchedulingError.toMessage(): String = when (this) {
     SchedulingError.SessionExpired -> SESSION_EXPIRED_MESSAGE
     is SchedulingError.Rejected -> message
 }
+
+fun SchedulingError.toCancellationMessage(): String = when (this) {
+    SchedulingError.Offline -> CANCELLATION_OFFLINE_MESSAGE
+    SchedulingError.SessionExpired -> SESSION_EXPIRED_MESSAGE
+    is SchedulingError.Rejected -> message
+}
+

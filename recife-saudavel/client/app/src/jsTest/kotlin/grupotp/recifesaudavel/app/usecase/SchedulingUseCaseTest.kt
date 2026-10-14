@@ -134,10 +134,31 @@ class SchedulingUseCaseTest {
         val acceptedResult = CancelAppointment(accepted, local)(account, later.id)
 
         // Assert
-        assertIs<SchedulingResult.Failed>(offlineResult)
+        assertEquals(
+            CANCELLATION_OFFLINE_MESSAGE,
+            assertIs<SchedulingResult.Failed>(offlineResult).error.toCancellationMessage(),
+        )
         assertEquals(0, savesAfterOffline)
         assertEquals(SchedulingResult.Success(cancelled), acceptedResult)
         assertEquals(listOf(sooner, cancelled), local.saved["maria"])
+    }
+
+    @Test
+    fun cancellationErrorMessages() {
+        // Arrange
+        val offline = SchedulingError.Offline
+        val sessionExpired = SchedulingError.SessionExpired
+        val rejected = SchedulingError.Rejected("Erro na clínica.")
+
+        // Act
+        val offlineMessage = offline.toCancellationMessage()
+        val sessionExpiredMessage = sessionExpired.toCancellationMessage()
+        val rejectedMessage = rejected.toCancellationMessage()
+
+        // Assert
+        assertEquals(CANCELLATION_OFFLINE_MESSAGE, offlineMessage)
+        assertEquals(SESSION_EXPIRED_MESSAGE, sessionExpiredMessage)
+        assertEquals("Erro na clínica.", rejectedMessage)
     }
 
     @Test
