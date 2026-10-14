@@ -120,6 +120,21 @@ class SchedulingServiceTest {
     }
 
     @Test
+    fun cancellingFreesTheSlotForANewBooking() {
+        // Arrange
+        val first = assertIs<BookingResult.Created>(service.book(maria, request(time = "11:00"))).appointment
+        service.cancel(maria, first.id)
+
+        // Act
+        val result = service.book(ana, request(time = "11:00"))
+
+        // Assert
+        assertIs<BookingResult.Created>(result)
+        assertEquals(AppointmentStatus.Cancelled, service.appointmentsOf(maria).single().status)
+        assertFalse("11:00" in service.availability(cardiology, lucia)!!.first { it.date == "2026-10-13" }.times)
+    }
+
+    @Test
     fun anyProfessionalPicksTheOneStillFree() {
         // Arrange
         service.book(maria, request(professionalId = antonio, time = "15:00"))

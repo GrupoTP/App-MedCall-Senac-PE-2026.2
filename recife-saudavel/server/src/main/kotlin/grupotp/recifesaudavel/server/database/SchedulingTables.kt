@@ -23,7 +23,11 @@ object ProfessionalsTable : Table("professionals") {
 
 /**
  * Dates are ISO `yyyy-MM-dd` and times `HH:mm`, so text order is time order on any database.
- * The unique index is what stops two patients from taking the same slot (RN-010).
+ *
+ * [slotKey] is what stops two patients from taking the same slot (RN-010): it holds
+ * [slotKeyOf] while the appointment is active and NULL once it is cancelled, so a cancelled
+ * appointment stays in the history without blocking its slot. A unique index allows many
+ * NULLs on both H2 and MySQL, which keeps this portable (no partial indexes).
  */
 object AppointmentsTable : Table("appointments") {
     val id = varchar("id", 36)
@@ -35,11 +39,16 @@ object AppointmentsTable : Table("appointments") {
     val reason = varchar("reason", 1000)
     val notes = varchar("notes", 1000)
     val createdAt = long("created_at")
+    val slotKey = varchar("slot_key", 60).nullable()
 
     override val primaryKey = PrimaryKey(id)
 
     init {
-        uniqueIndex("appointments_slot", professionalId, appointmentDate, appointmentTime)
+        uniqueIndex(SLOT_KEY_INDEX, slotKey)
         index(false, patientId)
     }
+
+    fun slotKeyOf(professionalId: String, date: String, time: String): String = "$professionalId|$date|$time"
+
+    const val SLOT_KEY_INDEX = "appointments_slot_key"
 }

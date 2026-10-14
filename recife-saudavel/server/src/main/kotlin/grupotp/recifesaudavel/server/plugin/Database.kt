@@ -5,6 +5,7 @@ import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.AppointmentsTable
 import grupotp.recifesaudavel.server.database.PreTriagesTable
 import grupotp.recifesaudavel.server.database.ProfessionalsTable
+import grupotp.recifesaudavel.server.database.SchemaMigrations
 import grupotp.recifesaudavel.server.database.SessionsTable
 import grupotp.recifesaudavel.server.database.SpecialtiesTable
 import grupotp.recifesaudavel.server.database.UsersTable
@@ -56,6 +57,7 @@ fun Application.configureDatabase() {
     transaction(database) {
         SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
     }
+    SchemaMigrations.run(database)
     getKoin().get<SchedulingRepository>().seedCatalogIfEmpty()
     monitor.subscribe(ApplicationStopped) {
         TransactionManager.closeAndUnregister(database)

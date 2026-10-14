@@ -108,7 +108,7 @@ class SchedulingRepository(
 
     /**
      * Inserts the appointment. Returns false when the slot was taken in the meantime:
-     * the unique index rejects the second insert even under concurrent requests.
+     * the unique slot key rejects the second insert even under concurrent requests.
      */
     fun insert(appointment: NewAppointment): Boolean = try {
         transaction(database) {
@@ -122,6 +122,7 @@ class SchedulingRepository(
                 it[reason] = appointment.reason
                 it[notes] = appointment.notes
                 it[createdAt] = appointment.createdAt
+                it[slotKey] = AppointmentsTable.slotKeyOf(appointment.slot.professionalId, appointment.slot.date, appointment.slot.time)
             }
         }
         true
@@ -137,12 +138,14 @@ class SchedulingRepository(
     }
 
     /**
-     * Marks the patient's own appointment as cancelled, freeing its slot. Returns false when the
+     * Marks the patient's own appointment as cancelled and clears its slot key, so the slot can
+     * be booked again while the appointment stays in the history. Returns false when the
      * appointment does not exist or belongs to someone else.
      */
     fun cancel(patientId: String, id: String): Boolean = transaction(database) {
         AppointmentsTable.update({ (AppointmentsTable.id eq id) and (AppointmentsTable.patientId eq patientId) }) {
             it[status] = STATUS_CANCELLED
+            it[slotKey] = null
         } > 0
     }
 
