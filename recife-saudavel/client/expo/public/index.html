@@ -28,6 +28,67 @@
         flex: 1;
       }
     </style>
+    <style id="asb-style">
+      /* Accessibility bar (web only). Adapted from ASB, MIT, github.com/brenonovelli/Accessibility-Settings-Bar */
+      #asb { position: fixed; top: 50%; right: 0; z-index: 2147483000; transform: translate(100%, -50%);
+        transition: transform .4s ease-in-out; background: rgba(34,34,34,.85); border-radius: 12px 0 0 12px;
+        padding: 4px; width: 220px; font-family: system-ui, sans-serif; }
+      #asb.active { transform: translate(0, -50%); box-shadow: 0 5px 30px rgba(34,34,34,.5); }
+      #asb * { box-sizing: border-box; }
+      #asb .asb-toggle { position: absolute; top: 50%; left: 0; transform: translate(-115%, -50%);
+        width: 44px; height: 44px; border-radius: 50%; border: 0; background: #2d7dd2; color: #fff;
+        cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; }
+      #asb .asb-toggle svg { width: 28px; height: 28px; }
+      #asb .asb-toggle span { position: absolute; top: 50%; right: 120%; transform: translateY(-50%);
+        height: 100%; padding: 0 14px; border-radius: 4px; background: #2d7dd2; color: #fff; font-size: 16px;
+        font-weight: 700; line-height: 1.1; text-align: right; white-space: nowrap; display: flex; align-items: center;
+        box-shadow: 0 10px 30px rgba(102,102,102,.1); transition: all .3s ease-in-out; opacity: 0; right: 50%; pointer-events: none; }
+      #asb .asb-toggle:hover span, #asb .asb-toggle:focus-visible span { opacity: 1; right: 120%; }
+      #asb .asb-toggle.intro span { opacity: 1; right: 120%; }
+      #asb .asb-item { display: flex; align-items: center; width: 100%; margin: 4px 0; padding: 4px; gap: 8px;
+        border: 0; border-radius: 6px; background: #eee; color: #222; font-size: 14px; font-weight: 700; cursor: pointer; text-align: left; }
+      #asb .asb-item:hover { background: #fff; }
+      #asb .asb-item[aria-pressed="true"] { background: #2d7dd2; color: #fff; }
+      #asb .asb-item strong { display: flex; align-items: center; justify-content: center; flex: none;
+        width: 36px; height: 36px; border-radius: 4px; background: #2d7dd2; color: #fff; font-size: 16px; }
+      #asb button:focus-visible { outline: 3px solid #ffbf47; outline-offset: 2px; }
+      #asb-line { position: fixed; left: 0; width: 100vw; height: 6px; background: #2d7dd2; pointer-events: none;
+        z-index: 2147482999; display: none; }
+      #asb-marker { position: fixed; left: 0; width: 100vw; height: 28px; background: rgba(255,230,0,.35);
+        pointer-events: none; z-index: 2147482999; display: none; }
+      /* Filters go on #root, so the bar (outside it) keeps its own look. */
+      html.asb-dark #root { filter: invert(1) hue-rotate(180deg); }
+      html.asb-dark #root img, html.asb-dark #root video, html.asb-dark #root canvas, html.asb-dark #root svg image
+        { filter: invert(1) hue-rotate(180deg); }
+      html.asb-contrast, html.asb-contrast body, html.asb-contrast #root { background: #000 !important; color-scheme: dark; }
+      html.asb-contrast #root [data-asb-bg] { background-color: #000 !important; background-image: none !important; }
+      html.asb-contrast #root * { color: #fff !important; border-color: #fff !important; text-shadow: none !important; box-shadow: none !important; }
+      html.asb-contrast.asb-contrast #root a, html.asb-contrast.asb-contrast #root a *, html.asb-contrast.asb-contrast #root [role="link"],
+        html.asb-contrast.asb-contrast #root [role="link"] * { color: #ff0 !important; }
+      /* Windows-style: outlined controls, yellow icons and links, no yellow fills. */
+      html.asb-contrast.asb-contrast #root button, html.asb-contrast.asb-contrast #root [role="button"],
+        html.asb-contrast.asb-contrast #root [role="tab"], html.asb-contrast.asb-contrast #root [role="switch"],
+        html.asb-contrast.asb-contrast #root [role="menuitem"] { background-color: #000 !important;
+        border: 2px solid #ff0 !important; }
+      html.asb-contrast.asb-contrast #root [data-asb-flat] { border: 0 !important; }
+      html.asb-contrast.asb-contrast #root svg[data-asb-icon] [fill]:not([fill="none"]) { fill: #ff0 !important; }
+      html.asb-contrast.asb-contrast #root svg[data-asb-icon] [stroke]:not([stroke="none"]) { stroke: #ff0 !important; }
+      html.asb-contrast #root input, html.asb-contrast #root textarea, html.asb-contrast #root select
+        { border: 1px solid #fff !important; }
+      html.asb-contrast.asb-contrast #root [data-asb-fill] { background-color: #ff0 !important; }
+      html.asb-contrast.asb-contrast #root [data-asb-track] { background-color: #6b6b6b !important; }
+      html.asb-contrast.asb-contrast #root [data-asb-dot] { border: 2px solid #ff0 !important; }
+      html.asb-contrast #root svg[data-asb-deco] { visibility: hidden !important; }
+      html.asb-contrast #root img { filter: grayscale(1) contrast(1.2); }
+      html.asb-contrast #asb { background: #000; border: 1px solid #ff0; }
+      html.asb-contrast #asb .asb-item { background: #000; color: #ff0; border: 1px solid #ff0; }
+      html.asb-contrast #asb .asb-item strong { background: #000; color: #ff0; }
+      html.asb-contrast #asb .asb-item[aria-pressed="true"] { background: #ff0; color: #000; }
+      html.asb-contrast #asb .asb-item[aria-pressed="true"] strong { background: #ff0; color: #000; }
+      html.asb-contrast #asb .asb-toggle, html.asb-contrast #asb .asb-toggle span { background: #000; color: #ff0; border: 1px solid #ff0; }
+      @media (max-width: 576px) { #asb { top: auto; bottom: 0; transform: translateX(100%); border-radius: 12px 0 0 0; }
+        #asb.active { transform: translateX(0); } #asb .asb-toggle { top: auto; bottom: 16px; transform: translateX(-120%); } }
+    </style>
   </head>
 
   <body>
@@ -36,5 +97,143 @@
     </noscript>
     <!-- The Kotlin UI renders here through react-native-web. -->
     <div id="root"></div>
+    <script id="asb-script">
+      // Accessibility bar (web only). Adapted from ASB, MIT, github.com/brenonovelli/Accessibility-Settings-Bar
+      (function () {
+        var KEY = "asb-settings", STEPS = [80, 100, 120, 140, 160, 180, 200];
+        var st = { size: 100, dark: false, contrast: false, reading: false, marker: false };
+        try { st = Object.assign(st, JSON.parse(localStorage.getItem(KEY) || "{}")); } catch (e) {}
+        var html = document.documentElement;
+
+        // High contrast needs per-element decisions CSS cannot make, so a painter marks elements with data-asb-*.
+        // New nodes are painted inside the MutationObserver callback, before the browser draws the frame,
+        // so navigating never flashes the original colors.
+        var ATTRS = ["data-asb-bg", "data-asb-icon", "data-asb-deco", "data-asb-flat", "data-asb-fill", "data-asb-track", "data-asb-dot"];
+        var SEL = "button,[role=button],[role=tab],[role=menuitem]";
+        function luminance(m) { return (0.299 * m[0] + 0.587 * m[1] + 0.114 * m[2]) / 255; }
+        function paintOne(e) {
+          ATTRS.forEach(function (n) { e.removeAttribute(n); });
+          if (e.id === "asb" || e.closest("#asb")) return;
+          var tag = e.tagName.toLowerCase();
+          var r = e.getBoundingClientRect();
+          if (tag === "svg") {
+            if (!r.width) return;
+            if (r.width <= 64 && r.height <= 64) e.setAttribute("data-asb-icon", "");
+            else if (r.width > innerWidth * 0.5) e.setAttribute("data-asb-deco", "");
+            return;
+          }
+          if (e.matches(SEL) && r.width > innerWidth * 0.8 && r.height > innerHeight * 0.5) e.setAttribute("data-asb-flat", "");
+          var c = getComputedStyle(e);
+          if (c.pointerEvents === "none") return;
+          var m = (c.backgroundColor.match(/[\d.]+/g) || []).map(parseFloat);
+          var solid = m.length >= 3 && (m.length < 4 || m[3] > 0.5);
+          if (solid) {
+            var thin = Math.min(r.width, r.height) > 0 && Math.min(r.width, r.height) <= 16 && Math.max(r.width, r.height) > 24;
+            var dot = r.width > 0 && r.width <= 48 && r.height <= 48 && !thin && parseFloat(c.borderTopLeftRadius) >= Math.min(r.width, r.height) / 2 - 1;
+            var light = luminance(m) > 0.8;
+            if (thin) { e.setAttribute(light ? "data-asb-track" : "data-asb-fill", ""); return; }
+            if (dot) { e.setAttribute(light ? "data-asb-track" : "data-asb-dot", ""); e.setAttribute("data-asb-bg", ""); return; }
+          }
+          if (solid || (c.backgroundImage && c.backgroundImage !== "none")) e.setAttribute("data-asb-bg", "");
+        }
+        function paintTree(n) {
+          if (n.nodeType !== 1) return;
+          paintOne(n);
+          n.querySelectorAll("*").forEach(paintOne);
+        }
+        function clearPaint() {
+          var root = document.getElementById("root"); if (!root) return;
+          root.querySelectorAll("[data-asb-bg],[data-asb-icon],[data-asb-deco],[data-asb-flat],[data-asb-fill],[data-asb-track],[data-asb-dot]")
+            .forEach(function (e) { ATTRS.forEach(function (n) { e.removeAttribute(n); }); });
+        }
+        var paintTimer = 0;
+        function schedulePaint() {
+          clearTimeout(paintTimer);
+          paintTimer = setTimeout(function () {
+            var root = document.getElementById("root"); if (!root) return;
+            clearPaint();
+            if (st.contrast) paintTree(root);
+            setTimeout(function () { if (st.contrast) paintTree(root); }, 500);
+          }, 0);
+        }
+        window.addEventListener("resize", function () { if (st.contrast) schedulePaint(); });
+        new MutationObserver(function (list) {
+          if (!st.contrast) return;
+          list.forEach(function (m) {
+            if (m.type === "childList") m.addedNodes.forEach(paintTree);
+            else if (m.target.nodeType === 1 && !m.target.closest("#asb")) paintOne(m.target);
+          });
+        }).observe(document.documentElement, { childList: true, subtree: true, attributes: true, attributeFilter: ["class", "style"] });
+
+        function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch (e) {} }
+        function apply() {
+          var root = document.getElementById("root");
+          if (root) root.style.zoom = st.size === 100 ? "" : st.size / 100;
+          html.classList.toggle("asb-dark", st.dark);
+          html.classList.toggle("asb-contrast", st.contrast);
+          line.style.display = st.reading ? "block" : "none";
+          marker.style.display = st.marker ? "block" : "none";
+          items.forEach(function (i) {
+            if (i.key) i.el.setAttribute("aria-pressed", String(!!st[i.key]));
+          });
+          schedulePaint();
+          save();
+        }
+        function step(dir) {
+          var at = STEPS.indexOf(st.size); if (at < 0) at = 1;
+          st.size = STEPS[Math.max(0, Math.min(STEPS.length - 1, at + dir))];
+        }
+
+        var bar = document.createElement("div"); bar.id = "asb";
+        bar.setAttribute("role", "region"); bar.setAttribute("aria-label", "Acessibilidade");
+        var toggle = document.createElement("button");
+        toggle.className = "asb-toggle"; toggle.type = "button";
+        toggle.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+          'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9.5"/>' +
+          '<circle cx="12" cy="7.2" r="1.2" fill="currentColor" stroke="none"/><path d="M6.5 10l5.5 1 5.5-1"/>' +
+          '<path d="M12 11v3.2M12 14.2l-2.2 4.3M12 14.2l2.2 4.3"/></svg><span>Menu de<br>acessibilidade</span>';
+        toggle.classList.add("intro");
+        setTimeout(function () { toggle.classList.remove("intro"); }, 2000);
+        toggle.setAttribute("aria-label", "Menu de acessibilidade"); toggle.setAttribute("aria-expanded", "false");
+        toggle.addEventListener("click", function () {
+          var open = bar.classList.toggle("active"); toggle.setAttribute("aria-expanded", String(open));
+        });
+        bar.appendChild(toggle);
+
+        var line = document.createElement("div"); line.id = "asb-line";
+        var marker = document.createElement("div"); marker.id = "asb-marker";
+
+        var defs = [
+          { icon: "◑", text: "Alto contraste", key: "contrast", run: function () { st.contrast = !st.contrast; if (st.contrast) st.dark = false; } },
+          { icon: "☾", text: "Modo escuro", key: "dark", run: function () { st.dark = !st.dark; if (st.dark) st.contrast = false; } },
+          { icon: "A+", text: "Aumentar fonte", run: function () { step(1); } },
+          { icon: "Aa", text: "Fonte original", run: function () { st.size = 100; } },
+          { icon: "A-", text: "Diminuir fonte", run: function () { step(-1); } },
+          { icon: "━", text: "Marcador", key: "marker", run: function () { st.marker = !st.marker; } },
+          { icon: "═", text: "Linha guia", key: "reading", run: function () { st.reading = !st.reading; } },
+          { icon: "↻", text: "Redefinir", run: function () { st = { size: 100, dark: false, contrast: false, reading: false, marker: false }; } }
+        ];
+        var items = defs.map(function (d) {
+          var b = document.createElement("button"); b.type = "button"; b.className = "asb-item";
+          var ic = document.createElement("strong"); ic.setAttribute("aria-hidden", "true"); ic.textContent = d.icon;
+          b.appendChild(ic); b.appendChild(document.createTextNode(d.text));
+          b.addEventListener("click", function () { d.run(); apply(); });
+          bar.appendChild(b);
+          return { el: b, key: d.key };
+        });
+
+        function follow(e) {
+          if (st.reading) line.style.top = e.clientY - 3 + "px";
+          if (st.marker) marker.style.top = e.clientY - 14 + "px";
+        }
+        html.addEventListener("mousemove", follow);
+
+        function mount() {
+          document.body.appendChild(bar); document.body.appendChild(line); document.body.appendChild(marker);
+          apply();
+        }
+        if (document.body) mount(); else document.addEventListener("DOMContentLoaded", mount);
+      })();
+    </script>
   </body>
 </html>
