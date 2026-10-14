@@ -153,11 +153,10 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
                 when (step) {
                     0 -> {
                         clinicalDisclaimer()
-                        warnAlert("Emergência? Não aguarde o agendamento. Ligue 192 (SAMU) ou vá ao pronto-socorro.")
+                        warnAlert("Emergência? Não aguarde o agendamento. Ligue 192 (SAMU) ou vá ao pronto-socorro.", icon = "🚨")
                         View {
                             style = Styles.card
                             sectionTitle("Dados Pessoais")
-                            infoAlert("Alterar estes dados vale só para esta pré-triagem. Seu cadastro não muda.")
                             textField("Nome completo", current.fullName, "Ex: José Carlos da Silva", FieldKind.Name, required = true) {
                                 update("fullName") { copy(fullName = it) }
                             }

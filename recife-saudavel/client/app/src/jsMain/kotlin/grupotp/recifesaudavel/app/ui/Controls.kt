@@ -355,12 +355,12 @@ internal fun ChildrenBuilder.strongText(value: String) {
     }
 }
 
-internal fun ChildrenBuilder.warnAlert(message: String) {
+internal fun ChildrenBuilder.warnAlert(message: String, icon: String = "⚠️") {
     View {
         style = Styles.warnAlert
         View {
             style = Styles.alertIcon
-            emoji("⚠️")
+            emoji(icon)
         }
         Text {
             style = Styles.warnAlertText
