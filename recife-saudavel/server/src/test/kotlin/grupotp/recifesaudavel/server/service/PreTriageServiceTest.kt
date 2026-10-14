@@ -80,7 +80,7 @@ class PreTriageServiceTest {
         // Assert
         assertEquals("Maria das Graças Silva", draft.fullName)
         assertEquals("Graça", draft.socialName)
-        assertEquals("(81) 99999-9999", draft.primaryPhone)
+        assertEquals("81999999999", draft.primaryPhone)
         assertEquals(true, draft.primaryPhoneWhatsapp)
         assertEquals("", draft.birthDate)
         assertEquals("", draft.allergies)
@@ -96,7 +96,7 @@ class PreTriageServiceTest {
 
         // Assert
         assertEquals("Maria das Graças Silva", draft.fullName)
-        assertEquals("(81) 99999-9999", draft.primaryPhone)
+        assertEquals("81999999999", draft.primaryPhone)
         assertEquals("1980-05-31", draft.birthDate)
         assertEquals("Hipertensão", draft.previousConditions)
         assertEquals("Dipirona", draft.allergies)

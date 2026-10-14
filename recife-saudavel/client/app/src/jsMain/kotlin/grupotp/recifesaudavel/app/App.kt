@@ -6,15 +6,20 @@ import grupotp.recifesaudavel.app.ui.LoginScreen
 import grupotp.recifesaudavel.app.ui.Palette
 import grupotp.recifesaudavel.app.ui.PreTriageScreen
 import grupotp.recifesaudavel.app.ui.PreTriageSuccessScreen
+import grupotp.recifesaudavel.app.ui.PrivacyPolicyScreen
 import grupotp.recifesaudavel.app.ui.RegisterScreen
 import grupotp.recifesaudavel.app.ui.ScheduleScreen
 import grupotp.recifesaudavel.app.ui.ScheduleSuccessScreen
+import grupotp.recifesaudavel.app.ui.SettingsScreen
+import grupotp.recifesaudavel.app.ui.SettingsTab
 import grupotp.recifesaudavel.app.ui.WelcomeScreen
 import grupotp.recifesaudavel.app.ui.font.useAppFonts
 import grupotp.recifesaudavel.app.ui.useScreenScope
 import grupotp.recifesaudavel.app.usecase.BookAppointment
 import grupotp.recifesaudavel.app.usecase.CancelAppointment
+import grupotp.recifesaudavel.app.usecase.ChangePassword
 import grupotp.recifesaudavel.app.usecase.ListAppointments
+import grupotp.recifesaudavel.app.usecase.LoadAccountProfile
 import grupotp.recifesaudavel.app.usecase.LoadAvailability
 import grupotp.recifesaudavel.app.usecase.LoadPendingPreTriage
 import grupotp.recifesaudavel.app.usecase.LoadPreTriageDraft
@@ -24,10 +29,13 @@ import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
 import grupotp.recifesaudavel.app.usecase.RefreshAccount
 import grupotp.recifesaudavel.app.usecase.RegisterAccount
 import grupotp.recifesaudavel.app.usecase.RememberSignedInAccount
+import grupotp.recifesaudavel.app.usecase.RequestAccountDeletion
 import grupotp.recifesaudavel.app.usecase.RequestPasswordRecovery
+import grupotp.recifesaudavel.app.usecase.SaveAccountProfile
 import grupotp.recifesaudavel.app.usecase.SignIn
 import grupotp.recifesaudavel.app.usecase.SignOut
 import grupotp.recifesaudavel.app.usecase.SubmitPreTriage
+import grupotp.recifesaudavel.app.usecase.UpdateNotificationConsent
 import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import kotlinx.coroutines.launch
@@ -51,6 +59,8 @@ internal enum class AppScreen {
     Appointments,
     PreTriage,
     PreTriageSuccess,
+    Settings,
+    PrivacyPolicy,
 }
 
 internal external interface AppProps : Props {
@@ -70,6 +80,11 @@ internal external interface AppProps : Props {
     var loadPreTriageDraft: LoadPreTriageDraft
     var submitPreTriage: SubmitPreTriage
     var loadPendingPreTriage: LoadPendingPreTriage
+    var loadAccountProfile: LoadAccountProfile
+    var saveAccountProfile: SaveAccountProfile
+    var updateNotificationConsent: UpdateNotificationConsent
+    var changePassword: ChangePassword
+    var requestAccountDeletion: RequestAccountDeletion
 }
 
 /**
@@ -98,6 +113,11 @@ internal val Root = FC<Props> {
                 loadPreTriageDraft = koin.get()
                 submitPreTriage = koin.get()
                 loadPendingPreTriage = koin.get()
+                loadAccountProfile = koin.get()
+                saveAccountProfile = koin.get()
+                updateNotificationConsent = koin.get()
+                changePassword = koin.get()
+                requestAccountDeletion = koin.get()
             }
         }
     }
@@ -107,6 +127,7 @@ internal val App = FC<AppProps> { props ->
     var screen by useState(AppScreen.Welcome)
     var account by useState<AuthenticatedAccount?>(null)
     var booked by useState<Appointment?>(null)
+    var settingsTab by useState(SettingsTab.Account)
     val scope = useScreenScope()
     useEffectOnce {
         scope.launch {
@@ -146,6 +167,17 @@ internal val App = FC<AppProps> { props ->
         account = null
         booked = null
         screen = AppScreen.Login
+        scope.launch {
+            runCatching { props.signOut() }
+        }
+    }
+
+    // Leaving on purpose: the device forgets the profile and the person lands on the welcome screen.
+    fun logout() {
+        account = null
+        booked = null
+        settingsTab = SettingsTab.Account
+        screen = AppScreen.Welcome
         scope.launch {
             runCatching { props.signOut() }
         }
@@ -214,12 +246,34 @@ internal val App = FC<AppProps> { props ->
             onBack = { screen = AppScreen.Home }
             onSignOut = ::signOut
         }
+        screen == AppScreen.Settings -> SettingsScreen {
+            this.account = signedIn
+            loadAccountProfile = props.loadAccountProfile
+            saveAccountProfile = props.saveAccountProfile
+            updateNotificationConsent = props.updateNotificationConsent
+            changePassword = props.changePassword
+            requestAccountDeletion = props.requestAccountDeletion
+            tab = settingsTab
+            onTab = { settingsTab = it }
+            onBack = {
+                settingsTab = SettingsTab.Account
+                screen = AppScreen.Home
+            }
+            onPrivacyPolicy = { screen = AppScreen.PrivacyPolicy }
+            onAccountChanged = { account = it }
+            onLogout = ::logout
+            onSignOut = ::signOut
+        }
+        screen == AppScreen.PrivacyPolicy -> PrivacyPolicyScreen {
+            onBack = { screen = AppScreen.Settings }
+        }
         else -> HomeScreen {
             this.account = signedIn
             listAppointments = props.listAppointments
             onSchedule = { screen = AppScreen.Schedule }
             onPreTriage = { screen = AppScreen.PreTriage }
             onAppointments = { screen = AppScreen.Appointments }
+            onSettings = { screen = AppScreen.Settings }
             onSignOut = ::signOut
         }
     }

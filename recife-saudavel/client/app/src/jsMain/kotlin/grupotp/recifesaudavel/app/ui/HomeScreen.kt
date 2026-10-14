@@ -2,7 +2,6 @@ package grupotp.recifesaudavel.app.ui
 
 import grupotp.recifesaudavel.app.usecase.AppointmentsSnapshot
 import grupotp.recifesaudavel.app.usecase.ListAppointments
-import grupotp.recifesaudavel.app.usecase.NOT_IMPLEMENTED_MESSAGE
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.toMessage
 import grupotp.recifesaudavel.app.usecase.upcomingAppointments
@@ -37,6 +36,7 @@ internal external interface HomeScreenProps : Props {
     var onSchedule: () -> Unit
     var onPreTriage: () -> Unit
     var onAppointments: () -> Unit
+    var onSettings: () -> Unit
     var onSignOut: () -> Unit
 }
 
@@ -53,10 +53,6 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
         scope.launch {
             snapshot = props.listAppointments(props.account)
         }
-    }
-
-    fun markUnavailable() {
-        notice = NOT_IMPLEMENTED_MESSAGE
     }
 
     // Scheduling and pre-triage are online only. Offline, a press checks the connection again before refusing.
@@ -95,7 +91,7 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
                         style = pressable(Styles.homeIconButton)
                         accessibilityRole = "button"
                         accessibilityLabel = "Configurações"
-                        onPress = { markUnavailable() }
+                        onPress = { props.onSettings() }
                         settingsIcon(Palette.WHITE)
                     }
                 }

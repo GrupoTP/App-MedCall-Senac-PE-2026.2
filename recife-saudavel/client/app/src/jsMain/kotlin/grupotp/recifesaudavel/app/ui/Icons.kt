@@ -256,3 +256,18 @@ internal fun ChildrenBuilder.alertIcon(color: String) {
         line(12.0, 16.0, 12.01, 16.0)
     }
 }
+
+internal fun ChildrenBuilder.lockIcon(color: String) {
+    strokeIcon(size = 18, color = color) {
+        path("M5 11h14a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2z")
+        path("M7 11V7a5 5 0 0 1 10 0v4")
+    }
+}
+
+internal fun ChildrenBuilder.logoutIcon(color: String) {
+    strokeIcon(size = 18, color = color) {
+        path("M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4")
+        path("M16 17l5-5-5-5")
+        line(21.0, 12.0, 9.0, 12.0)
+    }
+}

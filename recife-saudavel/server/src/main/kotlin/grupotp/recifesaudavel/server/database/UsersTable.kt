@@ -18,6 +18,11 @@ object UsersTable : Table("users") {
     val acceptedTreatment = bool("accepted_treatment")
     val wantsNotifications = bool("wants_notifications")
 
+    // Nullable: accounts created before these columns existed have no value.
+    val createdAt = long("created_at").nullable()
+    val lastLoginAt = long("last_login_at").nullable()
+    val deletionRequestedAt = long("deletion_requested_at").nullable()
+
     override val primaryKey = PrimaryKey(id)
 
     init {

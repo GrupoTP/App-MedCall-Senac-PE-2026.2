@@ -5,6 +5,7 @@ import grupotp.recifesaudavel.common.RegisterAccountRequest
 import grupotp.recifesaudavel.common.SignInRequest
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
+import java.time.Clock
 import java.util.UUID
 
 sealed interface RegistrationResult {
@@ -21,6 +22,7 @@ class AuthService(
     private val users: UserRepository,
     private val passwords: PasswordHasher,
     private val sessions: SessionService,
+    private val clock: Clock,
 ) {
     fun register(request: RegisterAccountRequest): RegistrationResult {
         validate(request)?.let { return RegistrationResult.Rejected(it) }
@@ -32,6 +34,7 @@ class AuthService(
             id = UUID.randomUUID().toString(),
             request = request,
             passwordHash = passwords.hash(request.password),
+            now = clock.millis(),
         )
         return RegistrationResult.Created(account.withSession())
     }
@@ -42,6 +45,7 @@ class AuthService(
         if (user == null || !passwords.verify(request.password, user.passwordHash)) {
             return SignInResult.Rejected("E-mail ou senha incorretos.")
         }
+        users.recordLogin(user.account.id, clock.millis())
         return SignInResult.Authenticated(user.account.withSession())
     }
 

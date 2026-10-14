@@ -14,6 +14,7 @@ import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.SessionRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
+import grupotp.recifesaudavel.server.service.AccountService
 import grupotp.recifesaudavel.server.service.AuthService
 import grupotp.recifesaudavel.server.service.PreTriageService
 import grupotp.recifesaudavel.server.service.SchedulingService
@@ -48,6 +49,7 @@ fun Application.configureDatabase() {
                 singleOf(::PreTriageRepository)
                 singleOf(::SessionService)
                 singleOf(::AuthService)
+                singleOf(::AccountService)
                 singleOf(::SchedulingService)
                 singleOf(::PreTriageService)
             },

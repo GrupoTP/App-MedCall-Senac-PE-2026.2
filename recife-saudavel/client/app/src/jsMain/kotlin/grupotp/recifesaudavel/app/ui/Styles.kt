@@ -561,6 +561,73 @@ internal object Styles {
     val statusCancelledText = text(size = 12, lineHeight = 16, color = Palette.CANCELLED_TEXT)
     val emptyState = ViewStyle(alignItems = "center", gap = 12, paddingVertical = 48)
     val emptyStateText = text(size = 14, lineHeight = 21, color = Palette.MUTED, align = "center")
+
+    // Settings
+
+    val tabBar = ViewStyle(
+        borderBottomWidth = 1,
+        borderBottomColor = Palette.LINE,
+        backgroundColor = Palette.WHITE,
+    )
+    val tabBarInner = ViewStyle(
+        width = "100%",
+        maxWidth = CONTENT_MAX_WIDTH,
+        alignSelf = "center",
+        flexDirection = "row",
+        gap = 4,
+        paddingHorizontal = 16,
+        paddingVertical = 12,
+    )
+    val tab = ViewStyle(flex = 1, alignItems = "center", paddingVertical = 8, borderRadius = 12)
+    val tabSelected = ViewStyle(backgroundColor = Palette.BLUE)
+    val tabText = text(size = 12, lineHeight = 16, color = Palette.MUTED)
+    val tabTextSelected = text(size = 12, lineHeight = 16, color = Palette.WHITE)
+    val cardTight = ViewStyle(
+        gap = 8,
+        padding = 16,
+        borderWidth = 1,
+        borderColor = Palette.LINE,
+        borderRadius = 16,
+        backgroundColor = Palette.WHITE,
+    )
+    val dangerRow = ViewStyle(
+        flexDirection = "row",
+        alignItems = "center",
+        gap = 12,
+        paddingVertical = 12,
+        paddingHorizontal = 12,
+        borderRadius = 12,
+    )
+    val dangerText = text(size = 14, lineHeight = 20, color = Palette.CANCELLED_TEXT)
+    val noteText = text(size = 12, lineHeight = 18, color = Palette.MUTED, paddingVertical = 0)
+    val consentRow = ViewStyle(
+        flexDirection = "row",
+        alignItems = "flex-start",
+        gap = 12,
+        padding = 12,
+        borderWidth = 1,
+        borderColor = Palette.LINE,
+        borderRadius = 12,
+        backgroundColor = Palette.CANVAS,
+    )
+    val consentRowCopy = ViewStyle(flex = 1)
+    val consentRowTitle = text(size = 14, lineHeight = 20)
+    val consentRowText = text(size = 12, lineHeight = 16, color = Palette.MUTED, marginTop = 2)
+    val linkCard = ViewStyle(
+        flexDirection = "row",
+        alignItems = "center",
+        gap = 12,
+        padding = 16,
+        borderWidth = 1,
+        borderColor = Palette.LINE,
+        borderRadius = 16,
+        backgroundColor = Palette.WHITE,
+    )
+    val policyHero = ViewStyle(gap = 4, padding = 16, borderRadius = 16, backgroundColor = Palette.BLUE)
+    val policyHeroTitle = text(size = 14, lineHeight = 20, color = Palette.WHITE, family = FontFamily.DISPLAY)
+    val policyHeroText = text(size = 12, lineHeight = 18, color = "rgba(255, 255, 255, 0.8)")
+    val policyTitle = text(size = 14, lineHeight = 20, family = FontFamily.DISPLAY)
+    val policyText = text(size = 14, lineHeight = 22, color = Palette.MUTED, marginTop = 6)
 }
 
 private fun text(

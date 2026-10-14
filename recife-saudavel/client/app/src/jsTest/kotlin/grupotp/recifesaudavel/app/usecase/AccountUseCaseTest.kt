@@ -1,0 +1,157 @@
+package grupotp.recifesaudavel.app.usecase
+
+import grupotp.recifesaudavel.common.AccountProfile
+import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.ChangePasswordRequest
+import grupotp.recifesaudavel.common.UpdateConsentsRequest
+import grupotp.recifesaudavel.common.UpdateProfileRequest
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
+
+class AccountUseCaseTest {
+    private val account = AuthenticatedAccount(
+        id = "1",
+        fullName = "Poly",
+        socialName = "",
+        email = "poly@email.com",
+        sessionToken = "token",
+        phone = "81999999999",
+    )
+    private val profile = AccountProfile(
+        fullName = "Polyana Fontes",
+        socialName = "Poly",
+        email = "novo@email.com",
+        primaryPhone = "81988887777",
+        primaryPhoneWhatsapp = true,
+        secondaryPhone = "",
+        secondaryPhoneWhatsapp = false,
+        emergencyContactName = "",
+        emergencyContactPhone = "",
+        acceptedPrivacyPolicy = true,
+        acceptedTreatment = true,
+        wantsNotifications = false,
+    )
+    private val request = UpdateProfileRequest(
+        fullName = "Polyana Fontes",
+        socialName = "Poly",
+        email = "novo@email.com",
+        primaryPhone = "81988887777",
+        primaryPhoneWhatsapp = true,
+        secondaryPhone = "",
+        secondaryPhoneWhatsapp = false,
+        emergencyContactName = "",
+        emergencyContactPhone = "",
+    )
+
+    @Test
+    fun savedProfileUpdatesTheDeviceCopyKeepingTheToken() = runTest {
+        // Arrange
+        val local = MemoryAccounts()
+        val save = SaveAccountProfile(FakeAccountGateway(SchedulingResult.Success(profile)), local)
+
+        // Act
+        val result = save(account, request)
+
+        // Assert
+        val saved = assertIs<SchedulingResult.Success<SavedProfile>>(result).value
+        val expected = account.copy(
+            fullName = "Polyana Fontes",
+            socialName = "Poly",
+            email = "novo@email.com",
+            phone = "81988887777",
+        )
+        assertEquals(expected, saved.account)
+        assertEquals(expected, local.stored)
+        assertEquals(profile, saved.profile)
+    }
+
+    @Test
+    fun refusedOrOfflineSaveLeavesTheDeviceCopyAlone() = runTest {
+        // Arrange
+        val local = MemoryAccounts()
+        val offline = SaveAccountProfile(
+            FakeAccountGateway(SchedulingResult.Failed(SchedulingError.Offline)),
+            local,
+        )
+        val refused = SaveAccountProfile(
+            FakeAccountGateway(SchedulingResult.Failed(SchedulingError.Rejected("E-mail já cadastrado."))),
+            local,
+        )
+
+        // Act
+        val offlineResult = offline(account, request)
+        val refusedResult = refused(account, request)
+
+        // Assert
+        assertEquals(SchedulingError.Offline, assertIs<SchedulingResult.Failed>(offlineResult).error)
+        assertEquals(
+            SchedulingError.Rejected("E-mail já cadastrado."),
+            assertIs<SchedulingResult.Failed>(refusedResult).error,
+        )
+        assertEquals(null, local.stored)
+    }
+
+    @Test
+    fun passwordAndConsentCallsCarryTheSessionToken() = runTest {
+        // Arrange
+        val gateway = FakeAccountGateway(SchedulingResult.Success(profile))
+
+        // Act
+        ChangePassword(gateway)(account, "segredo", "novasenha")
+        UpdateNotificationConsent(gateway)(account, true)
+        RequestAccountDeletion(gateway)(account)
+
+        // Assert
+        assertEquals(listOf("token", "token", "token"), gateway.tokens)
+        assertEquals(ChangePasswordRequest("segredo", "novasenha"), gateway.passwordRequest)
+        assertEquals(UpdateConsentsRequest(wantsNotifications = true), gateway.consentRequest)
+    }
+
+    private class FakeAccountGateway(
+        private val result: SchedulingResult<AccountProfile>,
+    ) : AccountGateway {
+        val tokens = mutableListOf<String>()
+        var passwordRequest: ChangePasswordRequest? = null
+        var consentRequest: UpdateConsentsRequest? = null
+
+        override suspend fun profile(token: String): SchedulingResult<AccountProfile> = result.also { tokens += token }
+
+        override suspend fun update(token: String, request: UpdateProfileRequest): SchedulingResult<AccountProfile> =
+            result.also { tokens += token }
+
+        override suspend fun updateConsents(
+            token: String,
+            request: UpdateConsentsRequest,
+        ): SchedulingResult<AccountProfile> = result.also {
+            tokens += token
+            consentRequest = request
+        }
+
+        override suspend fun changePassword(
+            token: String,
+            request: ChangePasswordRequest,
+        ): SchedulingResult<AccountProfile> = result.also {
+            tokens += token
+            passwordRequest = request
+        }
+
+        override suspend fun requestDeletion(token: String): SchedulingResult<AccountProfile> =
+            result.also { tokens += token }
+    }
+
+    private class MemoryAccounts : LocalAccountGateway {
+        var stored: AuthenticatedAccount? = null
+
+        override suspend fun save(account: AuthenticatedAccount) {
+            stored = account
+        }
+
+        override suspend fun load(): AuthenticatedAccount? = stored
+
+        override suspend fun clear() {
+            stored = null
+        }
+    }
+}
