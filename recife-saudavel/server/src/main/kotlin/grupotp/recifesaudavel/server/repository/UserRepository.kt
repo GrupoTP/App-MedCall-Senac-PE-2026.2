@@ -1,6 +1,7 @@
 package grupotp.recifesaudavel.server.repository
 
 import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.Phone
 import grupotp.recifesaudavel.common.RegisterAccountRequest
 import grupotp.recifesaudavel.server.database.UsersTable
 import org.jetbrains.exposed.v1.core.eq
@@ -70,12 +71,12 @@ class UserRepository(
                 it[socialName] = request.socialName.trim()
                 it[email] = request.email.trim().lowercase()
                 it[UsersTable.passwordHash] = passwordHash
-                it[primaryPhone] = request.primaryPhone.trim()
+                it[primaryPhone] = Phone.digits(request.primaryPhone)
                 it[primaryPhoneWhatsapp] = request.primaryPhoneWhatsapp
-                it[secondaryPhone] = request.secondaryPhone.trim()
+                it[secondaryPhone] = Phone.digits(request.secondaryPhone)
                 it[secondaryPhoneWhatsapp] = request.secondaryPhoneWhatsapp
                 it[emergencyContactName] = request.emergencyContactName.trim()
-                it[emergencyContactPhone] = request.emergencyContactPhone.trim()
+                it[emergencyContactPhone] = Phone.digits(request.emergencyContactPhone)
                 it[acceptedPrivacyPolicy] = request.acceptedPrivacyPolicy
                 it[acceptedTreatment] = request.acceptedTreatment
                 it[wantsNotifications] = request.wantsNotifications
@@ -85,7 +86,7 @@ class UserRepository(
                 fullName = request.fullName.trim(),
                 socialName = request.socialName.trim(),
                 email = request.email.trim().lowercase(),
-                phone = request.primaryPhone.trim(),
+                phone = Phone.digits(request.primaryPhone),
             )
         }
 

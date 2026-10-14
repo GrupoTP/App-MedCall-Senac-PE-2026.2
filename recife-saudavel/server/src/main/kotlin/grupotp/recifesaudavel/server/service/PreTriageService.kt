@@ -2,6 +2,7 @@ package grupotp.recifesaudavel.server.service
 
 import grupotp.recifesaudavel.common.AppointmentStatus
 import grupotp.recifesaudavel.common.PendingPreTriage
+import grupotp.recifesaudavel.common.Phone
 import grupotp.recifesaudavel.common.PreTriage
 import grupotp.recifesaudavel.common.PreTriageForm
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
@@ -95,7 +96,7 @@ class PreTriageService(
             form.medicationNotes,
         )
         val shortTexts = listOf(form.fullName, form.socialName, form.emergencyContactName, form.symptomsStart)
-        val phones = listOf(form.primaryPhone, form.secondaryPhone, form.emergencyContactPhone)
+        val phones = listOf(form.primaryPhone, form.secondaryPhone, form.emergencyContactPhone).map(Phone::digits)
         return when {
             form.fullName.isBlank() -> "Nome completo é obrigatório."
             form.birthDate.isBlank() -> "Informe sua data de nascimento."
@@ -106,7 +107,7 @@ class PreTriageService(
             form.intensity.isNotEmpty() && form.intensity.toIntOrNull() !in 1..10 -> "Intensidade deve ser de 1 a 10."
             texts.any { it.length > MAX_TEXT } -> "Texto muito longo. Use até $MAX_TEXT caracteres."
             shortTexts.any { it.length > MAX_SHORT_TEXT } -> "Texto muito longo. Use até $MAX_SHORT_TEXT caracteres."
-            phones.any { it.length > MAX_PHONE } -> "Telefone inválido."
+            phones.any { it.length > Phone.maxDigits(it) } -> "Telefone inválido."
             else -> null
         }
     }
@@ -121,10 +122,10 @@ class PreTriageService(
         fullName = fullName.trim(),
         socialName = socialName.trim(),
         birthDate = birthDate.trim(),
-        primaryPhone = primaryPhone.trim(),
-        secondaryPhone = secondaryPhone.trim(),
+        primaryPhone = Phone.digits(primaryPhone),
+        secondaryPhone = Phone.digits(secondaryPhone),
         emergencyContactName = emergencyContactName.trim(),
-        emergencyContactPhone = emergencyContactPhone.trim(),
+        emergencyContactPhone = Phone.digits(emergencyContactPhone),
         reason = reason.trim(),
         currentSymptoms = currentSymptoms.trim(),
         symptomsStart = symptomsStart.trim(),
@@ -146,7 +147,6 @@ class PreTriageService(
     private companion object {
         const val MAX_TEXT = 1000
         const val MAX_SHORT_TEXT = 200
-        const val MAX_PHONE = 40
         const val MIN_BIRTH_YEAR = 1900
     }
 }

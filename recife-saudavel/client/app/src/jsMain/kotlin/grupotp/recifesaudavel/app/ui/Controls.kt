@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.app.ui
 
+import grupotp.recifesaudavel.common.Phone
 import ojaynico.kotlin.react.json
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.Text
@@ -166,7 +167,9 @@ internal val TextField = FC<TextFieldProps> { props ->
             numberOfLines = 3
         }
         accessibilityLabel = props.label
-        value = props.value
+        val isPhone = kind == FieldKind.Phone
+        val shown = if (isPhone) Phone.format(props.value) else props.value
+        value = shown
         placeholder = props.placeholder
         placeholderTextColor = Palette.MUTED
         cursorColor = Palette.BLUE
@@ -201,7 +204,16 @@ internal val TextField = FC<TextFieldProps> { props ->
         }
         onFocus = { focused = true }
         onBlur = { focused = false }
-        onChangeText = props.onValue
+        onChangeText = if (isPhone) {
+            { text ->
+                // The state holds digits only. Erasing a mask character keeps the digits, so drop the last one.
+                val typed = Phone.limited(text)
+                val erasedMask = text.length < shown.length && typed == Phone.digits(props.value)
+                props.onValue(if (erasedMask) typed.dropLast(1) else typed)
+            }
+        } else {
+            props.onValue
+        }
     }
 }
 

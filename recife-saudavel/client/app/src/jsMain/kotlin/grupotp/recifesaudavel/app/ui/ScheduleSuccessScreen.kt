@@ -1,6 +1,7 @@
 package grupotp.recifesaudavel.app.ui
 
 import grupotp.recifesaudavel.common.Appointment
+import grupotp.recifesaudavel.common.Phone
 import ojaynico.kotlin.react.json
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
@@ -64,7 +65,7 @@ internal val ScheduleSuccessScreen = FC<ScheduleSuccessScreenProps> { props ->
                         +"Confirmação para o telefone do seu cadastro. "
                     } else {
                         +"Confirmação para "
-                        strongText(appointment.contactPhone)
+                        strongText(Phone.format(appointment.contactPhone))
                         +". "
                     }
                     +"Informações médicas não serão expostas em notificações externas."

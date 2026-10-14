@@ -11,6 +11,7 @@ import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import grupotp.recifesaudavel.common.AvailableDay
 import grupotp.recifesaudavel.common.CreateAppointmentRequest
+import grupotp.recifesaudavel.common.Phone
 import grupotp.recifesaudavel.common.PreTriage
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.ScrollView
@@ -327,7 +328,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                     last = phone.isBlank(),
                                 )
                                 if (phone.isNotBlank()) {
-                                    summaryRow("Telefone", phone, last = true)
+                                    summaryRow("Telefone", Phone.format(phone), last = true)
                                 }
                             }
                         }
@@ -344,7 +345,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                         infoAlertRich(icon = { emoji("📱") }) {
                             if (props.account.phone.isNotBlank()) {
                                 +"Confirmação enviada para "
-                                strongText(props.account.phone)
+                                strongText(Phone.format(props.account.phone))
                                 +". "
                             } else {
                                 +"A confirmação será enviada para o telefone principal do seu cadastro. "
