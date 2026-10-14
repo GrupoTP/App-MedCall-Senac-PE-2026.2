@@ -70,6 +70,7 @@ internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
     View {
         style = Styles.screen
         ScreenHeader {
+            menuSpace = true
             title = "Minhas Consultas"
             onBack = props.onBack
         }

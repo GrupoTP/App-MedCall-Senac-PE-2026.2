@@ -182,6 +182,7 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
     View {
         style = Styles.screen
         ScreenHeader {
+            menuSpace = true
             title = "Configurações"
             onBack = props.onBack
         }

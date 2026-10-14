@@ -271,3 +271,25 @@ internal fun ChildrenBuilder.logoutIcon(color: String) {
         line(21.0, 12.0, 9.0, 12.0)
     }
 }
+
+internal fun ChildrenBuilder.menuIcon(color: String) {
+    strokeIcon(size = 18, color = color, strokeWidth = 2.5) {
+        line(3.0, 6.0, 21.0, 6.0)
+        line(3.0, 12.0, 21.0, 12.0)
+        line(3.0, 18.0, 21.0, 18.0)
+    }
+}
+
+internal fun ChildrenBuilder.closeIcon(color: String) {
+    strokeIcon(size = 18, color = color, strokeWidth = 2.5) {
+        line(18.0, 6.0, 6.0, 18.0)
+        line(6.0, 6.0, 18.0, 18.0)
+    }
+}
+
+internal fun ChildrenBuilder.homeIcon(color: String) {
+    strokeIcon(size = 20, color = color) {
+        path("M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z")
+        path("M9 22V12h6v10")
+    }
+}

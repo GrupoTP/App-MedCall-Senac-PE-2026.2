@@ -140,6 +140,7 @@ internal object Styles {
         paddingHorizontal = 16,
         paddingVertical = 14,
     )
+    val menuSpace = ViewStyle(width = 40, height = 36)
     val backButton = ViewStyle(
         width = 36,
         height = 36,
@@ -266,6 +267,81 @@ internal object Styles {
     val textLinkText = text(size = 14, lineHeight = 21, color = Palette.BLUE)
     val textLinkTextCenter = text(size = 14, lineHeight = 21, color = Palette.BLUE, align = "center")
     val requiredNote = text(size = 12, lineHeight = 16, color = Palette.MUTED)
+
+    // Floating menu
+
+    val menuLayer = ViewStyle(
+        position = "absolute",
+        top = 0,
+        right = 0,
+        bottom = 0,
+        left = 0,
+        zIndex = 50,
+    )
+    val menuBackdrop = ViewStyle(
+        position = "absolute",
+        top = 0,
+        right = 0,
+        bottom = 0,
+        left = 0,
+        backgroundColor = "rgba(0, 0, 0, 0.2)",
+    )
+    val menuButton = ViewStyle(
+        position = "absolute",
+        left = 16,
+        width = 40,
+        height = 40,
+        alignItems = "center",
+        justifyContent = "center",
+        borderRadius = 16,
+        borderWidth = 1,
+        borderColor = Palette.LINE,
+        backgroundColor = Palette.WHITE,
+        boxShadow = "0px 10px 15px -3px rgba(0, 0, 0, 0.12)",
+    )
+    val menuButtonOpen = ViewStyle(borderColor = Palette.INK, backgroundColor = Palette.INK)
+    val menuPanel = ViewStyle(
+        position = "absolute",
+        left = 16,
+        width = 256,
+        overflow = "hidden",
+        borderWidth = 1,
+        borderColor = Palette.LINE,
+        borderRadius = 16,
+        backgroundColor = Palette.WHITE,
+        boxShadow = "0px 8px 40px rgba(45, 125, 210, 0.18)",
+    )
+    val menuGreeting = ViewStyle(
+        paddingHorizontal = 16,
+        paddingVertical = 12,
+        backgroundColor = Palette.BLUE,
+    )
+    val menuGreetingHello = text(size = 12, lineHeight = 18, color = Palette.GREETING)
+    val menuGreetingName = text(size = 14, lineHeight = 21, color = Palette.WHITE)
+    val menuBody = ViewStyle(paddingVertical = 8)
+    val menuLabel = text(
+        size = 10,
+        lineHeight = 15,
+        color = Palette.MUTED,
+        family = FontFamily.DISPLAY,
+        uppercase = true,
+        letterSpacing = 1.5,
+    )
+    val menuLabelBox = ViewStyle(paddingHorizontal = 16, paddingTop = 8, paddingBottom = 4)
+    val menuDivider = ViewStyle(height = 1, marginHorizontal = 12, marginVertical = 4, backgroundColor = Palette.CANVAS)
+    val menuItem = ViewStyle(
+        flexDirection = "row",
+        alignItems = "center",
+        gap = 12,
+        paddingHorizontal = 16,
+        paddingVertical = 10,
+    )
+    val menuItemDangerHover = ViewStyle(backgroundColor = Palette.ERROR_BACKGROUND)
+    val menuItemActive = ViewStyle(backgroundColor = Palette.CANVAS)
+    val menuItemText = text(size = 14, lineHeight = 21, color = Palette.INK, flex = 1)
+    val menuItemTextActive = text(size = 14, lineHeight = 21, color = Palette.BLUE, flex = 1)
+    val menuItemTextDanger = text(size = 14, lineHeight = 21, color = Palette.REQUIRED, flex = 1)
+    val menuActiveDot = ViewStyle(width = 6, height = 6, borderRadius = 3, backgroundColor = Palette.BLUE)
 
     // Home
 

@@ -119,6 +119,7 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
     View {
         style = Styles.screen
         ScreenHeader {
+            menuSpace = true
             title = "Pré-triagem"
             onBack = ::back
         }

@@ -30,6 +30,7 @@ internal val PrivacyPolicyScreen = FC<PrivacyPolicyScreenProps> { props ->
     View {
         style = Styles.screen
         ScreenHeader {
+            menuSpace = true
             title = "Privacidade e Dados"
             onBack = props.onBack
         }

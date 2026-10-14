@@ -17,6 +17,7 @@ import react.useState
 internal external interface ScreenHeaderProps : Props {
     var title: String
     var onBack: () -> Unit
+    var menuSpace: Boolean?
 }
 
 internal val ScreenHeader = FC<ScreenHeaderProps> { props ->
@@ -25,6 +26,10 @@ internal val ScreenHeader = FC<ScreenHeaderProps> { props ->
         style = arrayOf(Styles.screenHeader, json { paddingTop = insets.top })
         View {
             style = Styles.screenHeaderInner
+            if (props.menuSpace == true) {
+                // The floating menu button sits over the left edge of every signed-in header.
+                View { style = Styles.menuSpace }
+            }
             Pressable {
                 style = pressable(Styles.backButton)
                 accessibilityRole = "button"

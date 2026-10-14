@@ -169,6 +169,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     View {
         style = Styles.screen
         ScreenHeader {
+            menuSpace = true
             title = "Agendar Consulta"
             onBack = ::back
         }

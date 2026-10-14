@@ -1,7 +1,9 @@
 package grupotp.recifesaudavel.app
 
 import grupotp.recifesaudavel.app.ui.AppointmentsScreen
+import grupotp.recifesaudavel.app.ui.FloatingMenu
 import grupotp.recifesaudavel.app.ui.HomeScreen
+import grupotp.recifesaudavel.app.ui.MenuDestination
 import grupotp.recifesaudavel.app.ui.LoginScreen
 import grupotp.recifesaudavel.app.ui.Palette
 import grupotp.recifesaudavel.app.ui.PreTriageScreen
@@ -12,6 +14,7 @@ import grupotp.recifesaudavel.app.ui.ScheduleScreen
 import grupotp.recifesaudavel.app.ui.ScheduleSuccessScreen
 import grupotp.recifesaudavel.app.ui.SettingsScreen
 import grupotp.recifesaudavel.app.ui.SettingsTab
+import grupotp.recifesaudavel.app.ui.Styles
 import grupotp.recifesaudavel.app.ui.WelcomeScreen
 import grupotp.recifesaudavel.app.ui.font.useAppFonts
 import grupotp.recifesaudavel.app.ui.useScreenScope
@@ -42,6 +45,7 @@ import grupotp.recifesaudavel.common.AuthenticatedAccount
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.StatusBar
+import ojaynico.kotlin.react.native.component.View
 import ojaynico.kotlin.react.native.safearea.SafeAreaProvider
 import ojaynico.kotlin.react.native.safearea.initialWindowMetrics
 import org.koin.mp.KoinPlatform
@@ -213,89 +217,126 @@ internal val App = FC<AppProps> { props ->
     }
 
     val signedIn = account
-    when {
-        screen == AppScreen.Welcome -> WelcomeScreen {
-            onStart = { screen = AppScreen.Register }
-            onLogin = { screen = AppScreen.Login }
+    val showMenu = signedIn != null &&
+        screen != AppScreen.Welcome && screen != AppScreen.Register && screen != AppScreen.Login
+    fun navigate(destination: MenuDestination) {
+        booked = null
+        if (destination != MenuDestination.Settings) {
+            settingsTab = SettingsTab.Account
         }
-        screen == AppScreen.Register -> RegisterScreen {
-            registerAccount = props.registerAccount
-            onBack = { screen = AppScreen.Welcome }
-            onAuthenticated = ::openHome
+        screen = when (destination) {
+            MenuDestination.Home -> AppScreen.Home
+            MenuDestination.PreTriage -> AppScreen.PreTriage
+            MenuDestination.Schedule -> AppScreen.Schedule
+            MenuDestination.Appointments -> AppScreen.Appointments
+            MenuDestination.Settings -> AppScreen.Settings
+            MenuDestination.Privacy -> AppScreen.PrivacyPolicy
         }
-        screen == AppScreen.Login || signedIn == null -> LoginScreen {
-            signIn = props.signIn
-            requestPasswordRecovery = props.requestPasswordRecovery
-            onRegister = { screen = AppScreen.Register }
-            onBack = { screen = AppScreen.Welcome }
-            onAuthenticated = ::openHome
-        }
-        screen == AppScreen.Schedule -> ScheduleScreen {
-            this.account = signedIn
-            loadSchedulingOptions = props.loadSchedulingOptions
-            loadAvailability = props.loadAvailability
-            bookAppointment = props.bookAppointment
-            loadPendingPreTriage = props.loadPendingPreTriage
-            onBack = { screen = AppScreen.Home }
-            onBooked = { appointment ->
-                booked = appointment
-                screen = AppScreen.ScheduleSuccess
+    }
+    val activeDestination = when (screen) {
+        AppScreen.Home -> MenuDestination.Home
+        AppScreen.PreTriage, AppScreen.PreTriageSuccess -> MenuDestination.PreTriage
+        AppScreen.Schedule, AppScreen.ScheduleSuccess -> MenuDestination.Schedule
+        AppScreen.Appointments -> MenuDestination.Appointments
+        AppScreen.Settings -> MenuDestination.Settings
+        AppScreen.PrivacyPolicy -> MenuDestination.Privacy
+        else -> null
+    }
+
+    View {
+        style = Styles.screen
+        when {
+            screen == AppScreen.Welcome -> WelcomeScreen {
+                onStart = { screen = AppScreen.Register }
+                onLogin = { screen = AppScreen.Login }
             }
-            onSignOut = ::signOut
-        }
-        screen == AppScreen.ScheduleSuccess && booked != null -> ScheduleSuccessScreen {
-            appointment = booked!!
-            onAppointments = { screen = AppScreen.Appointments }
-            onHome = { screen = AppScreen.Home }
-        }
-        screen == AppScreen.PreTriage -> PreTriageScreen {
-            this.account = signedIn
-            loadPreTriageDraft = props.loadPreTriageDraft
-            submitPreTriage = props.submitPreTriage
-            onBack = { screen = AppScreen.Home }
-            onSent = { screen = AppScreen.PreTriageSuccess }
-            onSignOut = ::signOut
-        }
-        screen == AppScreen.PreTriageSuccess -> PreTriageSuccessScreen {
-            onSchedule = { screen = AppScreen.Schedule }
-            onHome = { screen = AppScreen.Home }
-        }
-        screen == AppScreen.Appointments -> AppointmentsScreen {
-            this.account = signedIn
-            listAppointments = props.listAppointments
-            cancelAppointment = props.cancelAppointment
-            onBack = { screen = AppScreen.Home }
-            onSignOut = ::signOut
-        }
-        screen == AppScreen.Settings -> SettingsScreen {
-            this.account = signedIn
-            loadAccountProfile = props.loadAccountProfile
-            saveAccountProfile = props.saveAccountProfile
-            updateNotificationConsent = props.updateNotificationConsent
-            changePassword = props.changePassword
-            requestAccountDeletion = props.requestAccountDeletion
-            tab = settingsTab
-            onTab = { settingsTab = it }
-            onBack = {
-                settingsTab = SettingsTab.Account
-                screen = AppScreen.Home
+            screen == AppScreen.Register -> RegisterScreen {
+                registerAccount = props.registerAccount
+                onBack = { screen = AppScreen.Welcome }
+                onAuthenticated = ::openHome
             }
-            onPrivacyPolicy = { screen = AppScreen.PrivacyPolicy }
-            onAccountChanged = { account = it }
-            onLogout = ::logout
-            onSignOut = ::signOut
+            screen == AppScreen.Login || signedIn == null -> LoginScreen {
+                signIn = props.signIn
+                requestPasswordRecovery = props.requestPasswordRecovery
+                onRegister = { screen = AppScreen.Register }
+                onBack = { screen = AppScreen.Welcome }
+                onAuthenticated = ::openHome
+            }
+            screen == AppScreen.Schedule -> ScheduleScreen {
+                this.account = signedIn
+                loadSchedulingOptions = props.loadSchedulingOptions
+                loadAvailability = props.loadAvailability
+                bookAppointment = props.bookAppointment
+                loadPendingPreTriage = props.loadPendingPreTriage
+                onBack = { screen = AppScreen.Home }
+                onBooked = { appointment ->
+                    booked = appointment
+                    screen = AppScreen.ScheduleSuccess
+                }
+                onSignOut = ::signOut
+            }
+            screen == AppScreen.ScheduleSuccess && booked != null -> ScheduleSuccessScreen {
+                appointment = booked!!
+                onAppointments = { screen = AppScreen.Appointments }
+                onHome = { screen = AppScreen.Home }
+            }
+            screen == AppScreen.PreTriage -> PreTriageScreen {
+                this.account = signedIn
+                loadPreTriageDraft = props.loadPreTriageDraft
+                submitPreTriage = props.submitPreTriage
+                onBack = { screen = AppScreen.Home }
+                onSent = { screen = AppScreen.PreTriageSuccess }
+                onSignOut = ::signOut
+            }
+            screen == AppScreen.PreTriageSuccess -> PreTriageSuccessScreen {
+                onSchedule = { screen = AppScreen.Schedule }
+                onHome = { screen = AppScreen.Home }
+            }
+            screen == AppScreen.Appointments -> AppointmentsScreen {
+                this.account = signedIn
+                listAppointments = props.listAppointments
+                cancelAppointment = props.cancelAppointment
+                onBack = { screen = AppScreen.Home }
+                onSignOut = ::signOut
+            }
+            screen == AppScreen.Settings -> SettingsScreen {
+                this.account = signedIn
+                loadAccountProfile = props.loadAccountProfile
+                saveAccountProfile = props.saveAccountProfile
+                updateNotificationConsent = props.updateNotificationConsent
+                changePassword = props.changePassword
+                requestAccountDeletion = props.requestAccountDeletion
+                tab = settingsTab
+                onTab = { settingsTab = it }
+                onBack = {
+                    settingsTab = SettingsTab.Account
+                    screen = AppScreen.Home
+                }
+                onPrivacyPolicy = { screen = AppScreen.PrivacyPolicy }
+                onAccountChanged = { account = it }
+                onLogout = ::logout
+                onSignOut = ::signOut
+            }
+            screen == AppScreen.PrivacyPolicy -> PrivacyPolicyScreen {
+                onBack = { screen = AppScreen.Settings }
+            }
+            else -> HomeScreen {
+                this.account = signedIn
+                listAppointments = props.listAppointments
+                onSchedule = { screen = AppScreen.Schedule }
+                onPreTriage = { screen = AppScreen.PreTriage }
+                onAppointments = { screen = AppScreen.Appointments }
+                onSettings = { screen = AppScreen.Settings }
+                onSignOut = ::signOut
+            }
         }
-        screen == AppScreen.PrivacyPolicy -> PrivacyPolicyScreen {
-            onBack = { screen = AppScreen.Settings }
-        }
-        else -> HomeScreen {
-            this.account = signedIn
-            listAppointments = props.listAppointments
-            onSchedule = { screen = AppScreen.Schedule }
-            onPreTriage = { screen = AppScreen.PreTriage }
-            onAppointments = { screen = AppScreen.Appointments }
-            onSettings = { screen = AppScreen.Settings }
-            onSignOut = ::signOut
+        if (showMenu && signedIn != null) {
+            FloatingMenu {
+                displayName = signedIn.socialName.ifBlank { signedIn.fullName }
+                active = activeDestination
+                onNavigate = ::navigate
+                onLogout = ::logout
+            }
         }
     }
 }
