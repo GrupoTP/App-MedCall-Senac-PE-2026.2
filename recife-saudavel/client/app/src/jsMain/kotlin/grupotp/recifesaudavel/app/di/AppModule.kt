@@ -17,6 +17,7 @@ import grupotp.recifesaudavel.app.usecase.LoadSignedInAccount
 import grupotp.recifesaudavel.app.usecase.LocalAccountGateway
 import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
 import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
+import grupotp.recifesaudavel.app.usecase.RefreshAccount
 import grupotp.recifesaudavel.app.usecase.RegisterAccount
 import grupotp.recifesaudavel.app.usecase.RememberSignedInAccount
 import grupotp.recifesaudavel.app.usecase.RequestPasswordRecovery
@@ -52,6 +53,7 @@ fun appModule(platform: String): Module = module {
     singleOf(::SignOut)
     singleOf(::LoadSchedulingOptions)
     singleOf(::LoadAvailability)
+    singleOf(::RefreshAccount)
     singleOf(::BookAppointment)
     singleOf(::CancelAppointment)
     singleOf(::ListAppointments)

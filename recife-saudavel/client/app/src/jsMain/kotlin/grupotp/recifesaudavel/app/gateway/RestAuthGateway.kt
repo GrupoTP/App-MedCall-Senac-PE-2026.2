@@ -22,14 +22,22 @@ class RestAuthGateway(
     override suspend fun requestPasswordRecovery(email: String): AuthResult =
         AuthResult.Failed(AuthError.NotImplemented)
 
-    private suspend inline fun <reified T> post(path: String, body: T): AuthResult {
+    override suspend fun profile(token: String): AuthResult = send("GET", "/api/v1/auth/me", body = null, token = token)
+
+    private suspend inline fun <reified T> post(path: String, body: T): AuthResult =
+        send("POST", path, json.encodeToString(body), token = null)
+
+    private suspend fun send(method: String, path: String, body: String?, token: String?): AuthResult {
         val (status, text) = try {
-            sendJson("POST", "$baseUrl$path", json.encodeToString(body))
+            sendJson(method, "$baseUrl$path", body, token)
         } catch (_: IllegalStateException) {
             return AuthResult.Failed(AuthError.Offline)
         }
         if (status == 0.toShort()) {
             return AuthResult.Failed(AuthError.Offline)
+        }
+        if (status == 401.toShort() && token != null) {
+            return AuthResult.Failed(AuthError.SessionExpired)
         }
         return if (status in 200..299) {
             AuthResult.Success(json.decodeFromString<AuthenticatedAccount>(text))

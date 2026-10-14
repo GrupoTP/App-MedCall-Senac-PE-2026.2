@@ -35,6 +35,7 @@ internal object Palette {
     const val PURPLE_TEXT = "#7b5ea7"
     const val PURPLE_BORDER = "#c4b8e0"
     const val PURPLE_BACKGROUND = "#f0ebf8"
+    const val GREEN_ICON_BACKGROUND = "rgba(30, 107, 94, 0.1)"
     const val PURPLE_ICON_BACKGROUND = "rgba(123, 94, 167, 0.1)"
     const val BLUE_ICON_BACKGROUND = "rgba(45, 125, 210, 0.1)"
 

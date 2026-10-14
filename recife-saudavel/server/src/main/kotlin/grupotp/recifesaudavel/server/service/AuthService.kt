@@ -45,6 +45,12 @@ class AuthService(
         return SignInResult.Authenticated(user.account.withSession())
     }
 
+    /**
+     * Current profile of a signed-in user, without a token: the client keeps the one it has.
+     * Lets a device saved long ago catch up with what the server holds.
+     */
+    fun profileOf(userId: String): AuthenticatedAccount? = users.findById(userId)
+
     private fun AuthenticatedAccount.withSession(): AuthenticatedAccount = copy(sessionToken = sessions.issue(id))
 
     private fun validate(request: RegisterAccountRequest): String? = when {

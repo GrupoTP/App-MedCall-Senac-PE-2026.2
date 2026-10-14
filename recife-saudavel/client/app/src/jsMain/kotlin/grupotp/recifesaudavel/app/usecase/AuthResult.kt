@@ -13,5 +13,7 @@ sealed interface AuthError {
 
     data object Offline : AuthError
 
+    data object SessionExpired : AuthError
+
     data class Rejected(val message: String) : AuthError
 }

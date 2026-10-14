@@ -24,6 +24,14 @@ class UserRepository(
             ?.toStoredUser()
     }
 
+    fun findById(id: String): AuthenticatedAccount? = transaction(database) {
+        UsersTable.selectAll()
+            .where { UsersTable.id eq id }
+            .singleOrNull()
+            ?.toStoredUser()
+            ?.account
+    }
+
     fun insert(id: String, request: RegisterAccountRequest, passwordHash: String): AuthenticatedAccount =
         transaction(database) {
             UsersTable.insert {

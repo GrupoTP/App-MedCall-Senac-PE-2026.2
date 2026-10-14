@@ -99,4 +99,8 @@ private class FakeAuthGateway(
     }
 
     override suspend fun requestPasswordRecovery(email: String): AuthResult = recoveryResult
+
+    var profileResult: AuthResult = AuthResult.Failed(AuthError.Offline)
+
+    override suspend fun profile(token: String): AuthResult = profileResult
 }

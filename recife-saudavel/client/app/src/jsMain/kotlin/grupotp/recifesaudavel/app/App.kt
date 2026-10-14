@@ -17,6 +17,7 @@ import grupotp.recifesaudavel.app.usecase.LoadAvailability
 import grupotp.recifesaudavel.app.usecase.LoadSchedulingOptions
 import grupotp.recifesaudavel.app.usecase.LoadSignedInAccount
 import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
+import grupotp.recifesaudavel.app.usecase.RefreshAccount
 import grupotp.recifesaudavel.app.usecase.RegisterAccount
 import grupotp.recifesaudavel.app.usecase.RememberSignedInAccount
 import grupotp.recifesaudavel.app.usecase.RequestPasswordRecovery
@@ -31,6 +32,7 @@ import ojaynico.kotlin.react.native.safearea.initialWindowMetrics
 import org.koin.mp.KoinPlatform
 import react.FC
 import react.Props
+import react.useEffect
 import react.useEffectOnce
 import react.useState
 
@@ -52,6 +54,7 @@ internal external interface AppProps : Props {
     var rememberSignedInAccount: RememberSignedInAccount
     var loadSignedInAccount: LoadSignedInAccount
     var signOut: SignOut
+    var refreshAccount: RefreshAccount
     var listAppointments: ListAppointments
     var loadSchedulingOptions: LoadSchedulingOptions
     var loadAvailability: LoadAvailability
@@ -76,6 +79,7 @@ internal val Root = FC<Props> {
                 rememberSignedInAccount = koin.get()
                 loadSignedInAccount = koin.get()
                 signOut = koin.get()
+                refreshAccount = koin.get()
                 listAppointments = koin.get()
                 loadSchedulingOptions = koin.get()
                 loadAvailability = koin.get()
@@ -98,6 +102,20 @@ internal val App = FC<AppProps> { props ->
             if (remembered != null) {
                 account = remembered
                 screen = AppScreen.Home
+            }
+        }
+    }
+
+    // Each time the home opens the device asks the server whether the profile changed.
+    val signedInId = account?.id
+    useEffect(screen, signedInId) {
+        val current = account
+        if (screen == AppScreen.Home && current != null) {
+            scope.launch {
+                val fresh = runCatching { props.refreshAccount(current) }.getOrNull()
+                if (fresh != null && account?.id == fresh.id) {
+                    account = fresh
+                }
             }
         }
     }

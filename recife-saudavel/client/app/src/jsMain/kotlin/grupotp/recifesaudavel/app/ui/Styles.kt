@@ -353,7 +353,7 @@ internal object Styles {
         borderRadius = 12,
         backgroundColor = Palette.BLUE_ICON_BACKGROUND,
     )
-    val quickIconGreen = ViewStyle(backgroundColor = Palette.GREEN_BACKGROUND)
+    val quickIconGreen = ViewStyle(backgroundColor = Palette.GREEN_ICON_BACKGROUND)
     val quickIconPurple = ViewStyle(backgroundColor = Palette.PURPLE_ICON_BACKGROUND)
     val quickCopy = ViewStyle(flex = 1)
     val quickTitle = text(size = 14, lineHeight = 20, family = FontFamily.DISPLAY)

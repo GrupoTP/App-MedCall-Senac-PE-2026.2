@@ -8,5 +8,6 @@ const val OFFLINE_MESSAGE =
 fun AuthError.toMessage(): String = when (this) {
     AuthError.NotImplemented -> NOT_IMPLEMENTED_MESSAGE
     AuthError.Offline -> OFFLINE_MESSAGE
+    AuthError.SessionExpired -> SESSION_EXPIRED_MESSAGE
     is AuthError.Rejected -> message
 }

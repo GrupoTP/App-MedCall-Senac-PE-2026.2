@@ -4,6 +4,8 @@ import grupotp.recifesaudavel.common.ApiError
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import grupotp.recifesaudavel.common.RegisterAccountRequest
 import grupotp.recifesaudavel.common.SignInRequest
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.get
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
@@ -48,6 +50,33 @@ class AuthRouteTest {
         assertEquals(account.copy(sessionToken = ""), signedIn.copy(sessionToken = ""))
         assertTrue(account.sessionToken.isNotBlank())
         assertNotEquals(account.sessionToken, signedIn.sessionToken)
+    }
+
+    @Test
+    fun meReturnsTheStoredProfileForAValidSessionOnly() = testApplication {
+        // Arrange
+        environment {
+            config = ApplicationConfig("application.yaml")
+        }
+        val email = "me.${System.nanoTime()}@email.com"
+        val created = client.post("/api/v1/auth/register") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(registration(email, "segredo")))
+        }
+        val account = Json.decodeFromString<AuthenticatedAccount>(created.bodyAsText())
+
+        // Act
+        val me = client.get("/api/v1/auth/me") { bearerAuth(account.sessionToken) }
+        val forged = client.get("/api/v1/auth/me") { bearerAuth("token-inventado") }
+        val anonymous = client.get("/api/v1/auth/me")
+
+        // Assert
+        assertEquals(HttpStatusCode.OK, me.status)
+        val profile = Json.decodeFromString<AuthenticatedAccount>(me.bodyAsText())
+        assertEquals(account.copy(sessionToken = ""), profile.copy(sessionToken = ""))
+        assertTrue(profile.phone.isNotBlank())
+        assertEquals(HttpStatusCode.Unauthorized, forged.status)
+        assertEquals(HttpStatusCode.Unauthorized, anonymous.status)
     }
 
     @Test
