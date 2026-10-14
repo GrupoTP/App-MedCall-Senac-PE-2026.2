@@ -174,12 +174,13 @@ internal val App = FC<AppProps> { props ->
 
     // Leaving on purpose: the device forgets the profile and the person lands on the welcome screen.
     fun logout() {
+        val token = account?.sessionToken
         account = null
         booked = null
         settingsTab = SettingsTab.Account
         screen = AppScreen.Welcome
         scope.launch {
-            runCatching { props.signOut() }
+            runCatching { props.signOut(token) }
         }
     }
 

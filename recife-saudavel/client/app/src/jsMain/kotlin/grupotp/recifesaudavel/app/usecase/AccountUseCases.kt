@@ -19,6 +19,9 @@ interface AccountGateway {
     suspend fun changePassword(token: String, request: ChangePasswordRequest): SchedulingResult<AccountProfile>
 
     suspend fun requestDeletion(token: String): SchedulingResult<AccountProfile>
+
+    /** Asks the server to forget [token]. */
+    suspend fun signOut(token: String): SchedulingResult<Unit>
 }
 
 class LoadAccountProfile(

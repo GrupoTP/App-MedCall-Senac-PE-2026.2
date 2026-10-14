@@ -16,6 +16,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import kotlinx.serialization.json.buildJsonObject
 import org.koin.ktor.ext.inject
 
 fun Application.configureAuthController() {
@@ -40,6 +41,13 @@ fun Application.configureAuthController() {
                 } else {
                     call.respond(account)
                 }
+            }
+            post("/logout") {
+                val header = call.request.headers[HttpHeaders.Authorization].orEmpty()
+                if (header.startsWith("Bearer ")) {
+                    sessions.revoke(header.removePrefix("Bearer ").trim())
+                }
+                call.respond(HttpStatusCode.OK, buildJsonObject { })
             }
             post("/login") {
                 val request = call.receive<SignInRequest>()

@@ -38,7 +38,7 @@ class LocalAccountUseCaseTest {
         RememberSignedInAccount(gateway)(AuthenticatedAccount(id = "1", fullName = "Ana", socialName = "", email = "ana@email.com"))
 
         // Act
-        SignOut(gateway)()
+        SignOut(gateway, NoRemote)()
 
         // Assert
         assertNull(LoadSignedInAccount(gateway)())
@@ -69,4 +69,20 @@ private class FakeLocalAccountGateway : LocalAccountGateway {
     override suspend fun clear() {
         stored = null
     }
+}
+
+private object NoRemote : AccountGateway {
+    override suspend fun profile(token: String) = error("not used")
+
+    override suspend fun update(token: String, request: grupotp.recifesaudavel.common.UpdateProfileRequest) = error("not used")
+
+    override suspend fun updateConsents(token: String, request: grupotp.recifesaudavel.common.UpdateConsentsRequest) =
+        error("not used")
+
+    override suspend fun changePassword(token: String, request: grupotp.recifesaudavel.common.ChangePasswordRequest) =
+        error("not used")
+
+    override suspend fun requestDeletion(token: String) = error("not used")
+
+    override suspend fun signOut(token: String): SchedulingResult<Unit> = error("not used")
 }

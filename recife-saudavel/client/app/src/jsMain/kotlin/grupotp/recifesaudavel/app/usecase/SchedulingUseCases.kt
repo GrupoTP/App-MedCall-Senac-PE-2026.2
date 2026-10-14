@@ -126,8 +126,16 @@ class ListAppointments(
  */
 class SignOut(
     private val accounts: LocalAccountGateway,
+    private val remote: AccountGateway,
 ) {
-    suspend operator fun invoke() {
+    /**
+     * @param token session to revoke on the server too. The server is asked first and a failure
+     * (offline, already expired) never stops the device from forgetting the profile.
+     */
+    suspend operator fun invoke(token: String? = null) {
+        if (!token.isNullOrBlank()) {
+            runCatching { remote.signOut(token) }
+        }
         accounts.clear()
     }
 }

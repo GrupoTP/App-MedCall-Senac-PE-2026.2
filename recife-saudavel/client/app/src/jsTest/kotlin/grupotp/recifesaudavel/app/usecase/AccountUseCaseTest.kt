@@ -109,6 +109,26 @@ class AccountUseCaseTest {
         assertEquals(UpdateConsentsRequest(wantsNotifications = true), gateway.consentRequest)
     }
 
+    @Test
+    fun signOutRevokesTheTokenAndForgetsTheDeviceCopyEvenWhenTheServerIsOffline() = runTest {
+        // Arrange
+        val local = MemoryAccounts().also { it.stored = account }
+        val gateway = FakeAccountGateway(SchedulingResult.Success(profile))
+
+        // Act
+        SignOut(local, gateway)(account.sessionToken)
+        val offlineLocal = MemoryAccounts().also { it.stored = account }
+        SignOut(offlineLocal, object : AccountGateway by gateway {
+            override suspend fun signOut(token: String): SchedulingResult<Unit> =
+                SchedulingResult.Failed(SchedulingError.Offline)
+        })(account.sessionToken)
+
+        // Assert
+        assertEquals("token", gateway.signedOut)
+        assertEquals(null, local.stored)
+        assertEquals(null, offlineLocal.stored)
+    }
+
     private class FakeAccountGateway(
         private val result: SchedulingResult<AccountProfile>,
     ) : AccountGateway {
@@ -139,6 +159,13 @@ class AccountUseCaseTest {
 
         override suspend fun requestDeletion(token: String): SchedulingResult<AccountProfile> =
             result.also { tokens += token }
+
+        var signedOut: String? = null
+
+        override suspend fun signOut(token: String): SchedulingResult<Unit> {
+            signedOut = token
+            return SchedulingResult.Success(Unit)
+        }
     }
 
     private class MemoryAccounts : LocalAccountGateway {

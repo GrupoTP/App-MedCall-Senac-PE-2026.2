@@ -28,6 +28,13 @@ class SessionService(
         return sessions.findUserId(hash(token))
     }
 
+    /** Makes [token] useless from now on. Unknown tokens are ignored. */
+    fun revoke(token: String) {
+        if (token.isNotBlank()) {
+            sessions.delete(hash(token))
+        }
+    }
+
     private fun hash(token: String): String =
         MessageDigest.getInstance("SHA-256")
             .digest(token.toByteArray())

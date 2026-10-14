@@ -146,6 +146,27 @@ class AccountRouteTest {
         assertEquals(firstDate, decode<AccountProfile>(second).deletionRequestedAt)
     }
 
+    @Test
+    fun logoutRevokesTheToken() = testApplication {
+        // Arrange
+        useApplicationConfig()
+        val account = register("sair.${System.nanoTime()}@email.com")
+
+        // Act
+        val before = client.get("/api/v1/account") { bearerAuth(account.sessionToken) }
+        val logout = client.post("/api/v1/auth/logout") {
+            bearerAuth(account.sessionToken)
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
+        val after = client.get("/api/v1/account") { bearerAuth(account.sessionToken) }
+
+        // Assert
+        assertEquals(HttpStatusCode.OK, before.status)
+        assertEquals(HttpStatusCode.OK, logout.status)
+        assertEquals(HttpStatusCode.Unauthorized, after.status)
+    }
+
     private fun ApplicationTestBuilder.useApplicationConfig() {
         environment {
             config = ApplicationConfig("application.yaml")

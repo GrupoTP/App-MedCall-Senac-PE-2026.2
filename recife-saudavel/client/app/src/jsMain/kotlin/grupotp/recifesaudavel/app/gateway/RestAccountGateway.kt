@@ -7,6 +7,7 @@ import grupotp.recifesaudavel.common.ChangePasswordRequest
 import grupotp.recifesaudavel.common.UpdateConsentsRequest
 import grupotp.recifesaudavel.common.UpdateProfileRequest
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
 
 class RestAccountGateway(
     private val baseUrl: String,
@@ -26,4 +27,10 @@ class RestAccountGateway(
 
     override suspend fun requestDeletion(token: String): SchedulingResult<AccountProfile> =
         json.callApi("POST", "$baseUrl/api/v1/account/deletion-request", token, "{}")
+
+    override suspend fun signOut(token: String): SchedulingResult<Unit> =
+        when (val result = json.callApi<JsonObject>("POST", "$baseUrl/api/v1/auth/logout", token, "{}")) {
+            is SchedulingResult.Success -> SchedulingResult.Success(Unit)
+            is SchedulingResult.Failed -> result
+        }
 }
