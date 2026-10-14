@@ -67,6 +67,23 @@ internal fun ChildrenBuilder.errorAlert(message: String) {
     }
 }
 
+/**
+ * The prototype ClinicalDisclaimer: the app never diagnoses and points to SAMU.
+ */
+internal fun ChildrenBuilder.clinicalDisclaimer() {
+    View {
+        style = Styles.disclaimer
+        View {
+            style = Styles.alertIcon
+            alertIcon(Palette.WARNING_TEXT)
+        }
+        Text {
+            style = Styles.disclaimerText
+            +"O Recife Saudável não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU)."
+        }
+    }
+}
+
 internal fun ChildrenBuilder.sectionTitle(text: String) {
     View {
         style = Styles.sectionTitle
@@ -116,6 +133,7 @@ internal enum class FieldKind {
     Password,
     NewPassword,
     Phone,
+    Date,
 }
 
 internal external interface TextFieldProps : Props {
@@ -159,11 +177,12 @@ internal val TextField = FC<TextFieldProps> { props ->
         autoCapitalize = when (kind) {
             FieldKind.Text -> "sentences"
             FieldKind.Name -> "words"
-            FieldKind.Email, FieldKind.Password, FieldKind.NewPassword, FieldKind.Phone -> "none"
+            FieldKind.Email, FieldKind.Password, FieldKind.NewPassword, FieldKind.Phone, FieldKind.Date -> "none"
         }
         keyboardType = when (kind) {
             FieldKind.Email -> "email-address"
             FieldKind.Phone -> "phone-pad"
+            FieldKind.Date -> "number-pad"
             else -> "default"
         }
         autoComplete = when (kind) {
@@ -173,6 +192,7 @@ internal val TextField = FC<TextFieldProps> { props ->
             FieldKind.Password -> "current-password"
             FieldKind.NewPassword -> "new-password"
             FieldKind.Phone -> "tel"
+            FieldKind.Date -> "birthdate-full"
         }
         val submit = props.onSubmit
         if (submit != null) {

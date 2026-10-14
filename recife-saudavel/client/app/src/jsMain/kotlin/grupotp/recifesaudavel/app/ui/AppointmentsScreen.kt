@@ -189,6 +189,12 @@ private fun ChildrenBuilder.appointmentCard(
                 +"Motivo: ${appointment.reason}"
             }
         }
+        if (appointment.preTriageId != null) {
+            Text {
+                style = Styles.appointmentMetaText
+                +"Pré-triagem vinculada"
+            }
+        }
         if (appointment.status != AppointmentStatus.Cancelled) {
             if (confirming) {
                 Text {

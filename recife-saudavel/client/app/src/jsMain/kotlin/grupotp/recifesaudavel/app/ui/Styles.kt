@@ -531,6 +531,7 @@ internal object Styles {
     )
     val successTitle = text(size = 24, lineHeight = 32, family = FontFamily.DISPLAY, align = "center")
     val successSubtitle = text(size = 14, lineHeight = 21, color = Palette.MUTED, align = "center", marginTop = 8)
+    val successIconGreen = ViewStyle(backgroundColor = Palette.SUCCESS_BACKGROUND)
     val successHeading = ViewStyle(marginVertical = 4)
 
     // Appointments list

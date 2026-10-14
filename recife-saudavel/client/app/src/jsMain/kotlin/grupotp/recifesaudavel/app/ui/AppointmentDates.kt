@@ -25,6 +25,13 @@ internal fun formatSpokenDate(isoDate: String): String {
     return "${WEEKDAYS_LONG[weekday(isoDate)]}, $day/$month"
 }
 
+/** Epoch milliseconds → `13/10/2026 às 14:05`, in the device time zone. */
+internal fun formatDateTime(epochMillis: Long): String {
+    val date = Date(epochMillis.toDouble())
+    return "${pad(date.getDate())}/${pad(date.getMonth() + 1)}/${date.getFullYear()} às " +
+        "${pad(date.getHours())}:${pad(date.getMinutes())}"
+}
+
 internal fun dayOf(isoDate: String): String = isoDate.split("-")[2]
 
 internal fun monthAbbreviation(isoDate: String): String = MONTHS[isoDate.split("-")[1].toInt() - 1]

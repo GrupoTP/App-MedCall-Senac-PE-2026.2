@@ -1,11 +1,13 @@
 package grupotp.recifesaudavel.server.service
 
 import grupotp.recifesaudavel.common.Appointment
+import grupotp.recifesaudavel.common.AppointmentStatus
 import grupotp.recifesaudavel.common.AvailableDay
 import grupotp.recifesaudavel.common.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.Professional
 import grupotp.recifesaudavel.common.Specialty
 import grupotp.recifesaudavel.server.repository.NewAppointment
+import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.Slot
 import java.time.Clock
@@ -35,6 +37,7 @@ sealed interface BookingResult {
 class SchedulingService(
     private val repository: SchedulingRepository,
     private val clock: Clock,
+    private val preTriages: PreTriageRepository,
 ) {
     fun specialties(): List<Specialty> = repository.specialties()
 
@@ -75,6 +78,10 @@ class SchedulingService(
         if (request.reason.length > MAX_TEXT || request.notes.length > MAX_TEXT) {
             return BookingResult.Rejected("Texto muito longo. Use até $MAX_TEXT caracteres.")
         }
+        val preTriageId = request.preTriageId?.takeIf { it.isNotBlank() }
+        if (preTriageId != null) {
+            attachProblem(patientId, preTriageId)?.let { return BookingResult.Rejected(it) }
+        }
         // The first free professional wins; if another patient takes it meanwhile, the unique
         // index refuses the insert and the next candidate is tried.
         val taken = repository.takenSlots(candidates.map { it.id }, listOf(date.toString()))
@@ -95,10 +102,24 @@ class SchedulingService(
                 ),
             )
             if (inserted) {
+                if (preTriageId != null) {
+                    preTriages.attach(patientId, preTriageId, id)
+                }
                 return BookingResult.Created(repository.findAppointment(id)!!)
             }
         }
         return BookingResult.Conflict("Este horário acabou de ser ocupado. Escolha outro horário.")
+    }
+
+    /** Why the pre-triage cannot be attached, or null when it can. */
+    private fun attachProblem(patientId: String, preTriageId: String): String? {
+        val preTriage = preTriages.find(patientId, preTriageId) ?: return "Pré-triagem não encontrada."
+        val current = preTriage.appointmentId?.let { repository.findAppointment(it) }
+        return if (current != null && current.status != AppointmentStatus.Cancelled) {
+            "Esta pré-triagem já está vinculada a outra consulta."
+        } else {
+            null
+        }
     }
 
     fun appointmentsOf(patientId: String): List<Appointment> = repository.appointmentsOf(patientId)

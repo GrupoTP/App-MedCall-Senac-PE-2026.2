@@ -28,10 +28,14 @@ private const val UPCOMING_ON_HOME = 2
 internal const val SCHEDULING_NEEDS_NETWORK_MESSAGE =
     "O agendamento precisa de internet. Suas consultas já marcadas continuam disponíveis em Minhas consultas."
 
+internal const val PRE_TRIAGE_NEEDS_NETWORK_MESSAGE =
+    "A pré-triagem precisa de internet. Suas consultas já marcadas continuam disponíveis em Minhas consultas."
+
 internal external interface HomeScreenProps : Props {
     var account: AuthenticatedAccount
     var listAppointments: ListAppointments
     var onSchedule: () -> Unit
+    var onPreTriage: () -> Unit
     var onAppointments: () -> Unit
     var onSignOut: () -> Unit
 }
@@ -55,10 +59,10 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
         notice = NOT_IMPLEMENTED_MESSAGE
     }
 
-    // Scheduling is online only. Offline, a press checks the connection again before refusing.
-    fun schedule() {
+    // Scheduling and pre-triage are online only. Offline, a press checks the connection again before refusing.
+    fun openOnline(open: () -> Unit, offlineMessage: String) {
         if (!offline) {
-            props.onSchedule()
+            open()
             return
         }
         if (checking) {
@@ -70,10 +74,10 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
             snapshot = fresh
             checking = false
             if (fresh.offline) {
-                notice = SCHEDULING_NEEDS_NETWORK_MESSAGE
+                notice = offlineMessage
             } else {
                 notice = null
-                props.onSchedule()
+                open()
             }
         }
     }
@@ -113,20 +117,10 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
         ScrollView {
             style = Styles.scroll
             contentContainerStyle = Styles.scrollContent
-            View {
-                style = Styles.disclaimer
-                View {
-                    style = Styles.alertIcon
-                    alertIcon(Palette.WARNING_TEXT)
-                }
-                Text {
-                    style = Styles.disclaimerText
-                    +"O Recife Saudável não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU)."
-                }
-            }
+            clinicalDisclaimer()
             if (offline) {
                 infoAlert(
-                    "Você está offline. Mostrando as consultas guardadas neste aparelho. Para agendar, conecte-se à internet.",
+                    "Você está offline. Mostrando as consultas guardadas neste aparelho. Para agendar ou fazer a pré-triagem, conecte-se à internet.",
                 ) { wifiOffIcon(it) }
             }
             notice?.let { message ->
@@ -146,16 +140,17 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
                         style = Styles.quickRow
                         quickAction(
                             title = "Pré-triagem",
-                            subtitle = "Informe sintomas",
+                            subtitle = if (offline) "Indisponível offline" else "Informe sintomas",
                             green = false,
-                            onPress = ::markUnavailable,
+                            unavailable = offline,
+                            onPress = { openOnline(props.onPreTriage, PRE_TRIAGE_NEEDS_NETWORK_MESSAGE) },
                         ) { clipboardIcon(it) }
                         quickAction(
                             title = "Agendar",
                             subtitle = if (offline) "Indisponível offline" else "Escolha data e hora",
                             green = true,
                             unavailable = offline,
-                            onPress = ::schedule,
+                            onPress = { openOnline(props.onSchedule, SCHEDULING_NEEDS_NETWORK_MESSAGE) },
                         ) { calendarIcon(it) }
                     }
                     Pressable {
@@ -222,11 +217,15 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
 /**
  * Shown when the server refused the saved token. Signing in again is the only way out.
  */
-internal fun ChildrenBuilder.sessionExpiredAlert(error: SchedulingError?, onSignOut: () -> Unit) {
+internal fun ChildrenBuilder.sessionExpiredAlert(
+    error: SchedulingError?,
+    onSignOut: () -> Unit,
+    message: (SchedulingError) -> String = { it.toMessage() },
+) {
     if (error == null) {
         return
     }
-    errorAlert(error.toMessage())
+    errorAlert(message(error))
     if (error == SchedulingError.SessionExpired) {
         textLink("Entrar de novo", onPress = onSignOut)
     }

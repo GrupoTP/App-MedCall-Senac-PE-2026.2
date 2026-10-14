@@ -3,15 +3,18 @@ package grupotp.recifesaudavel.server.plugin
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.AppointmentsTable
+import grupotp.recifesaudavel.server.database.PreTriagesTable
 import grupotp.recifesaudavel.server.database.ProfessionalsTable
 import grupotp.recifesaudavel.server.database.SessionsTable
 import grupotp.recifesaudavel.server.database.SpecialtiesTable
 import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.SessionRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
 import grupotp.recifesaudavel.server.service.AuthService
+import grupotp.recifesaudavel.server.service.PreTriageService
 import grupotp.recifesaudavel.server.service.SchedulingService
 import grupotp.recifesaudavel.server.service.SessionService
 import io.ktor.server.application.Application
@@ -41,15 +44,17 @@ fun Application.configureDatabase() {
                 singleOf(::UserRepository)
                 singleOf(::SessionRepository)
                 singleOf(::SchedulingRepository)
+                singleOf(::PreTriageRepository)
                 singleOf(::SessionService)
                 singleOf(::AuthService)
                 singleOf(::SchedulingService)
+                singleOf(::PreTriageService)
             },
         ),
     )
     val database = getKoin().get<Database>()
     transaction(database) {
-        SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable)
+        SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
     }
     getKoin().get<SchedulingRepository>().seedCatalogIfEmpty()
     monitor.subscribe(ApplicationStopped) {

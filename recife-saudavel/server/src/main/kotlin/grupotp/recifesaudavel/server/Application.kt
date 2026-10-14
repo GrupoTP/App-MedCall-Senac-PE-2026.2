@@ -2,6 +2,7 @@ package grupotp.recifesaudavel.server
 
 import grupotp.recifesaudavel.server.controller.configureAuthController
 import grupotp.recifesaudavel.server.controller.configureHealthController
+import grupotp.recifesaudavel.server.controller.configurePreTriageController
 import grupotp.recifesaudavel.server.controller.configureSchedulingController
 import grupotp.recifesaudavel.server.plugin.configureCors
 import grupotp.recifesaudavel.server.plugin.configureDatabase
@@ -20,4 +21,5 @@ fun Application.module() {
     configureHealthController()
     configureAuthController()
     configureSchedulingController()
+    configurePreTriageController()
 }

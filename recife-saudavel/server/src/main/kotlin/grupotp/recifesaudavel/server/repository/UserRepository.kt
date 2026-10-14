@@ -14,6 +14,17 @@ data class StoredUser(
     val passwordHash: String,
 )
 
+data class UserProfile(
+    val fullName: String,
+    val socialName: String,
+    val primaryPhone: String,
+    val primaryPhoneWhatsapp: Boolean,
+    val secondaryPhone: String,
+    val secondaryPhoneWhatsapp: Boolean,
+    val emergencyContactName: String,
+    val emergencyContactPhone: String,
+)
+
 class UserRepository(
     private val database: Database,
 ) {
@@ -30,6 +41,25 @@ class UserRepository(
             .singleOrNull()
             ?.toStoredUser()
             ?.account
+    }
+
+    /** Contact data typed at registration, as it is now. */
+    fun findProfile(id: String): UserProfile? = transaction(database) {
+        UsersTable.selectAll()
+            .where { UsersTable.id eq id }
+            .singleOrNull()
+            ?.let {
+                UserProfile(
+                    fullName = it[UsersTable.fullName],
+                    socialName = it[UsersTable.socialName],
+                    primaryPhone = it[UsersTable.primaryPhone],
+                    primaryPhoneWhatsapp = it[UsersTable.primaryPhoneWhatsapp],
+                    secondaryPhone = it[UsersTable.secondaryPhone],
+                    secondaryPhoneWhatsapp = it[UsersTable.secondaryPhoneWhatsapp],
+                    emergencyContactName = it[UsersTable.emergencyContactName],
+                    emergencyContactPhone = it[UsersTable.emergencyContactPhone],
+                )
+            }
     }
 
     fun insert(id: String, request: RegisterAccountRequest, passwordHash: String): AuthenticatedAccount =

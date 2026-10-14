@@ -5,7 +5,6 @@ import grupotp.recifesaudavel.common.CreateAppointmentRequest
 import grupotp.recifesaudavel.server.service.BookingResult
 import grupotp.recifesaudavel.server.service.SchedulingService
 import grupotp.recifesaudavel.server.service.SessionService
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -17,25 +16,12 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import org.koin.ktor.ext.inject
 
-private const val BEARER_PREFIX = "Bearer "
-
 fun Application.configureSchedulingController() {
     val scheduling by inject<SchedulingService>()
     val sessions by inject<SessionService>()
 
     /** Patient id of the bearer token, or null after answering 401. */
-    suspend fun ApplicationCall.patientId(): String? {
-        val header = request.headers[HttpHeaders.Authorization].orEmpty()
-        val userId = if (header.startsWith(BEARER_PREFIX)) {
-            sessions.userIdFor(header.removePrefix(BEARER_PREFIX).trim())
-        } else {
-            null
-        }
-        if (userId == null) {
-            respond(HttpStatusCode.Unauthorized, ApiError("Sua sessão expirou. Entre de novo para continuar."))
-        }
-        return userId
-    }
+    suspend fun ApplicationCall.patientId(): String? = authenticatedUserId(sessions)
 
     routing {
         route("/api/v1") {

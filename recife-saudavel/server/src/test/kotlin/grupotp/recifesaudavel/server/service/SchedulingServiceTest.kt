@@ -6,11 +6,13 @@ import grupotp.recifesaudavel.common.RegisterAccountRequest
 import grupotp.recifesaudavel.server.database.AppointmentsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
+import grupotp.recifesaudavel.server.database.PreTriagesTable
 import grupotp.recifesaudavel.server.database.ProfessionalsTable
 import grupotp.recifesaudavel.server.database.SchedulingCatalog
 import grupotp.recifesaudavel.server.database.SessionsTable
 import grupotp.recifesaudavel.server.database.SpecialtiesTable
 import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -55,10 +57,10 @@ class SchedulingServiceTest {
             ),
         )
         transaction(database) {
-            SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable)
+            SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
         }
         val repository = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
-        service = SchedulingService(repository, clock)
+        service = SchedulingService(repository, clock, PreTriageRepository(database))
         val users = UserRepository(database)
         maria = users.insert(UUID.randomUUID().toString(), registration("maria@email.com", "Graça"), "hash").id
         ana = users.insert(UUID.randomUUID().toString(), registration("ana@email.com", ""), "hash").id

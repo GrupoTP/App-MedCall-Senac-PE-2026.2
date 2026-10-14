@@ -2,6 +2,7 @@ package grupotp.recifesaudavel.app.ui
 
 import grupotp.recifesaudavel.app.usecase.BookAppointment
 import grupotp.recifesaudavel.app.usecase.LoadAvailability
+import grupotp.recifesaudavel.app.usecase.LoadPendingPreTriage
 import grupotp.recifesaudavel.app.usecase.LoadSchedulingOptions
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingOptions
@@ -10,6 +11,7 @@ import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import grupotp.recifesaudavel.common.AvailableDay
 import grupotp.recifesaudavel.common.CreateAppointmentRequest
+import grupotp.recifesaudavel.common.PreTriage
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
@@ -28,6 +30,7 @@ internal external interface ScheduleScreenProps : Props {
     var loadSchedulingOptions: LoadSchedulingOptions
     var loadAvailability: LoadAvailability
     var bookAppointment: BookAppointment
+    var loadPendingPreTriage: LoadPendingPreTriage
     var onBack: () -> Unit
     var onBooked: (Appointment) -> Unit
     var onSignOut: () -> Unit
@@ -50,10 +53,18 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     var fieldErrors by useState<Map<String, String>>(emptyMap())
     var error by useState<SchedulingError?>(null)
     var busy by useState(false)
+    var preTriage by useState<PreTriage?>(null)
+    var attachPreTriage by useState(true)
     val scope = useScreenScope()
 
     useEffectOnce {
         scope.launch {
+            // The latest pre-triage goes with the next booking, unless the patient unticks it.
+            val pending = props.loadPendingPreTriage(props.account)
+            if (pending != null) {
+                preTriage = pending
+                reason = pending.form.reason
+            }
             when (val result = props.loadSchedulingOptions(props.account)) {
                 is SchedulingResult.Success -> options = result.value
                 is SchedulingResult.Failed -> error = result.error
@@ -110,6 +121,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                     time = chosenTime,
                     reason = reason.trim(),
                     notes = notes.trim(),
+                    preTriageId = preTriage?.id?.takeIf { attachPreTriage },
                 ),
             )
             busy = false
@@ -235,6 +247,9 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                 onValue = { reason = it }
                             }
                         }
+                        preTriage?.let { pending ->
+                            preTriageChoice(pending, attachPreTriage) { attachPreTriage = it }
+                        }
                     }
                     1 -> View {
                         style = Styles.card
@@ -300,6 +315,12 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                 summaryRow("Profissional", professional?.name ?: "Qualquer disponível")
                                 summaryRow("Data", date?.let(::formatDate).orEmpty())
                                 summaryRow("Horário", time.orEmpty())
+                                preTriage?.let { pending ->
+                                    summaryRow(
+                                        "Pré-triagem",
+                                        if (attachPreTriage) "Vinculada (${formatDateTime(pending.createdAt)})" else "Não vinculada",
+                                    )
+                                }
                                 summaryRow(
                                     "Paciente",
                                     props.account.socialName.ifBlank { props.account.fullName },
@@ -351,6 +372,31 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
             }
         }
         AppFooter()
+    }
+}
+
+/**
+ * Latest pre-triage, attached by default. Unticking it books without one.
+ */
+private fun ChildrenBuilder.preTriageChoice(preTriage: PreTriage, attached: Boolean, onToggle: (Boolean) -> Unit) {
+    val label = "Vincular a pré-triagem de ${formatDateTime(preTriage.createdAt)}"
+    CheckBox {
+        checked = attached
+        this.label = label
+        style = Styles.checkLine
+        this.onToggle = onToggle
+        Text {
+            style = Styles.checkCopy
+            +label
+        }
+    }
+    if (attached) {
+        infoAlert("Motivo pré-preenchido a partir da pré-triagem. A clínica verá suas respostas.") { checkIcon(it) }
+    } else {
+        Text {
+            style = Styles.fieldHint
+            +"A consulta será marcada sem pré-triagem. Ela continua guardada para a próxima."
+        }
     }
 }
 

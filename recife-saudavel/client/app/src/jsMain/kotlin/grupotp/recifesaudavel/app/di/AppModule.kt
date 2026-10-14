@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.app.di
 import grupotp.recifesaudavel.app.gateway.BrowserOfflineShell
 import grupotp.recifesaudavel.app.gateway.RestAppointmentGateway
 import grupotp.recifesaudavel.app.gateway.RestAuthGateway
+import grupotp.recifesaudavel.app.gateway.RestPreTriageGateway
 import grupotp.recifesaudavel.app.gateway.SqliteLocalAccounts
 import grupotp.recifesaudavel.app.platform.apiBaseUrl
 import grupotp.recifesaudavel.app.usecase.AppShellGateway
@@ -12,10 +13,13 @@ import grupotp.recifesaudavel.app.usecase.BookAppointment
 import grupotp.recifesaudavel.app.usecase.CancelAppointment
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.LoadAvailability
+import grupotp.recifesaudavel.app.usecase.LoadPendingPreTriage
+import grupotp.recifesaudavel.app.usecase.LoadPreTriageDraft
 import grupotp.recifesaudavel.app.usecase.LoadSchedulingOptions
 import grupotp.recifesaudavel.app.usecase.LoadSignedInAccount
 import grupotp.recifesaudavel.app.usecase.LocalAccountGateway
 import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
+import grupotp.recifesaudavel.app.usecase.PreTriageGateway
 import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
 import grupotp.recifesaudavel.app.usecase.RefreshAccount
 import grupotp.recifesaudavel.app.usecase.RegisterAccount
@@ -23,6 +27,7 @@ import grupotp.recifesaudavel.app.usecase.RememberSignedInAccount
 import grupotp.recifesaudavel.app.usecase.RequestPasswordRecovery
 import grupotp.recifesaudavel.app.usecase.SignIn
 import grupotp.recifesaudavel.app.usecase.SignOut
+import grupotp.recifesaudavel.app.usecase.SubmitPreTriage
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
@@ -38,6 +43,7 @@ private const val WEB = "web"
 fun appModule(platform: String): Module = module {
     single { RestAuthGateway(apiBaseUrl(platform)) } bind AuthGateway::class
     single { RestAppointmentGateway(apiBaseUrl(platform)) } bind AppointmentGateway::class
+    single { RestPreTriageGateway(apiBaseUrl(platform)) } bind PreTriageGateway::class
     val localGateways = arrayOf(AppShellGateway::class, LocalAccountGateway::class, LocalAppointmentGateway::class)
     if (platform == WEB) {
         single { BrowserOfflineShell() } binds localGateways
@@ -57,4 +63,7 @@ fun appModule(platform: String): Module = module {
     singleOf(::BookAppointment)
     singleOf(::CancelAppointment)
     singleOf(::ListAppointments)
+    singleOf(::LoadPreTriageDraft)
+    singleOf(::SubmitPreTriage)
+    singleOf(::LoadPendingPreTriage)
 }

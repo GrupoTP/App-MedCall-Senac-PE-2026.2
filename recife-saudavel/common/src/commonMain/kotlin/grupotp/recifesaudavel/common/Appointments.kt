@@ -30,6 +30,7 @@ data class AvailableDay(
 
 /**
  * @property professionalId null lets the server pick any professional free at that time.
+ * @property preTriageId pre-triage to attach to the new appointment, or null to attach none.
  */
 @Serializable
 data class CreateAppointmentRequest(
@@ -39,6 +40,7 @@ data class CreateAppointmentRequest(
     val time: String,
     val reason: String,
     val notes: String,
+    val preTriageId: String? = null,
 )
 
 @Serializable
@@ -58,6 +60,7 @@ enum class AppointmentStatus {
  *
  * @property date ISO date, such as `2026-10-14`.
  * @property time `HH:mm`.
+ * @property preTriageId pre-triage attached when booking, if any.
  */
 @Serializable
 data class Appointment(
@@ -71,4 +74,5 @@ data class Appointment(
     val contactPhone: String,
     val reason: String = "",
     val notes: String = "",
+    val preTriageId: String? = null,
 )

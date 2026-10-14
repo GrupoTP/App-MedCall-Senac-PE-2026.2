@@ -5,6 +5,7 @@ import grupotp.recifesaudavel.common.AppointmentStatus
 import grupotp.recifesaudavel.common.Professional
 import grupotp.recifesaudavel.common.Specialty
 import grupotp.recifesaudavel.server.database.AppointmentsTable
+import grupotp.recifesaudavel.server.database.PreTriagesTable
 import grupotp.recifesaudavel.server.database.ProfessionalsTable
 import grupotp.recifesaudavel.server.database.SchedulingCatalog
 import grupotp.recifesaudavel.server.database.SpecialtiesTable
@@ -156,6 +157,7 @@ class SchedulingRepository(
         .join(ProfessionalsTable, JoinType.INNER, AppointmentsTable.professionalId, ProfessionalsTable.id)
         .join(SpecialtiesTable, JoinType.INNER, ProfessionalsTable.specialtyId, SpecialtiesTable.id)
         .join(UsersTable, JoinType.INNER, AppointmentsTable.patientId, UsersTable.id)
+        .join(PreTriagesTable, JoinType.LEFT, AppointmentsTable.id, PreTriagesTable.appointmentId)
         .selectAll()
 
     private fun ResultRow.toAppointment(): Appointment = Appointment(
@@ -173,6 +175,7 @@ class SchedulingRepository(
         contactPhone = this[UsersTable.primaryPhone],
         reason = this[AppointmentsTable.reason],
         notes = this[AppointmentsTable.notes],
+        preTriageId = this.getOrNull(PreTriagesTable.id),
     )
 
     private companion object {

@@ -4,6 +4,8 @@ import grupotp.recifesaudavel.app.ui.AppointmentsScreen
 import grupotp.recifesaudavel.app.ui.HomeScreen
 import grupotp.recifesaudavel.app.ui.LoginScreen
 import grupotp.recifesaudavel.app.ui.Palette
+import grupotp.recifesaudavel.app.ui.PreTriageScreen
+import grupotp.recifesaudavel.app.ui.PreTriageSuccessScreen
 import grupotp.recifesaudavel.app.ui.RegisterScreen
 import grupotp.recifesaudavel.app.ui.ScheduleScreen
 import grupotp.recifesaudavel.app.ui.ScheduleSuccessScreen
@@ -14,6 +16,8 @@ import grupotp.recifesaudavel.app.usecase.BookAppointment
 import grupotp.recifesaudavel.app.usecase.CancelAppointment
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.LoadAvailability
+import grupotp.recifesaudavel.app.usecase.LoadPendingPreTriage
+import grupotp.recifesaudavel.app.usecase.LoadPreTriageDraft
 import grupotp.recifesaudavel.app.usecase.LoadSchedulingOptions
 import grupotp.recifesaudavel.app.usecase.LoadSignedInAccount
 import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
@@ -23,6 +27,7 @@ import grupotp.recifesaudavel.app.usecase.RememberSignedInAccount
 import grupotp.recifesaudavel.app.usecase.RequestPasswordRecovery
 import grupotp.recifesaudavel.app.usecase.SignIn
 import grupotp.recifesaudavel.app.usecase.SignOut
+import grupotp.recifesaudavel.app.usecase.SubmitPreTriage
 import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import kotlinx.coroutines.launch
@@ -44,6 +49,8 @@ internal enum class AppScreen {
     Schedule,
     ScheduleSuccess,
     Appointments,
+    PreTriage,
+    PreTriageSuccess,
 }
 
 internal external interface AppProps : Props {
@@ -60,6 +67,9 @@ internal external interface AppProps : Props {
     var loadAvailability: LoadAvailability
     var bookAppointment: BookAppointment
     var cancelAppointment: CancelAppointment
+    var loadPreTriageDraft: LoadPreTriageDraft
+    var submitPreTriage: SubmitPreTriage
+    var loadPendingPreTriage: LoadPendingPreTriage
 }
 
 /**
@@ -85,6 +95,9 @@ internal val Root = FC<Props> {
                 loadAvailability = koin.get()
                 bookAppointment = koin.get()
                 cancelAppointment = koin.get()
+                loadPreTriageDraft = koin.get()
+                submitPreTriage = koin.get()
+                loadPendingPreTriage = koin.get()
             }
         }
     }
@@ -169,6 +182,7 @@ internal val App = FC<AppProps> { props ->
             loadSchedulingOptions = props.loadSchedulingOptions
             loadAvailability = props.loadAvailability
             bookAppointment = props.bookAppointment
+            loadPendingPreTriage = props.loadPendingPreTriage
             onBack = { screen = AppScreen.Home }
             onBooked = { appointment ->
                 booked = appointment
@@ -179,6 +193,18 @@ internal val App = FC<AppProps> { props ->
         screen == AppScreen.ScheduleSuccess && booked != null -> ScheduleSuccessScreen {
             appointment = booked!!
             onAppointments = { screen = AppScreen.Appointments }
+            onHome = { screen = AppScreen.Home }
+        }
+        screen == AppScreen.PreTriage -> PreTriageScreen {
+            this.account = signedIn
+            loadPreTriageDraft = props.loadPreTriageDraft
+            submitPreTriage = props.submitPreTriage
+            onBack = { screen = AppScreen.Home }
+            onSent = { screen = AppScreen.PreTriageSuccess }
+            onSignOut = ::signOut
+        }
+        screen == AppScreen.PreTriageSuccess -> PreTriageSuccessScreen {
+            onSchedule = { screen = AppScreen.Schedule }
             onHome = { screen = AppScreen.Home }
         }
         screen == AppScreen.Appointments -> AppointmentsScreen {
@@ -192,6 +218,7 @@ internal val App = FC<AppProps> { props ->
             this.account = signedIn
             listAppointments = props.listAppointments
             onSchedule = { screen = AppScreen.Schedule }
+            onPreTriage = { screen = AppScreen.PreTriage }
             onAppointments = { screen = AppScreen.Appointments }
             onSignOut = ::signOut
         }
