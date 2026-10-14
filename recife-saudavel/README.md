@@ -53,7 +53,7 @@ O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de ex
 ./gradlew :server:runDev
 ```
 
-Sobe o servidor no [modo de desenvolvimento do Ktor](https://ktor.io/docs/server-development-mode.html) e, ao lado, um segundo build Gradle contínuo (`gradlew -t :server:classes`) que recompila o servidor a cada arquivo salvo. As linhas desse build aparecem com o prefixo `[watch]`, inclusive os erros de compilação. O Ktor recarrega as classes das pastas listadas em `ktor.deployment.watch` (`application.yaml`) na primeira requisição depois da mudança, sem reiniciar o processo. Só as classes de `server` recarregam: mudanças em `common` (que chega como jar), no `application.yaml` ou nas dependências ainda pedem reiniciar a task. Para parar, use Ctrl+C: o build contínuo para junto. Os dois builds usam um daemon Gradle cada.
+Sobe o servidor no [modo de desenvolvimento do Ktor](https://ktor.io/docs/server-development-mode.html) e, ao lado, um segundo build Gradle contínuo (`gradlew -t :server:classes`) que recompila `server` e `common` a cada arquivo salvo. As linhas desse build aparecem com o prefixo `[watch]`, inclusive os erros de compilação. O Ktor recarrega as classes das pastas listadas em `ktor.deployment.watch` (`application.yaml`) na primeira requisição depois da mudança, sem reiniciar o processo. Por isso a `runDev` põe no classpath as classes compiladas de `common` no lugar do `common-jvm.jar`: o Ktor só recarrega classes que vêm de pastas. Mudanças no `application.yaml` ou nas dependências ainda pedem reiniciar a task, porque a configuração só é lida quando o servidor sobe. Para parar, use Ctrl+C: o build contínuo para junto. Os dois builds usam um daemon Gradle cada.
 
 ### Cliente
 

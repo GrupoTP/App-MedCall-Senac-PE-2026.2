@@ -84,7 +84,12 @@ tasks.register<JavaExec>("runDev") {
     description = "Runs the server in Ktor development mode, recompiling and reloading it on change."
     usesService(serverWatcher)
     mainClass = application.mainClass
-    classpath = sourceSets.main.get().runtimeClasspath
+    // Ktor only reloads classes from folders, so :common comes in as its compiled classes
+    // instead of common-jvm.jar; ktor.deployment.watch matches both build/classes folders.
+    classpath = sourceSets.main.get().runtimeClasspath.filter { it.name != "common-jvm.jar" } +
+        files(project(":common").layout.buildDirectory.dir("classes/kotlin/jvm/main")) {
+            builtBy(":common:compileKotlinJvm")
+        }
     workingDir = projectDir
     // Ktor reloads the modules from the folders listed in ktor.deployment.watch (application.yaml).
     jvmArgs("-Dio.ktor.development=true")
