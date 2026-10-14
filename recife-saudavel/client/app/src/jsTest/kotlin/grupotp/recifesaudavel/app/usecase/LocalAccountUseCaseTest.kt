@@ -38,7 +38,7 @@ class LocalAccountUseCaseTest {
         RememberSignedInAccount(gateway)(AuthenticatedAccount(id = "1", fullName = "Ana", socialName = "", email = "ana@email.com"))
 
         // Act
-        SignOut(gateway, NoRemote)()
+        SignOut(gateway, PendingSignOuts(NoRemote, MemoryPending()))()
 
         // Assert
         assertNull(LoadSignedInAccount(gateway)())
@@ -85,4 +85,14 @@ private object NoRemote : AccountGateway {
     override suspend fun requestDeletion(token: String) = error("not used")
 
     override suspend fun signOut(token: String): SchedulingResult<Unit> = error("not used")
+}
+
+internal class MemoryPending : PendingSignOutGateway {
+    var tokens: List<String> = emptyList()
+
+    override suspend fun loadPendingSignOuts(): List<String> = tokens
+
+    override suspend fun savePendingSignOuts(tokens: List<String>) {
+        this.tokens = tokens
+    }
 }

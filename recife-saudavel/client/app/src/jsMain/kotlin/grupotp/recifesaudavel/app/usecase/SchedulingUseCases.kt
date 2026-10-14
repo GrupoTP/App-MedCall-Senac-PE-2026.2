@@ -126,15 +126,16 @@ class ListAppointments(
  */
 class SignOut(
     private val accounts: LocalAccountGateway,
-    private val remote: AccountGateway,
+    private val pendingSignOuts: PendingSignOuts,
 ) {
     /**
-     * @param token session to revoke on the server too. The server is asked first and a failure
-     * (offline, already expired) never stops the device from forgetting the profile.
+     * @param token session to revoke on the server too. A failure never stops the device from
+     * forgetting the profile; when the server could not be reached the token waits in
+     * [PendingSignOuts] and is revoked as soon as the device is online again.
      */
     suspend operator fun invoke(token: String? = null) {
         if (!token.isNullOrBlank()) {
-            runCatching { remote.signOut(token) }
+            runCatching { pendingSignOuts.revokeOrQueue(token) }
         }
         accounts.clear()
     }

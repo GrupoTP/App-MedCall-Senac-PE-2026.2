@@ -84,6 +84,7 @@ private suspend fun respond(
 ): Response = when (router.route(request.url)) {
     WorkerRoute.LocalAccount -> localAccount(accounts, request)
     WorkerRoute.LocalAppointments -> localAppointments(accounts, request)
+    WorkerRoute.LocalPendingSignOuts -> localPendingSignOuts(accounts, request)
     WorkerRoute.Document -> document(shell, request)
     WorkerRoute.Shell -> shellAsset(shell, router, request)
     WorkerRoute.Server, WorkerRoute.Ignore -> error("O navegador deveria atender este pedido.")
@@ -109,6 +110,19 @@ private suspend fun localAccount(accounts: LocalAccountDatabase, request: Reques
     }
     else -> jsonResponse(405, """{"message":"Método não permitido."}""")
 }
+
+private suspend fun localPendingSignOuts(accounts: LocalAccountDatabase, request: Request): Response =
+    when (request.method.toString()) {
+        "GET" -> {
+            val tokens = accounts.loadPendingSignOuts()
+            if (tokens == null) emptyResponse(204) else jsonResponse(200, tokens)
+        }
+        "PUT" -> {
+            accounts.savePendingSignOuts(request.textAsync().await())
+            emptyResponse(204)
+        }
+        else -> jsonResponse(405, """{"message":"Método não permitido."}""")
+    }
 
 private suspend fun localAppointments(accounts: LocalAccountDatabase, request: Request): Response {
     val accountId = queryParameter(request.url, "account")

@@ -13,6 +13,7 @@ class WorkerRequestRouter(
             isServerData(url, path) -> WorkerRoute.Server
             path == LOCAL_ACCOUNT_PATH -> WorkerRoute.LocalAccount
             path == LOCAL_APPOINTMENTS_PATH -> WorkerRoute.LocalAppointments
+            path == LOCAL_PENDING_SIGN_OUTS_PATH -> WorkerRoute.LocalPendingSignOuts
             path in DOCUMENT_PATHS -> WorkerRoute.Document
             path in essentialPaths || isBuildOutput(path) -> WorkerRoute.Shell
             else -> WorkerRoute.Ignore
@@ -41,6 +42,7 @@ class WorkerRequestRouter(
     companion object {
         const val LOCAL_ACCOUNT_PATH = "/local/account"
         const val LOCAL_APPOINTMENTS_PATH = "/local/appointments"
+        const val LOCAL_PENDING_SIGN_OUTS_PATH = "/local/pending-sign-outs"
         const val SHELL_CACHE_NAME = "recife-saudavel-shell-v3"
         const val ROOT_DOCUMENT = "/"
 
@@ -81,6 +83,9 @@ sealed interface WorkerRoute {
 
     /** Appointments of the signed-in account, readable offline. The `account` query names the account. */
     data object LocalAppointments : WorkerRoute
+
+    /** Session tokens waiting to be revoked on the server after an offline sign-out. */
+    data object LocalPendingSignOuts : WorkerRoute
 
     /** API and health responses. Must not be written to the cache. */
     data object Server : WorkerRoute

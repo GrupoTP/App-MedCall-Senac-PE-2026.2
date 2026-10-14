@@ -23,6 +23,8 @@ import grupotp.recifesaudavel.app.usecase.LoadSchedulingOptions
 import grupotp.recifesaudavel.app.usecase.LoadSignedInAccount
 import grupotp.recifesaudavel.app.usecase.LocalAccountGateway
 import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
+import grupotp.recifesaudavel.app.usecase.PendingSignOutGateway
+import grupotp.recifesaudavel.app.usecase.PendingSignOuts
 import grupotp.recifesaudavel.app.usecase.PreTriageGateway
 import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
 import grupotp.recifesaudavel.app.usecase.RefreshAccount
@@ -52,7 +54,12 @@ fun appModule(platform: String): Module = module {
     single { RestAppointmentGateway(apiBaseUrl(platform)) } bind AppointmentGateway::class
     single { RestPreTriageGateway(apiBaseUrl(platform)) } bind PreTriageGateway::class
     single { RestAccountGateway(apiBaseUrl(platform)) } bind AccountGateway::class
-    val localGateways = arrayOf(AppShellGateway::class, LocalAccountGateway::class, LocalAppointmentGateway::class)
+    val localGateways = arrayOf(
+        AppShellGateway::class,
+        LocalAccountGateway::class,
+        LocalAppointmentGateway::class,
+        PendingSignOutGateway::class,
+    )
     if (platform == WEB) {
         single { BrowserOfflineShell() } binds localGateways
     } else {
@@ -64,6 +71,7 @@ fun appModule(platform: String): Module = module {
     singleOf(::PrepareOfflineShell)
     singleOf(::RememberSignedInAccount)
     singleOf(::LoadSignedInAccount)
+    singleOf(::PendingSignOuts)
     singleOf(::SignOut)
     singleOf(::LoadSchedulingOptions)
     singleOf(::LoadAvailability)

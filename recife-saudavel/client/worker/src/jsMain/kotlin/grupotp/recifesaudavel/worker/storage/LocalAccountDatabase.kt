@@ -14,6 +14,7 @@ private const val DATABASE_VERSION = 2
 private const val ACCOUNT_STORE = "accounts"
 private const val APPOINTMENT_STORE = "appointments"
 private const val SIGNED_IN_KEY = "signed-in"
+private const val PENDING_SIGN_OUTS_KEY = "pending-sign-outs"
 
 /**
  * IndexedDB of the signed-in registration profile and of its appointments, keyed by account id.
@@ -36,9 +37,22 @@ class LocalAccountDatabase(
         return json.decodeFromString(text)
     }
 
+    /**
+     * Session tokens whose sign-out still has to reach the server, as a JSON array.
+     * Kept in the accounts store but outside [clear], so signing out does not lose them.
+     */
+    suspend fun loadPendingSignOuts(): String? {
+        val stored = withStore(ACCOUNT_STORE, READ_ONLY) { store -> await(store.get(PENDING_SIGN_OUTS_KEY)) }
+        return stored.asText()
+    }
+
+    suspend fun savePendingSignOuts(tokensJson: String) {
+        withStore(ACCOUNT_STORE, READ_WRITE) { store -> await(store.put(tokensJson, PENDING_SIGN_OUTS_KEY)) }
+    }
+
     /** Forgets the profile and the appointments. */
     suspend fun clear() {
-        withStore(ACCOUNT_STORE, READ_WRITE) { store -> await(store.clear()) }
+        withStore(ACCOUNT_STORE, READ_WRITE) { store -> await(store.delete(SIGNED_IN_KEY)) }
         withStore(APPOINTMENT_STORE, READ_WRITE) { store -> await(store.clear()) }
     }
 
@@ -134,6 +148,7 @@ private external interface IdbStore {
     fun put(value: String, key: String): IdbResultRequest
     fun get(key: String): IdbResultRequest
     fun clear(): IdbResultRequest
+    fun delete(key: String): IdbResultRequest
 }
 
 private external interface IdbResultRequest {

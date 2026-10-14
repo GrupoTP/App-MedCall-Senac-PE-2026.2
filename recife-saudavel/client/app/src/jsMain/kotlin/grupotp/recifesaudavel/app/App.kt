@@ -25,6 +25,7 @@ import grupotp.recifesaudavel.app.usecase.LoadPendingPreTriage
 import grupotp.recifesaudavel.app.usecase.LoadPreTriageDraft
 import grupotp.recifesaudavel.app.usecase.LoadSchedulingOptions
 import grupotp.recifesaudavel.app.usecase.LoadSignedInAccount
+import grupotp.recifesaudavel.app.usecase.PendingSignOuts
 import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
 import grupotp.recifesaudavel.app.usecase.RefreshAccount
 import grupotp.recifesaudavel.app.usecase.RegisterAccount
@@ -38,6 +39,7 @@ import grupotp.recifesaudavel.app.usecase.SubmitPreTriage
 import grupotp.recifesaudavel.app.usecase.UpdateNotificationConsent
 import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.StatusBar
 import ojaynico.kotlin.react.native.safearea.SafeAreaProvider
@@ -48,6 +50,8 @@ import react.Props
 import react.useEffect
 import react.useEffectOnce
 import react.useState
+
+private const val PENDING_SIGN_OUT_RETRY_MS = 30_000L
 
 internal enum class AppScreen {
     Welcome,
@@ -71,6 +75,7 @@ internal external interface AppProps : Props {
     var rememberSignedInAccount: RememberSignedInAccount
     var loadSignedInAccount: LoadSignedInAccount
     var signOut: SignOut
+    var pendingSignOuts: PendingSignOuts
     var refreshAccount: RefreshAccount
     var listAppointments: ListAppointments
     var loadSchedulingOptions: LoadSchedulingOptions
@@ -104,6 +109,7 @@ internal val Root = FC<Props> {
                 rememberSignedInAccount = koin.get()
                 loadSignedInAccount = koin.get()
                 signOut = koin.get()
+                pendingSignOuts = koin.get()
                 refreshAccount = koin.get()
                 listAppointments = koin.get()
                 loadSchedulingOptions = koin.get()
@@ -136,6 +142,20 @@ internal val App = FC<AppProps> { props ->
             if (remembered != null) {
                 account = remembered
                 screen = AppScreen.Home
+            }
+        }
+    }
+
+    // Sign-outs made offline reach the server once the device can reach it: tried at start,
+    // on every screen change and then every 30 seconds while the app is open.
+    useEffect(screen) {
+        scope.launch { runCatching { props.pendingSignOuts.flush() } }
+    }
+    useEffectOnce {
+        scope.launch {
+            while (true) {
+                delay(PENDING_SIGN_OUT_RETRY_MS)
+                runCatching { props.pendingSignOuts.flush() }
             }
         }
     }

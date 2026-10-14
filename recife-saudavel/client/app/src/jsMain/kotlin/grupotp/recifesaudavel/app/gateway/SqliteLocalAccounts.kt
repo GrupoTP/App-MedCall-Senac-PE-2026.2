@@ -5,6 +5,7 @@ import grupotp.recifesaudavel.app.gateway.sqlite.openDatabaseAsync
 import grupotp.recifesaudavel.app.usecase.AppShellGateway
 import grupotp.recifesaudavel.app.usecase.LocalAccountGateway
 import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
+import grupotp.recifesaudavel.app.usecase.PendingSignOutGateway
 import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import js.promise.await
@@ -19,7 +20,8 @@ private const val CREATE_ACCOUNTS =
     "CREATE TABLE IF NOT EXISTS accounts (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)"
 private const val SAVE_ACCOUNT = "INSERT OR REPLACE INTO accounts (key, value) VALUES (?, ?)"
 private const val LOAD_ACCOUNT = "SELECT value FROM accounts WHERE key = ?"
-private const val CLEAR_ACCOUNTS = "DELETE FROM accounts"
+private const val CLEAR_ACCOUNTS = "DELETE FROM accounts WHERE key = ?"
+private const val PENDING_SIGN_OUTS_KEY = "pending-sign-outs"
 
 private const val CREATE_APPOINTMENTS =
     "CREATE TABLE IF NOT EXISTS appointments (account_id TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)"
@@ -38,7 +40,7 @@ private external interface StoredValue {
  */
 class SqliteLocalAccounts(
     private val json: Json = Json { ignoreUnknownKeys = true },
-) : AppShellGateway, LocalAccountGateway, LocalAppointmentGateway {
+) : AppShellGateway, LocalAccountGateway, LocalAppointmentGateway, PendingSignOutGateway {
     private val opening = Mutex()
     private var database: SQLiteDatabase? = null
 
@@ -58,7 +60,18 @@ class SqliteLocalAccounts(
 
     override suspend fun clear() {
         val opened = open()
-        opened.execAsync("$CLEAR_APPOINTMENTS; $CLEAR_ACCOUNTS").await()
+        opened.execAsync(CLEAR_APPOINTMENTS).await()
+        opened.runAsync(CLEAR_ACCOUNTS, arrayOf(SIGNED_IN_KEY)).await()
+    }
+
+    override suspend fun loadPendingSignOuts(): List<String> {
+        val stored = open().getFirstAsync<StoredValue>(LOAD_ACCOUNT, arrayOf(PENDING_SIGN_OUTS_KEY)).await()
+            ?: return emptyList()
+        return json.decodeFromString(stored.value)
+    }
+
+    override suspend fun savePendingSignOuts(tokens: List<String>) {
+        open().runAsync(SAVE_ACCOUNT, arrayOf(PENDING_SIGN_OUTS_KEY, json.encodeToString(tokens))).await()
     }
 
     /** Keeps only the latest list of one account, so another person on the device never sees it. */

@@ -110,23 +110,56 @@ class AccountUseCaseTest {
     }
 
     @Test
-    fun signOutRevokesTheTokenAndForgetsTheDeviceCopyEvenWhenTheServerIsOffline() = runTest {
+    fun signOutRevokesTheTokenAndForgetsTheDeviceCopy() = runTest {
         // Arrange
         val local = MemoryAccounts().also { it.stored = account }
         val gateway = FakeAccountGateway(SchedulingResult.Success(profile))
+        val pending = MemoryPending()
 
         // Act
-        SignOut(local, gateway)(account.sessionToken)
-        val offlineLocal = MemoryAccounts().also { it.stored = account }
-        SignOut(offlineLocal, object : AccountGateway by gateway {
-            override suspend fun signOut(token: String): SchedulingResult<Unit> =
-                SchedulingResult.Failed(SchedulingError.Offline)
-        })(account.sessionToken)
+        SignOut(local, PendingSignOuts(gateway, pending))(account.sessionToken)
 
         // Assert
         assertEquals("token", gateway.signedOut)
         assertEquals(null, local.stored)
-        assertEquals(null, offlineLocal.stored)
+        assertEquals(emptyList(), pending.tokens)
+    }
+
+    @Test
+    fun offlineSignOutQueuesTheTokenAndFlushRevokesItOnceOnline() = runTest {
+        // Arrange
+        val local = MemoryAccounts().also { it.stored = account }
+        val gateway = FakeAccountGateway(SchedulingResult.Success(profile))
+        gateway.signOutResult = SchedulingResult.Failed(SchedulingError.Offline)
+        val pending = MemoryPending()
+        val queue = PendingSignOuts(gateway, pending)
+
+        // Act
+        SignOut(local, queue)(account.sessionToken)
+        queue.flush()
+        val stillQueued = pending.tokens
+        gateway.signOutResult = SchedulingResult.Success(Unit)
+        queue.flush()
+
+        // Assert
+        assertEquals(null, local.stored)
+        assertEquals(listOf("token"), stillQueued)
+        assertEquals(emptyList(), pending.tokens)
+        assertEquals("token", gateway.signedOut)
+    }
+
+    @Test
+    fun expiredSessionIsNotQueuedBecauseThereIsNothingLeftToRevoke() = runTest {
+        // Arrange
+        val gateway = FakeAccountGateway(SchedulingResult.Success(profile))
+        gateway.signOutResult = SchedulingResult.Failed(SchedulingError.SessionExpired)
+        val pending = MemoryPending()
+
+        // Act
+        PendingSignOuts(gateway, pending).revokeOrQueue("token")
+
+        // Assert
+        assertEquals(emptyList(), pending.tokens)
     }
 
     private class FakeAccountGateway(
@@ -161,10 +194,13 @@ class AccountUseCaseTest {
             result.also { tokens += token }
 
         var signedOut: String? = null
+        var signOutResult: SchedulingResult<Unit> = SchedulingResult.Success(Unit)
 
         override suspend fun signOut(token: String): SchedulingResult<Unit> {
-            signedOut = token
-            return SchedulingResult.Success(Unit)
+            if (signOutResult is SchedulingResult.Success) {
+                signedOut = token
+            }
+            return signOutResult
         }
     }
 

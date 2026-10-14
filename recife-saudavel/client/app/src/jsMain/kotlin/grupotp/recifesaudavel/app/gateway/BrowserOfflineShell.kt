@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.app.gateway
 import grupotp.recifesaudavel.app.usecase.AppShellGateway
 import grupotp.recifesaudavel.app.usecase.LocalAccountGateway
 import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
+import grupotp.recifesaudavel.app.usecase.PendingSignOutGateway
 import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import js.promise.await
@@ -24,6 +25,7 @@ import kotlin.time.Duration.Companion.seconds
 
 private const val LOCAL_ACCOUNT_URL = "/local/account"
 private const val LOCAL_APPOINTMENTS_URL = "/local/appointments"
+private const val LOCAL_PENDING_SIGN_OUTS_URL = "/local/pending-sign-outs"
 private const val SERVICE_WORKER_URL = "/sw.js"
 
 /** Handled by client/worker Main.kt; keep both in sync. */
@@ -40,7 +42,7 @@ private val deleteMethod: RequestMethod = unsafeCast("DELETE")
  */
 class BrowserOfflineShell(
     private val json: Json = Json { ignoreUnknownKeys = true },
-) : AppShellGateway, LocalAccountGateway, LocalAppointmentGateway {
+) : AppShellGateway, LocalAccountGateway, LocalAppointmentGateway, PendingSignOutGateway {
     private var ready: Deferred<Unit>? = null
 
     override suspend fun prepare() {
@@ -90,6 +92,23 @@ class BrowserOfflineShell(
             return null
         }
         return json.decodeFromString(text)
+    }
+
+    override suspend fun loadPendingSignOuts(): List<String> {
+        ensureReady()
+        val (status, text) = request(getMethod, LOCAL_PENDING_SIGN_OUTS_URL, null)
+        if (status !in 200..299 || status == 204.toShort() || text.isBlank()) {
+            return emptyList()
+        }
+        return json.decodeFromString(text)
+    }
+
+    override suspend fun savePendingSignOuts(tokens: List<String>) {
+        ensureReady()
+        val (status, text) = request(putMethod, LOCAL_PENDING_SIGN_OUTS_URL, json.encodeToString(tokens))
+        if (status !in 200..299) {
+            throw IllegalStateException(text.ifBlank { "Não foi possível guardar o encerramento da sessão." })
+        }
     }
 
     private fun appointmentsUrl(accountId: String): String =

@@ -132,4 +132,16 @@ class WorkerRequestRouterTest {
         assertEquals("a1/b2", account)
         assertEquals(null, missing)
     }
+
+    @Test
+    fun pendingSignOutsHaveTheirOwnLocalRoute() {
+        // Arrange
+        val router = WorkerRequestRouter()
+
+        // Act
+        val route = router.route("http://localhost:8081/local/pending-sign-outs")
+
+        // Assert
+        assertEquals(WorkerRoute.LocalPendingSignOuts, route)
+    }
 }
