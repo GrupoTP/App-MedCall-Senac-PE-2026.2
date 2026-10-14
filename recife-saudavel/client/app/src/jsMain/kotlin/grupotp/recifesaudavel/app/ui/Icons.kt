@@ -232,6 +232,16 @@ internal fun ChildrenBuilder.wifiOffIcon(color: String) {
     }
 }
 
+internal fun ChildrenBuilder.trashIcon(color: String) {
+    strokeIcon(size = 14, color = color) {
+        path("M3 6h18")
+        path("M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6")
+        path("M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2")
+        line(10.0, 11.0, 10.0, 17.0)
+        line(14.0, 11.0, 14.0, 17.0)
+    }
+}
+
 internal fun ChildrenBuilder.alertIcon(color: String) {
     strokeIcon(size = 16, color = color, strokeWidth = 2.5) {
         circle(12.0, 12.0, 10.0)

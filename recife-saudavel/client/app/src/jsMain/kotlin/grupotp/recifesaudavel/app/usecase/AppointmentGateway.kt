@@ -35,6 +35,8 @@ interface AppointmentGateway {
     suspend fun book(token: String, request: CreateAppointmentRequest): SchedulingResult<Appointment>
 
     suspend fun list(token: String): SchedulingResult<List<Appointment>>
+
+    suspend fun cancel(token: String, appointmentId: String): SchedulingResult<Appointment>
 }
 
 /**

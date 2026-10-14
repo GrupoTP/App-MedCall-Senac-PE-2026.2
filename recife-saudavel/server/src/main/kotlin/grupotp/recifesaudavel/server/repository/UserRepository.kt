@@ -47,6 +47,7 @@ class UserRepository(
                 fullName = request.fullName.trim(),
                 socialName = request.socialName.trim(),
                 email = request.email.trim().lowercase(),
+                phone = request.primaryPhone.trim(),
             )
         }
 
@@ -56,6 +57,7 @@ class UserRepository(
             fullName = this[UsersTable.fullName],
             socialName = this[UsersTable.socialName],
             email = this[UsersTable.email],
+            phone = this[UsersTable.primaryPhone],
         ),
         passwordHash = this[UsersTable.passwordHash],
     )

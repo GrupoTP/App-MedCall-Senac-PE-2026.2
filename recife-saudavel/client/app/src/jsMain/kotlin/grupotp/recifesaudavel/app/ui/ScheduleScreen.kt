@@ -294,11 +294,20 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                             style = Styles.card
                             sectionTitle("Resumo do Agendamento")
                             View {
+                                style = Styles.summaryList
+                                val phone = props.account.phone
                                 summaryRow("Especialidade", specialty?.name.orEmpty())
                                 summaryRow("Profissional", professional?.name ?: "Qualquer disponível")
                                 summaryRow("Data", date?.let(::formatDate).orEmpty())
                                 summaryRow("Horário", time.orEmpty())
-                                summaryRow("Paciente", props.account.socialName.ifBlank { props.account.fullName })
+                                summaryRow(
+                                    "Paciente",
+                                    props.account.socialName.ifBlank { props.account.fullName },
+                                    last = phone.isBlank(),
+                                )
+                                if (phone.isNotBlank()) {
+                                    summaryRow("Telefone", phone, last = true)
+                                }
                             }
                         }
                         formField(caption = "Observação adicional", hint = "Opcional") {
@@ -311,10 +320,16 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                 onValue = { notes = it }
                             }
                         }
-                        infoAlert(
-                            "A confirmação será enviada para o telefone principal do seu cadastro. " +
-                                "Informações médicas não serão expostas em notificações.",
-                        )
+                        infoAlertRich(icon = { emoji("📱") }) {
+                            if (props.account.phone.isNotBlank()) {
+                                +"Confirmação enviada para "
+                                strongText(props.account.phone)
+                                +". "
+                            } else {
+                                +"A confirmação será enviada para o telefone principal do seu cadastro. "
+                            }
+                            +"Informações médicas não serão expostas em notificações."
+                        }
                         warnAlert("Conflito de horário é impedido pelo servidor. O horário definitivo será confirmado pela clínica.")
                     }
                 }
@@ -339,9 +354,13 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     }
 }
 
-internal fun ChildrenBuilder.summaryRow(label: String, value: String) {
+internal fun ChildrenBuilder.summaryRow(label: String, value: String, last: Boolean = false, loose: Boolean = false) {
     View {
-        style = Styles.summaryRow
+        style = arrayOf(
+            Styles.summaryRow,
+            if (loose) Styles.summaryRowLoose else null,
+            if (last) Styles.summaryRowLast else null,
+        )
         Text {
             style = Styles.summaryLabel
             +label

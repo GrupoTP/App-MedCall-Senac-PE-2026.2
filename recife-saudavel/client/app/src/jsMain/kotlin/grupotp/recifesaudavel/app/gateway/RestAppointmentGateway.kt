@@ -43,6 +43,9 @@ class RestAppointmentGateway(
     override suspend fun list(token: String): SchedulingResult<List<Appointment>> =
         call("GET", "/api/v1/appointments", token)
 
+    override suspend fun cancel(token: String, appointmentId: String): SchedulingResult<Appointment> =
+        call("POST", "/api/v1/appointments/${encodeURIComponent(appointmentId)}/cancel", token, "{}")
+
     private suspend inline fun <reified T> call(
         method: String,
         path: String,

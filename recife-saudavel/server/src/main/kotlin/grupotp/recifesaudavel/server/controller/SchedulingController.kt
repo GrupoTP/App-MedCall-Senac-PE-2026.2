@@ -62,6 +62,16 @@ fun Application.configureSchedulingController() {
                     val patientId = call.patientId() ?: return@get
                     call.respond(scheduling.appointmentsOf(patientId))
                 }
+                post("/{id}/cancel") {
+                    val patientId = call.patientId() ?: return@post
+                    val id = call.parameters["id"].orEmpty()
+                    val cancelled = scheduling.cancel(patientId, id)
+                    if (cancelled == null) {
+                        call.respond(HttpStatusCode.NotFound, ApiError("Consulta não encontrada."))
+                    } else {
+                        call.respond(cancelled)
+                    }
+                }
                 post {
                     val patientId = call.patientId() ?: return@post
                     val request = call.receive<CreateAppointmentRequest>()

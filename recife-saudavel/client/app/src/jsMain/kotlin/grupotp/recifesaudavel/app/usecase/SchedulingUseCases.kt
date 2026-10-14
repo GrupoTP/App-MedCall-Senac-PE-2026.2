@@ -71,6 +71,25 @@ class BookAppointment(
 }
 
 /**
+ * Cancels on the server. Like booking, the device copy only changes after the server accepted it.
+ */
+class CancelAppointment(
+    private val gateway: AppointmentGateway,
+    private val local: LocalAppointmentGateway,
+) {
+    suspend operator fun invoke(account: AuthenticatedAccount, appointmentId: String): SchedulingResult<Appointment> {
+        val result = gateway.cancel(account.sessionToken, appointmentId)
+        if (result is SchedulingResult.Success) {
+            runCatching {
+                val saved = local.loadAppointments(account.id).orEmpty().filter { it.id != result.value.id }
+                local.saveAppointments(account.id, sortedByTime(saved + result.value))
+            }
+        }
+        return result
+    }
+}
+
+/**
  * @property offline true when the list came from the device because the server was unreachable.
  * @property error why the server refused the list, if it did. The device copy is still shown.
  */

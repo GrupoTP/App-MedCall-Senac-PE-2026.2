@@ -248,6 +248,8 @@ internal object Styles {
         backgroundColor = Palette.ERROR_BACKGROUND,
     )
     val alertIcon = ViewStyle(marginTop = 2)
+    val emoji = text(size = 14, lineHeight = 18)
+    val emojiMeta = text(size = 12, lineHeight = 16)
     val alertText = text(size = 14, lineHeight = 21, color = Palette.ERROR_TEXT, flex = 1)
     val formActions = ViewStyle(gap = 12)
     val primaryButton = ViewStyle(
@@ -394,6 +396,7 @@ internal object Styles {
         backgroundColor = Palette.GREEN_BACKGROUND,
     )
     val infoAlertText = text(size = 12, lineHeight = 18, color = Palette.GREEN_TEXT, flex = 1)
+    val infoAlertStrong = text(size = 12, lineHeight = 18, color = Palette.GREEN_TEXT, bold = true)
     val warnAlert = ViewStyle(
         flexDirection = "row",
         alignItems = "flex-start",
@@ -457,7 +460,11 @@ internal object Styles {
     val stepsRemainingTextLast = text(size = 11, lineHeight = 14, color = Palette.SUCCESS_TEXT, family = FontFamily.DISPLAY)
     val stepsLabel = text(size = 15, lineHeight = 20, family = FontFamily.DISPLAY, marginBottom = 10)
     val stepsBars = ViewStyle(flexDirection = "row", alignItems = "flex-end", gap = 6)
-    val stepsBar = ViewStyle(flex = 1, height = 8, borderRadius = 999, backgroundColor = Palette.LINE)
+    val stepsColumn = ViewStyle(flex = 1, alignItems = "center", gap = 2)
+    val stepsNumber = text(size = 10, lineHeight = 10, color = Palette.BLUE, bold = true)
+    val stepsNumberDone = ViewStyle(opacity = 0.7)
+    val stepsNumberPending = ViewStyle(opacity = 0)
+    val stepsBar = ViewStyle(width = "100%", height = 8, borderRadius = 999, backgroundColor = Palette.LINE)
     val stepsBarDone = ViewStyle(backgroundColor = Palette.BLUE)
     val stepsBarActive = ViewStyle(height = 12, backgroundColor = Palette.BLUE)
     val stepsNote = text(size = 11, lineHeight = 14, color = Palette.MUTED, marginTop = 6)
@@ -486,6 +493,8 @@ internal object Styles {
         borderRadius = 12,
         backgroundColor = Palette.WHITE,
     )
+    val summaryList = ViewStyle(gap = 8, marginTop = 8)
+    val summaryListLoose = ViewStyle(gap = 12)
     val summaryRow = ViewStyle(
         flexDirection = "row",
         justifyContent = "space-between",
@@ -495,6 +504,8 @@ internal object Styles {
         borderBottomWidth = 1,
         borderBottomColor = Palette.CANVAS,
     )
+    val summaryRowLoose = ViewStyle(paddingVertical = 4)
+    val summaryRowLast = ViewStyle(borderBottomWidth = 0)
     val summaryLabel = text(size = 14, lineHeight = 20, color = Palette.MUTED)
     val summaryValue = text(size = 14, lineHeight = 20, align = "right", flex = 1)
 
@@ -519,7 +530,8 @@ internal object Styles {
         backgroundColor = Palette.BLUE_ICON_BACKGROUND,
     )
     val successTitle = text(size = 24, lineHeight = 32, family = FontFamily.DISPLAY, align = "center")
-    val successSubtitle = text(size = 14, lineHeight = 21, color = Palette.MUTED, align = "center")
+    val successSubtitle = text(size = 14, lineHeight = 21, color = Palette.MUTED, align = "center", marginTop = 8)
+    val successHeading = ViewStyle(marginVertical = 4)
 
     // Appointments list
 
@@ -537,6 +549,8 @@ internal object Styles {
     val appointmentMeta = ViewStyle(flexDirection = "row", alignItems = "center", flexWrap = "wrap", gap = 16)
     val appointmentMetaItem = ViewStyle(flexDirection = "row", alignItems = "center", gap = 4)
     val appointmentMetaText = text(size = 12, lineHeight = 16, color = Palette.MUTED)
+    val cancelButton = ViewStyle(flexDirection = "row", alignItems = "center", alignSelf = "flex-start", gap = 6, paddingVertical = 2)
+    val cancelButtonText = text(size = 12, lineHeight = 16, color = Palette.CANCELLED_TEXT, bold = true)
     val statusPill = ViewStyle(paddingHorizontal = 10, paddingVertical = 4, borderRadius = 999)
     val statusPending = ViewStyle(backgroundColor = Palette.PENDING_BACKGROUND)
     val statusConfirmed = ViewStyle(backgroundColor = Palette.SUCCESS_BACKGROUND)
@@ -561,6 +575,7 @@ private fun text(
     marginBottom: Number? = undefined,
     paddingVertical: Number? = undefined,
     paddingBottom: Number? = undefined,
+    bold: Boolean = false,
 ) = TextStyle(
     fontFamily = family,
     fontSize = size,
@@ -568,6 +583,7 @@ private fun text(
     color = color,
     textAlign = align,
     letterSpacing = letterSpacing,
+    fontWeight = if (bold) "700" else undefined,
     textTransform = if (uppercase) "uppercase" else undefined,
     flex = flex,
     marginTop = marginTop,

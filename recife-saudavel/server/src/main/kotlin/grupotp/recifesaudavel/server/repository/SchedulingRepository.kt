@@ -21,6 +21,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 
 /** A professional, a date and a time: one slot of the agenda. */
 data class Slot(
@@ -132,6 +133,16 @@ class SchedulingRepository(
             .where { AppointmentsTable.patientId eq patientId }
             .orderBy(AppointmentsTable.appointmentDate to SortOrder.ASC, AppointmentsTable.appointmentTime to SortOrder.ASC)
             .map { it.toAppointment() }
+    }
+
+    /**
+     * Marks the patient's own appointment as cancelled, freeing its slot. Returns false when the
+     * appointment does not exist or belongs to someone else.
+     */
+    fun cancel(patientId: String, id: String): Boolean = transaction(database) {
+        AppointmentsTable.update({ (AppointmentsTable.id eq id) and (AppointmentsTable.patientId eq patientId) }) {
+            it[status] = STATUS_CANCELLED
+        } > 0
     }
 
     fun findAppointment(id: String): Appointment? = transaction(database) {

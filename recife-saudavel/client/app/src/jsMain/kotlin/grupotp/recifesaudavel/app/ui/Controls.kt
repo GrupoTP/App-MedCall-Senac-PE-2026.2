@@ -281,7 +281,28 @@ internal fun ChildrenBuilder.secondaryButton(text: String, grow: Boolean = false
     }
 }
 
-internal fun ChildrenBuilder.infoAlert(message: String, icon: ChildrenBuilder.(color: String) -> Unit = { infoIcon(it) }) {
+/**
+ * The prototype draws its notices with emoji, so the icons here are emoji too.
+ */
+internal fun ChildrenBuilder.emoji(symbol: String, style: dynamic = Styles.emoji) {
+    Text {
+        this.style = style
+        accessible = false
+        +symbol
+    }
+}
+
+internal fun ChildrenBuilder.infoAlert(message: String, icon: ChildrenBuilder.(color: String) -> Unit = { emoji("ℹ️") }) {
+    infoAlertRich(icon) { +message }
+}
+
+/**
+ * Info notice whose text can hold bold parts, such as a phone number.
+ */
+internal fun ChildrenBuilder.infoAlertRich(
+    icon: ChildrenBuilder.(color: String) -> Unit = { emoji("ℹ️") },
+    content: ChildrenBuilder.() -> Unit,
+) {
     View {
         style = Styles.infoAlert
         View {
@@ -290,8 +311,15 @@ internal fun ChildrenBuilder.infoAlert(message: String, icon: ChildrenBuilder.(c
         }
         Text {
             style = Styles.infoAlertText
-            +message
+            content()
         }
+    }
+}
+
+internal fun ChildrenBuilder.strongText(value: String) {
+    Text {
+        style = Styles.infoAlertStrong
+        +value
     }
 }
 
@@ -300,7 +328,7 @@ internal fun ChildrenBuilder.warnAlert(message: String) {
         style = Styles.warnAlert
         View {
             style = Styles.alertIcon
-            alertIcon(Palette.WARNING_TEXT)
+            emoji("⚠️")
         }
         Text {
             style = Styles.warnAlertText
@@ -393,14 +421,28 @@ internal val StepIndicator = FC<StepIndicatorProps> { props ->
                 for (index in 0 until total) {
                     View {
                         key = Key(index.toString())
-                        style = arrayOf(
-                            Styles.stepsBar,
-                            when {
-                                index < current -> Styles.stepsBarDone
-                                index == current -> Styles.stepsBarActive
-                                else -> null
-                            },
-                        )
+                        style = Styles.stepsColumn
+                        Text {
+                            style = arrayOf(
+                                Styles.stepsNumber,
+                                when {
+                                    index < current -> Styles.stepsNumberDone
+                                    index == current -> null
+                                    else -> Styles.stepsNumberPending
+                                },
+                            )
+                            +(index + 1).toString()
+                        }
+                        View {
+                            style = arrayOf(
+                                Styles.stepsBar,
+                                when {
+                                    index < current -> Styles.stepsBarDone
+                                    index == current -> Styles.stepsBarActive
+                                    else -> null
+                                },
+                            )
+                        }
                     }
                 }
             }

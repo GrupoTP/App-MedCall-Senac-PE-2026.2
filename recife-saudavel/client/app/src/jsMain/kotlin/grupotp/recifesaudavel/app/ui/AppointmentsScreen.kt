@@ -1,11 +1,16 @@
 package grupotp.recifesaudavel.app.ui
 
 import grupotp.recifesaudavel.app.usecase.AppointmentsSnapshot
+import grupotp.recifesaudavel.app.usecase.CancelAppointment
+import grupotp.recifesaudavel.app.usecase.SchedulingError
+import grupotp.recifesaudavel.app.usecase.SchedulingResult
+import grupotp.recifesaudavel.app.usecase.toMessage
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AppointmentStatus
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import kotlinx.coroutines.launch
+import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
@@ -19,16 +24,42 @@ import react.useState
 internal external interface AppointmentsScreenProps : Props {
     var account: AuthenticatedAccount
     var listAppointments: ListAppointments
+    var cancelAppointment: CancelAppointment
     var onBack: () -> Unit
     var onSignOut: () -> Unit
 }
 
 /**
- * Read-only list of the person's appointments. Offline it shows the copy saved on the device.
+ * The person's appointments. Offline it shows the copy saved on the device. Cancelling needs the
+ * server, so it asks again before sending and never marks an appointment cancelled on its own.
  */
 internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
     var snapshot by useState<AppointmentsSnapshot?>(null)
+    var confirming by useState<String?>(null)
+    var cancelling by useState<String?>(null)
+    var cancelError by useState<SchedulingError?>(null)
     val scope = useScreenScope()
+
+    fun cancel(id: String) {
+        if (cancelling != null) {
+            return
+        }
+        cancelling = id
+        cancelError = null
+        scope.launch {
+            val result = props.cancelAppointment(props.account, id)
+            cancelling = null
+            when (result) {
+                is SchedulingResult.Success -> {
+                    confirming = null
+                    snapshot = snapshot?.let { current ->
+                        current.copy(appointments = current.appointments.map { if (it.id == id) result.value else it })
+                    }
+                }
+                is SchedulingResult.Failed -> cancelError = result.error
+            }
+        }
+    }
 
     useEffectOnce {
         scope.launch {
@@ -60,6 +91,12 @@ internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
                     ) { wifiOffIcon(it) }
                 }
                 sessionExpiredAlert(current.error, props.onSignOut)
+                val failure = cancelError
+                if (failure is SchedulingError.SessionExpired) {
+                    sessionExpiredAlert(failure, props.onSignOut)
+                } else if (failure != null) {
+                    errorAlert(failure.toMessage())
+                }
                 if (current.appointments.isEmpty()) {
                     View {
                         style = Styles.emptyState
@@ -74,8 +111,20 @@ internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
                         }
                     }
                 } else {
-                    current.appointments.forEach { appointmentCard(it) }
-                    infoAlert("Consultas com status Aguardando ainda serão confirmadas pela clínica.")
+                    current.appointments.forEach { item ->
+                        appointmentCard(
+                            appointment = item,
+                            confirming = confirming == item.id,
+                            busy = cancelling == item.id,
+                            onAsk = {
+                                cancelError = null
+                                confirming = item.id
+                            },
+                            onKeep = { confirming = null },
+                            onConfirm = { cancel(item.id) },
+                        )
+                    }
+                    warnAlert("Cancelamento sujeito à política de cada clínica. O histórico é mantido para fins de auditoria.")
                 }
             }
         }
@@ -83,7 +132,14 @@ internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
     }
 }
 
-private fun ChildrenBuilder.appointmentCard(appointment: Appointment) {
+private fun ChildrenBuilder.appointmentCard(
+    appointment: Appointment,
+    confirming: Boolean,
+    busy: Boolean,
+    onAsk: () -> Unit,
+    onKeep: () -> Unit,
+    onConfirm: () -> Unit,
+) {
     View {
         key = Key(appointment.id)
         style = arrayOf(
@@ -112,7 +168,7 @@ private fun ChildrenBuilder.appointmentCard(appointment: Appointment) {
             style = Styles.appointmentMeta
             View {
                 style = Styles.appointmentMetaItem
-                smallCalendarIcon(Palette.MUTED)
+                emoji("📅", Styles.emojiMeta)
                 Text {
                     style = Styles.appointmentMetaText
                     +formatDate(appointment.date)
@@ -120,7 +176,7 @@ private fun ChildrenBuilder.appointmentCard(appointment: Appointment) {
             }
             View {
                 style = Styles.appointmentMetaItem
-                clockIcon(Palette.MUTED)
+                emoji("🕐", Styles.emojiMeta)
                 Text {
                     style = Styles.appointmentMetaText
                     +appointment.time
@@ -131,6 +187,37 @@ private fun ChildrenBuilder.appointmentCard(appointment: Appointment) {
             Text {
                 style = Styles.appointmentMetaText
                 +"Motivo: ${appointment.reason}"
+            }
+        }
+        if (appointment.status != AppointmentStatus.Cancelled) {
+            if (confirming) {
+                Text {
+                    style = Styles.appointmentMetaText
+                    accessibilityRole = "alert"
+                    +"Deseja cancelar esta consulta?"
+                }
+                View {
+                    style = Styles.buttonRow
+                    secondaryButton("Manter consulta", grow = true, onPress = onKeep)
+                    primaryButton(
+                        if (busy) "Cancelando…" else "Sim, cancelar",
+                        enabled = !busy,
+                        grow = true,
+                        onPress = onConfirm,
+                    )
+                }
+            } else {
+                Pressable {
+                    style = Styles.cancelButton
+                    accessibilityRole = "button"
+                    accessibilityLabel = "Cancelar consulta de ${appointment.specialtyName}"
+                    this.onPress = onAsk
+                    trashIcon(Palette.CANCELLED_TEXT)
+                    Text {
+                        style = Styles.cancelButtonText
+                        +"Cancelar consulta"
+                    }
+                }
             }
         }
     }

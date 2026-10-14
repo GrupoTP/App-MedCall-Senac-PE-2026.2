@@ -9,6 +9,7 @@ import grupotp.recifesaudavel.app.usecase.AppShellGateway
 import grupotp.recifesaudavel.app.usecase.AppointmentGateway
 import grupotp.recifesaudavel.app.usecase.AuthGateway
 import grupotp.recifesaudavel.app.usecase.BookAppointment
+import grupotp.recifesaudavel.app.usecase.CancelAppointment
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.LoadAvailability
 import grupotp.recifesaudavel.app.usecase.LoadSchedulingOptions
@@ -52,5 +53,6 @@ fun appModule(platform: String): Module = module {
     singleOf(::LoadSchedulingOptions)
     singleOf(::LoadAvailability)
     singleOf(::BookAppointment)
+    singleOf(::CancelAppointment)
     singleOf(::ListAppointments)
 }

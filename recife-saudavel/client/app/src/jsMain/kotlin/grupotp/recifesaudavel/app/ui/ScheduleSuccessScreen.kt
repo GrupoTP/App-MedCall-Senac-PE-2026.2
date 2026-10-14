@@ -33,6 +33,7 @@ internal val ScheduleSuccessScreen = FC<ScheduleSuccessScreenProps> { props ->
                     largeCalendarIcon(Palette.BLUE)
                 }
                 View {
+                    style = Styles.successHeading
                     Text {
                         style = Styles.successTitle
                         accessibilityRole = "header"
@@ -46,16 +47,28 @@ internal val ScheduleSuccessScreen = FC<ScheduleSuccessScreenProps> { props ->
                 View {
                     style = Styles.card
                     View {
-                        summaryRow("Paciente", appointment.patientName)
-                        summaryRow("Especialidade", appointment.specialtyName)
-                        summaryRow("Profissional", appointment.professionalName)
-                        summaryRow("Data e hora", "${formatDate(appointment.date)} às ${appointment.time}")
-                        summaryRow("Status", appointment.status.label())
+                        style = Styles.summaryListLoose
+                        summaryRow("Paciente", appointment.patientName, loose = true)
+                        summaryRow("Especialidade", appointment.specialtyName, loose = true)
+                        summaryRow("Profissional", appointment.professionalName, loose = true)
+                        summaryRow(
+                            "Data e hora",
+                            "${formatDate(appointment.date)} às ${appointment.time}",
+                            last = true,
+                            loose = true,
+                        )
                     }
                 }
-                val phone = appointment.contactPhone.ifBlank { "o telefone do seu cadastro" }
-                infoAlert("Confirmação para $phone. Informações médicas não serão expostas em notificações externas.")
-                infoAlert("Esta consulta fica guardada no aparelho e pode ser vista em Minhas consultas mesmo sem internet.")
+                infoAlertRich(icon = { emoji("📱") }) {
+                    if (appointment.contactPhone.isBlank()) {
+                        +"Confirmação para o telefone do seu cadastro. "
+                    } else {
+                        +"Confirmação para "
+                        strongText(appointment.contactPhone)
+                        +". "
+                    }
+                    +"Informações médicas não serão expostas em notificações externas."
+                }
                 View {
                     style = Styles.formActions
                     primaryButton("Ver minhas consultas", onPress = props.onAppointments)

@@ -121,6 +121,26 @@ class SchedulingUseCaseTest {
     }
 
     @Test
+    fun cancellingReplacesTheDeviceCopyOnlyAfterTheServerAccepted() = runTest {
+        // Arrange
+        val cancelled = later.copy(status = AppointmentStatus.Cancelled)
+        val local = FakeLocalAppointments(mutableMapOf("maria" to listOf(sooner, later)))
+        val accepted = FakeAppointmentGateway(cancel = SchedulingResult.Success(cancelled))
+        val offline = FakeAppointmentGateway()
+
+        // Act
+        val offlineResult = CancelAppointment(offline, local)(account, later.id)
+        val savesAfterOffline = local.saves
+        val acceptedResult = CancelAppointment(accepted, local)(account, later.id)
+
+        // Assert
+        assertIs<SchedulingResult.Failed>(offlineResult)
+        assertEquals(0, savesAfterOffline)
+        assertEquals(SchedulingResult.Success(cancelled), acceptedResult)
+        assertEquals(listOf(sooner, cancelled), local.saved["maria"])
+    }
+
+    @Test
     fun optionsNeedTheServer() = runTest {
         // Arrange
         val online = FakeAppointmentGateway()
@@ -177,6 +197,7 @@ class SchedulingUseCaseTest {
             SchedulingResult.Success(listOf(Specialty(id = "cardio", name = "Cardiologia"))),
         private val list: SchedulingResult<List<Appointment>> = SchedulingResult.Success(emptyList()),
         private val book: SchedulingResult<Appointment> = SchedulingResult.Failed(SchedulingError.Offline),
+        private val cancel: SchedulingResult<Appointment> = SchedulingResult.Failed(SchedulingError.Offline),
     ) : AppointmentGateway {
         var lastToken: String? = null
         var booked: CreateAppointmentRequest? = null
@@ -203,6 +224,11 @@ class SchedulingUseCaseTest {
         override suspend fun list(token: String): SchedulingResult<List<Appointment>> {
             lastToken = token
             return list
+        }
+
+        override suspend fun cancel(token: String, appointmentId: String): SchedulingResult<Appointment> {
+            lastToken = token
+            return cancel
         }
     }
 }

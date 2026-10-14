@@ -1,6 +1,7 @@
 package grupotp.recifesaudavel.server
 
 import grupotp.recifesaudavel.common.Appointment
+import grupotp.recifesaudavel.common.AppointmentStatus
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import grupotp.recifesaudavel.common.AvailableDay
 import grupotp.recifesaudavel.common.CreateAppointmentRequest
@@ -69,6 +70,40 @@ class SchedulingRouteTest {
         assertEquals("Dermatologia", appointment.specialtyName)
         assertEquals(day.date, appointment.date)
         assertEquals(listOf(appointment), Json.decodeFromString<List<Appointment>>(listed.bodyAsText()))
+    }
+
+    @Test
+    fun cancelFreesTheSlotAndOnlyTheOwnerCanCancel() = testApplication {
+        // Arrange
+        environment {
+            config = ApplicationConfig("application.yaml")
+        }
+        val owner = register(client)
+        val stranger = register(client)
+        val specialty = Json.decodeFromString<List<Specialty>>(client.get("/api/v1/specialties").bodyAsText())
+            .first { it.name == "Cardiologia" }
+        val day = Json.decodeFromString<List<AvailableDay>>(
+            client.get("/api/v1/availability?specialtyId=${specialty.id}") { bearerAuth(owner.sessionToken) }.bodyAsText(),
+        ).first()
+        val created = client.post("/api/v1/appointments") {
+            bearerAuth(owner.sessionToken)
+            contentType(ContentType.Application.Json)
+            setBody(
+                Json.encodeToString(
+                    CreateAppointmentRequest(specialty.id, null, day.date, day.times.last(), reason = "", notes = ""),
+                ),
+            )
+        }
+        val appointment = Json.decodeFromString<Appointment>(created.bodyAsText())
+
+        // Act
+        val byStranger = client.post("/api/v1/appointments/${appointment.id}/cancel") { bearerAuth(stranger.sessionToken) }
+        val byOwner = client.post("/api/v1/appointments/${appointment.id}/cancel") { bearerAuth(owner.sessionToken) }
+
+        // Assert
+        assertEquals(HttpStatusCode.NotFound, byStranger.status)
+        assertEquals(HttpStatusCode.OK, byOwner.status)
+        assertEquals(AppointmentStatus.Cancelled, Json.decodeFromString<Appointment>(byOwner.bodyAsText()).status)
     }
 
     @Test

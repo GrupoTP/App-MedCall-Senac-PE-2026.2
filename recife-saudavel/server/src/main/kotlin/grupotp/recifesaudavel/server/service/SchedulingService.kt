@@ -103,6 +103,14 @@ class SchedulingService(
 
     fun appointmentsOf(patientId: String): List<Appointment> = repository.appointmentsOf(patientId)
 
+    /** Cancels the patient's own appointment. Null when it does not exist or is not theirs. */
+    fun cancel(patientId: String, appointmentId: String): Appointment? {
+        if (!repository.cancel(patientId, appointmentId)) {
+            return null
+        }
+        return repository.findAppointment(appointmentId)
+    }
+
     private fun candidates(specialtyId: String, professionalId: String?): List<Professional>? {
         val professionals = repository.professionals(specialtyId)
         if (professionals.isEmpty()) {

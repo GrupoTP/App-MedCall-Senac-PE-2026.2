@@ -11,6 +11,7 @@ import grupotp.recifesaudavel.app.ui.WelcomeScreen
 import grupotp.recifesaudavel.app.ui.font.useAppFonts
 import grupotp.recifesaudavel.app.ui.useScreenScope
 import grupotp.recifesaudavel.app.usecase.BookAppointment
+import grupotp.recifesaudavel.app.usecase.CancelAppointment
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.LoadAvailability
 import grupotp.recifesaudavel.app.usecase.LoadSchedulingOptions
@@ -55,6 +56,7 @@ internal external interface AppProps : Props {
     var loadSchedulingOptions: LoadSchedulingOptions
     var loadAvailability: LoadAvailability
     var bookAppointment: BookAppointment
+    var cancelAppointment: CancelAppointment
 }
 
 /**
@@ -78,6 +80,7 @@ internal val Root = FC<Props> {
                 loadSchedulingOptions = koin.get()
                 loadAvailability = koin.get()
                 bookAppointment = koin.get()
+                cancelAppointment = koin.get()
             }
         }
     }
@@ -163,6 +166,7 @@ internal val App = FC<AppProps> { props ->
         screen == AppScreen.Appointments -> AppointmentsScreen {
             this.account = signedIn
             listAppointments = props.listAppointments
+            cancelAppointment = props.cancelAppointment
             onBack = { screen = AppScreen.Home }
             onSignOut = ::signOut
         }

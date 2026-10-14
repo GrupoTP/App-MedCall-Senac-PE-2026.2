@@ -31,6 +31,7 @@ data class RegisterAccountRequest(
  *
  * @property sessionToken bearer token for the authenticated API. Empty in profiles saved
  * before the server issued tokens; those must sign in again.
+ * @property phone primary phone. Empty in profiles saved before the server returned it.
  */
 @Serializable
 data class AuthenticatedAccount(
@@ -39,6 +40,7 @@ data class AuthenticatedAccount(
     val socialName: String,
     val email: String,
     val sessionToken: String = "",
+    val phone: String = "",
 )
 
 @Serializable
