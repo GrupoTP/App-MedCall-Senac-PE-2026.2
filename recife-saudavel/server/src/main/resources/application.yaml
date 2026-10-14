@@ -1,6 +1,9 @@
 ktor:
   deployment:
     port: 8080
+    # Only read in development mode (:server:runDev): the classes Ktor reloads on change.
+    watch:
+      - classes
   application:
     modules:
       - grupotp.recifesaudavel.server.ApplicationKt.module

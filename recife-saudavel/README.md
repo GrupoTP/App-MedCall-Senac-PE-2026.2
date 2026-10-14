@@ -47,6 +47,14 @@ O servidor responde em `http://localhost:8080/healthz` e `http://localhost:8080/
 
 O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de execução do servidor. Para apontar outro lugar, defina `DATABASE_JDBC_URL`, `DATABASE_DRIVER`, `DATABASE_USER` e `DATABASE_PASSWORD`.
 
+#### Servidor em desenvolvimento
+
+```bash
+./gradlew :server:runDev
+```
+
+Sobe o servidor no [modo de desenvolvimento do Ktor](https://ktor.io/docs/server-development-mode.html) e, ao lado, um segundo build Gradle contínuo (`gradlew -t :server:classes`) que recompila o servidor a cada arquivo salvo. As linhas desse build aparecem com o prefixo `[watch]`, inclusive os erros de compilação. O Ktor recarrega as classes das pastas listadas em `ktor.deployment.watch` (`application.yaml`) na primeira requisição depois da mudança, sem reiniciar o processo. Só as classes de `server` recarregam: mudanças em `common` (que chega como jar), no `application.yaml` ou nas dependências ainda pedem reiniciar a task. Para parar, use Ctrl+C: o build contínuo para junto. Os dois builds usam um daemon Gradle cada.
+
 ### Cliente
 
 O Metro só lê o bundle Kotlin já compilado (`:client:app:buildClientBundle`). As tasks abaixo geram esse bundle e instalam as dependências npm antes de abrir o cliente. O `startWeb` e o `startLan` também acompanham o código Kotlin enquanto rodam: ao salvar um arquivo de `common`, `client/app`, `client/worker` ou do submódulo, o bundle é gerado de novo e o Metro recarrega o app. Para parar, use Ctrl+C.
