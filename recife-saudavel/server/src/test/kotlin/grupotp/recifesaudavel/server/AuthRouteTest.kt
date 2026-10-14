@@ -15,6 +15,8 @@ import io.ktor.server.testing.testApplication
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertTrue
 
 class AuthRouteTest {
     @Test
@@ -42,7 +44,10 @@ class AuthRouteTest {
         val account = Json.decodeFromString<AuthenticatedAccount>(created.bodyAsText())
         assertEquals(email, account.email)
         assertEquals(HttpStatusCode.OK, loggedIn.status)
-        assertEquals(account, Json.decodeFromString<AuthenticatedAccount>(loggedIn.bodyAsText()))
+        val signedIn = Json.decodeFromString<AuthenticatedAccount>(loggedIn.bodyAsText())
+        assertEquals(account.copy(sessionToken = ""), signedIn.copy(sessionToken = ""))
+        assertTrue(account.sessionToken.isNotBlank())
+        assertNotEquals(account.sessionToken, signedIn.sessionToken)
     }
 
     @Test

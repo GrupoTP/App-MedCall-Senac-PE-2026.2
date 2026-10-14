@@ -28,6 +28,9 @@ data class RegisterAccountRequest(
 /**
  * Account data returned after a successful sign-in or registration.
  * The password never leaves the server.
+ *
+ * @property sessionToken bearer token for the authenticated API. Empty in profiles saved
+ * before the server issued tokens; those must sign in again.
  */
 @Serializable
 data class AuthenticatedAccount(
@@ -35,6 +38,7 @@ data class AuthenticatedAccount(
     val fullName: String,
     val socialName: String,
     val email: String,
+    val sessionToken: String = "",
 )
 
 @Serializable

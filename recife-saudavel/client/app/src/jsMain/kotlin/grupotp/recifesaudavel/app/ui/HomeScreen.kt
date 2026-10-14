@@ -1,9 +1,14 @@
 package grupotp.recifesaudavel.app.ui
 
-import grupotp.recifesaudavel.app.usecase.ListUpcomingAppointments
+import grupotp.recifesaudavel.app.usecase.AppointmentsSnapshot
+import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.NOT_IMPLEMENTED_MESSAGE
-import grupotp.recifesaudavel.app.usecase.UpcomingAppointmentsResult
+import grupotp.recifesaudavel.app.usecase.SchedulingError
+import grupotp.recifesaudavel.app.usecase.toMessage
+import grupotp.recifesaudavel.app.usecase.upcomingAppointments
+import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
+import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.json
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.ScrollView
@@ -11,26 +16,66 @@ import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
 import ojaynico.kotlin.react.native.safearea.useSafeAreaInsets
 import react.ChildrenBuilder
+import react.Key
 import react.FC
 import react.Props
+import react.useEffectOnce
 import react.useState
 import kotlin.js.Date
 
+private const val UPCOMING_ON_HOME = 2
+
+internal const val SCHEDULING_NEEDS_NETWORK_MESSAGE =
+    "O agendamento precisa de internet. Suas consultas já marcadas continuam disponíveis em Minhas consultas."
+
 internal external interface HomeScreenProps : Props {
     var account: AuthenticatedAccount
-    var listUpcomingAppointments: ListUpcomingAppointments
+    var listAppointments: ListAppointments
+    var onSchedule: () -> Unit
+    var onAppointments: () -> Unit
+    var onSignOut: () -> Unit
 }
 
 internal val HomeScreen = FC<HomeScreenProps> { props ->
-    var unavailableAction by useState<String?>(null)
+    var notice by useState<String?>(null)
+    var snapshot by useState<AppointmentsSnapshot?>(null)
+    var checking by useState(false)
     val insets = useSafeAreaInsets()
-    val upcoming = when (props.listUpcomingAppointments()) {
-        UpcomingAppointmentsResult.NotImplemented -> NOT_IMPLEMENTED_MESSAGE
-    }
+    val scope = useScreenScope()
     val displayName = props.account.socialName.ifBlank { props.account.fullName }
+    val offline = snapshot?.offline == true
+
+    useEffectOnce {
+        scope.launch {
+            snapshot = props.listAppointments(props.account)
+        }
+    }
 
     fun markUnavailable() {
-        unavailableAction = NOT_IMPLEMENTED_MESSAGE
+        notice = NOT_IMPLEMENTED_MESSAGE
+    }
+
+    // Scheduling is online only. Offline, a press checks the connection again before refusing.
+    fun schedule() {
+        if (!offline) {
+            props.onSchedule()
+            return
+        }
+        if (checking) {
+            return
+        }
+        checking = true
+        scope.launch {
+            val fresh = props.listAppointments(props.account)
+            snapshot = fresh
+            checking = false
+            if (fresh.offline) {
+                notice = SCHEDULING_NEEDS_NETWORK_MESSAGE
+            } else {
+                notice = null
+                props.onSchedule()
+            }
+        }
     }
 
     View {
@@ -79,9 +124,15 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
                     +"O Recife Saudável não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU)."
                 }
             }
-            unavailableAction?.let { message ->
+            if (offline) {
+                infoAlert(
+                    "Você está offline. Mostrando as consultas guardadas neste aparelho. Para agendar, conecte-se à internet.",
+                ) { wifiOffIcon(it) }
+            }
+            notice?.let { message ->
                 errorAlert(message)
             }
+            sessionExpiredAlert(snapshot?.error, props.onSignOut)
             View {
                 style = Styles.cardCompact
                 Text {
@@ -101,15 +152,16 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
                         ) { clipboardIcon(it) }
                         quickAction(
                             title = "Agendar",
-                            subtitle = "Escolha data e hora",
+                            subtitle = if (offline) "Indisponível offline" else "Escolha data e hora",
                             green = true,
-                            onPress = ::markUnavailable,
+                            unavailable = offline,
+                            onPress = ::schedule,
                         ) { calendarIcon(it) }
                     }
                     Pressable {
                         style = pressable(Styles.quickWide)
                         accessibilityRole = "button"
-                        onPress = { markUnavailable() }
+                        onPress = { props.onAppointments() }
                         View {
                             style = arrayOf(Styles.quickIcon, Styles.quickIconPurple)
                             listIcon(Palette.PURPLE_TEXT)
@@ -138,11 +190,28 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
                         accessibilityRole = "header"
                         +"Próximas consultas"
                     }
-                    textLink("Ver todas", onPress = ::markUnavailable)
+                    textLink("Ver todas", onPress = props.onAppointments)
                 }
-                Text {
-                    style = Styles.fieldHint
-                    +upcoming
+                val current = snapshot
+                when {
+                    current == null -> Text {
+                        style = Styles.fieldHint
+                        +"Carregando consultas…"
+                    }
+                    else -> {
+                        val upcoming = upcomingAppointments(current.appointments, localNow()).take(UPCOMING_ON_HOME)
+                        if (upcoming.isEmpty()) {
+                            Text {
+                                style = Styles.fieldHint
+                                +"Nenhuma consulta agendada."
+                            }
+                        } else {
+                            View {
+                                style = Styles.upcomingList
+                                upcoming.forEach { upcomingRow(it) }
+                            }
+                        }
+                    }
                 }
             }
         }
@@ -150,16 +219,70 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
     }
 }
 
+/**
+ * Shown when the server refused the saved token. Signing in again is the only way out.
+ */
+internal fun ChildrenBuilder.sessionExpiredAlert(error: SchedulingError?, onSignOut: () -> Unit) {
+    if (error == null) {
+        return
+    }
+    errorAlert(error.toMessage())
+    if (error == SchedulingError.SessionExpired) {
+        textLink("Entrar de novo", onPress = onSignOut)
+    }
+}
+
+private fun ChildrenBuilder.upcomingRow(appointment: Appointment) {
+    View {
+        key = Key(appointment.id)
+        style = Styles.upcomingRow
+        accessible = true
+        accessibilityLabel = "${appointment.professionalName}, ${appointment.specialtyName}, " +
+            "${formatSpokenDate(appointment.date)} às ${appointment.time}, ${appointment.status.label()}"
+        View {
+            style = Styles.dateBadge
+            Text {
+                style = Styles.dateBadgeDay
+                +dayOf(appointment.date)
+            }
+            Text {
+                style = Styles.dateBadgeMonth
+                +monthAbbreviation(appointment.date)
+            }
+        }
+        View {
+            style = Styles.upcomingCopy
+            Text {
+                style = Styles.upcomingTitle
+                numberOfLines = 1
+                +appointment.professionalName
+            }
+            Text {
+                style = Styles.upcomingSubtitle
+                +"${appointment.specialtyName} · ${appointment.time}"
+            }
+        }
+        statusPill(appointment.status)
+    }
+}
+
 private fun ChildrenBuilder.quickAction(
     title: String,
     subtitle: String,
     green: Boolean,
+    unavailable: Boolean = false,
     onPress: () -> Unit,
     icon: ChildrenBuilder.(color: String) -> Unit,
 ) {
     Pressable {
-        style = pressable(Styles.quickTile, if (green) Styles.quickTileGreen else null)
+        style = pressable(
+            Styles.quickTile,
+            if (green) Styles.quickTileGreen else null,
+            if (unavailable) Styles.quickTileDisabled else null,
+        )
         accessibilityRole = "button"
+        accessibilityLabel = "$title. $subtitle"
+        ariaDisabled = unavailable
         this.onPress = onPress
         View {
             style = arrayOf(Styles.quickIcon, if (green) Styles.quickIconGreen else null)

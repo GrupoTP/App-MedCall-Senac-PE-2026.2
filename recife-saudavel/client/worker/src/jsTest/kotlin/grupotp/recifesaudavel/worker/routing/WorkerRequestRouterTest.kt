@@ -115,4 +115,21 @@ class WorkerRequestRouterTest {
         // Assert
         assertEquals(WorkerRoute.LocalAccount, route)
     }
+
+    @Test
+    fun appointmentsUseTheLocalDatabaseWithTheAccountInTheQuery() {
+        // Arrange
+        val router = WorkerRequestRouter()
+        val url = "http://localhost:8081/local/appointments?account=a1%2Fb2&x=1"
+
+        // Act
+        val route = router.route(url)
+        val account = queryParameter(url, "account")
+        val missing = queryParameter("http://localhost:8081/local/appointments", "account")
+
+        // Assert
+        assertEquals(WorkerRoute.LocalAppointments, route)
+        assertEquals("a1/b2", account)
+        assertEquals(null, missing)
+    }
 }

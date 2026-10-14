@@ -356,6 +356,196 @@ internal object Styles {
     val quickCopy = ViewStyle(flex = 1)
     val quickTitle = text(size = 14, lineHeight = 20, family = FontFamily.DISPLAY)
     val quickSubtitle = text(size = 12, lineHeight = 16, color = Palette.MUTED, marginTop = 2)
+    val quickTileDisabled = ViewStyle(opacity = 0.55)
+    val upcomingList = ViewStyle(gap = 8)
+    val upcomingRow = ViewStyle(
+        flexDirection = "row",
+        alignItems = "center",
+        gap = 12,
+        padding = 12,
+        borderRadius = 12,
+        backgroundColor = Palette.CANVAS,
+    )
+    val dateBadge = ViewStyle(
+        width = 44,
+        height = 44,
+        alignItems = "center",
+        justifyContent = "center",
+        borderRadius = 12,
+        backgroundColor = Palette.BLUE_ICON_BACKGROUND,
+    )
+    val dateBadgeDay = text(size = 11, lineHeight = 14, color = Palette.BLUE, family = FontFamily.DISPLAY)
+    val dateBadgeMonth = text(size = 10, lineHeight = 13, color = Palette.MUTED)
+    val upcomingCopy = ViewStyle(flex = 1, minWidth = 0)
+    val upcomingTitle = text(size = 14, lineHeight = 20)
+    val upcomingSubtitle = text(size = 12, lineHeight = 16, color = Palette.MUTED)
+
+    // Alerts and buttons of the scheduling screens
+
+    val infoAlert = ViewStyle(
+        flexDirection = "row",
+        alignItems = "flex-start",
+        gap = 8,
+        paddingVertical = 10,
+        paddingHorizontal = 12,
+        borderWidth = 1,
+        borderColor = Palette.GREEN_BORDER,
+        borderRadius = 12,
+        backgroundColor = Palette.GREEN_BACKGROUND,
+    )
+    val infoAlertText = text(size = 12, lineHeight = 18, color = Palette.GREEN_TEXT, flex = 1)
+    val warnAlert = ViewStyle(
+        flexDirection = "row",
+        alignItems = "flex-start",
+        gap = 8,
+        paddingVertical = 10,
+        paddingHorizontal = 12,
+        borderWidth = 1,
+        borderColor = Palette.WARNING_BORDER,
+        borderRadius = 12,
+        backgroundColor = Palette.WARNING_BACKGROUND,
+    )
+    val warnAlertText = text(size = 12, lineHeight = 18, color = Palette.WARNING_TEXT, flex = 1)
+    val buttonRow = ViewStyle(flexDirection = "row", gap = 12)
+    val buttonGrow = ViewStyle(flex = 1)
+    val buttonDisabled = ViewStyle(opacity = 0.5)
+    val secondaryButton = ViewStyle(
+        alignItems = "center",
+        paddingVertical = 12,
+        paddingHorizontal = 20,
+        borderWidth = 2,
+        borderColor = Palette.LINE,
+        borderRadius = 12,
+        backgroundColor = Palette.CANVAS,
+    )
+    val secondaryButtonText = text(size = 15, lineHeight = 22.5, color = Palette.BLUE)
+    val fieldInputMultiline = TextStyle(minHeight = 88, textAlignVertical = "top")
+    val fieldError = text(size = 12, lineHeight = 16, color = Palette.ERROR_TEXT)
+    val loadingText = text(size = 14, lineHeight = 21, color = Palette.MUTED, align = "center", paddingVertical = 16)
+
+    // Step indicator
+
+    val steps = ViewStyle(
+        borderBottomWidth = 1,
+        borderBottomColor = Palette.LINE,
+        backgroundColor = Palette.WHITE,
+    )
+    val stepsInner = ViewStyle(
+        width = "100%",
+        maxWidth = CONTENT_MAX_WIDTH,
+        alignSelf = "center",
+        paddingHorizontal = 16,
+        paddingVertical = 12,
+    )
+    val stepsTop = ViewStyle(
+        flexDirection = "row",
+        alignItems = "center",
+        justifyContent = "space-between",
+        marginBottom = 6,
+    )
+    val stepsCounter = text(size = 12, lineHeight = 16, color = Palette.BLUE, family = FontFamily.DISPLAY)
+    val stepsRemaining = ViewStyle(
+        paddingHorizontal = 8,
+        paddingVertical = 2,
+        borderWidth = 1,
+        borderColor = Palette.LINE,
+        borderRadius = 999,
+        backgroundColor = Palette.CANVAS,
+    )
+    val stepsRemainingLast = ViewStyle(borderColor = Palette.SUCCESS_BORDER, backgroundColor = Palette.SUCCESS_BACKGROUND)
+    val stepsRemainingText = text(size = 11, lineHeight = 14, color = Palette.STEP_TEXT, family = FontFamily.DISPLAY)
+    val stepsRemainingTextLast = text(size = 11, lineHeight = 14, color = Palette.SUCCESS_TEXT, family = FontFamily.DISPLAY)
+    val stepsLabel = text(size = 15, lineHeight = 20, family = FontFamily.DISPLAY, marginBottom = 10)
+    val stepsBars = ViewStyle(flexDirection = "row", alignItems = "flex-end", gap = 6)
+    val stepsBar = ViewStyle(flex = 1, height = 8, borderRadius = 999, backgroundColor = Palette.LINE)
+    val stepsBarDone = ViewStyle(backgroundColor = Palette.BLUE)
+    val stepsBarActive = ViewStyle(height = 12, backgroundColor = Palette.BLUE)
+    val stepsNote = text(size = 11, lineHeight = 14, color = Palette.MUTED, marginTop = 6)
+
+    // Scheduling choices
+
+    val chipWrap = ViewStyle(flexDirection = "row", flexWrap = "wrap", gap = 8)
+    val chip = ViewStyle(
+        paddingVertical = 10,
+        paddingHorizontal = 14,
+        borderWidth = 2,
+        borderColor = Palette.LINE,
+        borderRadius = 12,
+        backgroundColor = Palette.WHITE,
+    )
+    val chipSelected = ViewStyle(borderColor = Palette.BLUE, backgroundColor = Palette.BLUE)
+    val chipText = text(size = 14, lineHeight = 20)
+    val chipTextSelected = text(size = 14, lineHeight = 20, color = Palette.WHITE)
+    // Four per row, like the prototype grid. A fixed width keeps the last row from stretching.
+    val timeChip = ViewStyle(
+        width = "22%",
+        alignItems = "center",
+        paddingVertical = 10,
+        borderWidth = 2,
+        borderColor = Palette.LINE,
+        borderRadius = 12,
+        backgroundColor = Palette.WHITE,
+    )
+    val summaryRow = ViewStyle(
+        flexDirection = "row",
+        justifyContent = "space-between",
+        alignItems = "center",
+        gap = 12,
+        paddingVertical = 6,
+        borderBottomWidth = 1,
+        borderBottomColor = Palette.CANVAS,
+    )
+    val summaryLabel = text(size = 14, lineHeight = 20, color = Palette.MUTED)
+    val summaryValue = text(size = 14, lineHeight = 20, align = "right", flex = 1)
+
+    // Success
+
+    val successScroll = ViewStyle(flexGrow = 1, justifyContent = "center")
+    val successInner = ViewStyle(
+        width = "100%",
+        maxWidth = 512,
+        alignSelf = "center",
+        gap = 16,
+        paddingHorizontal = 20,
+        paddingVertical = 32,
+    )
+    val successIcon = ViewStyle(
+        width = 80,
+        height = 80,
+        alignSelf = "center",
+        alignItems = "center",
+        justifyContent = "center",
+        borderRadius = 24,
+        backgroundColor = Palette.BLUE_ICON_BACKGROUND,
+    )
+    val successTitle = text(size = 24, lineHeight = 32, family = FontFamily.DISPLAY, align = "center")
+    val successSubtitle = text(size = 14, lineHeight = 21, color = Palette.MUTED, align = "center")
+
+    // Appointments list
+
+    val appointmentCard = ViewStyle(
+        gap = 8,
+        padding = 16,
+        borderWidth = 1,
+        borderColor = Palette.LINE,
+        borderRadius = 16,
+        backgroundColor = Palette.WHITE,
+    )
+    val appointmentCancelled = ViewStyle(opacity = 0.6)
+    val appointmentTop = ViewStyle(flexDirection = "row", alignItems = "flex-start", gap = 8)
+    val appointmentTitle = text(size = 14, lineHeight = 20, family = FontFamily.DISPLAY)
+    val appointmentMeta = ViewStyle(flexDirection = "row", alignItems = "center", flexWrap = "wrap", gap = 16)
+    val appointmentMetaItem = ViewStyle(flexDirection = "row", alignItems = "center", gap = 4)
+    val appointmentMetaText = text(size = 12, lineHeight = 16, color = Palette.MUTED)
+    val statusPill = ViewStyle(paddingHorizontal = 10, paddingVertical = 4, borderRadius = 999)
+    val statusPending = ViewStyle(backgroundColor = Palette.PENDING_BACKGROUND)
+    val statusConfirmed = ViewStyle(backgroundColor = Palette.SUCCESS_BACKGROUND)
+    val statusCancelled = ViewStyle(backgroundColor = Palette.CANCELLED_BACKGROUND)
+    val statusPendingText = text(size = 12, lineHeight = 16, color = Palette.PENDING_TEXT)
+    val statusConfirmedText = text(size = 12, lineHeight = 16, color = Palette.CONFIRMED_TEXT)
+    val statusCancelledText = text(size = 12, lineHeight = 16, color = Palette.CANCELLED_TEXT)
+    val emptyState = ViewStyle(alignItems = "center", gap = 12, paddingVertical = 48)
+    val emptyStateText = text(size = 14, lineHeight = 21, color = Palette.MUTED, align = "center")
 }
 
 private fun text(

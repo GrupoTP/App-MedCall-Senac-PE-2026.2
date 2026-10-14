@@ -37,6 +37,17 @@ internal object Palette {
     const val PURPLE_BACKGROUND = "#f0ebf8"
     const val PURPLE_ICON_BACKGROUND = "rgba(123, 94, 167, 0.1)"
     const val BLUE_ICON_BACKGROUND = "rgba(45, 125, 210, 0.1)"
+
+    // Tailwind green/yellow/red used by the prototype for steps and appointment status.
+    const val STEP_TEXT = "#3d5c72"
+    const val SUCCESS_TEXT = "#166534"
+    const val SUCCESS_BORDER = "#86efac"
+    const val SUCCESS_BACKGROUND = "#dcfce7"
+    const val CONFIRMED_TEXT = "#15803d"
+    const val PENDING_TEXT = "#a16207"
+    const val PENDING_BACKGROUND = "#fef9c3"
+    const val CANCELLED_TEXT = "#ef4444"
+    const val CANCELLED_BACKGROUND = "#fee2e2"
 }
 
 /**

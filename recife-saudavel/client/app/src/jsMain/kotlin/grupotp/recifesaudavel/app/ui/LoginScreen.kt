@@ -107,7 +107,7 @@ internal val LoginScreen = FC<LoginScreenProps> { props ->
             }
             View {
                 style = Styles.formActions
-                primaryButton("Entrar", ::submit)
+                primaryButton("Entrar", onPress = ::submit)
                 textLink("Ainda não tenho conta — Criar cadastro", centered = true) {
                     props.onRegister()
                 }

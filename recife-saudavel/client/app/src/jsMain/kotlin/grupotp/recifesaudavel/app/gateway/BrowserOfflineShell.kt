@@ -2,6 +2,8 @@ package grupotp.recifesaudavel.app.gateway
 
 import grupotp.recifesaudavel.app.usecase.AppShellGateway
 import grupotp.recifesaudavel.app.usecase.LocalAccountGateway
+import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
+import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import js.promise.await
 import js.reflect.unsafeCast
@@ -21,6 +23,7 @@ import kotlin.coroutines.resumeWithException
 import kotlin.time.Duration.Companion.seconds
 
 private const val LOCAL_ACCOUNT_URL = "/local/account"
+private const val LOCAL_APPOINTMENTS_URL = "/local/appointments"
 private const val SERVICE_WORKER_URL = "/sw.js"
 
 /** Handled by client/worker Main.kt; keep both in sync. */
@@ -29,14 +32,15 @@ private val CONTROLLER_TIMEOUT = 10.seconds
 
 private val getMethod: RequestMethod = unsafeCast("GET")
 private val putMethod: RequestMethod = unsafeCast("PUT")
+private val deleteMethod: RequestMethod = unsafeCast("DELETE")
 
 /**
- * Registers `sw.js` and talks to the Kotlin worker through `/local/account`.
+ * Registers `sw.js` and talks to the Kotlin worker through `/local/account` and `/local/appointments`.
  * The worker is the only component that writes the local database.
  */
 class BrowserOfflineShell(
     private val json: Json = Json { ignoreUnknownKeys = true },
-) : AppShellGateway, LocalAccountGateway {
+) : AppShellGateway, LocalAccountGateway, LocalAppointmentGateway {
     private var ready: Deferred<Unit>? = null
 
     override suspend fun prepare() {
@@ -45,7 +49,7 @@ class BrowserOfflineShell(
 
     override suspend fun save(account: AuthenticatedAccount) {
         ensureReady()
-        val (status, text) = request(putMethod, json.encodeToString(account))
+        val (status, text) = request(putMethod, LOCAL_ACCOUNT_URL, json.encodeToString(account))
         if (status !in 200..299) {
             throw IllegalStateException(text.ifBlank { "Não foi possível guardar o cadastro neste aparelho." })
         }
@@ -53,7 +57,7 @@ class BrowserOfflineShell(
 
     override suspend fun load(): AuthenticatedAccount? {
         ensureReady()
-        val (status, text) = request(getMethod, null)
+        val (status, text) = request(getMethod, LOCAL_ACCOUNT_URL, null)
         if (status == 204.toShort() || text.isBlank()) {
             return null
         }
@@ -62,6 +66,34 @@ class BrowserOfflineShell(
         }
         return json.decodeFromString(text)
     }
+
+    override suspend fun clear() {
+        ensureReady()
+        val (status, text) = request(deleteMethod, LOCAL_ACCOUNT_URL, null)
+        if (status !in 200..299) {
+            throw IllegalStateException(text.ifBlank { "Não foi possível apagar os dados deste aparelho." })
+        }
+    }
+
+    override suspend fun saveAppointments(accountId: String, appointments: List<Appointment>) {
+        ensureReady()
+        val (status, text) = request(putMethod, appointmentsUrl(accountId), json.encodeToString(appointments))
+        if (status !in 200..299) {
+            throw IllegalStateException(text.ifBlank { "Não foi possível guardar as consultas neste aparelho." })
+        }
+    }
+
+    override suspend fun loadAppointments(accountId: String): List<Appointment>? {
+        ensureReady()
+        val (status, text) = request(getMethod, appointmentsUrl(accountId), null)
+        if (status !in 200..299 || status == 204.toShort() || text.isBlank()) {
+            return null
+        }
+        return json.decodeFromString(text)
+    }
+
+    private fun appointmentsUrl(accountId: String): String =
+        "$LOCAL_APPOINTMENTS_URL?account=${encodeURIComponent(accountId)}"
 
     private suspend fun ensureReady() {
         val current = ready
@@ -103,10 +135,10 @@ class BrowserOfflineShell(
             ?: throw IllegalStateException("O service worker não assumiu a página.")
     }
 
-    private suspend fun request(method: RequestMethod, body: String?): Pair<Short, String> =
+    private suspend fun request(method: RequestMethod, url: String, body: String?): Pair<Short, String> =
         suspendCancellableCoroutine { continuation ->
             val call = XMLHttpRequest()
-            call.open(method, LOCAL_ACCOUNT_URL, true)
+            call.open(method, url, true)
             call.setRequestHeader("Accept", "application/json")
             if (body != null) {
                 call.setRequestHeader("Content-Type", "application/json")
@@ -126,3 +158,5 @@ class BrowserOfflineShell(
             }
         }
 }
+
+private external fun encodeURIComponent(value: String): String

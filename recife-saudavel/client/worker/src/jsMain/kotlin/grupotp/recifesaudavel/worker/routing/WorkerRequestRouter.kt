@@ -12,6 +12,7 @@ class WorkerRequestRouter(
         return when {
             isServerData(url, path) -> WorkerRoute.Server
             path == LOCAL_ACCOUNT_PATH -> WorkerRoute.LocalAccount
+            path == LOCAL_APPOINTMENTS_PATH -> WorkerRoute.LocalAppointments
             path in DOCUMENT_PATHS -> WorkerRoute.Document
             path in essentialPaths || isBuildOutput(path) -> WorkerRoute.Shell
             else -> WorkerRoute.Ignore
@@ -39,6 +40,7 @@ class WorkerRequestRouter(
 
     companion object {
         const val LOCAL_ACCOUNT_PATH = "/local/account"
+        const val LOCAL_APPOINTMENTS_PATH = "/local/appointments"
         const val SHELL_CACHE_NAME = "recife-saudavel-shell-v3"
         const val ROOT_DOCUMENT = "/"
 
@@ -77,6 +79,9 @@ sealed interface WorkerRoute {
     /** Signed-in registration profile kept in the local database. */
     data object LocalAccount : WorkerRoute
 
+    /** Appointments of the signed-in account, readable offline. The `account` query names the account. */
+    data object LocalAppointments : WorkerRoute
+
     /** API and health responses. Must not be written to the cache. */
     data object Server : WorkerRoute
 
@@ -99,6 +104,23 @@ internal fun pathOf(url: String): String {
     val path = withoutQuery.substring(pathStart)
     return path.ifBlank { "/" }
 }
+
+/**
+ * Decoded value of the first `name` query parameter, or null.
+ */
+fun queryParameter(url: String, name: String): String? {
+    val query = url.substringBefore("#").substringAfter("?", missingDelimiterValue = "")
+    if (query.isEmpty()) {
+        return null
+    }
+    return query.split("&")
+        .map { it.substringBefore("=") to it.substringAfter("=", missingDelimiterValue = "") }
+        .firstOrNull { it.first == name }
+        ?.second
+        ?.let(::decodeURIComponent)
+}
+
+private external fun decodeURIComponent(value: String): String
 
 internal fun hostOf(url: String): String {
     val schemeEnd = url.indexOf("://")

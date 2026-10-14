@@ -32,6 +32,19 @@ class LocalAccountUseCaseTest {
     }
 
     @Test
+    fun signOutForgetsTheProfile() = runTest {
+        // Arrange
+        val gateway = FakeLocalAccountGateway()
+        RememberSignedInAccount(gateway)(AuthenticatedAccount(id = "1", fullName = "Ana", socialName = "", email = "ana@email.com"))
+
+        // Act
+        SignOut(gateway)()
+
+        // Assert
+        assertNull(LoadSignedInAccount(gateway)())
+    }
+
+    @Test
     fun loadReturnsNothingBeforeTheFirstSignIn() = runTest {
         // Arrange
         val load = LoadSignedInAccount(FakeLocalAccountGateway())
@@ -52,4 +65,8 @@ private class FakeLocalAccountGateway : LocalAccountGateway {
     }
 
     override suspend fun load(): AuthenticatedAccount? = stored
+
+    override suspend fun clear() {
+        stored = null
+    }
 }

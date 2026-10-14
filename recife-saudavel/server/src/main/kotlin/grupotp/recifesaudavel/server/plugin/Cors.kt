@@ -10,8 +10,10 @@ fun Application.configureCors() {
     install(CORS) {
         allowHost("localhost:8081", schemes = listOf("http"))
         allowMethod(HttpMethod.Options)
+        allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
         allowHeader(HttpHeaders.Accept)
         allowHeader(HttpHeaders.ContentType)
+        allowHeader(HttpHeaders.Authorization)
     }
 }

@@ -7,6 +7,7 @@ import ojaynico.kotlin.react.native.component.TextInput
 import ojaynico.kotlin.react.native.component.View
 import ojaynico.kotlin.react.native.safearea.useSafeAreaInsets
 import react.ChildrenBuilder
+import react.Key
 import react.FC
 import react.Props
 import react.PropsWithChildren
@@ -124,6 +125,7 @@ internal external interface TextFieldProps : Props {
     var kind: FieldKind
     var obscured: Boolean?
     var withIcon: Boolean?
+    var multiline: Boolean?
     var onValue: (String) -> Unit
     var onSubmit: (() -> Unit)?
 }
@@ -138,8 +140,13 @@ internal val TextField = FC<TextFieldProps> { props ->
         style = arrayOf(
             Styles.fieldInput,
             if (props.withIcon == true) Styles.fieldInputWithIcon else null,
+            if (props.multiline == true) Styles.fieldInputMultiline else null,
             if (focused) Styles.fieldInputFocused else null,
         )
+        if (props.multiline == true) {
+            multiline = true
+            numberOfLines = 3
+        }
         accessibilityLabel = props.label
         value = props.value
         placeholder = props.placeholder
@@ -239,14 +246,171 @@ internal fun ChildrenBuilder.phoneField(
     }
 }
 
-internal fun ChildrenBuilder.primaryButton(text: String, onPress: () -> Unit) {
+internal fun ChildrenBuilder.primaryButton(
+    text: String,
+    enabled: Boolean = true,
+    grow: Boolean = false,
+    onPress: () -> Unit,
+) {
     Pressable {
-        style = pressable(Styles.primaryButton)
+        style = pressable(
+            Styles.primaryButton,
+            if (grow) Styles.buttonGrow else null,
+            if (enabled) null else Styles.buttonDisabled,
+        )
         accessibilityRole = "button"
+        disabled = !enabled
+        ariaDisabled = !enabled
         this.onPress = onPress
         Text {
             style = Styles.primaryButtonText
             +text
+        }
+    }
+}
+
+internal fun ChildrenBuilder.secondaryButton(text: String, grow: Boolean = false, onPress: () -> Unit) {
+    Pressable {
+        style = pressable(Styles.secondaryButton, if (grow) Styles.buttonGrow else null)
+        accessibilityRole = "button"
+        this.onPress = onPress
+        Text {
+            style = Styles.secondaryButtonText
+            +text
+        }
+    }
+}
+
+internal fun ChildrenBuilder.infoAlert(message: String, icon: ChildrenBuilder.(color: String) -> Unit = { infoIcon(it) }) {
+    View {
+        style = Styles.infoAlert
+        View {
+            style = Styles.alertIcon
+            icon(this, Palette.GREEN_TEXT)
+        }
+        Text {
+            style = Styles.infoAlertText
+            +message
+        }
+    }
+}
+
+internal fun ChildrenBuilder.warnAlert(message: String) {
+    View {
+        style = Styles.warnAlert
+        View {
+            style = Styles.alertIcon
+            alertIcon(Palette.WARNING_TEXT)
+        }
+        Text {
+            style = Styles.warnAlertText
+            +message
+        }
+    }
+}
+
+/**
+ * Selectable option. React Native has no `<select>`, so lists of choices are rows of chips.
+ */
+internal fun ChildrenBuilder.choiceChip(
+    text: String,
+    selected: Boolean,
+    style: dynamic = Styles.chip,
+    accessibilityLabel: String = text,
+    onPress: () -> Unit,
+) {
+    Pressable {
+        this.style = pressable(style, if (selected) Styles.chipSelected else null)
+        accessibilityRole = "radio"
+        this.accessibilityLabel = accessibilityLabel
+        ariaChecked = selected
+        this.onPress = onPress
+        Text {
+            this.style = if (selected) Styles.chipTextSelected else Styles.chipText
+            +text
+        }
+    }
+}
+
+internal fun ChildrenBuilder.fieldError(message: String?) {
+    if (message != null) {
+        Text {
+            style = Styles.fieldError
+            accessibilityRole = "alert"
+            +message
+        }
+    }
+}
+
+internal external interface StepIndicatorProps : Props {
+    var current: Int
+    var labels: Array<String>
+}
+
+/**
+ * Port of the prototype step indicator: counter, remaining steps, current label and segmented bars.
+ * The whole state is also announced as one sentence for screen readers.
+ */
+internal val StepIndicator = FC<StepIndicatorProps> { props ->
+    val total = props.labels.size
+    val current = props.current
+    val remaining = total - current - 1
+    val last = remaining == 0
+    val label = props.labels[current]
+    val done = if (current == 1) "1 etapa concluída" else "$current etapas concluídas"
+    val left = if (remaining == 1) "Falta 1 etapa" else "Faltam $remaining etapas"
+    View {
+        style = Styles.steps
+        View {
+            style = Styles.stepsInner
+            accessible = true
+            accessibilityRole = "progressbar"
+            accessibilityLabel = if (last) {
+                "Etapa ${current + 1} de $total: $label. Última etapa. $done."
+            } else {
+                "Etapa ${current + 1} de $total: $label. $done. $left."
+            }
+            View {
+                style = Styles.stepsTop
+                Text {
+                    style = Styles.stepsCounter
+                    +"Etapa ${current + 1} de $total"
+                }
+                View {
+                    style = arrayOf(Styles.stepsRemaining, if (last) Styles.stepsRemainingLast else null)
+                    Text {
+                        style = if (last) Styles.stepsRemainingTextLast else Styles.stepsRemainingText
+                        +(if (last) "✓ Última etapa" else left)
+                    }
+                }
+            }
+            Text {
+                style = Styles.stepsLabel
+                +label
+            }
+            View {
+                style = Styles.stepsBars
+                for (index in 0 until total) {
+                    View {
+                        key = Key(index.toString())
+                        style = arrayOf(
+                            Styles.stepsBar,
+                            when {
+                                index < current -> Styles.stepsBarDone
+                                index == current -> Styles.stepsBarActive
+                                else -> null
+                            },
+                        )
+                    }
+                }
+            }
+            Text {
+                style = Styles.stepsNote
+                +(if (current == 0) "Nenhuma etapa concluída ainda" else done)
+                if (last) {
+                    +" · Complete esta para finalizar"
+                }
+            }
         }
     }
 }

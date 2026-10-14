@@ -2,7 +2,15 @@
 
 App Kotlin Multiplatform do Recife Saudável. A interface é escrita só em Kotlin, com React Native, e o mesmo código roda como PWA no navegador e como app Android. O shell Expo em `client/expo` só registra o componente Kotlin; no navegador o Metro troca `react-native` por `react-native-web`.
 
-Na web, o `sw.js` inicia o bundle Kotlin do worker, que guarda a interface em cache e o cadastro autenticado no IndexedDB. No Android não existe service worker: o cadastro autenticado fica em SQLite (expo-sqlite), pelo mesmo gateway Kotlin.
+Na web, o `sw.js` inicia o bundle Kotlin do worker, que guarda a interface em cache e, no IndexedDB, o cadastro autenticado e as consultas dele. No Android não existe service worker: os mesmos dados ficam em SQLite (expo-sqlite), pelo mesmo gateway Kotlin.
+
+## Agendamento e modo offline
+
+O botão Agendar abre o fluxo do protótipo em três etapas (especialidade e profissional, data e horário, confirmação). Especialidades, profissionais e horários livres vêm sempre do servidor, que confere tudo de novo ao confirmar; um índice único por profissional, data e horário impede que a mesma vaga seja marcada duas vezes. Os horários são os dias úteis dos próximos 14 dias, no fuso de Recife.
+
+O agendamento só funciona com internet. Sem conexão, o cartão Agendar aparece como indisponível e o fluxo nunca confirma uma consulta que o servidor não gravou. As consultas já marcadas continuam visíveis offline, na tela inicial e em Minhas consultas: cada lista recebida do servidor substitui a cópia guardada no aparelho, que só guarda as consultas da última conta conectada.
+
+As rotas de paciente (`/api/v1/professionals`, `/availability` e `/appointments`) exigem `Authorization: Bearer <token>`. O login e o cadastro devolvem esse token em `sessionToken`, junto com a conta; o servidor guarda só o hash SHA-256 dele. Se o servidor recusar o token, o app pede para entrar de novo e apaga do aparelho a conta e as consultas.
 
 ## Módulos
 
@@ -57,7 +65,7 @@ Sobe o Metro com recarga automática (`expo start --web`). O cliente abre em `ht
 ./gradlew :client:expo:serveWeb
 ```
 
-Gera a versão de produção em `client/expo/dist` (`expo export --platform web`) e a serve em `http://localhost:8081` (`expo serve`). Não tem recarga automática: depois de mudar o código, rode a task de novo. Para testar offline, abra a página (ou a PWA instalada) uma vez com a task rodando, para o service worker guardar a interface, e então pare a task.
+Gera a versão de produção em `client/expo/dist` (`expo export --platform web`) e a serve em `http://localhost:8081` (`expo serve`). Não tem recarga automática: depois de mudar o código, rode a task de novo. Para testar offline, abra a página (ou a PWA instalada) uma vez com a task rodando, para o service worker guardar a interface, e então pare a task. Para ver as consultas offline, entre na conta e abra a tela inicial com o `:server:run` rodando, para o app guardar a lista; depois pare o servidor também. O painel de navegador embutido do app Claude não registra service workers: teste no Chrome ou no Edge.
 
 #### Celular na mesma rede Wi‑Fi (Expo Go)
 
@@ -96,3 +104,5 @@ O código C++ gerado pelo React Native para `react-native-svg` e `react-native-s
 ### Dropbox
 
 Se o clone estiver dentro de uma pasta do Dropbox, o Gradle marca as pastas geradas para o Dropbox ignorar, a cada execução e antes de qualquer task: `build/`, `.gradle/` e `.kotlin/` de cada build, `client/expo/node_modules`, `.expo`, `dist` e `android/`, e `server/data` (o banco H2 de desenvolvimento). Assim o código não commitado continua sincronizado entre computadores, mas cada um gera e instala as próprias saídas, e o Dropbox não sincroniza gigabytes de arquivos gerados, não trava arquivos no meio de um build nem copia o banco enquanto o servidor escreve. As pastas que somem com `clean`, `npm ci` ou `expo export` são marcadas de novo ao fim dessas tasks. A marcação é o atributo `com.dropbox.ignored` (stream NTFS no Windows, atributo estendido no Linux e no macOS), feita em `gradle/dropbox-ignore.settings.gradle.kts`.
+
+Arquivos que o Dropbox já transformou em arquivos de nuvem (pontos de nova análise) antes da marcação continuam assim. O Node os vê como links, e o Metro falha com `EINVAL: readlink` ou `Unable to resolve module`. O `metro.config.js` ignora a pasta `.expo`; se o erro aparecer em `node_modules`, rode `npm ci` em `client/expo` (repita se der `EBUSY`, enquanto o Dropbox solta os arquivos). Se mesmo assim o Dropbox voltar a converter os arquivos, gere a PWA a partir de uma cópia fora do Dropbox.

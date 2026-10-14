@@ -35,10 +35,15 @@ const cloudFolders = fs
   .filter((entry) => entry.isSymbolicLink() && !isRealSymlink(path.join(projectRoot, entry.name)))
   .map((entry) => new RegExp(`^${escapeRegExp(path.join(projectRoot, entry.name))}([\\\\/].*)?$`));
 
+// Expo CLI state (devices.json, web cache). Dropbox can turn files inside it into cloud files, and
+// Metro fails on them with "EINVAL: readlink". Nothing in it is bundled.
+const expoState = new RegExp(`^${escapeRegExp(path.join(projectRoot, ".expo"))}([\\\\/].*)?$`);
+
 const existingBlockList = config.resolver.blockList;
 config.resolver.blockList = [
   ...(Array.isArray(existingBlockList) ? existingBlockList : [existingBlockList].filter(Boolean)),
   kotlinNodeModules,
+  expoState,
   ...cloudFolders,
 ];
 

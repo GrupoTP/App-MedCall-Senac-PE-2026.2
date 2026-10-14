@@ -187,6 +187,51 @@ internal fun ChildrenBuilder.settingsIcon(color: String) {
     }
 }
 
+internal fun ChildrenBuilder.clockIcon(color: String, size: Int = 14) {
+    strokeIcon(size = size, color = color) {
+        circle(12.0, 12.0, 10.0)
+        path("M12 6v6l4 2")
+    }
+}
+
+internal fun ChildrenBuilder.smallCalendarIcon(color: String) {
+    strokeIcon(size = 14, color = color) {
+        path("M3 4h18v18H3z")
+        line(16.0, 2.0, 16.0, 6.0)
+        line(8.0, 2.0, 8.0, 6.0)
+        line(3.0, 10.0, 21.0, 10.0)
+    }
+}
+
+internal fun ChildrenBuilder.largeCalendarIcon(color: String) {
+    strokeIcon(size = 32, color = color) {
+        path("M3 4h18v18H3z")
+        line(16.0, 2.0, 16.0, 6.0)
+        line(8.0, 2.0, 8.0, 6.0)
+        line(3.0, 10.0, 21.0, 10.0)
+    }
+}
+
+internal fun ChildrenBuilder.infoIcon(color: String) {
+    strokeIcon(size = 16, color = color, strokeWidth = 2.5) {
+        circle(12.0, 12.0, 10.0)
+        line(12.0, 16.0, 12.0, 12.0)
+        line(12.0, 8.0, 12.01, 8.0)
+    }
+}
+
+internal fun ChildrenBuilder.wifiOffIcon(color: String) {
+    strokeIcon(size = 16, color = color, strokeWidth = 2.5) {
+        line(1.0, 1.0, 23.0, 23.0)
+        path("M16.72 11.06A10.94 10.94 0 0 1 19 12.55")
+        path("M5 12.55a10.94 10.94 0 0 1 5.17-2.39")
+        path("M10.71 5.05A16 16 0 0 1 22.58 9")
+        path("M1.42 9a15.91 15.91 0 0 1 4.7-2.88")
+        path("M8.53 16.11a6 6 0 0 1 6.95 0")
+        line(12.0, 20.0, 12.01, 20.0)
+    }
+}
+
 internal fun ChildrenBuilder.alertIcon(color: String) {
     strokeIcon(size = 16, color = color, strokeWidth = 2.5) {
         circle(12.0, 12.0, 10.0)

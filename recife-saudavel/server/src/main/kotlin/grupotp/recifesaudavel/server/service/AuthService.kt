@@ -20,6 +20,7 @@ sealed interface SignInResult {
 class AuthService(
     private val users: UserRepository,
     private val passwords: PasswordHasher,
+    private val sessions: SessionService,
 ) {
     fun register(request: RegisterAccountRequest): RegistrationResult {
         validate(request)?.let { return RegistrationResult.Rejected(it) }
@@ -32,7 +33,7 @@ class AuthService(
             request = request,
             passwordHash = passwords.hash(request.password),
         )
-        return RegistrationResult.Created(account)
+        return RegistrationResult.Created(account.withSession())
     }
 
     fun signIn(request: SignInRequest): SignInResult {
@@ -41,8 +42,10 @@ class AuthService(
         if (user == null || !passwords.verify(request.password, user.passwordHash)) {
             return SignInResult.Rejected("E-mail ou senha incorretos.")
         }
-        return SignInResult.Authenticated(user.account)
+        return SignInResult.Authenticated(user.account.withSession())
     }
+
+    private fun AuthenticatedAccount.withSession(): AuthenticatedAccount = copy(sessionToken = sessions.issue(id))
 
     private fun validate(request: RegisterAccountRequest): String? = when {
         request.fullName.isBlank() -> "Nome completo é obrigatório."

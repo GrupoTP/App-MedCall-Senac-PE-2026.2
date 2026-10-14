@@ -6,7 +6,6 @@ import grupotp.recifesaudavel.common.SignInRequest
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 
 class AuthUseCaseTest {
     @Test
@@ -62,18 +61,6 @@ class AuthUseCaseTest {
         assertEquals(AuthResult.Failed(AuthError.NotImplemented), result)
         assertEquals(NOT_IMPLEMENTED_MESSAGE, AuthError.NotImplemented.toMessage())
         assertEquals(OFFLINE_MESSAGE, AuthError.Offline.toMessage())
-    }
-
-    @Test
-    fun upcomingAppointmentsAreNotImplemented() {
-        // Arrange
-        val useCase = ListUpcomingAppointments()
-
-        // Act
-        val result = useCase()
-
-        // Assert
-        assertIs<UpcomingAppointmentsResult.NotImplemented>(result)
     }
 
     private fun sampleRegistration() = RegisterAccountRequest(

@@ -1,9 +1,11 @@
 package grupotp.recifesaudavel.worker
 
+import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import grupotp.recifesaudavel.worker.cache.ShellCache
 import grupotp.recifesaudavel.worker.routing.WorkerRequestRouter
 import grupotp.recifesaudavel.worker.routing.WorkerRoute
+import grupotp.recifesaudavel.worker.routing.queryParameter
 import grupotp.recifesaudavel.worker.storage.LocalAccountDatabase
 import js.promise.Promise
 import js.promise.await
@@ -81,6 +83,7 @@ private suspend fun respond(
     request: Request,
 ): Response = when (router.route(request.url)) {
     WorkerRoute.LocalAccount -> localAccount(accounts, request)
+    WorkerRoute.LocalAppointments -> localAppointments(accounts, request)
     WorkerRoute.Document -> document(shell, request)
     WorkerRoute.Shell -> shellAsset(shell, router, request)
     WorkerRoute.Server, WorkerRoute.Ignore -> error("O navegador deveria atender este pedido.")
@@ -100,7 +103,32 @@ private suspend fun localAccount(accounts: LocalAccountDatabase, request: Reques
         accounts.save(account)
         emptyResponse(204)
     }
+    "DELETE" -> {
+        accounts.clear()
+        emptyResponse(204)
+    }
     else -> jsonResponse(405, """{"message":"Método não permitido."}""")
+}
+
+private suspend fun localAppointments(accounts: LocalAccountDatabase, request: Request): Response {
+    val accountId = queryParameter(request.url, "account")
+        ?: return jsonResponse(400, """{"message":"Conta não informada."}""")
+    return when (request.method.toString()) {
+        "GET" -> {
+            val appointments = accounts.loadAppointments(accountId)
+            if (appointments == null) {
+                emptyResponse(204)
+            } else {
+                jsonResponse(200, json.encodeToString(appointments))
+            }
+        }
+        "PUT" -> {
+            val appointments = json.decodeFromString<List<Appointment>>(request.textAsync().await())
+            accounts.saveAppointments(accountId, appointments)
+            emptyResponse(204)
+        }
+        else -> jsonResponse(405, """{"message":"Método não permitido."}""")
+    }
 }
 
 private suspend fun document(shell: ShellCache, request: Request): Response = try {
