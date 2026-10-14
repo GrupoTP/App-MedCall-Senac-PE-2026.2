@@ -42,9 +42,19 @@ tasks.register<Exec>("startLan") {
     metro("lan")
 }
 
+interface InjectedFileSystem {
+    @get:Inject val operations: FileSystemOperations
+}
+
 val exportWeb = tasks.register<Exec>("exportWeb") {
     description = "Exports the PWA to client/expo/dist (npx expo export --platform web)."
     expo("export", "--platform", "web")
+    // Expo deletes dist with a single fs.rm, and on Windows rmdir fails with EBUSY while another
+    // process (Dropbox, an antivirus) still holds files that were just deleted from it. Gradle's
+    // delete retries until the folder lets go, so dist is already gone when Expo runs.
+    val fileSystem = objects.newInstance<InjectedFileSystem>().operations
+    val dist = layout.projectDirectory.dir("dist")
+    doFirst { fileSystem.delete { delete(dist) } }
 }
 
 tasks.register<Exec>("serveWeb") {

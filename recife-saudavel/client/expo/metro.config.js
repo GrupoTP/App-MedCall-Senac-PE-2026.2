@@ -16,36 +16,46 @@ config.resolver.nodeModulesPaths = [path.resolve(projectRoot, "node_modules")];
 // Gradle installs its own node_modules for Kotlin/JS; Metro must only see the client ones.
 const kotlinNodeModules = /[\\/]build[\\/]js[\\/]node_modules[\\/].*/;
 
-// Dropbox turns synced folders into Windows cloud files (reparse points). Node lists those as
-// symlinks, so Metro never indexes them, and a change event inside one (even a read that updates
-// the last access time of public/worker.js) crashes it with "TreeFS: Failed to make parent directory
-// entry". Nothing Metro bundles lives in them: public/ is served from disk and assets/ is read by
-// the Expo config, so Metro can skip them.
-const isRealSymlink = (file) => {
-  try {
-    fs.readlinkSync(file);
-    return true;
-  } catch {
-    return false;
-  }
-};
-const escapeRegExp = (text) => text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-const cloudFolders = fs
-  .readdirSync(projectRoot, { withFileTypes: true })
-  .filter((entry) => entry.isSymbolicLink() && !isRealSymlink(path.join(projectRoot, entry.name)))
-  .map((entry) => new RegExp(`^${escapeRegExp(path.join(projectRoot, entry.name))}([\\\\/].*)?$`));
-
-// Expo CLI state (devices.json, web cache). Dropbox can turn files inside it into cloud files, and
-// Metro fails on them with "EINVAL: readlink". Nothing in it is bundled.
-const expoState = new RegExp(`^${escapeRegExp(path.join(projectRoot, ".expo"))}([\\\\/].*)?$`);
-
 const existingBlockList = config.resolver.blockList;
 config.resolver.blockList = [
   ...(Array.isArray(existingBlockList) ? existingBlockList : [existingBlockList].filter(Boolean)),
   kotlinNodeModules,
-  expoState,
-  ...cloudFolders,
 ];
+
+// Dropbox on Windows turns every file and folder it holds into a cloud file (a reparse point with
+// tag IO_REPARSE_TAG_CLOUD_1), even inside folders marked com.dropbox.ignored. Windows hides that
+// reparse point when it lists a folder that is itself a cloud file, but the ignored folders
+// (node_modules, .expo) stay plain folders, so listing them shows it and Node reports each entry as
+// a symlink. Metro's crawler skips symlinks: it never indexes node_modules and fails with "Unable to
+// resolve module", and in .expo it fails with "EINVAL: readlink". A cloud file is no link (readlink
+// fails with EINVAL), so its directory entry gets the type lstat gives.
+if (process.platform === "win32") {
+  const { isSymbolicLink, isDirectory, isFile } = fs.Dirent.prototype;
+  const cloudFileStats = new WeakMap();
+  const cloudFileStat = (entry) => {
+    if (!isSymbolicLink.call(entry)) return null;
+    if (!cloudFileStats.has(entry)) {
+      const file = path.join(entry.parentPath, entry.name);
+      let stat = null;
+      try {
+        fs.readlinkSync(file);
+      } catch (error) {
+        if (error.code === "EINVAL") stat = fs.lstatSync(file, { throwIfNoEntry: false }) ?? null;
+      }
+      cloudFileStats.set(entry, stat);
+    }
+    return cloudFileStats.get(entry);
+  };
+  fs.Dirent.prototype.isSymbolicLink = function () {
+    return cloudFileStat(this) ? false : isSymbolicLink.call(this);
+  };
+  fs.Dirent.prototype.isDirectory = function () {
+    return cloudFileStat(this)?.isDirectory() ?? isDirectory.call(this);
+  };
+  fs.Dirent.prototype.isFile = function () {
+    return cloudFileStat(this)?.isFile() ?? isFile.call(this);
+  };
+}
 
 // On the web the signed-in account lives in the Kotlin service worker, not in SQLite.
 // An empty module keeps the SQLite WebAssembly build out of the PWA.
