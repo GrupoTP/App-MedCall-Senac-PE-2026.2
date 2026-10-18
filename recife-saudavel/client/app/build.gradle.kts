@@ -33,8 +33,10 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
-            // Time zone database for kotlinx-datetime: on JavaScript it only knows UTC and the device
-            // zone without it. 2.23.0 is the last release that accepts the @js-joda/core 3.x it uses.
+            // On JavaScript, kotlinx-datetime relies on @js-joda/core, which only knows UTC and the
+            // device's own zone. This package adds the other zones, such as a clinic's "America/Recife"
+            // (loaded in platform/TimeZones.kt). Pinned to 2.23.0: later releases require
+            // @js-joda/core 5.7+, but kotlinx-datetime brings 3.2.
             implementation(npm("@js-joda/timezone", "2.23.0"))
         }
         jsTest.dependencies {
