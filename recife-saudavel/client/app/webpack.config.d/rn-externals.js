@@ -21,3 +21,11 @@ config.output.library = { type: "commonjs2" };
 config.devtool = false;
 config.optimization = config.optimization || {};
 config.optimization.minimize = false;
+
+// ktor-client loads the `ws` package with import(), for WebSockets on Node. Webpack would emit it as
+// a separate chunk, and the chunk loader needs document.currentScript: Hermes stops at load with
+// "Automatic publicPath is not supported in this browser". Metro also reads app.js only, so
+// everything stays in one file.
+const webpack = require("webpack");
+config.plugins = config.plugins || [];
+config.plugins.push(new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }));

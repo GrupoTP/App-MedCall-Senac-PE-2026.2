@@ -4,75 +4,93 @@ import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.security.SecretString
-import js.reflect.unsafeCast
-import kotlinx.coroutines.suspendCancellableCoroutine
+import io.ktor.client.HttpClient
+import io.ktor.client.call.body
+import io.ktor.client.engine.HttpClientEngine
+import io.ktor.client.engine.js.Js
+import io.ktor.client.plugins.HttpTimeout
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
+import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.accept
+import io.ktor.client.request.bearerAuth
+import io.ktor.client.request.request
+import io.ktor.client.request.setBody
+import io.ktor.client.statement.HttpResponse
+import io.ktor.http.ContentType
+import io.ktor.http.HttpMethod
+import io.ktor.http.HttpStatusCode
+import io.ktor.http.contentType
+import io.ktor.http.isSuccess
+import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.Json
-import web.events.EventHandler
-import web.events.ProgressEvent
-import web.http.RequestMethod
-import web.xhr.XMLHttpRequest
-import kotlin.coroutines.resume
-import kotlin.coroutines.resumeWithException
 
-internal const val UNAUTHORIZED: Short = 401
+private const val REQUEST_TIMEOUT_MILLIS = 15_000L
 
 /**
- * Sends a JSON request with XMLHttpRequest, which both react-native-web and Hermes provide.
- * Returns status and body. Status 0 or an [IllegalStateException] mean the server was not reached.
+ * HTTP client of the Rest gateways. The Js engine sends requests with fetch, which both
+ * react-native-web and Hermes provide. Tests pass a MockEngine instead.
  */
-internal suspend fun sendJson(
-    method: String,
-    url: String,
-    body: String? = null,
-    bearerToken: SecretString? = null,
-): Pair<Short, String> = suspendCancellableCoroutine { continuation ->
-    val request = XMLHttpRequest()
-    request.open(unsafeCast<RequestMethod>(method), url, true)
-    request.setRequestHeader("Accept", "application/json")
-    if (body != null) {
-        request.setRequestHeader("Content-Type", "application/json")
+fun apiHttpClient(engine: HttpClientEngine = Js.create()): HttpClient = HttpClient(engine) {
+    expectSuccess = false
+    install(ContentNegotiation) {
+        json(Json { ignoreUnknownKeys = true })
     }
-    if (bearerToken != null && !bearerToken.isBlank()) {
-        request.setRequestHeader("Authorization", "Bearer ${bearerToken.value}")
+    install(HttpTimeout) {
+        requestTimeoutMillis = REQUEST_TIMEOUT_MILLIS
     }
-    val onLoad: () -> Unit = {
-        continuation.resume(request.status to request.responseText)
-    }
-    val onError: () -> Unit = {
-        continuation.resumeWithException(IllegalStateException("Falha de rede ao chamar $url"))
-    }
-    request.onload = unsafeCast<EventHandler<ProgressEvent, XMLHttpRequest, XMLHttpRequest>>(onLoad)
-    request.onerror = unsafeCast<EventHandler<ProgressEvent, XMLHttpRequest, XMLHttpRequest>>(onError)
-    if (body == null) {
-        request.send()
-    } else {
-        request.send(body)
+    defaultRequest {
+        accept(ContentType.Application.Json)
     }
 }
 
 /**
- * Calls an API route that needs the session token and decodes the answer: 401 means the session
- * expired, status 0 or a network failure mean offline, and any other error carries the server message.
+ * Sends a JSON request. Returns null when the server was not reached: network failure or timeout.
  */
-internal suspend inline fun <reified T> Json.callApi(
-    method: String,
+internal suspend fun HttpClient.sendJson(
+    method: HttpMethod,
     url: String,
     token: SecretString?,
-    body: String? = null,
-): RemoteResult<T> {
-    val (status, text) = try {
-        sendJson(method, url, body, token)
-    } catch (_: IllegalStateException) {
-        return RemoteResult.Failed(RemoteError.Offline)
-    }
-    return when {
-        status == 0.toShort() -> RemoteResult.Failed(RemoteError.Offline)
-        status == UNAUTHORIZED -> RemoteResult.Failed(RemoteError.SessionExpired)
-        status in 200..299 -> RemoteResult.Success(decodeFromString<T>(text))
-        else -> {
-            val message = runCatching { decodeFromString<ApiError>(text).message }
-                .getOrDefault("Não foi possível concluir o pedido.")
-            RemoteResult.Failed(RemoteError.Rejected(message))
+    block: HttpRequestBuilder.() -> Unit = {},
+): HttpResponse? = try {
+    request(url) {
+        this.method = method
+        if (token != null && !token.isBlank()) {
+            bearerAuth(token.value)
         }
+        block()
+    }
+} catch (cancelled: CancellationException) {
+    throw cancelled
+} catch (_: Exception) {
+    null
+}
+
+/** Sets [body] as the JSON request body, encoded by ContentNegotiation. */
+internal inline fun <reified B> HttpRequestBuilder.jsonBody(body: B) {
+    contentType(ContentType.Application.Json)
+    setBody(body)
+}
+
+/** Message of an error answer, from its [ApiError] body when there is one. */
+internal suspend fun HttpResponse.errorMessage(): String =
+    runCatching { body<ApiError>().message }.getOrDefault("Não foi possível concluir o pedido.")
+
+/**
+ * Calls an API route that needs the session token and decodes the answer: 401 means the session
+ * expired, a network failure or timeout means offline, and any other error carries the server message.
+ */
+internal suspend inline fun <reified T> HttpClient.callApi(
+    method: HttpMethod,
+    url: String,
+    token: SecretString?,
+    noinline block: HttpRequestBuilder.() -> Unit = {},
+): RemoteResult<T> {
+    val response = sendJson(method, url, token, block) ?: return RemoteResult.Failed(RemoteError.Offline)
+    return when {
+        response.status == HttpStatusCode.Unauthorized -> RemoteResult.Failed(RemoteError.SessionExpired)
+        response.status.isSuccess() -> RemoteResult.Success(response.body<T>())
+        else -> RemoteResult.Failed(RemoteError.Rejected(response.errorMessage()))
     }
 }

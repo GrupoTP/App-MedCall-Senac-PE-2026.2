@@ -21,6 +21,6 @@ internal external interface ExpoConfig {
 }
 
 internal external interface ExpoExtra {
-    /** `API_BASE_URL` when the bundle was made, or null. */
+    /** `API_BASE_URL` when the bundle was made, or empty. */
     val apiBaseUrl: String?
 }

@@ -33,6 +33,10 @@ kotlin {
             implementation(libs.koin.core)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.kotlinx.coroutines.core)
+            implementation(libs.ktor.client.core)
+            implementation(libs.ktor.client.js)
+            implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.serialization.kotlinx.json)
             // On JavaScript, kotlinx-datetime relies on @js-joda/core, which only knows UTC and the
             // device's own zone. This package adds the other zones, such as a clinic's "America/Recife"
             // (loaded in platform/TimeZones.kt). Pinned to 2.23.0: later releases require
@@ -42,6 +46,7 @@ kotlin {
         jsTest.dependencies {
             implementation(libs.kotlin.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.ktor.client.mock)
         }
     }
 }

@@ -60,7 +60,8 @@ module.exports = () => ({
 
   extra: {
     // API_BASE_URL: address of the server, such as https://api.example.com. Unset in development,
-    // where the app calls port 8080 on the computer that serves the bundle.
-    apiBaseUrl: process.env.API_BASE_URL || null,
+    // where the app calls port 8080 on the computer that serves the bundle. Empty, not null: Expo
+    // serializes the config and turns null into {}, which the Kotlin side cannot read as a string.
+    apiBaseUrl: process.env.API_BASE_URL || "",
   },
 });

@@ -2,6 +2,7 @@ package grupotp.recifesaudavel.app.gateway.scheduling
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.gateway.http.callApi
+import grupotp.recifesaudavel.app.gateway.http.jsonBody
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
@@ -9,20 +10,23 @@ import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
 import grupotp.recifesaudavel.common.security.SecretString
-import kotlinx.serialization.json.Json
+import io.ktor.client.HttpClient
+import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.http.HttpMethod
+import kotlinx.serialization.json.JsonObject
 
 class RestAppointmentGateway(
     private val baseUrl: String,
-    private val json: Json = Json { ignoreUnknownKeys = true },
+    private val http: HttpClient,
 ) : AppointmentGateway {
     override suspend fun specialties(token: SecretString): RemoteResult<List<Specialty>> =
-        call("GET", "/api/v1/specialties", token)
+        call(HttpMethod.Get, "/api/v1/specialties", token)
 
     override suspend fun professionals(token: SecretString): RemoteResult<List<Professional>> =
-        call("GET", "/api/v1/professionals", token)
+        call(HttpMethod.Get, "/api/v1/professionals", token)
 
     override suspend fun clinics(token: SecretString): RemoteResult<List<Clinic>> =
-        call("GET", "/api/v1/clinics", token)
+        call(HttpMethod.Get, "/api/v1/clinics", token)
 
     override suspend fun availability(
         token: SecretString,
@@ -35,23 +39,23 @@ class RestAppointmentGateway(
                 append("&professionalId=").append(professionalId)
             }
         }
-        return call("GET", "/api/v1/availability$query", token)
+        return call(HttpMethod.Get, "/api/v1/availability$query", token)
     }
 
     override suspend fun book(token: SecretString, request: CreateAppointmentRequest): RemoteResult<Appointment> =
-        call("POST", "/api/v1/appointments", token, json.encodeToString(request))
+        call(HttpMethod.Post, "/api/v1/appointments", token) { jsonBody(request) }
 
     override suspend fun list(token: SecretString): RemoteResult<List<Appointment>> =
-        call("GET", "/api/v1/appointments", token)
+        call(HttpMethod.Get, "/api/v1/appointments", token)
 
     override suspend fun cancel(token: SecretString, appointmentId: Int): RemoteResult<Appointment> =
-        call("POST", "/api/v1/appointments/$appointmentId/cancel", token, "{}")
+        call(HttpMethod.Post, "/api/v1/appointments/$appointmentId/cancel", token) { jsonBody(JsonObject(emptyMap())) }
 
     private suspend inline fun <reified T> call(
-        method: String,
+        method: HttpMethod,
         path: String,
         token: SecretString?,
-        body: String? = null,
-    ): RemoteResult<T> = json.callApi(method, "$baseUrl$path", token, body)
+        noinline block: HttpRequestBuilder.() -> Unit = {},
+    ): RemoteResult<T> = http.callApi(method, "$baseUrl$path", token, block)
 }
 

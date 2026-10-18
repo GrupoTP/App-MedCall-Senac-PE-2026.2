@@ -5,6 +5,7 @@ import grupotp.recifesaudavel.app.gateway.account.AccountGateway
 import grupotp.recifesaudavel.app.gateway.account.RestAccountGateway
 import grupotp.recifesaudavel.app.gateway.auth.AuthGateway
 import grupotp.recifesaudavel.app.gateway.auth.RestAuthGateway
+import grupotp.recifesaudavel.app.gateway.http.apiHttpClient
 import grupotp.recifesaudavel.app.gateway.local.AppShellGateway
 import grupotp.recifesaudavel.app.gateway.local.BrowserOfflineShell
 import grupotp.recifesaudavel.app.gateway.local.LocalAccountGateway
@@ -51,10 +52,11 @@ private const val WEB = "web"
  * Android has none, so the local account and appointments live in SQLite.
  */
 fun appModule(platform: String): Module = module {
-    single { RestAuthGateway(apiBaseUrl(platform)) } bind AuthGateway::class
-    single { RestAppointmentGateway(apiBaseUrl(platform)) } bind AppointmentGateway::class
-    single { RestPreTriageGateway(apiBaseUrl(platform)) } bind PreTriageGateway::class
-    single { RestAccountGateway(apiBaseUrl(platform)) } bind AccountGateway::class
+    single { apiHttpClient() }
+    single { RestAuthGateway(apiBaseUrl(platform), get()) } bind AuthGateway::class
+    single { RestAppointmentGateway(apiBaseUrl(platform), get()) } bind AppointmentGateway::class
+    single { RestPreTriageGateway(apiBaseUrl(platform), get()) } bind PreTriageGateway::class
+    single { RestAccountGateway(apiBaseUrl(platform), get()) } bind AccountGateway::class
     val localGateways = arrayOf(
         AppShellGateway::class,
         LocalAccountGateway::class,
