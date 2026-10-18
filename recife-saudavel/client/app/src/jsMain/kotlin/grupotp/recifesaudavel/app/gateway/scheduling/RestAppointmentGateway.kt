@@ -2,7 +2,6 @@ package grupotp.recifesaudavel.app.gateway.scheduling
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.gateway.http.callApi
-import grupotp.recifesaudavel.app.gateway.http.jsonBody
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
@@ -12,6 +11,7 @@ import grupotp.recifesaudavel.common.scheduling.Specialty
 import grupotp.recifesaudavel.common.security.SecretString
 import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
+import io.ktor.client.request.setBody
 import io.ktor.http.HttpMethod
 import kotlinx.serialization.json.JsonObject
 
@@ -43,13 +43,13 @@ class RestAppointmentGateway(
     }
 
     override suspend fun book(token: SecretString, request: CreateAppointmentRequest): RemoteResult<Appointment> =
-        call(HttpMethod.Post, "/api/v1/appointments", token) { jsonBody(request) }
+        call(HttpMethod.Post, "/api/v1/appointments", token) { setBody(request) }
 
     override suspend fun list(token: SecretString): RemoteResult<List<Appointment>> =
         call(HttpMethod.Get, "/api/v1/appointments", token)
 
     override suspend fun cancel(token: SecretString, appointmentId: Int): RemoteResult<Appointment> =
-        call(HttpMethod.Post, "/api/v1/appointments/$appointmentId/cancel", token) { jsonBody(JsonObject(emptyMap())) }
+        call(HttpMethod.Post, "/api/v1/appointments/$appointmentId/cancel", token) { setBody(JsonObject(emptyMap())) }
 
     private suspend inline fun <reified T> call(
         method: HttpMethod,
