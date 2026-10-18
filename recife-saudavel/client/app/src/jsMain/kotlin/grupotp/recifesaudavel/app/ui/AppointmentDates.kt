@@ -1,6 +1,5 @@
 package grupotp.recifesaudavel.app.ui
 
-import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.Clinic
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
@@ -79,11 +78,5 @@ internal fun clinicZoneNote(clinic: Clinic, date: LocalDate): String? {
 internal fun dayOf(date: LocalDate): String = pad(date.day)
 
 internal fun monthAbbreviation(date: LocalDate): String = MONTHS[date.month.number - 1]
-
-internal fun AppointmentStatus.label(): String = when (this) {
-    AppointmentStatus.Pending -> "Aguardando"
-    AppointmentStatus.Confirmed -> "Confirmada"
-    AppointmentStatus.Cancelled -> "Cancelada"
-}
 
 private fun pad(value: Int): String = value.toString().padStart(2, '0')

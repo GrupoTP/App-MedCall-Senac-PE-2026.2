@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.common.auth
 
-import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.serialization.Serializable
 

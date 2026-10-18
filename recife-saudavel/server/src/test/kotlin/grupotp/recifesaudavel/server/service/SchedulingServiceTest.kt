@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.server.service
 
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.security.SecretString
@@ -206,13 +206,14 @@ class SchedulingServiceTest {
     @Test
     fun eachClinicOffersTimesInItsOwnTimeZone() {
         // Act: 10:10 in Recife is 09:10 in Manaus, one hour behind.
-        val byClinic = service.availability(psychiatry, professionalId = null)!!.associateBy { it.clinic.city }
+        val byClinic = service.availability(psychiatry, professionalId = null)!!.associateBy { it.clinicId }
 
         // Assert
-        assertEquals(setOf("Recife", "Manaus"), byClinic.keys)
-        assertEquals(LocalTime(10, 30), byClinic.getValue("Recife").days.first().times.first())
-        assertEquals(LocalTime(9, 30), byClinic.getValue("Manaus").days.first().times.first())
-        assertEquals("America/Manaus", byClinic.getValue("Manaus").clinic.timeZoneId)
+        val recife = SchedulingCatalog.clinicId(SchedulingCatalog.boaVista)
+        val manaus = SchedulingCatalog.clinicId(SchedulingCatalog.manaus)
+        assertEquals(setOf(recife, manaus), byClinic.keys)
+        assertEquals(LocalTime(10, 30), byClinic.getValue(recife).days.first().times.first())
+        assertEquals(LocalTime(9, 30), byClinic.getValue(manaus).days.first().times.first())
     }
 
     @Test

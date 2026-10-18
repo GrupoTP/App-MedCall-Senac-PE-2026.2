@@ -58,6 +58,8 @@ class SchedulingService(
 
     fun professionals(specialtyId: String?): List<Professional> = repository.professionals(specialtyId)
 
+    fun clinics(): List<Clinic> = repository.clinics()
+
     /**
      * Open days and times for the next [BOOKING_WINDOW_DAYS] days, one entry per clinic. A time is
      * open when the chosen professional, or any professional of the specialty at that clinic when
@@ -65,8 +67,9 @@ class SchedulingService(
      */
     fun availability(specialtyId: String, professionalId: String?): List<ClinicAvailability>? {
         val candidates = candidates(specialtyId, professionalId) ?: return null
-        return candidates.groupBy { it.clinic }.map { (clinic, atClinic) ->
-            ClinicAvailability(clinic, openDays(clinic, atClinic))
+        val clinics = repository.clinics().associateBy { it.id }
+        return candidates.groupBy { it.clinicId }.map { (clinicId, atClinic) ->
+            ClinicAvailability(clinicId, openDays(clinics.getValue(clinicId), atClinic))
         }
     }
 
@@ -86,11 +89,12 @@ class SchedulingService(
         val professionalId = request.professionalId?.takeIf { it.isNotBlank() }
         val clinicId = request.clinicId?.takeIf { it.isNotBlank() }
         val candidates = candidates(request.specialtyId, professionalId)
-            ?.filter { clinicId == null || it.clinic.id == clinicId }
+            ?.filter { clinicId == null || it.clinicId == clinicId }
             ?.ifEmpty { null }
             ?: return BookingResult.Rejected("Especialidade, profissional ou clínica inválidos.")
         // The date and time only mean something in one clinic's zone.
-        val clinic = candidates.map { it.clinic }.distinct().singleOrNull()
+        val clinic = candidates.map { it.clinicId }.distinct().singleOrNull()
+            ?.let(repository::findClinic)
             ?: return BookingResult.Rejected("Escolha a clínica do horário.")
         val date = request.date
         if (date !in bookableDays(clinic)) {

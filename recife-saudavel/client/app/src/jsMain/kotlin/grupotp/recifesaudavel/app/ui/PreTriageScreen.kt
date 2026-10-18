@@ -8,8 +8,8 @@ import grupotp.recifesaudavel.app.usecase.formatBrazilianDate
 import grupotp.recifesaudavel.app.usecase.maskBrazilianDate
 import grupotp.recifesaudavel.app.usecase.parseBrazilianDate
 import grupotp.recifesaudavel.app.usecase.toPreTriageMessage
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.common.pretriage.SymptomsStart
@@ -229,7 +229,7 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
                                 style = Styles.chipWrap
                                 accessibilityRole = "radiogroup"
                                 SymptomsStart.entries.forEach { option ->
-                                    choiceChip(option.label, selected = option == current.symptomsStart) {
+                                    choiceChip(option.label(), selected = option == current.symptomsStart) {
                                         update("symptomsStart") {
                                             copy(symptomsStart = if (symptomsStart == option) null else option)
                                         }

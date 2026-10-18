@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.server.repository
 
-import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.Clinic
@@ -85,10 +85,16 @@ class SchedulingRepository(
             .map { Specialty(id = it[SpecialtiesTable.id], name = it[SpecialtiesTable.name]) }
     }
 
+    fun clinics(): List<Clinic> = transaction(database) {
+        ClinicsTable.selectAll().orderBy(ClinicsTable.name).map { it.toClinic() }
+    }
+
+    fun findClinic(id: String): Clinic? = transaction(database) {
+        ClinicsTable.selectAll().where { ClinicsTable.id eq id }.singleOrNull()?.toClinic()
+    }
+
     fun professionals(specialtyId: String? = null): List<Professional> = transaction(database) {
-        val query = ProfessionalsTable
-            .join(ClinicsTable, JoinType.INNER, ProfessionalsTable.clinicId, ClinicsTable.id)
-            .selectAll()
+        val query = ProfessionalsTable.selectAll()
         if (specialtyId != null) {
             query.where { ProfessionalsTable.specialtyId eq specialtyId }
         }
@@ -97,7 +103,7 @@ class SchedulingRepository(
                 id = it[ProfessionalsTable.id],
                 name = it[ProfessionalsTable.name],
                 specialtyId = it[ProfessionalsTable.specialtyId],
-                clinic = it.toClinic(),
+                clinicId = it[ProfessionalsTable.clinicId],
             )
         }
     }

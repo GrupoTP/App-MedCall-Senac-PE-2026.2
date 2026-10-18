@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.server.service
 
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings

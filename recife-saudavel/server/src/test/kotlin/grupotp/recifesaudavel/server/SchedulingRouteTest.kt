@@ -1,10 +1,11 @@
 package grupotp.recifesaudavel.server
 
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
@@ -39,6 +40,7 @@ class SchedulingRouteTest {
         val professionals = Json.decodeFromString<List<Professional>>(
             client.get("/api/v1/professionals?specialtyId=${specialty.id}") { bearerAuth(token) }.bodyAsText(),
         )
+        val clinics = Json.decodeFromString<List<Clinic>>(client.get("/api/v1/clinics") { bearerAuth(token) }.bodyAsText())
         // The file database outlives the test, so pick whatever slot is still open.
         val days = Json.decodeFromString<List<ClinicAvailability>>(
             client.get("/api/v1/availability?specialtyId=${specialty.id}") { bearerAuth(token) }.bodyAsText(),
@@ -67,6 +69,8 @@ class SchedulingRouteTest {
         // Assert
         assertEquals(11, specialties.size)
         assertEquals(2, professionals.size)
+        assertEquals(setOf("Recife", "Manaus"), clinics.map { it.city }.toSet())
+        assertTrue(professionals.all { professional -> clinics.any { it.id == professional.clinicId } })
         assertEquals(HttpStatusCode.Created, created.status)
         val appointment = Json.decodeFromString<Appointment>(created.bodyAsText())
         assertEquals("Dermatologia", appointment.specialtyName)

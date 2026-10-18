@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.common.scheduling
 
-import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.account.Phone
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime

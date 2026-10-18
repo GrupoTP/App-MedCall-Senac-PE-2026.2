@@ -33,6 +33,10 @@ fun Application.configureSchedulingController() {
                 call.patientId() ?: return@get
                 call.respond(scheduling.professionals(call.request.queryParameters["specialtyId"]))
             }
+            get("/clinics") {
+                call.patientId() ?: return@get
+                call.respond(scheduling.clinics())
+            }
             get("/availability") {
                 call.patientId() ?: return@get
                 val specialtyId = call.request.queryParameters["specialtyId"].orEmpty()

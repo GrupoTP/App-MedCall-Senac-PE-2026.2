@@ -1,10 +1,10 @@
 package grupotp.recifesaudavel.server.repository
 
 import grupotp.recifesaudavel.common.account.AccountProfile
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.server.database.UsersTable
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq

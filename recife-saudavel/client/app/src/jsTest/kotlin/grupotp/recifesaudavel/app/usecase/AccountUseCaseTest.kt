@@ -2,10 +2,10 @@ package grupotp.recifesaudavel.app.usecase
 
 import grupotp.recifesaudavel.common.account.AccountProfile
 import grupotp.recifesaudavel.common.account.ChangePasswordRequest
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test

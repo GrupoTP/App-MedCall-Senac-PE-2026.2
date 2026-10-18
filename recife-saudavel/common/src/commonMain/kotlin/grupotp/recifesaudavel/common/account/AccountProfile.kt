@@ -1,6 +1,5 @@
 package grupotp.recifesaudavel.common.account
 
-import grupotp.recifesaudavel.common.phone.Phone
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant
 

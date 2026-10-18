@@ -5,31 +5,31 @@ import kotlinx.serialization.Serializable
 
 /**
  * Answers of "Quando começaram os sintomas?", in the prototype's order. JSON carries the
- * [SerialName] code, so a [label] can be reworded without touching stored pre-triages.
+ * [SerialName] code; the text shown for each answer belongs to the client.
  */
 @Serializable
-enum class SymptomsStart(val label: String) {
+enum class SymptomsStart {
     @SerialName("today")
-    Today("Hoje"),
+    Today,
 
     @SerialName("two_to_three_days")
-    TwoToThreeDays("Há 2 a 3 dias"),
+    TwoToThreeDays,
 
     @SerialName("one_week")
-    OneWeek("Há uma semana"),
+    OneWeek,
 
     @SerialName("two_weeks")
-    TwoWeeks("Há 2 semanas"),
+    TwoWeeks,
 
     @SerialName("one_month")
-    OneMonth("Há 1 mês"),
+    OneMonth,
 
     @SerialName("over_one_month")
-    OverOneMonth("Há mais de 1 mês"),
+    OverOneMonth,
 
     @SerialName("over_six_months")
-    OverSixMonths("Há mais de 6 meses"),
+    OverSixMonths,
 
     @SerialName("chronic")
-    Chronic("Crônico (mais de 1 ano)"),
+    Chronic,
 }

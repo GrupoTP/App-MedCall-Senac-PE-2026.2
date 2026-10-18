@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.ui
 
-import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.account.Phone
 import ojaynico.kotlin.react.json
 import ojaynico.kotlin.react.native.component.Modal
 import ojaynico.kotlin.react.native.component.Pressable

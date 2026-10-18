@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.server.service
 
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.common.pretriage.SymptomsStart
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest

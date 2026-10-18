@@ -1,10 +1,10 @@
 package grupotp.recifesaudavel.app.usecase
 
+import grupotp.recifesaudavel.app.platform.loadTimeZones
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
-import grupotp.recifesaudavel.app.platform.loadTimeZones
 import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
@@ -15,12 +15,12 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import kotlin.test.Test
-import kotlin.time.Instant
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Instant
 
 class SchedulingUseCaseTest {
     private val account = AuthenticatedAccount(
@@ -181,6 +181,7 @@ class SchedulingUseCaseTest {
         // Assert
         val options = assertIs<SchedulingResult.Success<SchedulingOptions>>(loaded).value
         assertEquals(listOf(lucia), options.professionalsOf("cardio"))
+        assertEquals("Recife", options.clinic(lucia.clinicId)?.city)
         assertEquals(SchedulingResult.Failed(SchedulingError.Offline), failed)
     }
 
@@ -217,7 +218,7 @@ class SchedulingUseCaseTest {
     private val manaus = Clinic(id = "manaus", name = "Teleconsulta Manaus", city = "Manaus", timeZoneId = "America/Manaus")
     private val sooner = appointment(id = "a1", date = "2026-10-14", time = "09:00")
     private val later = appointment(id = "a2", date = "2026-10-20", time = "14:30")
-    private val lucia = Professional(id = "lucia", name = "Dra. Lúcia Oliveira", specialtyId = "cardio", clinic = recife)
+    private val lucia = Professional(id = "lucia", name = "Dra. Lúcia Oliveira", specialtyId = "cardio", clinicId = recife.id)
     private val request = CreateAppointmentRequest(
         specialtyId = "cardio",
         professionalId = null,
@@ -253,8 +254,11 @@ class SchedulingUseCaseTest {
 
         override suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>> {
             lastToken = token.value
-            return SchedulingResult.Success(listOf(lucia, Professional(id = "marcos", name = "Dr. Marcos Souza", specialtyId = "pedi", clinic = recife)))
+            return SchedulingResult.Success(listOf(lucia, Professional(id = "marcos", name = "Dr. Marcos Souza", specialtyId = "pedi", clinicId = recife.id)))
         }
+
+        override suspend fun clinics(token: SecretString): SchedulingResult<List<Clinic>> =
+            SchedulingResult.Success(listOf(recife, manaus))
 
         override suspend fun availability(
             token: SecretString,

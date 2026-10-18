@@ -3,9 +3,9 @@ package grupotp.recifesaudavel.app.ui
 import grupotp.recifesaudavel.app.usecase.AuthResult
 import grupotp.recifesaudavel.app.usecase.RegisterAccount
 import grupotp.recifesaudavel.app.usecase.toMessage
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.ScrollView

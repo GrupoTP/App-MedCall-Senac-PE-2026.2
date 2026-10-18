@@ -78,8 +78,8 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     val loaded = options
     val specialty = loaded?.specialties?.firstOrNull { it.id == specialtyId }
     val professional = loaded?.professionals?.firstOrNull { it.id == professionalId }
-    val clinicChoice = availability?.firstOrNull { it.clinic.id == clinicId }
-    val clinic = clinicChoice?.clinic
+    val clinicChoice = availability?.firstOrNull { it.clinicId == clinicId }
+    val clinic = loaded?.clinic(clinicId)
     val days = clinicChoice?.days
 
     /** Asks the server for open times, then shows step 1. Keeps the choice if it is still open. */
@@ -95,8 +95,8 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                     val fresh = result.value
                     availability = fresh
                     // One clinic needs no choice; with several, a choice still offered is kept.
-                    val freshClinic = fresh.singleOrNull() ?: fresh.firstOrNull { it.clinic.id == clinicId }
-                    clinicId = freshClinic?.clinic?.id
+                    val freshClinic = fresh.singleOrNull() ?: fresh.firstOrNull { it.clinicId == clinicId }
+                    clinicId = freshClinic?.clinicId
                     val freshDays = freshClinic?.days.orEmpty()
                     val freshDay = freshDays.firstOrNull { it.date == date }
                     if (freshDay == null) {
@@ -245,9 +245,10 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                     }
                                     val offered = loaded.professionalsOf(specialty.id)
                                     // A specialty offered in several clinics names the city of each professional.
-                                    val severalClinics = offered.map { it.clinic.id }.distinct().size > 1
+                                    val severalClinics = offered.map { it.clinicId }.distinct().size > 1
                                     offered.forEach { item ->
-                                        val label = if (severalClinics) "${item.name} (${item.clinic.city})" else item.name
+                                        val city = loaded.clinic(item.clinicId)?.city
+                                        val label = if (severalClinics && city != null) "${item.name} ($city)" else item.name
                                         choiceChip(label, selected = item.id == professionalId) {
                                             professionalId = item.id
                                         }
@@ -280,12 +281,13 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                     style = Styles.chipWrap
                                     accessibilityRole = "radiogroup"
                                     clinics.forEach { option ->
+                                        val place = loaded.clinic(option.clinicId)
                                         choiceChip(
-                                            "${option.clinic.name} · ${option.clinic.city}",
-                                            selected = option.clinic.id == clinicId,
+                                            place?.let { "${it.name} · ${it.city}" } ?: option.clinicId,
+                                            selected = option.clinicId == clinicId,
                                         ) {
-                                            if (option.clinic.id != clinicId) {
-                                                clinicId = option.clinic.id
+                                            if (option.clinicId != clinicId) {
+                                                clinicId = option.clinicId
                                                 date = option.days.firstOrNull()?.date
                                                 time = null
                                             }

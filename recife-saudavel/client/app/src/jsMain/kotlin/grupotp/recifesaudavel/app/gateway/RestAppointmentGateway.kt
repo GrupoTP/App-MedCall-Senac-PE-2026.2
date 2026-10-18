@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.app.gateway
 import grupotp.recifesaudavel.app.usecase.AppointmentGateway
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
 import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
@@ -19,6 +20,9 @@ class RestAppointmentGateway(
 
     override suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>> =
         call("GET", "/api/v1/professionals", token)
+
+    override suspend fun clinics(token: SecretString): SchedulingResult<List<Clinic>> =
+        call("GET", "/api/v1/clinics", token)
 
     override suspend fun availability(
         token: SecretString,

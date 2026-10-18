@@ -2,13 +2,13 @@ package grupotp.recifesaudavel.server
 
 import grupotp.recifesaudavel.common.account.AccountProfile
 import grupotp.recifesaudavel.common.account.ChangePasswordRequest
+import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.security.SecretString
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth

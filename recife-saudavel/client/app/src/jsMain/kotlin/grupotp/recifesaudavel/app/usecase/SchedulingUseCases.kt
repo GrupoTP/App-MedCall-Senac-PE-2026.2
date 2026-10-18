@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.app.usecase
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
@@ -15,13 +16,16 @@ import kotlin.time.Instant
 data class SchedulingOptions(
     val specialties: List<Specialty>,
     val professionals: List<Professional>,
+    val clinics: List<Clinic>,
 ) {
     fun professionalsOf(specialtyId: String): List<Professional> = professionals.filter { it.specialtyId == specialtyId }
+
+    fun clinic(id: String?): Clinic? = clinics.firstOrNull { it.id == id }
 }
 
 /**
- * Specialties and professionals for the first step. Loading them also tells whether the server
- * can be reached, so the flow never opens offline.
+ * Specialties, professionals and their clinics for the first step. Loading them also tells
+ * whether the server can be reached, so the flow never opens offline.
  */
 class LoadSchedulingOptions(
     private val gateway: AppointmentGateway,
@@ -31,8 +35,12 @@ class LoadSchedulingOptions(
             is SchedulingResult.Success -> result.value
             is SchedulingResult.Failed -> return result
         }
-        return when (val result = gateway.professionals(account.sessionToken)) {
-            is SchedulingResult.Success -> SchedulingResult.Success(SchedulingOptions(specialties, result.value))
+        val professionals = when (val result = gateway.professionals(account.sessionToken)) {
+            is SchedulingResult.Success -> result.value
+            is SchedulingResult.Failed -> return result
+        }
+        return when (val result = gateway.clinics(account.sessionToken)) {
+            is SchedulingResult.Success -> SchedulingResult.Success(SchedulingOptions(specialties, professionals, result.value))
             is SchedulingResult.Failed -> result
         }
     }

@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.common.phone
+package grupotp.recifesaudavel.common.account
 
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline

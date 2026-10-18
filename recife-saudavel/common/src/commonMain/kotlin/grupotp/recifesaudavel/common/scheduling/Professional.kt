@@ -2,11 +2,16 @@ package grupotp.recifesaudavel.common.scheduling
 
 import kotlinx.serialization.Serializable
 
-/** @property clinic where the professional attends; its time zone rules their agenda. */
+/**
+ * Like [specialtyId], [clinicId] points into a list sent once ([Clinic]s come from
+ * `/api/v1/clinics`), so professionals of the same clinic do not repeat it.
+ *
+ * @property clinicId where the professional attends; its time zone rules their agenda.
+ */
 @Serializable
 data class Professional(
     val id: String,
     val name: String,
     val specialtyId: String,
-    val clinic: Clinic,
+    val clinicId: String,
 )
