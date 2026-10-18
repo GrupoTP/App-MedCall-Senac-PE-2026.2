@@ -19,6 +19,7 @@ import grupotp.recifesaudavel.server.service.AuthService
 import grupotp.recifesaudavel.server.service.PreTriageService
 import grupotp.recifesaudavel.server.service.SchedulingService
 import grupotp.recifesaudavel.server.service.SessionService
+import grupotp.recifesaudavel.server.service.SessionSettings
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopped
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -40,6 +41,7 @@ fun Application.configureDatabase() {
         listOf(
             module {
                 single { settings }
+                single { SessionSettings.from(environment.config) }
                 single { DatabaseConnector().connect(get()) }
                 singleOf(::PasswordHasher)
                 single { Clock.system(CLINIC_ZONE) }

@@ -23,12 +23,18 @@ object SchemaMigrations {
         transaction(database) {
             addAppointmentSlotKey()
             addUserAccountDates()
+            addSessionLastUse()
         }
     }
 
     /** Adds the nullable `created_at`, `last_login_at` and `deletion_requested_at` columns to old `users` tables. */
     private fun JdbcTransaction.addUserAccountDates() {
         SchemaUtils.addMissingColumnsStatements(UsersTable).forEach { exec(it) }
+    }
+
+    /** Adds the nullable `last_used_at` column to old `sessions` tables. */
+    private fun JdbcTransaction.addSessionLastUse() {
+        SchemaUtils.addMissingColumnsStatements(SessionsTable).forEach { exec(it) }
     }
 
     /**

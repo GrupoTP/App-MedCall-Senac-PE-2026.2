@@ -10,5 +10,8 @@ object SessionsTable : Table("sessions") {
     val userId = varchar("user_id", 36).references(UsersTable.id)
     val createdAt = long("created_at")
 
+    // Nullable: sessions created before this column existed count from createdAt.
+    val lastUsedAt = long("last_used_at").nullable()
+
     override val primaryKey = PrimaryKey(tokenHash)
 }

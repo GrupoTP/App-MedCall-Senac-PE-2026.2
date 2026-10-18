@@ -3,17 +3,21 @@ package grupotp.recifesaudavel.server.repository
 import grupotp.recifesaudavel.server.database.SessionsTable
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.or
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.jetbrains.exposed.v1.jdbc.update
 
+/** @property lastUsedAt last recorded use, or the sign-in time when never recorded. */
 data class StoredSession(
     val userId: String,
-    val createdAt: Long,
+    val lastUsedAt: Long,
 )
 
 class SessionRepository(
@@ -25,6 +29,7 @@ class SessionRepository(
                 it[SessionsTable.tokenHash] = tokenHash
                 it[SessionsTable.userId] = userId
                 it[SessionsTable.createdAt] = createdAt
+                it[lastUsedAt] = createdAt
             }
         }
     }
@@ -48,9 +53,19 @@ class SessionRepository(
         }
     }
 
-    fun deleteCreatedBefore(cutoff: Long) {
+    fun touch(tokenHash: String, at: Long) {
         transaction(database) {
-            SessionsTable.deleteWhere { SessionsTable.createdAt less cutoff }
+            SessionsTable.update({ SessionsTable.tokenHash eq tokenHash }) { it[lastUsedAt] = at }
+        }
+    }
+
+    /** Deletes the sessions whose last use is before [cutoff]. */
+    fun deleteUnusedSince(cutoff: Long) {
+        transaction(database) {
+            SessionsTable.deleteWhere {
+                (SessionsTable.lastUsedAt less cutoff) or
+                    (SessionsTable.lastUsedAt.isNull() and (SessionsTable.createdAt less cutoff))
+            }
         }
     }
 
@@ -58,6 +73,11 @@ class SessionRepository(
         SessionsTable.selectAll()
             .where { SessionsTable.tokenHash eq tokenHash }
             .singleOrNull()
-            ?.let { StoredSession(userId = it[SessionsTable.userId], createdAt = it[SessionsTable.createdAt]) }
+            ?.let {
+                StoredSession(
+                    userId = it[SessionsTable.userId],
+                    lastUsedAt = it[SessionsTable.lastUsedAt] ?: it[SessionsTable.createdAt],
+                )
+            }
     }
 }

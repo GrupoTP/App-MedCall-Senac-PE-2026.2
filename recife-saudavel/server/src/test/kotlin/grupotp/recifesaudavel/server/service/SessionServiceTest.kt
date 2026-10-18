@@ -21,6 +21,9 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
+
+private val IDLE: Duration = Duration.ofDays(180)
 
 class SessionServiceTest {
     private val clock = MovableClock(Instant.parse("2026-10-12T13:00:00Z"))
@@ -40,7 +43,7 @@ class SessionServiceTest {
             ),
         )
         transaction(database) { SchemaUtils.create(UsersTable, SessionsTable) }
-        sessions = SessionService(SessionRepository(database), clock)
+        sessions = SessionService(SessionRepository(database), clock, SessionSettings(IDLE))
         maria = UserRepository(database).insert(UUID.randomUUID().toString(), registration(), "hash")!!.id
     }
 
@@ -50,19 +53,51 @@ class SessionServiceTest {
     }
 
     @Test
-    fun aTokenStopsWorkingOnceItsLifetimeIsOver() {
+    fun aTokenInUseNeverExpires() {
+        // Arrange
+        val token = sessions.issue(maria)
+
+        // Act: used every 100 days for two years, always within the 180-day idle timeout.
+        val answers = (1..7).map {
+            clock.advance(Duration.ofDays(100))
+            sessions.userIdFor(token)
+        }
+
+        // Assert
+        assertTrue(answers.all { it == maria })
+    }
+
+    @Test
+    fun aTokenStopsWorkingAfterTheIdleTimeoutWithoutUse() {
         // Arrange
         val token = sessions.issue(maria)
 
         // Act
-        clock.advance(SessionService.LIFETIME.minusMinutes(1))
+        clock.advance(IDLE.minusMinutes(1))
         val almost = sessions.userIdFor(token)
-        clock.advance(Duration.ofMinutes(1))
+        clock.advance(IDLE.minusMinutes(1))
+        val stillUsed = sessions.userIdFor(token)
+        clock.advance(IDLE)
         val expired = sessions.userIdFor(token)
 
         // Assert
         assertEquals(maria, almost)
+        assertEquals(maria, stillUsed)
         assertNull(expired)
+    }
+
+    @Test
+    fun withoutAnIdleTimeoutTokensNeverExpire() {
+        // Arrange
+        val forever = SessionService(SessionRepository(database), clock, SessionSettings(idleTimeout = null))
+        val token = forever.issue(maria)
+
+        // Act
+        clock.advance(Duration.ofDays(3650))
+        val answer = forever.userIdFor(token)
+
+        // Assert
+        assertEquals(maria, answer)
     }
 
     @Test
