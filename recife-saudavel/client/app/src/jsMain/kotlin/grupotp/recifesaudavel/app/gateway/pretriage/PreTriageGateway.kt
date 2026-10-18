@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.domain.pretriage
+package grupotp.recifesaudavel.app.gateway.pretriage
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.common.pretriage.PreTriage

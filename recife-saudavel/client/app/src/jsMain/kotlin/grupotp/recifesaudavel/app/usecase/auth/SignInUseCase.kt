@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.usecase.auth
 
-import grupotp.recifesaudavel.app.domain.auth.AuthGateway
 import grupotp.recifesaudavel.app.domain.auth.AuthResult
+import grupotp.recifesaudavel.app.gateway.auth.AuthGateway
 import grupotp.recifesaudavel.common.auth.SignInRequest
 
 class SignInUseCase(

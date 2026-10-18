@@ -2,10 +2,10 @@ package grupotp.recifesaudavel.app.usecase.scheduling
 
 import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.scheduling.AppointmentGateway
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentTimeline
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentsSnapshot
-import grupotp.recifesaudavel.app.domain.scheduling.LocalAppointmentGateway
+import grupotp.recifesaudavel.app.gateway.local.LocalAppointmentGateway
+import grupotp.recifesaudavel.app.gateway.scheduling.AppointmentGateway
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 
 /**

@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.usecase.session
 
-import grupotp.recifesaudavel.app.domain.auth.AuthGateway
 import grupotp.recifesaudavel.app.domain.auth.AuthResult
-import grupotp.recifesaudavel.app.domain.session.LocalAccountGateway
+import grupotp.recifesaudavel.app.gateway.auth.AuthGateway
+import grupotp.recifesaudavel.app.gateway.local.LocalAccountGateway
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 
 /**

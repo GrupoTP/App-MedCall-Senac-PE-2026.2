@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.gateway
+package grupotp.recifesaudavel.app.gateway.scheduling
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.scheduling.AppointmentGateway
+import grupotp.recifesaudavel.app.gateway.http.callApi
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.ClinicAvailability

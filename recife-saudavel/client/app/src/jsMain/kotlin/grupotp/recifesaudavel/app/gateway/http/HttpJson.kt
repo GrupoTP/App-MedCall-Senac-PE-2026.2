@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.gateway
+package grupotp.recifesaudavel.app.gateway.http
 
 import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.app.domain.RemoteResult

@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.domain.scheduling
+package grupotp.recifesaudavel.app.gateway.scheduling
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.common.scheduling.Appointment

@@ -2,7 +2,7 @@ package grupotp.recifesaudavel.app.fake
 
 import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.account.AccountGateway
+import grupotp.recifesaudavel.app.gateway.account.AccountGateway
 import grupotp.recifesaudavel.common.account.AccountProfile
 import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest

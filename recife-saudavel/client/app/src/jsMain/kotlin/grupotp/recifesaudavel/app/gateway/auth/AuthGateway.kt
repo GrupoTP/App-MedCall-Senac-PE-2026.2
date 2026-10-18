@@ -1,5 +1,7 @@
-package grupotp.recifesaudavel.app.domain.auth
+package grupotp.recifesaudavel.app.gateway.auth
 
+import grupotp.recifesaudavel.app.domain.auth.AuthError
+import grupotp.recifesaudavel.app.domain.auth.AuthResult
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
 import grupotp.recifesaudavel.common.security.SecretString

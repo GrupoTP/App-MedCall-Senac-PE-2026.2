@@ -1,9 +1,9 @@
 package grupotp.recifesaudavel.app.usecase.account
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.account.AccountGateway
 import grupotp.recifesaudavel.app.domain.account.SavedProfile
-import grupotp.recifesaudavel.app.domain.session.LocalAccountGateway
+import grupotp.recifesaudavel.app.gateway.account.AccountGateway
+import grupotp.recifesaudavel.app.gateway.local.LocalAccountGateway
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 

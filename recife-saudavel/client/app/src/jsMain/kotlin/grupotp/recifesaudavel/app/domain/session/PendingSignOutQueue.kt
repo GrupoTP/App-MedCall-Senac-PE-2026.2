@@ -2,7 +2,8 @@ package grupotp.recifesaudavel.app.domain.session
 
 import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.account.AccountGateway
+import grupotp.recifesaudavel.app.gateway.account.AccountGateway
+import grupotp.recifesaudavel.app.gateway.local.PendingSignOutGateway
 import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock

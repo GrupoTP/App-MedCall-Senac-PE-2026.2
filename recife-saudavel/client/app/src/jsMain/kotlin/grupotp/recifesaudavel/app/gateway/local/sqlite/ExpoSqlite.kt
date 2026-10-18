@@ -1,6 +1,6 @@
 @file:JsModule("expo-sqlite")
 
-package grupotp.recifesaudavel.app.gateway.sqlite
+package grupotp.recifesaudavel.app.gateway.local.sqlite
 
 import js.promise.Promise
 

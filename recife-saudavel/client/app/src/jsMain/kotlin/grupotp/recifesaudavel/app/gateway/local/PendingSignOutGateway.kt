@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.domain.session
+package grupotp.recifesaudavel.app.gateway.local
 
 import grupotp.recifesaudavel.common.security.SecretString
 

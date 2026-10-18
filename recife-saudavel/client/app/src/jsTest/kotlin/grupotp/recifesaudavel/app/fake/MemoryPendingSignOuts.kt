@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.fake
 
-import grupotp.recifesaudavel.app.domain.session.PendingSignOutGateway
+import grupotp.recifesaudavel.app.gateway.local.PendingSignOutGateway
 import grupotp.recifesaudavel.common.security.SecretString
 
 internal class MemoryPendingSignOuts : PendingSignOutGateway {

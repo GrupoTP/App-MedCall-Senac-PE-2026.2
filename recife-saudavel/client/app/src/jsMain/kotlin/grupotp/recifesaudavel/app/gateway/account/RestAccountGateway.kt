@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.gateway
+package grupotp.recifesaudavel.app.gateway.account
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.account.AccountGateway
+import grupotp.recifesaudavel.app.gateway.http.callApi
 import grupotp.recifesaudavel.common.account.AccountProfile
 import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest

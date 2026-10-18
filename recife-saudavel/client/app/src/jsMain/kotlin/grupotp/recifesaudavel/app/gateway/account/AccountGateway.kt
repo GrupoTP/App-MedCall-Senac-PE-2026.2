@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.domain.account
+package grupotp.recifesaudavel.app.gateway.account
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.common.account.AccountProfile

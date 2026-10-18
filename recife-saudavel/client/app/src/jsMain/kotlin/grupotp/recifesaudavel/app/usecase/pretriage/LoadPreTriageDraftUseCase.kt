@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.usecase.pretriage
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.pretriage.PreTriageGateway
+import grupotp.recifesaudavel.app.gateway.pretriage.PreTriageGateway
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 

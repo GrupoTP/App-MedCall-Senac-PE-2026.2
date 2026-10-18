@@ -1,11 +1,7 @@
-package grupotp.recifesaudavel.app.gateway
+package grupotp.recifesaudavel.app.gateway.local
 
-import grupotp.recifesaudavel.app.domain.offline.AppShellGateway
-import grupotp.recifesaudavel.app.domain.scheduling.LocalAppointmentGateway
-import grupotp.recifesaudavel.app.domain.session.LocalAccountGateway
-import grupotp.recifesaudavel.app.domain.session.PendingSignOutGateway
-import grupotp.recifesaudavel.app.gateway.sqlite.SQLiteDatabase
-import grupotp.recifesaudavel.app.gateway.sqlite.openDatabaseAsync
+import grupotp.recifesaudavel.app.gateway.local.sqlite.SQLiteDatabase
+import grupotp.recifesaudavel.app.gateway.local.sqlite.openDatabaseAsync
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.security.SecretString

@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.fake
 
-import grupotp.recifesaudavel.app.domain.session.LocalAccountGateway
+import grupotp.recifesaudavel.app.gateway.local.LocalAccountGateway
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 
 internal class MemoryLocalAccounts(var stored: AuthenticatedAccount? = null) : LocalAccountGateway {

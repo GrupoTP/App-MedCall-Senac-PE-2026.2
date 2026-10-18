@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.gateway
+package grupotp.recifesaudavel.app.gateway.pretriage
 
 import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.pretriage.PreTriageGateway
+import grupotp.recifesaudavel.app.gateway.http.callApi
 import grupotp.recifesaudavel.common.pretriage.PendingPreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm

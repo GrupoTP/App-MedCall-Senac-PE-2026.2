@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.fake
 
 import grupotp.recifesaudavel.app.domain.auth.AuthError
-import grupotp.recifesaudavel.app.domain.auth.AuthGateway
 import grupotp.recifesaudavel.app.domain.auth.AuthResult
+import grupotp.recifesaudavel.app.gateway.auth.AuthGateway
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
 import grupotp.recifesaudavel.common.security.SecretString

@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.usecase.session
 
-import grupotp.recifesaudavel.app.domain.session.LocalAccountGateway
+import grupotp.recifesaudavel.app.gateway.local.LocalAccountGateway
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 
 class RememberSignedInAccountUseCase(
