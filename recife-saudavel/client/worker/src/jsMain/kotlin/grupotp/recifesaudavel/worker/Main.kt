@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.worker
 
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.worker.cache.ShellCache
 import grupotp.recifesaudavel.worker.routing.WorkerRequestRouter
 import grupotp.recifesaudavel.worker.routing.WorkerRoute

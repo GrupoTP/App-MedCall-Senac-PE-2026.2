@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -74,12 +74,12 @@ private class FakeLocalAccountGateway : LocalAccountGateway {
 private object NoRemote : AccountGateway {
     override suspend fun profile(token: String) = error("not used")
 
-    override suspend fun update(token: String, request: grupotp.recifesaudavel.common.UpdateProfileRequest) = error("not used")
+    override suspend fun update(token: String, request: grupotp.recifesaudavel.common.account.UpdateProfileRequest) = error("not used")
 
-    override suspend fun updateConsents(token: String, request: grupotp.recifesaudavel.common.UpdateConsentsRequest) =
+    override suspend fun updateConsents(token: String, request: grupotp.recifesaudavel.common.account.UpdateConsentsRequest) =
         error("not used")
 
-    override suspend fun changePassword(token: String, request: grupotp.recifesaudavel.common.ChangePasswordRequest) =
+    override suspend fun changePassword(token: String, request: grupotp.recifesaudavel.common.account.ChangePasswordRequest) =
         error("not used")
 
     override suspend fun requestDeletion(token: String) = error("not used")

@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 
 /**
  * Local copy of the signed-in registration profile.

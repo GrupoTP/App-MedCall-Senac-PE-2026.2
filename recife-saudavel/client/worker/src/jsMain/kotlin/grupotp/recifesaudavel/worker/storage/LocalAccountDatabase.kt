@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.worker.storage
 
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.scheduling.Appointment
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json
 import kotlin.coroutines.resume

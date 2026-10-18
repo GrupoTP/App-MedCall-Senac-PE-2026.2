@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.server.database
 
-import grupotp.recifesaudavel.common.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.server.repository.NewAppointment
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.Slot

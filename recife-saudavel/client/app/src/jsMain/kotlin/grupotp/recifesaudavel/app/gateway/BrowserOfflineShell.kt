@@ -4,8 +4,8 @@ import grupotp.recifesaudavel.app.usecase.AppShellGateway
 import grupotp.recifesaudavel.app.usecase.LocalAccountGateway
 import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
 import grupotp.recifesaudavel.app.usecase.PendingSignOutGateway
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.scheduling.Appointment
 import js.promise.await
 import js.reflect.unsafeCast
 import kotlinx.coroutines.CompletableDeferred

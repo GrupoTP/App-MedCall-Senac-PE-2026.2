@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.common
+package grupotp.recifesaudavel.common.phone
 
 /**
  * Phone helpers shared by client and server. Phones are stored as digits only (DDD included) and shown with a mask.

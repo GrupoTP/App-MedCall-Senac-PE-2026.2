@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.ui
 
-import grupotp.recifesaudavel.common.AppointmentStatus
+import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import kotlin.js.Date
 
 private val MONTHS = listOf("Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez")

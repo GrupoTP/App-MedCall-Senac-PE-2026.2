@@ -1,12 +1,11 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.AppointmentStatus
-import grupotp.recifesaudavel.common.AvailableDay
-import grupotp.recifesaudavel.common.CreateAppointmentRequest
-import grupotp.recifesaudavel.common.Professional
-import grupotp.recifesaudavel.common.Specialty
-import grupotp.recifesaudavel.common.isCancellableAt
+import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.recifesaudavel.common.scheduling.AvailableDay
+import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
+import grupotp.recifesaudavel.common.scheduling.Professional
+import grupotp.recifesaudavel.common.scheduling.Specialty
 import grupotp.recifesaudavel.server.repository.NewAppointment
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository

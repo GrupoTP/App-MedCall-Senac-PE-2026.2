@@ -2,10 +2,10 @@ package grupotp.recifesaudavel.app.gateway
 
 import grupotp.recifesaudavel.app.usecase.AccountGateway
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
-import grupotp.recifesaudavel.common.AccountProfile
-import grupotp.recifesaudavel.common.ChangePasswordRequest
-import grupotp.recifesaudavel.common.UpdateConsentsRequest
-import grupotp.recifesaudavel.common.UpdateProfileRequest
+import grupotp.recifesaudavel.common.account.AccountProfile
+import grupotp.recifesaudavel.common.account.ChangePasswordRequest
+import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
+import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 

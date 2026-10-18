@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.common.SignInRequest
+import grupotp.recifesaudavel.common.auth.SignInRequest
 
 class SignIn(
     private val authGateway: AuthGateway,

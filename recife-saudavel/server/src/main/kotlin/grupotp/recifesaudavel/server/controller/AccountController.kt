@@ -1,9 +1,9 @@
 package grupotp.recifesaudavel.server.controller
 
-import grupotp.recifesaudavel.common.ApiError
-import grupotp.recifesaudavel.common.ChangePasswordRequest
-import grupotp.recifesaudavel.common.UpdateConsentsRequest
-import grupotp.recifesaudavel.common.UpdateProfileRequest
+import grupotp.recifesaudavel.common.account.ChangePasswordRequest
+import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
+import grupotp.recifesaudavel.common.account.UpdateProfileRequest
+import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.server.service.AccountResult
 import grupotp.recifesaudavel.server.service.AccountService
 import grupotp.recifesaudavel.server.service.SessionService

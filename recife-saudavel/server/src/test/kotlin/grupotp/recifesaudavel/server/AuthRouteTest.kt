@@ -1,9 +1,9 @@
 package grupotp.recifesaudavel.server
 
-import grupotp.recifesaudavel.common.ApiError
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.RegisterAccountRequest
-import grupotp.recifesaudavel.common.SignInRequest
+import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.SignInRequest
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post

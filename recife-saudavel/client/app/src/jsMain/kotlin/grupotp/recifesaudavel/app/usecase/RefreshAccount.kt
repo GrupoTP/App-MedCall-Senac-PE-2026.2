@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 
 /**
  * Catches the profile saved on the device up with the server, so changes made there (or fields

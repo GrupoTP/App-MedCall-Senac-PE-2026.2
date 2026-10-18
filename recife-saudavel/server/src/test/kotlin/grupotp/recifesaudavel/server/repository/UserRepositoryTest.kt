@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.server.repository
 
-import grupotp.recifesaudavel.common.RegisterAccountRequest
-import grupotp.recifesaudavel.common.UpdateProfileRequest
+import grupotp.recifesaudavel.common.account.UpdateProfileRequest
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.UsersTable

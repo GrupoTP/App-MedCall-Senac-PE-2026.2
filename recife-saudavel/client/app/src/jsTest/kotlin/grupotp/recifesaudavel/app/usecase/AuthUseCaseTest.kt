@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.RegisterAccountRequest
-import grupotp.recifesaudavel.common.SignInRequest
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.SignInRequest
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

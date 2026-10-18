@@ -1,8 +1,9 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.CreateAppointmentRequest
-import grupotp.recifesaudavel.common.PreTriageForm
-import grupotp.recifesaudavel.common.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.pretriage.PreTriageForm
+import grupotp.recifesaudavel.common.pretriage.SymptomsStart
+import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.server.database.AppointmentsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
@@ -15,8 +16,11 @@ import grupotp.recifesaudavel.server.database.UsersTable
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
+import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.insert
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Clock
@@ -29,6 +33,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
 class PreTriageServiceTest {
     private val recife = ZoneId.of("America/Recife")
@@ -104,6 +109,42 @@ class PreTriageServiceTest {
         assertEquals("Vitamina D", draft.supplements)
         assertEquals("", draft.reason)
         assertEquals("", draft.intensity)
+    }
+
+    @Test
+    fun symptomsStartIsStoredAsItsCode() {
+        // Arrange
+        val sent = assertIs<PreTriageResult.Created>(service.submit(maria, form().copy(symptomsStart = SymptomsStart.TwoWeeks)))
+
+        // Act
+        val stored = transaction(database) {
+            PreTriagesTable.selectAll().where { PreTriagesTable.id eq sent.preTriage.id }.single()[PreTriagesTable.form]
+        }
+        val pending = service.pending(maria).preTriage!!
+
+        // Assert
+        assertTrue("\"symptomsStart\":\"two_weeks\"" in stored)
+        assertEquals(SymptomsStart.TwoWeeks, pending.form.symptomsStart)
+    }
+
+    @Test
+    fun anOldFreeTextSymptomsStartReadsAsUnanswered() {
+        // Arrange: stored before SymptomsStart existed, with the option's text.
+        transaction(database) {
+            PreTriagesTable.insert {
+                it[id] = UUID.randomUUID().toString()
+                it[patientId] = maria
+                it[form] = """{"fullName":"Maria","reason":"Dor","symptomsStart":"Há 2 semanas"}"""
+                it[createdAt] = 0
+            }
+        }
+
+        // Act
+        val pending = service.pending(maria).preTriage!!
+
+        // Assert
+        assertEquals("Dor", pending.form.reason)
+        assertNull(pending.form.symptomsStart)
     }
 
     @Test

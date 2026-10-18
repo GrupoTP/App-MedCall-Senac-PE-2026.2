@@ -1,10 +1,10 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.AppointmentStatus
-import grupotp.recifesaudavel.common.PendingPreTriage
-import grupotp.recifesaudavel.common.Phone
-import grupotp.recifesaudavel.common.PreTriage
-import grupotp.recifesaudavel.common.PreTriageForm
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.pretriage.PendingPreTriage
+import grupotp.recifesaudavel.common.pretriage.PreTriage
+import grupotp.recifesaudavel.common.pretriage.PreTriageForm
+import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
@@ -95,7 +95,7 @@ class PreTriageService(
             form.regularMedications, form.continuousMedications, form.supplements, form.otherMedications,
             form.medicationNotes,
         )
-        val shortTexts = listOf(form.fullName, form.socialName, form.emergencyContactName, form.symptomsStart)
+        val shortTexts = listOf(form.fullName, form.socialName, form.emergencyContactName)
         val phones = listOf(form.primaryPhone, form.secondaryPhone, form.emergencyContactPhone).map(Phone::digits)
         return when {
             form.fullName.isBlank() -> "Nome completo é obrigatório."
@@ -128,7 +128,6 @@ class PreTriageService(
         emergencyContactPhone = Phone.digits(emergencyContactPhone),
         reason = reason.trim(),
         currentSymptoms = currentSymptoms.trim(),
-        symptomsStart = symptomsStart.trim(),
         symptomsPattern = symptomsPattern.trim(),
         intensity = intensity.trim(),
         complaintNotes = complaintNotes.trim(),

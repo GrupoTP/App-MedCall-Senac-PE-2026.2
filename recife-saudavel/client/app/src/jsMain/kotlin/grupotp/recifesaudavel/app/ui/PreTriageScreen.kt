@@ -8,10 +8,10 @@ import grupotp.recifesaudavel.app.usecase.brazilianDateToIso
 import grupotp.recifesaudavel.app.usecase.isoDateToBrazilian
 import grupotp.recifesaudavel.app.usecase.maskBrazilianDate
 import grupotp.recifesaudavel.app.usecase.toPreTriageMessage
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.PreTriage
-import grupotp.recifesaudavel.common.PreTriageForm
-import grupotp.recifesaudavel.common.SYMPTOMS_START_OPTIONS
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.pretriage.PreTriage
+import grupotp.recifesaudavel.common.pretriage.PreTriageForm
+import grupotp.recifesaudavel.common.pretriage.SymptomsStart
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
@@ -224,10 +224,10 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
                             View {
                                 style = Styles.chipWrap
                                 accessibilityRole = "radiogroup"
-                                SYMPTOMS_START_OPTIONS.forEach { option ->
-                                    choiceChip(option, selected = option == current.symptomsStart) {
+                                SymptomsStart.entries.forEach { option ->
+                                    choiceChip(option.label, selected = option == current.symptomsStart) {
                                         update("symptomsStart") {
-                                            copy(symptomsStart = if (symptomsStart == option) "" else option)
+                                            copy(symptomsStart = if (symptomsStart == option) null else option)
                                         }
                                     }
                                 }

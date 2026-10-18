@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.AppointmentStatus
-import grupotp.recifesaudavel.common.CreateAppointmentRequest
-import grupotp.recifesaudavel.common.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.server.database.AppointmentsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings

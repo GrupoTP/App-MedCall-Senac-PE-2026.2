@@ -1,9 +1,9 @@
 package grupotp.recifesaudavel.server.repository
 
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.AppointmentStatus
-import grupotp.recifesaudavel.common.Professional
-import grupotp.recifesaudavel.common.Specialty
+import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.recifesaudavel.common.scheduling.Professional
+import grupotp.recifesaudavel.common.scheduling.Specialty
 import grupotp.recifesaudavel.server.database.AppointmentsTable
 import grupotp.recifesaudavel.server.database.PreTriagesTable
 import grupotp.recifesaudavel.server.database.ProfessionalsTable

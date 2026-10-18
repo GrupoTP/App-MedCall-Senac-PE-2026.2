@@ -1,13 +1,13 @@
 package grupotp.recifesaudavel.server
 
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.AppointmentStatus
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.AvailableDay
-import grupotp.recifesaudavel.common.CreateAppointmentRequest
-import grupotp.recifesaudavel.common.Professional
-import grupotp.recifesaudavel.common.RegisterAccountRequest
-import grupotp.recifesaudavel.common.Specialty
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.recifesaudavel.common.scheduling.AvailableDay
+import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
+import grupotp.recifesaudavel.common.scheduling.Professional
+import grupotp.recifesaudavel.common.scheduling.Specialty
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get

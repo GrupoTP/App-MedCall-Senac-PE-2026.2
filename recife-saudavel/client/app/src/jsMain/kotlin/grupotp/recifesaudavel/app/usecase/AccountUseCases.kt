@@ -1,10 +1,10 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.common.AccountProfile
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.ChangePasswordRequest
-import grupotp.recifesaudavel.common.UpdateConsentsRequest
-import grupotp.recifesaudavel.common.UpdateProfileRequest
+import grupotp.recifesaudavel.common.account.AccountProfile
+import grupotp.recifesaudavel.common.account.ChangePasswordRequest
+import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
+import grupotp.recifesaudavel.common.account.UpdateProfileRequest
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 
 /**
  * Settings API of the server. Every call needs the session token and the network.

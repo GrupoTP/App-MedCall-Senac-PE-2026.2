@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.server.controller
 
-import grupotp.recifesaudavel.common.ApiError
-import grupotp.recifesaudavel.common.PreTriageForm
+import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.server.service.PreTriageResult
 import grupotp.recifesaudavel.server.service.PreTriageService
 import grupotp.recifesaudavel.server.service.SessionService

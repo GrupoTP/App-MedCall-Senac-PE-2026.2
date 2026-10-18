@@ -4,8 +4,8 @@ import grupotp.recifesaudavel.app.usecase.AuthResult
 import grupotp.recifesaudavel.app.usecase.RequestPasswordRecovery
 import grupotp.recifesaudavel.app.usecase.SignIn
 import grupotp.recifesaudavel.app.usecase.toMessage
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.SignInRequest
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.SignInRequest
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.ScrollView

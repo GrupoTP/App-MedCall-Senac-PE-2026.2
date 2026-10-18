@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.common.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 
 class RegisterAccount(
     private val authGateway: AuthGateway,

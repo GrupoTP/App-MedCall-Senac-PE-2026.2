@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.server.controller
 
-import grupotp.recifesaudavel.common.ApiError
-import grupotp.recifesaudavel.common.CreateAppointmentRequest
+import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.server.service.BookingResult
 import grupotp.recifesaudavel.server.service.CancelResult
 import grupotp.recifesaudavel.server.service.SchedulingService

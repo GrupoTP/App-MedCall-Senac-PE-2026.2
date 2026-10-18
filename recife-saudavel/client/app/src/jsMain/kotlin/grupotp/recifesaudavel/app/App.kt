@@ -3,8 +3,8 @@ package grupotp.recifesaudavel.app
 import grupotp.recifesaudavel.app.ui.AppointmentsScreen
 import grupotp.recifesaudavel.app.ui.FloatingMenu
 import grupotp.recifesaudavel.app.ui.HomeScreen
-import grupotp.recifesaudavel.app.ui.MenuDestination
 import grupotp.recifesaudavel.app.ui.LoginScreen
+import grupotp.recifesaudavel.app.ui.MenuDestination
 import grupotp.recifesaudavel.app.ui.Palette
 import grupotp.recifesaudavel.app.ui.PreTriageScreen
 import grupotp.recifesaudavel.app.ui.PreTriageSuccessScreen
@@ -40,8 +40,8 @@ import grupotp.recifesaudavel.app.usecase.SignIn
 import grupotp.recifesaudavel.app.usecase.SignOut
 import grupotp.recifesaudavel.app.usecase.SubmitPreTriage
 import grupotp.recifesaudavel.app.usecase.UpdateNotificationConsent
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.scheduling.Appointment
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.StatusBar

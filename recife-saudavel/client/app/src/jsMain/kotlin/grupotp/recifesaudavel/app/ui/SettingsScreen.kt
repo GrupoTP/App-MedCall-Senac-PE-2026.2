@@ -8,10 +8,10 @@ import grupotp.recifesaudavel.app.usecase.SaveAccountProfile
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
 import grupotp.recifesaudavel.app.usecase.UpdateNotificationConsent
-import grupotp.recifesaudavel.common.AccountProfile
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.Phone
-import grupotp.recifesaudavel.common.UpdateProfileRequest
+import grupotp.recifesaudavel.common.account.AccountProfile
+import grupotp.recifesaudavel.common.account.UpdateProfileRequest
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.phone.Phone
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.ScrollView

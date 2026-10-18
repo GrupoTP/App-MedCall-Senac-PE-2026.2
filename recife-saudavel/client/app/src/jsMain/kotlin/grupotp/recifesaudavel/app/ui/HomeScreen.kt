@@ -5,8 +5,8 @@ import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.toMessage
 import grupotp.recifesaudavel.app.usecase.upcomingAppointments
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.scheduling.Appointment
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.json
 import ojaynico.kotlin.react.native.component.Pressable

@@ -2,7 +2,7 @@ package grupotp.recifesaudavel.app.gateway
 
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
-import grupotp.recifesaudavel.common.ApiError
+import grupotp.recifesaudavel.common.api.ApiError
 import js.reflect.unsafeCast
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json

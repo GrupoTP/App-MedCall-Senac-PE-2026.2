@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.common.RegisterAccountRequest
-import grupotp.recifesaudavel.common.SignInRequest
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.SignInRequest
 
 /**
  * Boundary the authentication use cases call.

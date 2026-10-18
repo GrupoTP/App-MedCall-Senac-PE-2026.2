@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.SessionsTable

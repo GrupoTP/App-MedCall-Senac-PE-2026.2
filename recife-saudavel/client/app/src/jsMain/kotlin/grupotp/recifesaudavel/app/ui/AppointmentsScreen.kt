@@ -2,14 +2,13 @@ package grupotp.recifesaudavel.app.ui
 
 import grupotp.recifesaudavel.app.usecase.AppointmentsSnapshot
 import grupotp.recifesaudavel.app.usecase.CancelAppointment
+import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
 import grupotp.recifesaudavel.app.usecase.toCancellationMessage
-import grupotp.recifesaudavel.app.usecase.ListAppointments
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.AppointmentStatus
-import grupotp.recifesaudavel.common.isCancellableAt
-import grupotp.recifesaudavel.common.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.ScrollView

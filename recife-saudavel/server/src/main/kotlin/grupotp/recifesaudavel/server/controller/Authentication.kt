@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.server.controller
 
-import grupotp.recifesaudavel.common.ApiError
+import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.server.service.SessionService
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode

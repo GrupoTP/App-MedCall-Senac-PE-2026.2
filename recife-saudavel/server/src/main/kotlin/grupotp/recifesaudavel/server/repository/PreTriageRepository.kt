@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.server.repository
 
-import grupotp.recifesaudavel.common.PreTriage
-import grupotp.recifesaudavel.common.PreTriageForm
+import grupotp.recifesaudavel.common.pretriage.PreTriage
+import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.server.database.PreTriagesTable
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -17,7 +17,12 @@ import kotlinx.serialization.json.Json
 class PreTriageRepository(
     private val database: Database,
 ) {
-    private val json = Json { ignoreUnknownKeys = true }
+    // coerceInputValues: an answer this version no longer knows, such as the free text
+    // pre-triages stored before SymptomsStart, reads as unanswered instead of failing the whole list.
+    private val json = Json {
+        ignoreUnknownKeys = true
+        coerceInputValues = true
+    }
 
     fun insert(id: String, patientId: String, form: PreTriageForm, createdAt: Long): PreTriage = transaction(database) {
         PreTriagesTable.insert {

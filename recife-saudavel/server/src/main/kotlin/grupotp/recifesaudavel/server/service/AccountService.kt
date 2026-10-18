@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.AccountProfile
-import grupotp.recifesaudavel.common.ChangePasswordRequest
-import grupotp.recifesaudavel.common.UpdateProfileRequest
+import grupotp.recifesaudavel.common.account.AccountProfile
+import grupotp.recifesaudavel.common.account.ChangePasswordRequest
+import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
 import java.time.Clock

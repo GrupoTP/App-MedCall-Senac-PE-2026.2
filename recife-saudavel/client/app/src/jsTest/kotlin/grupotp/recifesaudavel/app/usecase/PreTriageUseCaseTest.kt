@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.usecase
 
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.PreTriage
-import grupotp.recifesaudavel.common.PreTriageForm
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.pretriage.PreTriage
+import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

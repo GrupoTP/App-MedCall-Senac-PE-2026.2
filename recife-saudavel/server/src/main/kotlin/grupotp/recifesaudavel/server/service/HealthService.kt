@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.HealthStatus
+import grupotp.recifesaudavel.common.health.HealthStatus
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.sql.Connection

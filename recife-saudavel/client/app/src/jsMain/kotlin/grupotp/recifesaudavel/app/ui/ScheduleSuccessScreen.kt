@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.ui
 
-import grupotp.recifesaudavel.common.Appointment
-import grupotp.recifesaudavel.common.Phone
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.scheduling.Appointment
 import ojaynico.kotlin.react.json
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text

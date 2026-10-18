@@ -3,10 +3,10 @@ package grupotp.recifesaudavel.app.gateway
 import grupotp.recifesaudavel.app.usecase.AuthError
 import grupotp.recifesaudavel.app.usecase.AuthGateway
 import grupotp.recifesaudavel.app.usecase.AuthResult
-import grupotp.recifesaudavel.common.ApiError
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.RegisterAccountRequest
-import grupotp.recifesaudavel.common.SignInRequest
+import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.SignInRequest
 import kotlinx.serialization.json.Json
 
 class RestAuthGateway(

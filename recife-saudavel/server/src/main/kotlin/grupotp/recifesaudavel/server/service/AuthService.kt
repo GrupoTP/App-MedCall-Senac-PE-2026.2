@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.AuthenticatedAccount
-import grupotp.recifesaudavel.common.RegisterAccountRequest
-import grupotp.recifesaudavel.common.SignInRequest
+import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.auth.SignInRequest
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
 import java.time.Clock

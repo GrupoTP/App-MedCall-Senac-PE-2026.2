@@ -2,9 +2,9 @@ package grupotp.recifesaudavel.app.gateway
 
 import grupotp.recifesaudavel.app.usecase.PreTriageGateway
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
-import grupotp.recifesaudavel.common.PendingPreTriage
-import grupotp.recifesaudavel.common.PreTriage
-import grupotp.recifesaudavel.common.PreTriageForm
+import grupotp.recifesaudavel.common.pretriage.PendingPreTriage
+import grupotp.recifesaudavel.common.pretriage.PreTriage
+import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import kotlinx.serialization.json.Json
 
 class RestPreTriageGateway(
