@@ -7,6 +7,7 @@ import grupotp.recifesaudavel.common.pretriage.SymptomsStart
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.AppointmentsTable
+import grupotp.recifesaudavel.server.database.ClinicsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.PreTriagesTable
@@ -65,7 +66,7 @@ class PreTriageServiceTest {
             ),
         )
         transaction(database) {
-            SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
+            SchemaUtils.create(UsersTable, SessionsTable, ClinicsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
         }
         val appointments = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
         val preTriages = PreTriageRepository(database)

@@ -1,11 +1,11 @@
 package grupotp.recifesaudavel.app.ui
 
-import grupotp.recifesaudavel.app.platform.clinicNow
 import grupotp.recifesaudavel.app.usecase.AppointmentsSnapshot
 import grupotp.recifesaudavel.app.usecase.CancelAppointment
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
+import grupotp.recifesaudavel.app.usecase.isCancellableAt
 import grupotp.recifesaudavel.app.usecase.toCancellationMessage
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.scheduling.Appointment
@@ -21,6 +21,7 @@ import react.Key
 import react.Props
 import react.useEffectOnce
 import react.useState
+import kotlin.time.Clock
 
 internal external interface AppointmentsScreenProps : Props {
     var account: AuthenticatedAccount
@@ -150,7 +151,8 @@ private fun ChildrenBuilder.appointmentCard(
         )
         accessible = true
         accessibilityLabel = "${appointment.specialtyName} com ${appointment.professionalName}, " +
-            "${formatSpokenDate(appointment.date)} às ${formatTime(appointment.time)}, ${appointment.status.label()}"
+            "${formatSpokenDate(appointment.date)} às ${formatClinicTime(appointment.date, appointment.time, appointment.clinic)}, " +
+            "${appointment.clinic.name}, ${appointment.status.label()}"
         View {
             style = Styles.appointmentTop
             View {
@@ -181,9 +183,13 @@ private fun ChildrenBuilder.appointmentCard(
                 emoji("🕐", Styles.emojiMeta)
                 Text {
                     style = Styles.appointmentMetaText
-                    +formatTime(appointment.time)
+                    +formatClinicTime(appointment.date, appointment.time, appointment.clinic)
                 }
             }
+        }
+        Text {
+            style = Styles.appointmentMetaText
+            +"${appointment.clinic.name} · ${appointment.clinic.city}"
         }
         if (appointment.reason.isNotBlank()) {
             Text {
@@ -197,7 +203,7 @@ private fun ChildrenBuilder.appointmentCard(
                 +"Pré-triagem vinculada"
             }
         }
-        if (appointment.isCancellableAt(clinicNow())) {
+        if (appointment.isCancellableAt(Clock.System.now())) {
             if (confirming) {
                 Text {
                     style = Styles.appointmentMetaText

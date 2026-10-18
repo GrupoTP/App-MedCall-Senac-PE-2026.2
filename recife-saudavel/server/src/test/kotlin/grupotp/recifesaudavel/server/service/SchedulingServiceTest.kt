@@ -6,6 +6,7 @@ import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.AppointmentsTable
+import grupotp.recifesaudavel.server.database.ClinicsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.PreTriagesTable
@@ -44,6 +45,7 @@ class SchedulingServiceTest {
     private val clock = Clock.fixed(ZonedDateTime.of(2026, 10, 12, 10, 10, 0, 0, recife).toInstant(), recife)
     private val cardiology = SchedulingCatalog.specialtyId("Cardiologia")
     private val lucia = SchedulingCatalog.professionalId("Cardiologia", "Dra. Lúcia Oliveira")
+    private val psychiatry = SchedulingCatalog.specialtyId("Psiquiatria")
     private val antonio = SchedulingCatalog.professionalId("Cardiologia", "Dr. Antônio Ferreira")
 
     private lateinit var database: Database
@@ -62,7 +64,7 @@ class SchedulingServiceTest {
             ),
         )
         transaction(database) {
-            SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
+            SchemaUtils.create(UsersTable, SessionsTable, ClinicsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
         }
         val repository = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
         service = SchedulingService(repository, clock, PreTriageRepository(database))
@@ -79,7 +81,7 @@ class SchedulingServiceTest {
     @Test
     fun availabilityOffersWeekdaysOnlyAndSkipsPastTimesOfToday() {
         // Act
-        val days = service.availability(cardiology, professionalId = null)!!
+        val days = service.availability(cardiology, professionalId = null)!!.single().days
 
         // Assert
         val today = days.first()
@@ -97,8 +99,8 @@ class SchedulingServiceTest {
 
         // Act
         val result = service.book(maria, request)
-        val days = service.availability(cardiology, lucia)!!
-        val anyProfessional = service.availability(cardiology, professionalId = null)!!
+        val days = service.availability(cardiology, lucia)!!.single().days
+        val anyProfessional = service.availability(cardiology, professionalId = null)!!.single().days
 
         // Assert
         val created = assertIs<BookingResult.Created>(result).appointment
@@ -136,7 +138,7 @@ class SchedulingServiceTest {
         // Assert
         assertIs<BookingResult.Created>(result)
         assertEquals(AppointmentStatus.Cancelled, service.appointmentsOf(maria).single().status)
-        assertFalse(LocalTime.parse("11:00") in service.availability(cardiology, lucia)!!.first { it.date == LocalDate(2026, 10, 13) }.times)
+        assertFalse(LocalTime.parse("11:00") in service.availability(cardiology, lucia)!!.single().days.first { it.date == LocalDate(2026, 10, 13) }.times)
     }
 
     @Test
@@ -194,11 +196,40 @@ class SchedulingServiceTest {
 
         // Act
         val result = service.book(ana, request(professionalId = null, time = "15:00"))
-        val days = service.availability(cardiology, professionalId = null)!!
+        val days = service.availability(cardiology, professionalId = null)!!.single().days
 
         // Assert
         assertEquals("Dra. Lúcia Oliveira", assertIs<BookingResult.Created>(result).appointment.professionalName)
         assertFalse(LocalTime.parse("15:00") in days.first { it.date == LocalDate(2026, 10, 13) }.times)
+    }
+
+    @Test
+    fun eachClinicOffersTimesInItsOwnTimeZone() {
+        // Act: 10:10 in Recife is 09:10 in Manaus, one hour behind.
+        val byClinic = service.availability(psychiatry, professionalId = null)!!.associateBy { it.clinic.city }
+
+        // Assert
+        assertEquals(setOf("Recife", "Manaus"), byClinic.keys)
+        assertEquals(LocalTime(10, 30), byClinic.getValue("Recife").days.first().times.first())
+        assertEquals(LocalTime(9, 30), byClinic.getValue("Manaus").days.first().times.first())
+        assertEquals("America/Manaus", byClinic.getValue("Manaus").clinic.timeZoneId)
+    }
+
+    @Test
+    fun anyProfessionalNeedsTheClinicWhenTheSpecialtySpansZones() {
+        // Arrange
+        val manaus = SchedulingCatalog.clinicId(SchedulingCatalog.manaus)
+        val base = request(professionalId = null, date = "2026-10-12", time = "09:30").copy(specialtyId = psychiatry)
+
+        // Act
+        val withoutClinic = service.book(maria, base)
+        val inManaus = service.book(maria, base.copy(clinicId = manaus))
+
+        // Assert: 09:30 is past in Recife (10:10) but still ahead in Manaus (09:10).
+        assertIs<BookingResult.Rejected>(withoutClinic)
+        val created = assertIs<BookingResult.Created>(inManaus).appointment
+        assertEquals("Dr. Alexandre Nunes", created.professionalName)
+        assertEquals("Manaus", created.clinic.city)
     }
 
     @Test

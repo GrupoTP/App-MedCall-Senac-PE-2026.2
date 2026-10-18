@@ -10,7 +10,7 @@ import grupotp.recifesaudavel.app.usecase.SchedulingResult
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.common.scheduling.AvailableDay
+import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
@@ -48,7 +48,8 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     var specialtyId by useState<String?>(null)
     var professionalId by useState<String?>(null)
     var reason by useState("")
-    var days by useState<List<AvailableDay>?>(null)
+    var availability by useState<List<ClinicAvailability>?>(null)
+    var clinicId by useState<String?>(null)
     var date by useState<LocalDate?>(null)
     var time by useState<LocalTime?>(null)
     var notes by useState("")
@@ -77,6 +78,9 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     val loaded = options
     val specialty = loaded?.specialties?.firstOrNull { it.id == specialtyId }
     val professional = loaded?.professionals?.firstOrNull { it.id == professionalId }
+    val clinicChoice = availability?.firstOrNull { it.clinic.id == clinicId }
+    val clinic = clinicChoice?.clinic
+    val days = clinicChoice?.days
 
     /** Asks the server for open times, then shows step 1. Keeps the choice if it is still open. */
     fun openDateStep() {
@@ -89,10 +93,14 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
             when (result) {
                 is SchedulingResult.Success -> {
                     val fresh = result.value
-                    days = fresh
-                    val freshDay = fresh.firstOrNull { it.date == date }
+                    availability = fresh
+                    // One clinic needs no choice; with several, a choice still offered is kept.
+                    val freshClinic = fresh.singleOrNull() ?: fresh.firstOrNull { it.clinic.id == clinicId }
+                    clinicId = freshClinic?.clinic?.id
+                    val freshDays = freshClinic?.days.orEmpty()
+                    val freshDay = freshDays.firstOrNull { it.date == date }
                     if (freshDay == null) {
-                        date = fresh.firstOrNull()?.date
+                        date = freshDays.firstOrNull()?.date
                         time = null
                     } else if (time !in freshDay.times) {
                         time = null
@@ -119,6 +127,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                 CreateAppointmentRequest(
                     specialtyId = chosenSpecialty,
                     professionalId = professionalId,
+                    clinicId = clinicId,
                     date = chosenDate,
                     time = chosenTime,
                     reason = reason.trim(),
@@ -143,6 +152,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
             }
             1 -> {
                 val errors = buildMap {
+                    if (clinicId == null) put("clinic", "Selecione a clínica.")
                     if (date == null) put("date", "Selecione uma data.")
                     if (time == null) put("time", "Selecione um horário.")
                 }
@@ -214,7 +224,8 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                         if (item.id != specialtyId) {
                                             specialtyId = item.id
                                             professionalId = null
-                                            days = null
+                                            availability = null
+                                            clinicId = null
                                             date = null
                                             time = null
                                         }
@@ -232,8 +243,12 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                     choiceChip("Qualquer profissional disponível", selected = professionalId == null) {
                                         professionalId = null
                                     }
-                                    loaded.professionalsOf(specialty.id).forEach { item ->
-                                        choiceChip(item.name, selected = item.id == professionalId) {
+                                    val offered = loaded.professionalsOf(specialty.id)
+                                    // A specialty offered in several clinics names the city of each professional.
+                                    val severalClinics = offered.map { it.clinic.id }.distinct().size > 1
+                                    offered.forEach { item ->
+                                        val label = if (severalClinics) "${item.name} (${item.clinic.city})" else item.name
+                                        choiceChip(label, selected = item.id == professionalId) {
                                             professionalId = item.id
                                         }
                                     }
@@ -258,8 +273,40 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                         style = Styles.card
                         sectionTitle("Data e Horário")
                         infoAlert("Horários disponíveis são validados pelo servidor no momento da confirmação.")
+                        val clinics = availability.orEmpty()
+                        if (clinics.size > 1) {
+                            formField(caption = "Clínica", required = true) {
+                                View {
+                                    style = Styles.chipWrap
+                                    accessibilityRole = "radiogroup"
+                                    clinics.forEach { option ->
+                                        choiceChip(
+                                            "${option.clinic.name} · ${option.clinic.city}",
+                                            selected = option.clinic.id == clinicId,
+                                        ) {
+                                            if (option.clinic.id != clinicId) {
+                                                clinicId = option.clinic.id
+                                                date = option.days.firstOrNull()?.date
+                                                time = null
+                                            }
+                                            fieldErrors = fieldErrors - "clinic"
+                                        }
+                                    }
+                                }
+                                fieldError(fieldErrors["clinic"])
+                            }
+                        }
                         val openDays = days.orEmpty()
-                        if (openDays.isEmpty()) {
+                        val note = clinic?.let { clinicZoneNote(it, date ?: openDays.firstOrNull()?.date ?: return@let null) }
+                        if (note != null) {
+                            infoAlert(note)
+                        }
+                        if (clinic == null && clinics.size > 1) {
+                            Text {
+                                style = Styles.fieldHint
+                                +"Escolha a clínica para ver as datas e os horários."
+                            }
+                        } else if (openDays.isEmpty()) {
                             warnAlert(
                                 "Não há horários livres nos próximos 14 dias para esta escolha. " +
                                     "Volte e escolha outro profissional ou especialidade.",
@@ -316,8 +363,12 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                 val phone = props.account.phone
                                 summaryRow("Especialidade", specialty?.name.orEmpty())
                                 summaryRow("Profissional", professional?.name ?: "Qualquer disponível")
+                                summaryRow("Clínica", clinic?.let { "${it.name} · ${it.city}" }.orEmpty())
                                 summaryRow("Data", date?.let(::formatDate).orEmpty())
-                                summaryRow("Horário", time?.let(::formatTime).orEmpty())
+                                summaryRow(
+                                    "Horário",
+                                    if (date != null && time != null && clinic != null) formatClinicTime(date!!, time!!, clinic) else "",
+                                )
                                 preTriage?.let { pending ->
                                     summaryRow(
                                         "Pré-triagem",
@@ -369,7 +420,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                         step < 2 -> "Próximo →"
                         else -> "Confirmar agendamento ✓"
                     }
-                    val canContinue = !busy && !(step == 1 && days.isNullOrEmpty())
+                    val canContinue = !busy && !(step == 1 && availability.orEmpty().all { it.days.isEmpty() })
                     primaryButton(action, enabled = canContinue, grow = true, onPress = ::next)
                 }
             }

@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.server.database
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.recifesaudavel.server.database.ClinicsTable
 import grupotp.recifesaudavel.server.repository.NewAppointment
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.Slot
@@ -44,7 +45,7 @@ class SchemaMigrationsTest {
             ),
         )
         transaction(database) {
-            SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, LegacyAppointmentsTable)
+            SchemaUtils.create(UsersTable, SessionsTable, ClinicsTable, SpecialtiesTable, ProfessionalsTable, LegacyAppointmentsTable)
         }
         repository = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
         patient = UserRepository(database).insert(UUID.randomUUID().toString(), registration(), "hash")!!.id

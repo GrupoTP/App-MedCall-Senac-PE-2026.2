@@ -6,7 +6,9 @@ Na web, o `sw.js` inicia o bundle Kotlin do worker, que guarda a interface em ca
 
 ## Agendamento e modo offline
 
-O botão Agendar abre o fluxo do protótipo em três etapas (especialidade e profissional, data e horário, confirmação). Especialidades, profissionais e horários livres vêm sempre do servidor, que confere tudo de novo ao confirmar; um índice único por profissional, data e horário impede que a mesma vaga seja marcada duas vezes. Os horários são os dias úteis dos próximos 14 dias, no fuso de Recife.
+O botão Agendar abre o fluxo do protótipo em três etapas (especialidade e profissional, data e horário, confirmação). Especialidades, profissionais e horários livres vêm sempre do servidor, que confere tudo de novo ao confirmar; um índice único por profissional, data e horário impede que a mesma vaga seja marcada duas vezes. Os horários são os dias úteis dos próximos 14 dias.
+
+Cada profissional atende numa clínica, e cada clínica tem o seu fuso (IANA, como `America/Manaus`): datas e horários das consultas são o relógio da clínica, nunca o do servidor ou do aparelho. Quando o aparelho está em outro fuso, o app mostra o horário da clínica com o equivalente no horário do paciente (`09:00 em Manaus · 10:00 no seu horário`). Se a especialidade escolhida é oferecida em clínicas de fusos diferentes, o paciente escolhe a clínica antes do horário. O catálogo de exemplo põe Psiquiatria em Recife e em Manaus para exercitar isso.
 
 O agendamento só funciona com internet. Sem conexão, o cartão Agendar aparece como indisponível e o fluxo nunca confirma uma consulta que o servidor não gravou. As consultas já marcadas continuam visíveis offline, na tela inicial e em Minhas consultas: cada lista recebida do servidor substitui a cópia guardada no aparelho, que só guarda as consultas da última conta conectada.
 

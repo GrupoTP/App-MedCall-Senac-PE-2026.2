@@ -51,9 +51,10 @@ internal val ScheduleSuccessScreen = FC<ScheduleSuccessScreenProps> { props ->
                         summaryRow("Paciente", appointment.patientName, loose = true)
                         summaryRow("Especialidade", appointment.specialtyName, loose = true)
                         summaryRow("Profissional", appointment.professionalName, loose = true)
+                        summaryRow("Clínica", "${appointment.clinic.name} · ${appointment.clinic.city}", loose = true)
                         summaryRow(
                             "Data e hora",
-                            "${formatDate(appointment.date)} às ${formatTime(appointment.time)}",
+                            "${formatDate(appointment.date)} às ${formatClinicTime(appointment.date, appointment.time, appointment.clinic)}",
                             last = true,
                             loose = true,
                         )

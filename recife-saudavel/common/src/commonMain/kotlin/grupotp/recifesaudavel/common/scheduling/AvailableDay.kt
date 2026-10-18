@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 /**
  * Free times of one day, as offered by the server.
  *
- * @property date clinic date, see [ClinicTime].
+ * @property date clinic date, see [Clinic.timeZoneId].
  * @property times clinic wall-clock times, in ascending order.
  */
 @Serializable

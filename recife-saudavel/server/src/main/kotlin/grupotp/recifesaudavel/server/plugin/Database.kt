@@ -1,9 +1,9 @@
 package grupotp.recifesaudavel.server.plugin
 
-import grupotp.recifesaudavel.common.scheduling.ClinicTime
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.AppointmentsTable
+import grupotp.recifesaudavel.server.database.ClinicsTable
 import grupotp.recifesaudavel.server.database.PreTriagesTable
 import grupotp.recifesaudavel.server.database.ProfessionalsTable
 import grupotp.recifesaudavel.server.database.SchemaMigrations
@@ -31,10 +31,7 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import org.koin.ktor.ext.getKoin
 import java.time.Clock
-import java.time.ZoneId
 
-/** Clinics work in Recife time, whatever the server's own time zone. */
-private val CLINIC_ZONE: ZoneId = ZoneId.of(ClinicTime.ZONE_ID)
 
 fun Application.configureDatabase() {
     val settings = DatabaseSettings.from(environment.config)
@@ -45,7 +42,8 @@ fun Application.configureDatabase() {
                 single { SessionSettings.from(environment.config) }
                 single { DatabaseConnector().connect(get()) }
                 singleOf(::PasswordHasher)
-                single { Clock.system(CLINIC_ZONE) }
+                // UTC: each clinic has its own zone, and the services convert to it where it matters.
+                single { Clock.systemUTC() }
                 singleOf(::UserRepository)
                 singleOf(::SessionRepository)
                 singleOf(::SchedulingRepository)
@@ -63,6 +61,7 @@ fun Application.configureDatabase() {
         SchemaUtils.create(
             UsersTable,
             SessionsTable,
+            ClinicsTable,
             SpecialtiesTable,
             ProfessionalsTable,
             AppointmentsTable,

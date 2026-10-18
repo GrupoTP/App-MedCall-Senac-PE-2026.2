@@ -4,16 +4,18 @@ import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
-import grupotp.recifesaudavel.common.scheduling.AvailableDay
+import grupotp.recifesaudavel.app.platform.loadTimeZones
+import grupotp.recifesaudavel.common.scheduling.Clinic
+import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
 import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlin.test.Test
+import kotlin.time.Instant
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertIs
@@ -189,15 +191,33 @@ class SchedulingUseCaseTest {
         val cancelled = later.copy(id = "cancelled", status = AppointmentStatus.Cancelled)
 
         // Act
-        val upcoming = upcomingAppointments(listOf(later, cancelled, past, sooner), now = LocalDateTime(2026, 10, 13, 8, 0))
+        val upcoming = upcomingAppointments(listOf(later, cancelled, past, sooner), now = Instant.parse("2026-10-13T11:00:00Z"))
 
         // Assert
         assertEquals(listOf(sooner, later), upcoming)
     }
 
+    @Test
+    fun appointmentsInOtherZonesArePlacedByTheirOwnClinicClock() {
+        // Arrange: 09:00 in Manaus is 13:00 UTC, after 09:30 in Recife (12:30 UTC).
+        loadTimeZones()
+        val recifeMorning = appointment(id = "recife", date = "2026-10-14", time = "09:30")
+        val manausMorning = appointment(id = "manaus", date = "2026-10-14", time = "09:00", clinic = manaus)
+
+        // Act
+        val bothAhead = upcomingAppointments(listOf(manausMorning, recifeMorning), now = Instant.parse("2026-10-14T12:00:00Z"))
+        val onlyManaus = upcomingAppointments(listOf(manausMorning, recifeMorning), now = Instant.parse("2026-10-14T12:45:00Z"))
+
+        // Assert
+        assertEquals(listOf(recifeMorning, manausMorning), bothAhead)
+        assertEquals(listOf(manausMorning), onlyManaus)
+    }
+
+    private val recife = Clinic(id = "boa-vista", name = "Clínica Boa Vista", city = "Recife", timeZoneId = "America/Recife")
+    private val manaus = Clinic(id = "manaus", name = "Teleconsulta Manaus", city = "Manaus", timeZoneId = "America/Manaus")
     private val sooner = appointment(id = "a1", date = "2026-10-14", time = "09:00")
     private val later = appointment(id = "a2", date = "2026-10-20", time = "14:30")
-    private val lucia = Professional(id = "lucia", name = "Dra. Lúcia Oliveira", specialtyId = "cardio")
+    private val lucia = Professional(id = "lucia", name = "Dra. Lúcia Oliveira", specialtyId = "cardio", clinic = recife)
     private val request = CreateAppointmentRequest(
         specialtyId = "cardio",
         professionalId = null,
@@ -207,10 +227,11 @@ class SchedulingUseCaseTest {
         notes = "",
     )
 
-    private fun appointment(id: String, date: String, time: String) = Appointment(
+    private fun appointment(id: String, date: String, time: String, clinic: Clinic = recife) = Appointment(
         id = id,
         specialtyName = "Cardiologia",
         professionalName = "Dra. Lúcia Oliveira",
+        clinic = clinic,
         date = LocalDate.parse(date),
         time = LocalTime.parse(time),
         status = AppointmentStatus.Pending,
@@ -232,14 +253,14 @@ class SchedulingUseCaseTest {
 
         override suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>> {
             lastToken = token.value
-            return SchedulingResult.Success(listOf(lucia, Professional(id = "marcos", name = "Dr. Marcos Souza", specialtyId = "pedi")))
+            return SchedulingResult.Success(listOf(lucia, Professional(id = "marcos", name = "Dr. Marcos Souza", specialtyId = "pedi", clinic = recife)))
         }
 
         override suspend fun availability(
             token: SecretString,
             specialtyId: String,
             professionalId: String?,
-        ): SchedulingResult<List<AvailableDay>> = SchedulingResult.Success(emptyList())
+        ): SchedulingResult<List<ClinicAvailability>> = SchedulingResult.Success(emptyList())
 
         override suspend fun book(token: SecretString, request: CreateAppointmentRequest): SchedulingResult<Appointment> {
             lastToken = token.value

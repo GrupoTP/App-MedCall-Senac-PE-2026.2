@@ -3,12 +3,14 @@ package grupotp.recifesaudavel.app.usecase
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
-import grupotp.recifesaudavel.common.scheduling.AvailableDay
+import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
 import grupotp.recifesaudavel.common.security.SecretString
-import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 data class SchedulingOptions(
     val specialties: List<Specialty>,
@@ -46,7 +48,7 @@ class LoadAvailability(
         account: AuthenticatedAccount,
         specialtyId: String,
         professionalId: String?,
-    ): SchedulingResult<List<AvailableDay>> = gateway.availability(account.sessionToken, specialtyId, professionalId)
+    ): SchedulingResult<List<ClinicAvailability>> = gateway.availability(account.sessionToken, specialtyId, professionalId)
 }
 
 /**
@@ -144,15 +146,23 @@ class SignOut(
 }
 
 /**
- * Appointments not cancelled and not yet past, soonest first.
- *
- * @param now date and time at the clinics, see [grupotp.recifesaudavel.common.scheduling.ClinicTime].
+ * Appointments not cancelled and not yet past, soonest first. Each one is placed in time through its
+ * own clinic's zone, so appointments in different zones sort and expire correctly.
  */
-fun upcomingAppointments(appointments: List<Appointment>, now: LocalDateTime): List<Appointment> =
-    sortedByTime(appointments).filter { it.status != AppointmentStatus.Cancelled && it.startsAt >= now }
+fun upcomingAppointments(appointments: List<Appointment>, now: Instant): List<Appointment> =
+    appointments
+        .filter { it.status != AppointmentStatus.Cancelled && it.startInstant() >= now }
+        .let(::sortedByTime)
 
+/** Soonest first, by the real moment: clinics in different zones interleave correctly. */
 private fun sortedByTime(appointments: List<Appointment>): List<Appointment> =
-    appointments.sortedBy { it.startsAt }
+    appointments.sortedBy { it.startInstant() }
+
+/** The moment the appointment starts, from its clinic's wall clock and time zone. */
+fun Appointment.startInstant(): Instant = startsAt.toInstant(clinic.timeZone)
+
+/** [Appointment.isCancellableAt] with the clinic's current wall clock. */
+fun Appointment.isCancellableAt(now: Instant): Boolean = isCancellableAt(now.toLocalDateTime(clinic.timeZone))
 
 const val SCHEDULING_OFFLINE_MESSAGE =
     "O agendamento precisa de internet. Conecte-se e tente de novo. Nenhuma consulta foi marcada."

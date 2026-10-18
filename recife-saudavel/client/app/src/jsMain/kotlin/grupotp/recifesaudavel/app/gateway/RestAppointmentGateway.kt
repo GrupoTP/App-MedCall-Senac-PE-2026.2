@@ -3,7 +3,7 @@ package grupotp.recifesaudavel.app.gateway
 import grupotp.recifesaudavel.app.usecase.AppointmentGateway
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
 import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.common.scheduling.AvailableDay
+import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
@@ -24,7 +24,7 @@ class RestAppointmentGateway(
         token: SecretString,
         specialtyId: String,
         professionalId: String?,
-    ): SchedulingResult<List<AvailableDay>> {
+    ): SchedulingResult<List<ClinicAvailability>> {
         val query = buildString {
             append("?specialtyId=").append(encodeURIComponent(specialtyId))
             if (professionalId != null) {

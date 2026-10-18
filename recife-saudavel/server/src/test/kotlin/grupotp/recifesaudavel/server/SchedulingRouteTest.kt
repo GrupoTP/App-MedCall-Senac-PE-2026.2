@@ -5,7 +5,7 @@ import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
-import grupotp.recifesaudavel.common.scheduling.AvailableDay
+import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
@@ -40,10 +40,10 @@ class SchedulingRouteTest {
             client.get("/api/v1/professionals?specialtyId=${specialty.id}") { bearerAuth(token) }.bodyAsText(),
         )
         // The file database outlives the test, so pick whatever slot is still open.
-        val days = Json.decodeFromString<List<AvailableDay>>(
+        val days = Json.decodeFromString<List<ClinicAvailability>>(
             client.get("/api/v1/availability?specialtyId=${specialty.id}") { bearerAuth(token) }.bodyAsText(),
         )
-        val day = days.first()
+        val day = days.single().days.first()
 
         // Act
         val created = client.post("/api/v1/appointments") {
@@ -84,15 +84,15 @@ class SchedulingRouteTest {
         val stranger = register(client)
         val specialty = Json.decodeFromString<List<Specialty>>(client.get("/api/v1/specialties").bodyAsText())
             .first { it.name == "Cardiologia" }
-        val day = Json.decodeFromString<List<AvailableDay>>(
+        val day = Json.decodeFromString<List<ClinicAvailability>>(
             client.get("/api/v1/availability?specialtyId=${specialty.id}") { bearerAuth(owner.sessionToken.value) }.bodyAsText(),
-        ).first()
+        ).single().days.first()
         val created = client.post("/api/v1/appointments") {
             bearerAuth(owner.sessionToken.value)
             contentType(ContentType.Application.Json)
             setBody(
                 Json.encodeToString(
-                    CreateAppointmentRequest(specialty.id, null, day.date, day.times.last(), reason = "", notes = ""),
+                    CreateAppointmentRequest(specialty.id, null, date = day.date, time = day.times.last(), reason = "", notes = ""),
                 ),
             )
         }

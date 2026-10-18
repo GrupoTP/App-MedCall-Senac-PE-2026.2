@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.usecase
 
 import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.common.scheduling.AvailableDay
+import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
@@ -31,7 +31,7 @@ interface AppointmentGateway {
 
     suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>>
 
-    suspend fun availability(token: SecretString, specialtyId: String, professionalId: String?): SchedulingResult<List<AvailableDay>>
+    suspend fun availability(token: SecretString, specialtyId: String, professionalId: String?): SchedulingResult<List<ClinicAvailability>>
 
     suspend fun book(token: SecretString, request: CreateAppointmentRequest): SchedulingResult<Appointment>
 

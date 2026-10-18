@@ -1,6 +1,5 @@
 package grupotp.recifesaudavel.app.ui
 
-import grupotp.recifesaudavel.app.platform.clinicNow
 import grupotp.recifesaudavel.app.usecase.LoadPreTriageDraft
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
@@ -16,6 +15,8 @@ import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.common.pretriage.SymptomsStart
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
@@ -25,6 +26,7 @@ import react.Key
 import react.Props
 import react.useEffectOnce
 import react.useState
+import kotlin.time.Clock
 
 private val STEP_LABELS = arrayOf("Dados pessoais", "Queixa principal", "Histórico médico", "Medicamentos")
 private const val LAST_STEP = 3
@@ -376,4 +378,5 @@ private fun intensityNote(level: Int): String = when (level) {
 
 /** A real calendar date between 1900 and today. */
 private fun isValidBirthDate(date: LocalDate?): Boolean =
-    date != null && date.year >= MIN_BIRTH_YEAR && date <= clinicNow().date
+    date != null && date.year >= MIN_BIRTH_YEAR &&
+        date <= Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date

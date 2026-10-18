@@ -3,6 +3,8 @@ package grupotp.recifesaudavel.server.service
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.AvailableDay
+import grupotp.recifesaudavel.common.scheduling.Clinic
+import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
@@ -17,6 +19,7 @@ import kotlinx.datetime.toKotlinLocalDate
 import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.Clock
 import java.time.DayOfWeek
+import java.time.ZoneId
 import java.util.UUID
 
 sealed interface BookingResult {
@@ -43,7 +46,8 @@ sealed interface CancelResult {
  * Agenda rules. Every slot the client shows comes from [availability], and [book] checks
  * the same rules again before writing (RN-009, RN-011).
  *
- * @param clock must be in the clinics' time zone, so "today" and "past times" match Recife.
+ * "Today" and "past times" are read in each clinic's own time zone ([Clinic.timeZoneId]), so the
+ * zone of [clock] and of the server does not matter.
  */
 class SchedulingService(
     private val repository: SchedulingRepository,
@@ -55,18 +59,24 @@ class SchedulingService(
     fun professionals(specialtyId: String?): List<Professional> = repository.professionals(specialtyId)
 
     /**
-     * Open days and times for the next [BOOKING_WINDOW_DAYS] days. A time is open when the chosen
-     * professional, or any professional of the specialty when none is chosen, is free.
-     * Returns null when the specialty or the professional does not exist.
+     * Open days and times for the next [BOOKING_WINDOW_DAYS] days, one entry per clinic. A time is
+     * open when the chosen professional, or any professional of the specialty at that clinic when
+     * none is chosen, is free. Returns null when the specialty or the professional does not exist.
      */
-    fun availability(specialtyId: String, professionalId: String?): List<AvailableDay>? {
+    fun availability(specialtyId: String, professionalId: String?): List<ClinicAvailability>? {
         val candidates = candidates(specialtyId, professionalId) ?: return null
-        val days = bookableDays()
-        val taken = repository.takenSlots(candidates.map { it.id }, days)
-        val now = now()
+        return candidates.groupBy { it.clinic }.map { (clinic, atClinic) ->
+            ClinicAvailability(clinic, openDays(clinic, atClinic))
+        }
+    }
+
+    private fun openDays(clinic: Clinic, professionals: List<Professional>): List<AvailableDay> {
+        val days = bookableDays(clinic)
+        val taken = repository.takenSlots(professionals.map { it.id }, days)
+        val now = nowAt(clinic)
         return days.mapNotNull { day ->
             val times = OPENING_TIMES.filter { time ->
-                LocalDateTime(day, time) > now && candidates.any { Slot(it.id, day, time) !in taken }
+                LocalDateTime(day, time) > now && professionals.any { Slot(it.id, day, time) !in taken }
             }
             if (times.isEmpty()) null else AvailableDay(date = day, times = times)
         }
@@ -74,13 +84,19 @@ class SchedulingService(
 
     fun book(patientId: String, request: CreateAppointmentRequest): BookingResult {
         val professionalId = request.professionalId?.takeIf { it.isNotBlank() }
+        val clinicId = request.clinicId?.takeIf { it.isNotBlank() }
         val candidates = candidates(request.specialtyId, professionalId)
-            ?: return BookingResult.Rejected("Especialidade ou profissional inválido.")
+            ?.filter { clinicId == null || it.clinic.id == clinicId }
+            ?.ifEmpty { null }
+            ?: return BookingResult.Rejected("Especialidade, profissional ou clínica inválidos.")
+        // The date and time only mean something in one clinic's zone.
+        val clinic = candidates.map { it.clinic }.distinct().singleOrNull()
+            ?: return BookingResult.Rejected("Escolha a clínica do horário.")
         val date = request.date
-        if (date !in bookableDays()) {
+        if (date !in bookableDays(clinic)) {
             return BookingResult.Rejected("Escolha uma data disponível.")
         }
-        if (request.time !in OPENING_TIMES || LocalDateTime(date, request.time) <= now()) {
+        if (request.time !in OPENING_TIMES || LocalDateTime(date, request.time) <= nowAt(clinic)) {
             return BookingResult.Rejected("Escolha um horário disponível.")
         }
         if (request.reason.length > MAX_TEXT || request.notes.length > MAX_TEXT) {
@@ -135,7 +151,7 @@ class SchedulingService(
     /** Cancels the patient's own appointment when [isCancellableAt] allows it. */
     fun cancel(patientId: String, appointmentId: String): CancelResult {
         val current = repository.findAppointmentOf(patientId, appointmentId) ?: return CancelResult.NotFound
-        if (!current.isCancellableAt(now()) || !repository.cancel(patientId, appointmentId, current.status)) {
+        if (!current.isCancellableAt(nowAt(current.clinic)) || !repository.cancel(patientId, appointmentId, current.status)) {
             return CancelResult.NotCancellable("Esta consulta não pode mais ser cancelada.")
         }
         return CancelResult.Cancelled(repository.findAppointment(appointmentId)!!)
@@ -152,12 +168,13 @@ class SchedulingService(
         return professionals.filter { it.id == professionalId }.ifEmpty { null }
     }
 
-    /** Date and time at the clinics now, from [clock]. */
-    private fun now(): LocalDateTime = java.time.LocalDateTime.now(clock).toKotlinLocalDateTime()
+    /** Wall-clock date and time at [clinic] now. */
+    private fun nowAt(clinic: Clinic): LocalDateTime =
+        java.time.LocalDateTime.now(clock.withZone(ZoneId.of(clinic.timeZoneId))).toKotlinLocalDateTime()
 
-    /** Weekdays from today on. Clinics are closed on weekends. */
-    private fun bookableDays(): List<LocalDate> {
-        val today = java.time.LocalDate.now(clock)
+    /** Weekdays from the clinic's today on. Clinics are closed on weekends. */
+    private fun bookableDays(clinic: Clinic): List<LocalDate> {
+        val today = java.time.LocalDate.now(clock.withZone(ZoneId.of(clinic.timeZoneId)))
         return (0 until BOOKING_WINDOW_DAYS)
             .map { today.plusDays(it.toLong()) }
             .filter { it.dayOfWeek != DayOfWeek.SATURDAY && it.dayOfWeek != DayOfWeek.SUNDAY }

@@ -1,16 +1,18 @@
 package grupotp.recifesaudavel.server.repository
 
+import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
 import grupotp.recifesaudavel.server.database.AppointmentsTable
+import grupotp.recifesaudavel.server.database.ClinicsTable
 import grupotp.recifesaudavel.server.database.PreTriagesTable
 import grupotp.recifesaudavel.server.database.ProfessionalsTable
 import grupotp.recifesaudavel.server.database.SchedulingCatalog
 import grupotp.recifesaudavel.server.database.SpecialtiesTable
 import grupotp.recifesaudavel.server.database.UsersTable
-import grupotp.recifesaudavel.common.phone.Phone
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.jetbrains.exposed.v1.core.JoinType
@@ -51,6 +53,14 @@ class SchedulingRepository(
             if (SpecialtiesTable.selectAll().count() > 0) {
                 return@transaction
             }
+            for (clinic in SchedulingCatalog.clinics) {
+                ClinicsTable.insert {
+                    it[id] = SchedulingCatalog.clinicId(clinic)
+                    it[name] = clinic.name
+                    it[city] = clinic.city
+                    it[timeZone] = clinic.timeZoneId
+                }
+            }
             for ((specialty, professionals) in SchedulingCatalog.professionalsBySpecialty) {
                 val specialtyId = SchedulingCatalog.specialtyId(specialty)
                 SpecialtiesTable.insert {
@@ -59,9 +69,10 @@ class SchedulingRepository(
                 }
                 for (professional in professionals) {
                     ProfessionalsTable.insert {
-                        it[id] = SchedulingCatalog.professionalId(specialty, professional)
-                        it[name] = professional
+                        it[id] = SchedulingCatalog.professionalId(specialty, professional.name)
+                        it[name] = professional.name
                         it[ProfessionalsTable.specialtyId] = specialtyId
+                        it[clinicId] = SchedulingCatalog.clinicId(professional.clinic)
                     }
                 }
             }
@@ -75,7 +86,9 @@ class SchedulingRepository(
     }
 
     fun professionals(specialtyId: String? = null): List<Professional> = transaction(database) {
-        val query = ProfessionalsTable.selectAll()
+        val query = ProfessionalsTable
+            .join(ClinicsTable, JoinType.INNER, ProfessionalsTable.clinicId, ClinicsTable.id)
+            .selectAll()
         if (specialtyId != null) {
             query.where { ProfessionalsTable.specialtyId eq specialtyId }
         }
@@ -84,6 +97,7 @@ class SchedulingRepository(
                 id = it[ProfessionalsTable.id],
                 name = it[ProfessionalsTable.name],
                 specialtyId = it[ProfessionalsTable.specialtyId],
+                clinic = it.toClinic(),
             )
         }
     }
@@ -189,6 +203,7 @@ class SchedulingRepository(
     private fun appointmentQuery() = AppointmentsTable
         .join(ProfessionalsTable, JoinType.INNER, AppointmentsTable.professionalId, ProfessionalsTable.id)
         .join(SpecialtiesTable, JoinType.INNER, ProfessionalsTable.specialtyId, SpecialtiesTable.id)
+        .join(ClinicsTable, JoinType.INNER, ProfessionalsTable.clinicId, ClinicsTable.id)
         .join(UsersTable, JoinType.INNER, AppointmentsTable.patientId, UsersTable.id)
         .join(PreTriagesTable, JoinType.LEFT, AppointmentsTable.id, PreTriagesTable.appointmentId)
         .selectAll()
@@ -197,6 +212,7 @@ class SchedulingRepository(
         id = this[AppointmentsTable.id],
         specialtyName = this[SpecialtiesTable.name],
         professionalName = this[ProfessionalsTable.name],
+        clinic = toClinic(),
         date = LocalDate.parse(this[AppointmentsTable.appointmentDate]),
         time = LocalTime.parse(this[AppointmentsTable.appointmentTime]),
         status = when (this[AppointmentsTable.status]) {
@@ -209,6 +225,13 @@ class SchedulingRepository(
         reason = this[AppointmentsTable.reason],
         notes = this[AppointmentsTable.notes],
         preTriageId = this.getOrNull(PreTriagesTable.id),
+    )
+
+    private fun ResultRow.toClinic(): Clinic = Clinic(
+        id = this[ClinicsTable.id],
+        name = this[ClinicsTable.name],
+        city = this[ClinicsTable.city],
+        timeZoneId = this[ClinicsTable.timeZone],
     )
 
     /** `HH:mm`, the column format: text order is time order, and old rows keep matching. */

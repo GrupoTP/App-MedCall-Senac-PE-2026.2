@@ -1,12 +1,17 @@
 package grupotp.recifesaudavel.app.ui
 
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.recifesaudavel.common.scheduling.Clinic
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.isoDayNumber
 import kotlinx.datetime.number
+import kotlinx.datetime.offsetAt
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
+import kotlin.math.abs
 import kotlin.time.Instant
 
 private val MONTHS = listOf("Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez")
@@ -36,6 +41,39 @@ internal fun formatTime(time: LocalTime): String = "${pad(time.hour)}:${pad(time
 internal fun formatDateTime(instant: Instant): String {
     val local = instant.toLocalDateTime(TimeZone.currentSystemDefault())
     return "${formatDate(local.date)} às ${formatTime(local.time)}"
+}
+
+/**
+ * Time at the clinic and, when the device is in another zone, the same moment on the device:
+ * `09:30 em Manaus · 10:30 no seu horário`. Just `09:30` when both clocks show the same.
+ */
+internal fun formatClinicTime(date: LocalDate, time: LocalTime, clinic: Clinic): String {
+    val local = LocalDateTime(date, time).toInstant(clinic.timeZone).toLocalDateTime(TimeZone.currentSystemDefault())
+    if (local.date == date && local.time == time) {
+        return formatTime(time)
+    }
+    val yours = if (local.date == date) {
+        formatTime(local.time)
+    } else {
+        "${formatTime(local.time)} de ${dayOf(local.date)}/${pad(local.date.month.number)}"
+    }
+    return "${formatTime(time)} em ${clinic.city} · $yours no seu horário"
+}
+
+/**
+ * Warns that the times listed for [clinic] are not on the device's clock, such as
+ * `Horários de Manaus: 1 h a menos que o horário do seu aparelho.` Null when both agree on [date].
+ */
+internal fun clinicZoneNote(clinic: Clinic, date: LocalDate): String? {
+    val noon = LocalDateTime(date, LocalTime(12, 0)).toInstant(clinic.timeZone)
+    val deviceAhead = TimeZone.currentSystemDefault().offsetAt(noon).totalSeconds - clinic.timeZone.offsetAt(noon).totalSeconds
+    if (deviceAhead == 0) {
+        return null
+    }
+    val minutes = abs(deviceAhead) / 60
+    val amount = if (minutes % 60 == 0) "${minutes / 60} h" else "${minutes / 60} h ${minutes % 60} min"
+    val relation = if (deviceAhead > 0) "a menos que" else "a mais que"
+    return "Horários de ${clinic.city}: $amount $relation o horário do seu aparelho."
 }
 
 internal fun dayOf(date: LocalDate): String = pad(date.day)

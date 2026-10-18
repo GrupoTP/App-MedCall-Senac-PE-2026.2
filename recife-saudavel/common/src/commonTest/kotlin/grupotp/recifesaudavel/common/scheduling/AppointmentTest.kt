@@ -15,6 +15,7 @@ class AppointmentTest {
         id = "a1",
         specialtyName = "Cardiologia",
         professionalName = "Dra. Lúcia Oliveira",
+        clinic = Clinic(id = "c1", name = "Clínica Boa Vista", city = "Recife", timeZoneId = "America/Recife"),
         date = LocalDate(2026, 10, 14),
         time = LocalTime(9, 30),
         status = AppointmentStatus.Confirmed,
@@ -32,7 +33,7 @@ class AppointmentTest {
     }
 
     @Test
-    fun aConfirmedAppointmentIsCancellableOnlyBeforeItStarts() {
+    fun aConfirmedAppointmentIsCancellableOnlyBeforeItStartsAtTheClinic() {
         // Assert
         assertTrue(appointment.isCancellableAt(LocalDateTime(2026, 10, 14, 9, 29)))
         assertFalse(appointment.isCancellableAt(LocalDateTime(2026, 10, 14, 9, 30)))

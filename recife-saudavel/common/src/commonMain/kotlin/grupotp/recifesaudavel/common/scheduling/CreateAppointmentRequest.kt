@@ -6,12 +6,15 @@ import kotlinx.serialization.Serializable
 
 /**
  * @property professionalId null lets the server pick any professional free at that time.
+ * @property clinicId with no professional, the clinic whose times [date] and [time] are. Needed when
+ * the specialty is offered in more than one clinic.
  * @property preTriageId pre-triage to attach to the new appointment, or null to attach none.
  */
 @Serializable
 data class CreateAppointmentRequest(
     val specialtyId: String,
     val professionalId: String?,
+    val clinicId: String? = null,
     val date: LocalDate,
     val time: LocalTime,
     val reason: String,

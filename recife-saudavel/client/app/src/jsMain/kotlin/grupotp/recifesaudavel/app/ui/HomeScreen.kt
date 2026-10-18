@@ -1,6 +1,5 @@
 package grupotp.recifesaudavel.app.ui
 
-import grupotp.recifesaudavel.app.platform.clinicNow
 import grupotp.recifesaudavel.app.usecase.AppointmentsSnapshot
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.SchedulingError
@@ -22,6 +21,7 @@ import react.Props
 import react.useEffectOnce
 import react.useState
 import kotlin.js.Date
+import kotlin.time.Clock
 
 private const val UPCOMING_ON_HOME = 2
 
@@ -191,7 +191,7 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
                         +"Carregando consultas…"
                     }
                     else -> {
-                        val upcoming = upcomingAppointments(current.appointments, clinicNow()).take(UPCOMING_ON_HOME)
+                        val upcoming = upcomingAppointments(current.appointments, Clock.System.now()).take(UPCOMING_ON_HOME)
                         if (upcoming.isEmpty()) {
                             Text {
                                 style = Styles.fieldHint
@@ -234,7 +234,7 @@ private fun ChildrenBuilder.upcomingRow(appointment: Appointment) {
         style = Styles.upcomingRow
         accessible = true
         accessibilityLabel = "${appointment.professionalName}, ${appointment.specialtyName}, " +
-            "${formatSpokenDate(appointment.date)} às ${formatTime(appointment.time)}, ${appointment.status.label()}"
+            "${formatSpokenDate(appointment.date)} às ${formatClinicTime(appointment.date, appointment.time, appointment.clinic)}, ${appointment.status.label()}"
         View {
             style = Styles.dateBadge
             Text {
@@ -255,7 +255,7 @@ private fun ChildrenBuilder.upcomingRow(appointment: Appointment) {
             }
             Text {
                 style = Styles.upcomingSubtitle
-                +"${appointment.specialtyName} · ${appointment.time}"
+                +"${appointment.specialtyName} · ${formatClinicTime(appointment.date, appointment.time, appointment.clinic)}"
             }
         }
         statusPill(appointment.status)
