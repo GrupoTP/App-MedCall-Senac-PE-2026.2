@@ -1,3 +1,5 @@
+// Settings plugin `recifesaudavel.dropbox-ignore`, applied by the root settings.gradle.kts.
+//
 // Keeps generated folders out of Dropbox when the clone lives in a Dropbox folder, so the computers
 // sharing it don't sync gigabytes of build output, lock files mid-build or copy the H2 database
 // while the server writes it. Each computer builds and installs its own copies.
@@ -31,7 +33,8 @@ fun projectDirs(project: ProjectDescriptor): Sequence<File> =
 
 fun ignoreGeneratedFolders() {
     if (!insideDropbox) return
-    for (buildRoot in listOf(settingsDir, settingsDir.resolve("grupotp-kotlin-react-native"))) {
+    val buildRoots = listOf("", "grupotp-kotlin-react-native", "build-logic").map(settingsDir::resolve)
+    for (buildRoot in buildRoots) {
         for (cache in listOf(".gradle", ".kotlin", "build")) {
             ignoreInDropbox(buildRoot.resolve(cache), create = true)
         }

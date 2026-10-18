@@ -21,6 +21,7 @@ As senhas são guardadas com PBKDF2-HMAC-SHA256 (600.000 iterações), no format
 - `client/app`: interface Kotlin/JS com React Native (wrappers do `grupotp-kotlin-react-native`), casos de uso e gateways de cada plataforma. Os testes unitários rodam em Node; o `test-support/native-module-stubs.js` troca os módulos do React Native e do Expo por stubs, porque eles só existem no `client/expo`.
 - `client/worker`: service worker em Kotlin/JS, carregado por `sw.js`.
 - `client/expo`: shell Expo (Metro) que empacota o bundle Kotlin para a web e para o Android.
+- `build-logic`: plugins Gradle do próprio repositório, incluídos via `pluginManagement`. `recifesaudavel.dropbox-ignore` (settings) tira as pastas geradas do Dropbox; `recifesaudavel.ktor-dev-mode` adiciona a task `:server:runDev`.
 - `grupotp-kotlin-react-native`: submódulo com o fork da biblioteca de wrappers, branch `modern`, incluído via `includeBuild`.
 
 ## Pré-requisitos
