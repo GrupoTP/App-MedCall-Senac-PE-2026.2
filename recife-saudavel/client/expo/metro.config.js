@@ -1,16 +1,21 @@
+// Metro, the bundler Expo uses on Android and on the web. It packs index.js, which loads the
+// compiled Kotlin bundle, together with the npm packages of this folder.
 const { getDefaultConfig } = require("expo/metro-config");
 const fs = require("fs");
 const path = require("path");
 
 const projectRoot = __dirname;
+const config = getDefaultConfig(projectRoot);
+
+// The bundle lives outside this folder, in client/app/build. Watching it lets Metro reload the app
+// when scripts/start-metro.js rebuilds it.
 const uiBundle = path.resolve(
   projectRoot,
   "../app/build/kotlin-webpack/js/productionExecutable",
 );
-
-const config = getDefaultConfig(projectRoot);
-
 config.watchFolders = [...(config.watchFolders ?? []), uiBundle];
+
+// npm packages come only from client/expo/node_modules, even for the Kotlin bundle's imports.
 config.resolver.nodeModulesPaths = [path.resolve(projectRoot, "node_modules")];
 
 // Gradle installs its own node_modules for Kotlin/JS; Metro must only see the client ones.

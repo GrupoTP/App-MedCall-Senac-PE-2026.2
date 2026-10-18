@@ -102,6 +102,7 @@ const withWindowsCmake = (config) =>
     },
   ]);
 
+// Dropbox folders of the signed-in accounts, as listed by the Dropbox client.
 function dropboxRoots() {
   const localAppData = process.env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local");
   try {

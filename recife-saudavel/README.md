@@ -110,9 +110,9 @@ A PWA não funciona aberta pelo IP da rede (`http://IP:8081`): o navegador só l
 
 Com o aparelho conectado e o servidor rodando, faz o `adb reverse tcp:8080 tcp:8080` e instala o build release (`expo run:android --variant release`). A task acha o `adb` no Android SDK (`ANDROID_HOME`, `ANDROID_SDK_ROOT`, `sdk.dir` do `local.properties` ou a pasta padrão do Android Studio); se não achar, usa o do `PATH`.
 
-No build release o app chama `http://localhost:8080`, que o `adb reverse` leva ao computador. Por isso o `app.json` libera HTTP sem TLS (`usesCleartextTraffic`, via `expo-build-properties`). Isso é só para desenvolvimento; em produção a API deve usar HTTPS e essa opção sai.
+No build release o app chama `http://localhost:8080`, que o `adb reverse` leva ao computador. Por isso o `app.config.js` libera HTTP sem TLS (`usesCleartextTraffic`, via `expo-build-properties`). Isso é só para desenvolvimento; em produção a API deve usar HTTPS e essa opção sai.
 
-A pasta `android/` é gerada pelo `expo prebuild` e não vai para o git. Ajustes nativos ficam no config plugin `plugins/withKotlinAndroidBuild.js`, registrado no `app.json`. Ele faz a task de bundle do React Native acompanhar o bundle Kotlin, que fica fora da pasta do cliente, para o APK sempre levar o bundle novo.
+A pasta `android/` é gerada pelo `expo prebuild` e não vai para o git. Ajustes nativos ficam no config plugin `plugins/withKotlinAndroidBuild.js`, registrado no `app.config.js`. Ele faz a task de bundle do React Native acompanhar o bundle Kotlin, que fica fora da pasta do cliente, para o APK sempre levar o bundle novo.
 
 ### Android no Windows
 

@@ -1,4 +1,12 @@
-// Gradle wrapper for the Expo shell: npm and npx run through these tasks, on Windows and Linux.
+// Gradle tasks for the Expo shell, so the app starts the same way on Windows and Linux:
+//
+//   startWeb    PWA in development on http://localhost:8081
+//   startLan    Expo Go on the phone, through the local network
+//   exportWeb   PWA exported to client/expo/dist
+//   serveWeb    exported PWA on http://localhost:8081
+//   runAndroid  release APK installed on the phone plugged in by USB
+//
+// Every task first builds the Kotlin bundle (:client:app:buildClientBundle) that Metro packs.
 
 val isWindows = System.getProperty("os.name").startsWith("Windows", ignoreCase = true)
 
@@ -17,6 +25,7 @@ val npmInstall = tasks.register<Exec>("npmInstall") {
     commandLine(nodeCommand("npm", "ci"))
 }
 
+// Runs `npx expo <args>` in the terminal, after npm install and the Kotlin bundle.
 fun Exec.expo(vararg args: String) {
     group = "recife saudavel"
     dependsOn(npmInstall, ":client:app:buildClientBundle")
@@ -25,6 +34,7 @@ fun Exec.expo(vararg args: String) {
 }
 
 // Metro plus a watcher that rebuilds the Kotlin bundle on change, so Kotlin changes reload the app.
+// See scripts/start-metro.js.
 fun Exec.metro(mode: String) {
     group = "recife saudavel"
     dependsOn(npmInstall, ":client:app:buildClientBundle")
@@ -42,6 +52,7 @@ tasks.register<Exec>("startLan") {
     metro("lan")
 }
 
+// Gradle's file operations for doFirst, which may not reach `project` while the task runs.
 interface InjectedFileSystem {
     @get:Inject val operations: FileSystemOperations
 }
@@ -90,6 +101,7 @@ val adbReverse = tasks.register<Exec>("adbReverse") {
     commandLine(adb, "reverse", "tcp:8080", "tcp:8080")
 }
 
+// Release build: the JS bundle goes inside the APK, so the phone runs it without Metro.
 tasks.register<Exec>("runAndroid") {
     description = "Builds and installs the release app on the USB device (npx expo run:android --variant release)."
     dependsOn(adbReverse)
