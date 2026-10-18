@@ -4,34 +4,16 @@ import grupotp.recifesaudavel.app.di.useInject
 import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.scheduling.SchedulingOptions
-import grupotp.recifesaudavel.app.ui.component.alert.infoAlert
-import grupotp.recifesaudavel.app.ui.component.alert.infoAlertRich
 import grupotp.recifesaudavel.app.ui.component.alert.sessionExpiredAlert
-import grupotp.recifesaudavel.app.ui.component.alert.warnAlert
 import grupotp.recifesaudavel.app.ui.component.button.primaryButton
 import grupotp.recifesaudavel.app.ui.component.button.secondaryButton
-import grupotp.recifesaudavel.app.ui.component.form.CheckBox
-import grupotp.recifesaudavel.app.ui.component.form.FieldKind
-import grupotp.recifesaudavel.app.ui.component.form.TextField
-import grupotp.recifesaudavel.app.ui.component.form.choiceChip
-import grupotp.recifesaudavel.app.ui.component.form.fieldError
-import grupotp.recifesaudavel.app.ui.component.form.formField
 import grupotp.recifesaudavel.app.ui.component.layout.AppFooter
 import grupotp.recifesaudavel.app.ui.component.layout.ScreenHeader
 import grupotp.recifesaudavel.app.ui.component.layout.StepIndicator
-import grupotp.recifesaudavel.app.ui.component.layout.sectionTitle
-import grupotp.recifesaudavel.app.ui.component.layout.summaryRow
-import grupotp.recifesaudavel.app.ui.component.text.emoji
-import grupotp.recifesaudavel.app.ui.component.text.strongText
-import grupotp.recifesaudavel.app.ui.format.clinicZoneNote
-import grupotp.recifesaudavel.app.ui.format.formatClinicTime
-import grupotp.recifesaudavel.app.ui.format.formatDate
-import grupotp.recifesaudavel.app.ui.format.formatDateTime
-import grupotp.recifesaudavel.app.ui.format.formatShortDate
-import grupotp.recifesaudavel.app.ui.format.formatSpokenDate
-import grupotp.recifesaudavel.app.ui.format.formatTime
 import grupotp.recifesaudavel.app.ui.hook.useScreenScope
-import grupotp.recifesaudavel.app.ui.icon.checkIcon
+import grupotp.recifesaudavel.app.ui.screen.scheduling.step.SchedulingStep3Confirmation
+import grupotp.recifesaudavel.app.ui.screen.scheduling.step.SchedulingStep2DateTime
+import grupotp.recifesaudavel.app.ui.screen.scheduling.step.SchedulingStep1Specialty
 import grupotp.recifesaudavel.app.ui.theme.Styles
 import grupotp.recifesaudavel.app.usecase.pretriage.LoadPendingPreTriageUseCase
 import grupotp.recifesaudavel.app.usecase.scheduling.BookAppointmentUseCase
@@ -48,7 +30,6 @@ import kotlinx.datetime.LocalTime
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
-import react.ChildrenBuilder
 import react.FC
 import react.Key
 import react.Props
@@ -83,7 +64,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     var date by useState<LocalDate?>(null)
     var time by useState<LocalTime?>(null)
     var notes by useState("")
-    var fieldErrors by useState<Map<String, String>>(emptyMap())
+    var invalidFields by useState<Map<String, String>>(emptyMap())
     var error by useState<RemoteError?>(null)
     var busy by useState(false)
     var preTriage by useState<PreTriage?>(null)
@@ -108,9 +89,43 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     val loaded = options
     val specialty = loaded?.specialties?.firstOrNull { it.id == specialtyId }
     val professional = loaded?.professionals?.firstOrNull { it.id == professionalId }
-    val clinicChoice = availability?.firstOrNull { it.clinicId == clinicId }
     val clinic = loaded?.clinic(clinicId)
-    val days = clinicChoice?.days
+
+    /** A different specialty starts the professional, clinic, day and time over. */
+    fun chooseSpecialty(id: Int) {
+        if (id != specialtyId) {
+            specialtyId = id
+            professionalId = null
+            availability = null
+            clinicId = null
+            date = null
+            time = null
+        }
+        invalidFields = emptyMap()
+    }
+
+    /** A different clinic shows its first open day and no time. */
+    fun chooseClinic(option: ClinicAvailability) {
+        if (option.clinicId != clinicId) {
+            clinicId = option.clinicId
+            date = option.days.firstOrNull()?.date
+            time = null
+        }
+        invalidFields = invalidFields - "clinic"
+    }
+
+    fun chooseDate(day: LocalDate) {
+        if (day != date) {
+            date = day
+            time = null
+        }
+        invalidFields = invalidFields - "date"
+    }
+
+    fun chooseTime(option: LocalTime) {
+        time = option
+        invalidFields = invalidFields - "time"
+    }
 
     /** Asks the server for open times, then shows step 1. Keeps the choice if it is still open. */
     fun openDateStep() {
@@ -176,7 +191,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     fun next() {
         when (step) {
             0 -> if (specialtyId == null) {
-                fieldErrors = mapOf("specialty" to "Selecione a especialidade.")
+                invalidFields = mapOf("specialty" to "Selecione a especialidade.")
             } else {
                 openDateStep()
             }
@@ -186,7 +201,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                     if (date == null) put("date", "Selecione uma data.")
                     if (time == null) put("time", "Selecione um horário.")
                 }
-                fieldErrors = errors
+                invalidFields = errors
                 if (errors.isEmpty()) {
                     error = null
                     step = 2
@@ -198,7 +213,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
 
     fun back() {
         error = null
-        fieldErrors = emptyMap()
+        invalidFields = emptyMap()
         when (step) {
             0 -> props.onBack()
             // Times may have been taken meanwhile, so going back to them asks the server again.
@@ -242,202 +257,41 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                 contentContainerStyle = Styles.scrollContent
                 keyboardShouldPersistTaps = "handled"
                 when (step) {
-                    0 -> View {
-                        style = Styles.card
-                        sectionTitle("Especialidade e Profissional")
-                        formField(caption = "Especialidade médica", required = true) {
-                            View {
-                                style = Styles.chipWrap
-                                accessibilityRole = "radiogroup"
-                                loaded.specialties.forEach { item ->
-                                    choiceChip(item.name, selected = item.id == specialtyId) {
-                                        if (item.id != specialtyId) {
-                                            specialtyId = item.id
-                                            professionalId = null
-                                            availability = null
-                                            clinicId = null
-                                            date = null
-                                            time = null
-                                        }
-                                        fieldErrors = emptyMap()
-                                    }
-                                }
-                            }
-                            fieldError(fieldErrors["specialty"])
-                        }
-                        if (specialty != null) {
-                            formField(caption = "Profissional de preferência", hint = "Opcional") {
-                                View {
-                                    style = Styles.chipWrap
-                                    accessibilityRole = "radiogroup"
-                                    choiceChip("Qualquer profissional disponível", selected = professionalId == null) {
-                                        professionalId = null
-                                    }
-                                    val offered = loaded.professionalsOf(specialty.id)
-                                    // A specialty offered in several clinics names the city of each professional.
-                                    val severalClinics = offered.map { it.clinicId }.distinct().size > 1
-                                    offered.forEach { item ->
-                                        val city = loaded.clinic(item.clinicId)?.city
-                                        val label = if (severalClinics && city != null) "${item.name} ($city)" else item.name
-                                        choiceChip(label, selected = item.id == professionalId) {
-                                            professionalId = item.id
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        formField(caption = "Motivo breve", hint = "Opcional. Ajuda a clínica a se preparar.") {
-                            TextField {
-                                label = "Motivo breve"
-                                value = reason
-                                placeholder = "Descreva o motivo..."
-                                kind = FieldKind.Text
-                                multiline = true
-                                onValue = { reason = it }
-                            }
-                        }
-                        preTriage?.let { pending ->
-                            preTriageChoice(pending, attachPreTriage) { attachPreTriage = it }
-                        }
+                    0 -> SchedulingStep1Specialty {
+                        this.options = loaded
+                        this.specialtyId = specialtyId
+                        this.professionalId = professionalId
+                        this.reason = reason
+                        this.preTriage = preTriage
+                        this.attachPreTriage = attachPreTriage
+                        fieldErrors = invalidFields
+                        onSpecialty = ::chooseSpecialty
+                        onProfessional = { professionalId = it }
+                        onReason = { reason = it }
+                        onAttachPreTriage = { attachPreTriage = it }
                     }
-                    1 -> View {
-                        style = Styles.card
-                        sectionTitle("Data e Horário")
-                        infoAlert("Horários disponíveis são validados pelo servidor no momento da confirmação.")
-                        val clinics = availability.orEmpty()
-                        if (clinics.size > 1) {
-                            formField(caption = "Clínica", required = true) {
-                                View {
-                                    style = Styles.chipWrap
-                                    accessibilityRole = "radiogroup"
-                                    clinics.forEach { option ->
-                                        val place = loaded.clinic(option.clinicId)
-                                        choiceChip(
-                                            place?.let { "${it.name} · ${it.city}" } ?: option.clinicId.toString(),
-                                            selected = option.clinicId == clinicId,
-                                        ) {
-                                            if (option.clinicId != clinicId) {
-                                                clinicId = option.clinicId
-                                                date = option.days.firstOrNull()?.date
-                                                time = null
-                                            }
-                                            fieldErrors = fieldErrors - "clinic"
-                                        }
-                                    }
-                                }
-                                fieldError(fieldErrors["clinic"])
-                            }
-                        }
-                        val openDays = days.orEmpty()
-                        val note = clinic?.let { clinicZoneNote(it, date ?: openDays.firstOrNull()?.date ?: return@let null) }
-                        if (note != null) {
-                            infoAlert(note)
-                        }
-                        if (clinic == null && clinics.size > 1) {
-                            Text {
-                                style = Styles.fieldHint
-                                +"Escolha a clínica para ver as datas e os horários."
-                            }
-                        } else if (openDays.isEmpty()) {
-                            warnAlert(
-                                "Não há horários livres nos próximos 14 dias para esta escolha. " +
-                                    "Volte e escolha outro profissional ou especialidade.",
-                            )
-                        } else {
-                            formField(caption = "Data desejada", required = true) {
-                                View {
-                                    style = Styles.chipWrap
-                                    accessibilityRole = "radiogroup"
-                                    openDays.forEach { day ->
-                                        choiceChip(
-                                            text = formatShortDate(day.date),
-                                            selected = day.date == date,
-                                            accessibilityLabel = formatSpokenDate(day.date),
-                                        ) {
-                                            if (day.date != date) {
-                                                date = day.date
-                                                time = null
-                                            }
-                                            fieldErrors = fieldErrors - "date"
-                                        }
-                                    }
-                                }
-                                fieldError(fieldErrors["date"])
-                            }
-                            val times = openDays.firstOrNull { it.date == date }?.times.orEmpty()
-                            formField(caption = "Horário desejado", required = true) {
-                                View {
-                                    style = Styles.chipWrap
-                                    accessibilityRole = "radiogroup"
-                                    times.forEach { option ->
-                                        choiceChip(formatTime(option), selected = option == time, style = Styles.timeChip) {
-                                            time = option
-                                            fieldErrors = fieldErrors - "time"
-                                        }
-                                    }
-                                }
-                                if (times.isEmpty()) {
-                                    Text {
-                                        style = Styles.fieldHint
-                                        +"Escolha uma data para ver os horários."
-                                    }
-                                }
-                                fieldError(fieldErrors["time"])
-                            }
-                        }
+                    1 -> SchedulingStep2DateTime {
+                        this.options = loaded
+                        this.availability = availability.orEmpty()
+                        this.clinicId = clinicId
+                        this.date = date
+                        this.time = time
+                        fieldErrors = invalidFields
+                        onClinic = ::chooseClinic
+                        onDate = ::chooseDate
+                        onTime = ::chooseTime
                     }
-                    else -> {
-                        View {
-                            style = Styles.card
-                            sectionTitle("Resumo do Agendamento")
-                            View {
-                                style = Styles.summaryList
-                                val phone = props.account.phone
-                                summaryRow("Especialidade", specialty?.name.orEmpty())
-                                summaryRow("Profissional", professional?.name ?: "Qualquer disponível")
-                                summaryRow("Clínica", clinic?.let { "${it.name} · ${it.city}" }.orEmpty())
-                                summaryRow("Data", date?.let(::formatDate).orEmpty())
-                                summaryRow(
-                                    "Horário",
-                                    if (date != null && time != null && clinic != null) formatClinicTime(date!!, time!!, clinic) else "",
-                                )
-                                preTriage?.let { pending ->
-                                    summaryRow(
-                                        "Pré-triagem",
-                                        if (attachPreTriage) "Vinculada (${formatDateTime(pending.createdAt)})" else "Não vinculada",
-                                    )
-                                }
-                                summaryRow(
-                                    "Paciente",
-                                    props.account.socialName.ifBlank { props.account.fullName },
-                                    last = phone.isEmpty(),
-                                )
-                                if (!phone.isEmpty()) {
-                                    summaryRow("Telefone", phone.formatted(), last = true)
-                                }
-                            }
-                        }
-                        formField(caption = "Observação adicional", hint = "Opcional") {
-                            TextField {
-                                label = "Observação adicional"
-                                value = notes
-                                placeholder = "Informações complementares para a clínica..."
-                                kind = FieldKind.Text
-                                multiline = true
-                                onValue = { notes = it }
-                            }
-                        }
-                        infoAlertRich(icon = { emoji("📱") }) {
-                            if (!props.account.phone.isEmpty()) {
-                                +"Confirmação enviada para "
-                                strongText(props.account.phone.formatted())
-                                +". "
-                            } else {
-                                +"A confirmação será enviada para o telefone principal do seu cadastro. "
-                            }
-                            +"Informações médicas não serão expostas em notificações."
-                        }
-                        warnAlert("Conflito de horário é impedido pelo servidor. O horário definitivo será confirmado pela clínica.")
+                    else -> SchedulingStep3Confirmation {
+                        account = props.account
+                        this.specialty = specialty
+                        this.professional = professional
+                        this.clinic = clinic
+                        this.date = date
+                        this.time = time
+                        this.preTriage = preTriage
+                        this.attachPreTriage = attachPreTriage
+                        this.notes = notes
+                        onNotes = { notes = it }
                     }
                 }
                 sessionExpiredAlert(error, props.onSignOut)
@@ -458,30 +312,5 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
             }
         }
         AppFooter()
-    }
-}
-
-/**
- * Latest pre-triage, attached by default. Unticking it books without one.
- */
-private fun ChildrenBuilder.preTriageChoice(preTriage: PreTriage, attached: Boolean, onToggle: (Boolean) -> Unit) {
-    val label = "Vincular a pré-triagem de ${formatDateTime(preTriage.createdAt)}"
-    CheckBox {
-        checked = attached
-        this.label = label
-        style = Styles.checkLine
-        this.onToggle = onToggle
-        Text {
-            style = Styles.checkCopy
-            +label
-        }
-    }
-    if (attached) {
-        infoAlert("Motivo pré-preenchido a partir da pré-triagem. A clínica verá suas respostas.") { checkIcon(it) }
-    } else {
-        Text {
-            style = Styles.fieldHint
-            +"A consulta será marcada sem pré-triagem. Ela continua guardada para a próxima."
-        }
     }
 }

@@ -3,33 +3,25 @@ package grupotp.recifesaudavel.app.ui.screen.pretriage
 import grupotp.recifesaudavel.app.di.useInject
 import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.ui.component.alert.clinicalDisclaimer
 import grupotp.recifesaudavel.app.ui.component.alert.sessionExpiredAlert
-import grupotp.recifesaudavel.app.ui.component.alert.warnAlert
 import grupotp.recifesaudavel.app.ui.component.button.primaryButton
 import grupotp.recifesaudavel.app.ui.component.button.secondaryButton
-import grupotp.recifesaudavel.app.ui.component.form.FieldKind
-import grupotp.recifesaudavel.app.ui.component.form.TextField
-import grupotp.recifesaudavel.app.ui.component.form.choiceChip
-import grupotp.recifesaudavel.app.ui.component.form.fieldError
-import grupotp.recifesaudavel.app.ui.component.form.formField
-import grupotp.recifesaudavel.app.ui.component.form.phoneField
 import grupotp.recifesaudavel.app.ui.component.layout.AppFooter
 import grupotp.recifesaudavel.app.ui.component.layout.ScreenHeader
 import grupotp.recifesaudavel.app.ui.component.layout.StepIndicator
-import grupotp.recifesaudavel.app.ui.component.layout.sectionTitle
 import grupotp.recifesaudavel.app.ui.format.BrazilianDate
 import grupotp.recifesaudavel.app.ui.format.ErrorMessages
-import grupotp.recifesaudavel.app.ui.format.label
 import grupotp.recifesaudavel.app.ui.hook.useScreenScope
+import grupotp.recifesaudavel.app.ui.screen.pretriage.step.PreTriageStep2Complaint
+import grupotp.recifesaudavel.app.ui.screen.pretriage.step.PreTriageStep3MedicalHistory
+import grupotp.recifesaudavel.app.ui.screen.pretriage.step.PreTriageStep4Medications
+import grupotp.recifesaudavel.app.ui.screen.pretriage.step.PreTriageStep1PersonalData
 import grupotp.recifesaudavel.app.ui.theme.Styles
 import grupotp.recifesaudavel.app.usecase.pretriage.LoadPreTriageDraftUseCase
 import grupotp.recifesaudavel.app.usecase.pretriage.SubmitPreTriageUseCase
-import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
-import grupotp.recifesaudavel.common.pretriage.SymptomsStart
 import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
@@ -37,7 +29,6 @@ import kotlinx.datetime.toLocalDateTime
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
-import react.ChildrenBuilder
 import react.FC
 import react.Key
 import react.Props
@@ -67,7 +58,7 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
     var form by useState<PreTriageForm?>(null)
     var birthDate by useState("")
     var step by useState(0)
-    var fieldErrors by useState<Map<String, String>>(emptyMap())
+    var invalidFields by useState<Map<String, String>>(emptyMap())
     var error by useState<RemoteError?>(null)
     var busy by useState(false)
     val scope = useScreenScope()
@@ -84,9 +75,9 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
         }
     }
 
-    fun update(key: String, change: PreTriageForm.() -> PreTriageForm) {
-        form = form?.change()
-        fieldErrors = fieldErrors - key
+    fun update(key: String, change: (PreTriageForm) -> PreTriageForm) {
+        form = form?.let(change)
+        invalidFields = invalidFields - key
     }
 
     fun validate(current: PreTriageForm): Map<String, String> = buildMap {
@@ -122,9 +113,9 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
 
     fun next() {
         val current = form ?: return
-        val errors = validate(current)
-        fieldErrors = errors
-        if (errors.isNotEmpty()) {
+        val found = validate(current)
+        invalidFields = found
+        if (found.isNotEmpty()) {
             return
         }
         error = null
@@ -133,7 +124,7 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
 
     fun back() {
         error = null
-        fieldErrors = emptyMap()
+        invalidFields = emptyMap()
         if (step == 0) props.onBack() else step -= 1
     }
 
@@ -173,176 +164,30 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
                 contentContainerStyle = Styles.scrollContent
                 keyboardShouldPersistTaps = "handled"
                 when (step) {
-                    0 -> {
-                        clinicalDisclaimer()
-                        warnAlert("Emergência? Não aguarde o agendamento. Ligue 192 (SAMU) ou vá ao pronto-socorro.", icon = "🚨")
-                        View {
-                            style = Styles.card
-                            sectionTitle("Dados Pessoais")
-                            textField("Nome completo", current.fullName, "Ex: José Carlos da Silva", FieldKind.Name, required = true) {
-                                update("fullName") { copy(fullName = it) }
-                            }
-                            fieldError(fieldErrors["fullName"])
-                            textField("Nome Social", current.socialName, "Ex: José", FieldKind.Name, hint = "Como prefere ser chamado(a)") {
-                                update("socialName") { copy(socialName = it) }
-                            }
-                            formField(caption = "Data de nascimento", required = true) {
-                                TextField {
-                                    label = "Data de nascimento"
-                                    value = birthDate
-                                    placeholder = "dd/mm/aaaa"
-                                    kind = FieldKind.Date
-                                    onValue = {
-                                        birthDate = BrazilianDate.mask(it)
-                                        fieldErrors = fieldErrors - "birthDate"
-                                    }
-                                }
-                                fieldError(fieldErrors["birthDate"])
-                            }
-                            phoneField(
-                                caption = "Telefone principal",
-                                value = current.primaryPhone,
-                                whatsapp = current.primaryPhoneWhatsapp,
-                                required = true,
-                                onValue = { update("primaryPhone") { copy(primaryPhone = it) } },
-                                onWhatsapp = { update("primaryPhone") { copy(primaryPhoneWhatsapp = it) } },
-                            )
-                            fieldError(fieldErrors["primaryPhone"])
-                            phoneField(
-                                caption = "Telefone secundário",
-                                value = current.secondaryPhone,
-                                whatsapp = current.secondaryPhoneWhatsapp,
-                                onValue = { update("secondaryPhone") { copy(secondaryPhone = it) } },
-                                onWhatsapp = { update("secondaryPhone") { copy(secondaryPhoneWhatsapp = it) } },
-                            )
-                            textField("Nome do contato de emergência", current.emergencyContactName, "Ex: Ana Silva (filha)", FieldKind.Name) {
-                                update("emergencyContactName") { copy(emergencyContactName = it) }
-                            }
-                            textField("Telefone do contato de emergência", current.emergencyContactPhone.digits, "(81) 99888-7766", FieldKind.Phone) {
-                                update("emergencyContactPhone") { copy(emergencyContactPhone = Phone(it)) }
-                            }
+                    0 -> PreTriageStep1PersonalData {
+                        this.form = current
+                        fieldErrors = invalidFields
+                        onChange = ::update
+                        this.birthDate = birthDate
+                        onBirthDate = {
+                            birthDate = BrazilianDate.mask(it)
+                            invalidFields = invalidFields - "birthDate"
                         }
                     }
-                    1 -> View {
-                        style = Styles.card
-                        sectionTitle("Queixa Principal")
-                        Text {
-                            style = Styles.fieldHint
-                            +"Descreva com suas palavras. O aplicativo não realiza diagnóstico."
-                        }
-                        textField(
-                            "Motivo da consulta",
-                            current.reason,
-                            "Ex: Dor no peito ao respirar, tontura frequente...",
-                            multiline = true,
-                            required = true,
-                        ) { update("reason") { copy(reason = it) } }
-                        fieldError(fieldErrors["reason"])
-                        textField("Sintomas atuais", current.currentSymptoms, "Liste os sintomas que está sentindo agora...", multiline = true) {
-                            update("currentSymptoms") { copy(currentSymptoms = it) }
-                        }
-                        formField(caption = "Quando começaram os sintomas?") {
-                            View {
-                                style = Styles.chipWrap
-                                accessibilityRole = "radiogroup"
-                                SymptomsStart.entries.forEach { option ->
-                                    choiceChip(option.label(), selected = option == current.symptomsStart) {
-                                        update("symptomsStart") {
-                                            copy(symptomsStart = if (symptomsStart == option) null else option)
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        textField(
-                            "Duração / padrão dos sintomas",
-                            current.symptomsPattern,
-                            "Ex: Dor constante, tontura ao levantar",
-                            hint = "Contínuo, intermitente, piora ao...",
-                        ) { update("symptomsPattern") { copy(symptomsPattern = it) } }
-                        formField(caption = "Intensidade (opcional)", hint = "1 = leve, 10 = insuportável") {
-                            View {
-                                style = Styles.chipWrap
-                                accessibilityRole = "radiogroup"
-                                choiceChip("Prefiro não informar", selected = current.intensity == null) {
-                                    update("intensity") { copy(intensity = null) }
-                                }
-                                (1..10).forEach { level ->
-                                    choiceChip(
-                                        text = level.toString(),
-                                        selected = level == current.intensity,
-                                        style = Styles.timeChip,
-                                        accessibilityLabel = "Intensidade $level${intensityNote(level)}",
-                                    ) { update("intensity") { copy(intensity = level) } }
-                                }
-                            }
-                        }
-                        textField("Observações adicionais", current.complaintNotes, "Algo mais que queira informar...", multiline = true) {
-                            update("complaintNotes") { copy(complaintNotes = it) }
-                        }
+                    1 -> PreTriageStep2Complaint {
+                        this.form = current
+                        fieldErrors = invalidFields
+                        onChange = ::update
                     }
-                    2 -> View {
-                        style = Styles.card
-                        sectionTitle("Histórico Médico")
-                        Text {
-                            style = Styles.fieldHint
-                            +"Dados de saúde são informações sensíveis protegidas pela LGPD."
-                        }
-                        textField(
-                            "Doenças anteriores ou crônicas",
-                            current.previousConditions,
-                            "Ex: Hipertensão há 10 anos, diabetes tipo 2",
-                            multiline = true,
-                            hint = "Ex: hipertensão, diabetes, asma",
-                        ) { update("previousConditions") { copy(previousConditions = it) } }
-                        textField("Cirurgias realizadas", current.surgeries, "Nenhuma, ou descreva com ano aproximado...", multiline = true) {
-                            update("surgeries") { copy(surgeries = it) }
-                        }
-                        textField(
-                            "Alergias conhecidas",
-                            current.allergies,
-                            "Ex: Dipirona, penicilina, amendoim",
-                            hint = "Medicamentos, alimentos, látex, outros",
-                        ) { update("allergies") { copy(allergies = it) } }
-                        textField("Tratamento atual", current.currentTreatment, "Acompanhamento médico, fisioterapia, etc.", multiline = true) {
-                            update("currentTreatment") { copy(currentTreatment = it) }
-                        }
-                        textField("Observações relevantes", current.historyNotes, "Outras informações importantes...", multiline = true) {
-                            update("historyNotes") { copy(historyNotes = it) }
-                        }
+                    2 -> PreTriageStep3MedicalHistory {
+                        this.form = current
+                        fieldErrors = invalidFields
+                        onChange = ::update
                     }
-                    else -> View {
-                        style = Styles.card
-                        sectionTitle("Medicamentos e Suplementos")
-                        Text {
-                            style = Styles.fieldHint
-                            +"O aplicativo não recomenda alterações de tratamento."
-                        }
-                        textField(
-                            "Medicamentos de uso regular",
-                            current.regularMedications,
-                            "Ex: Losartana 50mg, Metformina 850mg",
-                            multiline = true,
-                            hint = "Nome e dose, se souber",
-                        ) { update("regularMedications") { copy(regularMedications = it) } }
-                        textField(
-                            "Medicamentos de uso contínuo (todo dia)",
-                            current.continuousMedications,
-                            "Ex: AAS 100mg — coração; Sinvastatina — colesterol",
-                            multiline = true,
-                        ) { update("continuousMedications") { copy(continuousMedications = it) } }
-                        textField("Suplementos vitamínicos ou naturais", current.supplements, "Ex: Vitamina D 2000UI, Ômega 3, Complexo B", multiline = true) {
-                            update("supplements") { copy(supplements = it) }
-                        }
-                        textField("Outros medicamentos em uso", current.otherMedications, "Medicamentos pontuais, antibióticos, etc.", multiline = true) {
-                            update("otherMedications") { copy(otherMedications = it) }
-                        }
-                        textField(
-                            "Observações sobre medicamentos",
-                            current.medicationNotes,
-                            "Dificuldade de engolir, horários especiais...",
-                            multiline = true,
-                        ) { update("medicationNotes") { copy(medicationNotes = it) } }
+                    else -> PreTriageStep4Medications {
+                        this.form = current
+                        fieldErrors = invalidFields
+                        onChange = ::update
                     }
                 }
                 sessionExpiredAlert(error, props.onSignOut) { ErrorMessages.preTriage(it) }
@@ -362,35 +207,6 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
         }
         AppFooter()
     }
-}
-
-private fun ChildrenBuilder.textField(
-    caption: String,
-    value: String,
-    placeholder: String,
-    kind: FieldKind = FieldKind.Text,
-    multiline: Boolean = false,
-    required: Boolean = false,
-    hint: String? = null,
-    onValue: (String) -> Unit,
-) {
-    formField(caption = caption, required = required, hint = hint) {
-        TextField {
-            label = caption
-            this.value = value
-            this.placeholder = placeholder
-            this.kind = kind
-            this.multiline = multiline
-            this.onValue = onValue
-        }
-    }
-}
-
-private fun intensityNote(level: Int): String = when (level) {
-    1 -> ", muito leve"
-    5 -> ", moderado"
-    10 -> ", insuportável"
-    else -> ""
 }
 
 /** A real calendar date between 1900 and today. */
