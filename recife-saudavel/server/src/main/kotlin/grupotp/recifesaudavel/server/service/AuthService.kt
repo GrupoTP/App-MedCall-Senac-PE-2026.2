@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.server.service
 
+import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
@@ -8,16 +9,6 @@ import grupotp.recifesaudavel.server.security.PasswordHasher
 import grupotp.recifesaudavel.server.security.SessionTokens
 import java.time.Clock
 import kotlin.time.toKotlinInstant
-
-sealed interface RegistrationResult {
-    data class Created(val account: AuthenticatedAccount) : RegistrationResult
-    data class Rejected(val message: String) : RegistrationResult
-}
-
-sealed interface SignInResult {
-    data class Authenticated(val account: AuthenticatedAccount) : SignInResult
-    data class Rejected(val message: String) : SignInResult
-}
 
 class AuthService(
     private val users: UserRepository,
@@ -31,13 +22,13 @@ class AuthService(
         val email = request.email.trim().lowercase()
         // Answers the common case without paying for the password hash; insert covers the race.
         if (users.findByEmail(email) != null) {
-            return RegistrationResult.Rejected(EMAIL_TAKEN)
+            return RegistrationResult.Rejected(ServiceError(ErrorCode.EMAIL_TAKEN))
         }
         val account = users.insert(
             request = request,
             passwordHash = passwords.hash(request.password),
             now = clock.instant().toKotlinInstant(),
-        ) ?: return RegistrationResult.Rejected(EMAIL_TAKEN)
+        ) ?: return RegistrationResult.Rejected(ServiceError(ErrorCode.EMAIL_TAKEN))
         return RegistrationResult.Created(account.withSession())
     }
 
@@ -45,7 +36,7 @@ class AuthService(
         val email = request.email.trim().lowercase()
         val user = users.findByEmail(email)
         if (user == null || !passwords.verify(request.password, user.passwordHash)) {
-            return SignInResult.Rejected("E-mail ou senha incorretos.")
+            return SignInResult.Rejected
         }
         if (passwords.needsRehash(user.passwordHash)) {
             users.updatePasswordHash(user.account.id, passwords.hash(request.password))
@@ -63,19 +54,19 @@ class AuthService(
     private fun AuthenticatedAccount.withSession(): AuthenticatedAccount =
         copy(sessionToken = tokens.sign(userId = id, session = sessions.open(id)))
 
-    private fun validate(request: RegisterAccountRequest): String? = when {
-        request.fullName.isBlank() -> "Nome completo é obrigatório."
-        !request.email.contains("@") -> "Informe um e-mail válido."
-        request.password.value.length < 6 -> "Mínimo 6 caracteres."
-        request.primaryPhone.isEmpty() -> "Telefone principal é obrigatório."
+    private fun validate(request: RegisterAccountRequest): ServiceError? = when {
+        request.fullName.isBlank() -> ServiceError(ErrorCode.FULL_NAME_REQUIRED)
+        !request.email.contains("@") -> ServiceError(ErrorCode.EMAIL_INVALID)
+        request.password.value.length < MIN_PASSWORD -> ServiceError(ErrorCode.PASSWORD_TOO_SHORT, MIN_PASSWORD)
+        request.primaryPhone.isEmpty() -> ServiceError(ErrorCode.PRIMARY_PHONE_REQUIRED)
         !request.primaryPhone.hasValidLength || !request.secondaryPhone.hasValidLength ||
-            !request.emergencyContactPhone.hasValidLength -> "Telefone inválido."
-        !request.acceptedPrivacyPolicy -> "Leitura da Política de Privacidade é obrigatória."
-        !request.acceptedTreatment -> "Consentimento de tratamento de dados é necessário."
+            !request.emergencyContactPhone.hasValidLength -> ServiceError(ErrorCode.PHONE_INVALID)
+        !request.acceptedPrivacyPolicy -> ServiceError(ErrorCode.PRIVACY_POLICY_REQUIRED)
+        !request.acceptedTreatment -> ServiceError(ErrorCode.TREATMENT_CONSENT_REQUIRED)
         else -> null
     }
 
     private companion object {
-        const val EMAIL_TAKEN = "E-mail já cadastrado."
+        const val MIN_PASSWORD = 6
     }
 }

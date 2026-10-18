@@ -4,6 +4,7 @@ import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
@@ -85,7 +86,10 @@ class AuthRouteTest {
         assertEquals(HttpStatusCode.Unauthorized, resigned.status)
         assertEquals("Bearer realm=recife-saudavel", resigned.headers[HttpHeaders.WWWAuthenticate])
         assertEquals(HttpStatusCode.Unauthorized, anonymous.status)
-        assertEquals("Sua sessão expirou. Entre de novo para continuar.", Json.decodeFromString<ApiError>(resigned.bodyAsText()).message)
+        assertEquals(
+            ApiError(ErrorCode.SESSION_EXPIRED, "Sua sessão expirou. Entre de novo para continuar."),
+            Json.decodeFromString<ApiError>(resigned.bodyAsText()),
+        )
     }
 
     @Test
@@ -132,8 +136,8 @@ class AuthRouteTest {
         // Assert
         assertEquals(HttpStatusCode.Unauthorized, response.status)
         assertEquals(
-            "E-mail ou senha incorretos.",
-            Json.decodeFromString<ApiError>(response.bodyAsText()).message,
+            ApiError(ErrorCode.WRONG_CREDENTIALS, "E-mail ou senha incorretos."),
+            Json.decodeFromString<ApiError>(response.bodyAsText()),
         )
     }
 

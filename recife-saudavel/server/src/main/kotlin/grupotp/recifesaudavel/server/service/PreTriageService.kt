@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.server.service
 
+import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.common.pretriage.PendingPreTriage
-import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
@@ -11,12 +11,6 @@ import kotlinx.datetime.toKotlinLocalDate
 import java.time.Clock
 import java.time.LocalDate
 import kotlin.time.toKotlinInstant
-
-sealed interface PreTriageResult {
-    data class Created(val preTriage: PreTriage) : PreTriageResult
-
-    data class Rejected(val message: String) : PreTriageResult
-}
 
 /**
  * Pre-triage rules. The personal data typed here belongs to the pre-triage only: the profile
@@ -81,7 +75,7 @@ class PreTriageService(
         }
     }
 
-    private fun validate(form: PreTriageForm): String? {
+    private fun validate(form: PreTriageForm): ServiceError? {
         val birthDate = form.birthDate
         val texts = listOf(
             form.reason, form.currentSymptoms, form.symptomsPattern, form.complaintNotes,
@@ -92,16 +86,17 @@ class PreTriageService(
         val shortTexts = listOf(form.fullName, form.socialName, form.emergencyContactName)
         val phones = listOf(form.primaryPhone, form.secondaryPhone, form.emergencyContactPhone)
         return when {
-            form.fullName.isBlank() -> "Nome completo é obrigatório."
-            birthDate == null -> "Informe sua data de nascimento."
+            form.fullName.isBlank() -> ServiceError(ErrorCode.FULL_NAME_REQUIRED)
+            birthDate == null -> ServiceError(ErrorCode.BIRTH_DATE_REQUIRED)
             birthDate > LocalDate.now(clock).toKotlinLocalDate() || birthDate.year < MIN_BIRTH_YEAR ->
-                "Informe uma data de nascimento válida."
-            form.primaryPhone.isEmpty() -> "Telefone principal é obrigatório."
-            form.reason.isBlank() -> "Descreva o motivo da consulta."
-            form.intensity != null && form.intensity !in 1..10 -> "Intensidade deve ser de 1 a 10."
-            texts.any { it.length > MAX_TEXT } -> "Texto muito longo. Use até $MAX_TEXT caracteres."
-            shortTexts.any { it.length > MAX_SHORT_TEXT } -> "Texto muito longo. Use até $MAX_SHORT_TEXT caracteres."
-            phones.any { !it.hasValidLength } -> "Telefone inválido."
+                ServiceError(ErrorCode.BIRTH_DATE_INVALID)
+            form.primaryPhone.isEmpty() -> ServiceError(ErrorCode.PRIMARY_PHONE_REQUIRED)
+            form.reason.isBlank() -> ServiceError(ErrorCode.REASON_REQUIRED)
+            form.intensity != null && form.intensity !in INTENSITY ->
+                ServiceError(ErrorCode.INTENSITY_OUT_OF_RANGE, INTENSITY.first, INTENSITY.last)
+            texts.any { it.length > MAX_TEXT } -> ServiceError(ErrorCode.TEXT_TOO_LONG, MAX_TEXT)
+            shortTexts.any { it.length > MAX_SHORT_TEXT } -> ServiceError(ErrorCode.TEXT_TOO_LONG, MAX_SHORT_TEXT)
+            phones.any { !it.hasValidLength } -> ServiceError(ErrorCode.PHONE_INVALID)
             else -> null
         }
     }
@@ -130,5 +125,6 @@ class PreTriageService(
         const val MAX_TEXT = 1000
         const val MAX_SHORT_TEXT = 200
         const val MIN_BIRTH_YEAR = 1900
+        val INTENSITY = 1..10
     }
 }

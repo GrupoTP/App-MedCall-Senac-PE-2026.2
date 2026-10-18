@@ -9,14 +9,6 @@ import kotlin.time.toKotlinDuration
 import kotlin.time.toKotlinInstant
 
 /**
- * A session just opened. Its token names [id] and carries [createdAt] as `iat`, whole seconds.
- */
-data class OpenedSession(
-    val id: Int,
-    val createdAt: Instant,
-)
-
-/**
  * Opens and resolves sessions. The client holds a signed token naming the session
  * ([SessionTokens][grupotp.recifesaudavel.server.security.SessionTokens]); this service decides
  * whether that session is still open.

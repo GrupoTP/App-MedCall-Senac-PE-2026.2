@@ -3,16 +3,11 @@ package grupotp.recifesaudavel.server.service
 import grupotp.recifesaudavel.common.account.AccountProfile
 import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
+import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
 import java.time.Clock
 import kotlin.time.toKotlinInstant
-
-sealed interface AccountResult {
-    data class Done(val profile: AccountProfile) : AccountResult
-    data class Rejected(val message: String) : AccountResult
-    data object UnknownUser : AccountResult
-}
 
 /**
  * Settings of the signed-in person: profile, optional consent, password and the account deletion request.
@@ -28,13 +23,13 @@ class AccountService(
     fun update(userId: Int, request: UpdateProfileRequest): AccountResult {
         validate(request)?.let { return AccountResult.Rejected(it) }
         if (users.emailTakenByOther(request.email.trim().lowercase(), userId)) {
-            return AccountResult.Rejected(EMAIL_TAKEN)
+            return AccountResult.Rejected(ServiceError(ErrorCode.EMAIL_TAKEN))
         }
         if (users.findAccountProfile(userId) == null) {
             return AccountResult.UnknownUser
         }
         if (!users.updateProfile(userId, request)) {
-            return AccountResult.Rejected(EMAIL_TAKEN)
+            return AccountResult.Rejected(ServiceError(ErrorCode.EMAIL_TAKEN))
         }
         return reloaded(userId)
     }
@@ -54,10 +49,12 @@ class AccountService(
     fun changePassword(userId: Int, request: ChangePasswordRequest, keepSessionId: Int?): AccountResult {
         val stored = users.findPasswordHash(userId) ?: return AccountResult.UnknownUser
         return when {
-            !passwords.verify(request.currentPassword, stored) -> AccountResult.Rejected("Senha atual incorreta.")
-            request.newPassword.value.length < MIN_PASSWORD -> AccountResult.Rejected("Mínimo 6 caracteres.")
+            !passwords.verify(request.currentPassword, stored) ->
+                AccountResult.Rejected(ServiceError(ErrorCode.CURRENT_PASSWORD_WRONG))
+            request.newPassword.value.length < MIN_PASSWORD ->
+                AccountResult.Rejected(ServiceError(ErrorCode.PASSWORD_TOO_SHORT, MIN_PASSWORD))
             request.newPassword == request.currentPassword ->
-                AccountResult.Rejected("A nova senha precisa ser diferente da atual.")
+                AccountResult.Rejected(ServiceError(ErrorCode.PASSWORD_UNCHANGED))
             else -> {
                 users.updatePasswordHash(userId, passwords.hash(request.newPassword))
                 if (request.signOutOtherSessions) {
@@ -86,17 +83,16 @@ class AccountService(
     private fun reloaded(userId: Int): AccountResult =
         users.findAccountProfile(userId)?.let { AccountResult.Done(it) } ?: AccountResult.UnknownUser
 
-    private fun validate(request: UpdateProfileRequest): String? = when {
-        request.fullName.isBlank() -> "Nome completo é obrigatório."
-        !request.email.contains("@") -> "Informe um e-mail válido."
-        request.primaryPhone.isEmpty() -> "Telefone principal é obrigatório."
+    private fun validate(request: UpdateProfileRequest): ServiceError? = when {
+        request.fullName.isBlank() -> ServiceError(ErrorCode.FULL_NAME_REQUIRED)
+        !request.email.contains("@") -> ServiceError(ErrorCode.EMAIL_INVALID)
+        request.primaryPhone.isEmpty() -> ServiceError(ErrorCode.PRIMARY_PHONE_REQUIRED)
         !request.primaryPhone.hasValidLength || !request.secondaryPhone.hasValidLength ||
-            !request.emergencyContactPhone.hasValidLength -> "Telefone inválido."
+            !request.emergencyContactPhone.hasValidLength -> ServiceError(ErrorCode.PHONE_INVALID)
         else -> null
     }
 
     private companion object {
         const val MIN_PASSWORD = 6
-        const val EMAIL_TAKEN = "E-mail já cadastrado."
     }
 }

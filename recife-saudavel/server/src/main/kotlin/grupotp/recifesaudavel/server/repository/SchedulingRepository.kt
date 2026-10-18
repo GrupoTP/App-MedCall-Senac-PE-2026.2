@@ -6,18 +6,17 @@ import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
-import grupotp.recifesaudavel.server.database.table.AppointmentsTable
-import grupotp.recifesaudavel.server.database.table.ClinicsTable
-import grupotp.recifesaudavel.server.database.table.ProfessionalsTable
 import grupotp.recifesaudavel.server.database.SchedulingCatalog
-import grupotp.recifesaudavel.server.database.table.SpecialtiesTable
 import grupotp.recifesaudavel.server.database.entity.AppointmentEntity
 import grupotp.recifesaudavel.server.database.entity.ClinicEntity
 import grupotp.recifesaudavel.server.database.entity.ProfessionalEntity
 import grupotp.recifesaudavel.server.database.entity.SpecialtyEntity
 import grupotp.recifesaudavel.server.database.entity.UserEntity
+import grupotp.recifesaudavel.server.database.table.AppointmentsTable
+import grupotp.recifesaudavel.server.database.table.ClinicsTable
+import grupotp.recifesaudavel.server.database.table.ProfessionalsTable
+import grupotp.recifesaudavel.server.database.table.SpecialtiesTable
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -29,22 +28,6 @@ import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SizedIterable
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import kotlin.time.Instant
-
-/** A professional, a date and a time: one slot of the agenda. */
-data class Slot(
-    val professionalId: Int,
-    val date: LocalDate,
-    val time: LocalTime,
-)
-
-data class NewAppointment(
-    val patientId: Int,
-    val slot: Slot,
-    val reason: String,
-    val notes: String,
-    val createdAt: Instant,
-)
 
 class SchedulingRepository(
     private val database: Database,

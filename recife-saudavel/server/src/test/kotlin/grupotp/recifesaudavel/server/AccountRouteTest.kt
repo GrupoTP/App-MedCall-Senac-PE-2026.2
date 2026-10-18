@@ -6,11 +6,11 @@ import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
 import grupotp.recifesaudavel.common.security.SecretString
-import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -24,7 +24,6 @@ import io.ktor.http.contentType
 import io.ktor.server.config.ApplicationConfig
 import io.ktor.server.testing.ApplicationTestBuilder
 import io.ktor.server.testing.testApplication
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -91,7 +90,7 @@ class AccountRouteTest {
         assertEquals("8133334444", reloaded.secondaryPhone.digits)
         assertTrue(reloaded.secondaryPhoneWhatsapp)
         assertEquals(HttpStatusCode.BadRequest, taken.status)
-        assertEquals("E-mail já cadastrado.", decode<ApiError>(taken).message)
+        assertEquals(ApiError(ErrorCode.EMAIL_TAKEN, "E-mail já cadastrado."), decode<ApiError>(taken))
         assertEquals(HttpStatusCode.BadRequest, blank.status)
     }
 
@@ -111,8 +110,9 @@ class AccountRouteTest {
 
         // Assert
         assertEquals(HttpStatusCode.BadRequest, wrong.status)
-        assertEquals("Senha atual incorreta.", decode<ApiError>(wrong).message)
+        assertEquals(ApiError(ErrorCode.CURRENT_PASSWORD_WRONG, "Senha atual incorreta."), decode<ApiError>(wrong))
         assertEquals(HttpStatusCode.BadRequest, short.status)
+        assertEquals(ApiError(ErrorCode.PASSWORD_TOO_SHORT, "Mínimo 6 caracteres."), decode<ApiError>(short))
         assertEquals(HttpStatusCode.OK, changed.status)
         assertEquals(HttpStatusCode.Unauthorized, oldLogin.status)
         assertEquals(HttpStatusCode.OK, newLogin.status)

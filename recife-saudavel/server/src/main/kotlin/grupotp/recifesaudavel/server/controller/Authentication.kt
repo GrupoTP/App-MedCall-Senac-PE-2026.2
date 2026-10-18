@@ -1,13 +1,10 @@
 package grupotp.recifesaudavel.server.controller
 
-import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.server.security.SessionPrincipal
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.principal
-import io.ktor.server.response.respond
-
-internal const val SESSION_EXPIRED_MESSAGE = "Sua sessão expirou. Entre de novo para continuar."
 
 /**
  * The signed-in person. Only for routes under `authenticatedRoute`, where Ktor has already
@@ -17,5 +14,5 @@ internal val ApplicationCall.signedIn: SessionPrincipal
     get() = checkNotNull(principal<SessionPrincipal>()) { "Route is not under authenticatedRoute." }
 
 internal suspend fun ApplicationCall.respondSessionExpired() {
-    respond(HttpStatusCode.Unauthorized, ApiError(SESSION_EXPIRED_MESSAGE))
+    respondError(HttpStatusCode.Unauthorized, ErrorCode.SESSION_EXPIRED)
 }

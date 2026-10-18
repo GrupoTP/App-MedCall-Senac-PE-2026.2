@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.server.repository
 
-import grupotp.recifesaudavel.server.database.table.SessionsTable
 import grupotp.recifesaudavel.server.database.entity.SessionEntity
 import grupotp.recifesaudavel.server.database.entity.UserEntity
+import grupotp.recifesaudavel.server.database.table.SessionsTable
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.less
@@ -11,12 +11,6 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Instant
-
-data class StoredSession(
-    val userId: Int,
-    val createdAt: Instant,
-    val lastUsedAt: Instant,
-)
 
 /** Single sessions go through [SessionEntity]; deleting many at once stays one SQL statement. */
 class SessionRepository(

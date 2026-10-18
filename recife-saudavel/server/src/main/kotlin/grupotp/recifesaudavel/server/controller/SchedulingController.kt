@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.server.controller
 
-import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.server.plugin.authenticatedRoute
 import grupotp.recifesaudavel.server.service.BookingResult
@@ -16,8 +16,6 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import org.koin.ktor.ext.inject
 
-private const val INVALID_CHOICE = "Especialidade ou profissional inválido."
-
 fun Application.configureSchedulingController() {
     val scheduling by inject<SchedulingService>()
 
@@ -30,7 +28,7 @@ fun Application.configureSchedulingController() {
                 val specialtyId = call.request.queryParameters["specialtyId"]
                 val id = specialtyId?.toIntOrNull()
                 if (specialtyId != null && id == null) {
-                    call.respond(HttpStatusCode.BadRequest, ApiError(INVALID_CHOICE))
+                    call.respondError(HttpStatusCode.BadRequest, ErrorCode.INVALID_CHOICE)
                 } else {
                     call.respond(scheduling.professionals(id))
                 }
@@ -48,7 +46,7 @@ fun Application.configureSchedulingController() {
                     scheduling.availability(specialtyId, professionalId)
                 }
                 if (days == null) {
-                    call.respond(HttpStatusCode.BadRequest, ApiError(INVALID_CHOICE))
+                    call.respondError(HttpStatusCode.BadRequest, ErrorCode.INVALID_CHOICE)
                 } else {
                     call.respond(days)
                 }
@@ -62,16 +60,17 @@ fun Application.configureSchedulingController() {
                     val result = id?.let { scheduling.cancel(call.signedIn.userId, it) } ?: CancelResult.NotFound
                     when (result) {
                         is CancelResult.Cancelled -> call.respond(result.appointment)
-                        CancelResult.NotFound -> call.respond(HttpStatusCode.NotFound, ApiError("Consulta não encontrada."))
-                        is CancelResult.NotCancellable -> call.respond(HttpStatusCode.Conflict, ApiError(result.message))
+                        CancelResult.NotFound -> call.respondError(HttpStatusCode.NotFound, ErrorCode.APPOINTMENT_NOT_FOUND)
+                        CancelResult.NotCancellable ->
+                            call.respondError(HttpStatusCode.Conflict, ErrorCode.APPOINTMENT_NOT_CANCELLABLE)
                     }
                 }
                 post {
                     val request = call.receive<CreateAppointmentRequest>()
                     when (val result = scheduling.book(call.signedIn.userId, request)) {
                         is BookingResult.Created -> call.respond(HttpStatusCode.Created, result.appointment)
-                        is BookingResult.Rejected -> call.respond(HttpStatusCode.BadRequest, ApiError(result.message))
-                        is BookingResult.Conflict -> call.respond(HttpStatusCode.Conflict, ApiError(result.message))
+                        is BookingResult.Rejected -> call.respondError(HttpStatusCode.BadRequest, result.error)
+                        BookingResult.Conflict -> call.respondError(HttpStatusCode.Conflict, ErrorCode.SLOT_TAKEN)
                     }
                 }
             }

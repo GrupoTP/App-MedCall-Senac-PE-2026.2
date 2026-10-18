@@ -5,8 +5,8 @@ import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.server.database.table.UsersTable
 import grupotp.recifesaudavel.server.database.entity.UserEntity
+import grupotp.recifesaudavel.server.database.table.UsersTable
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.neq
@@ -14,22 +14,6 @@ import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Instant
-
-data class StoredUser(
-    val account: AuthenticatedAccount,
-    val passwordHash: String,
-)
-
-data class UserProfile(
-    val fullName: String,
-    val socialName: String,
-    val primaryPhone: Phone,
-    val primaryPhoneWhatsapp: Boolean,
-    val secondaryPhone: Phone,
-    val secondaryPhoneWhatsapp: Boolean,
-    val emergencyContactName: String,
-    val emergencyContactPhone: Phone,
-)
 
 class UserRepository(
     private val database: Database,

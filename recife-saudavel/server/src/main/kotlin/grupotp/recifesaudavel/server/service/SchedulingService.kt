@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.server.service
 
+import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.AvailableDay
@@ -21,26 +22,6 @@ import java.time.Clock
 import java.time.DayOfWeek
 import java.time.ZoneId
 import kotlin.time.toKotlinInstant
-
-sealed interface BookingResult {
-    data class Created(val appointment: Appointment) : BookingResult
-
-    /** The request is invalid: unknown specialty, professional from another specialty, closed slot. */
-    data class Rejected(val message: String) : BookingResult
-
-    /** Valid request, but someone took the slot first. */
-    data class Conflict(val message: String) : BookingResult
-}
-
-sealed interface CancelResult {
-    data class Cancelled(val appointment: Appointment) : CancelResult
-
-    /** No appointment with this id belongs to the patient. */
-    data object NotFound : CancelResult
-
-    /** Already cancelled, or confirmed and already started. */
-    data class NotCancellable(val message: String) : CancelResult
-}
 
 /**
  * Agenda rules. Every slot the client shows comes from [availability], and [book] checks
@@ -90,20 +71,20 @@ class SchedulingService(
         val candidates = candidates(request.specialtyId, request.professionalId)
             ?.filter { clinicId == null || it.clinicId == clinicId }
             ?.ifEmpty { null }
-            ?: return BookingResult.Rejected("Especialidade, profissional ou clínica inválidos.")
+            ?: return BookingResult.Rejected(ServiceError(ErrorCode.INVALID_CHOICE))
         // The date and time only mean something in one clinic's zone.
         val clinic = candidates.map { it.clinicId }.distinct().singleOrNull()
             ?.let(repository::findClinic)
-            ?: return BookingResult.Rejected("Escolha a clínica do horário.")
+            ?: return BookingResult.Rejected(ServiceError(ErrorCode.CLINIC_REQUIRED))
         val date = request.date
         if (date !in bookableDays(clinic)) {
-            return BookingResult.Rejected("Escolha uma data disponível.")
+            return BookingResult.Rejected(ServiceError(ErrorCode.DATE_UNAVAILABLE))
         }
         if (request.time !in OPENING_TIMES || LocalDateTime(date, request.time) <= nowAt(clinic)) {
-            return BookingResult.Rejected("Escolha um horário disponível.")
+            return BookingResult.Rejected(ServiceError(ErrorCode.TIME_UNAVAILABLE))
         }
         if (request.reason.length > MAX_TEXT || request.notes.length > MAX_TEXT) {
-            return BookingResult.Rejected("Texto muito longo. Use até $MAX_TEXT caracteres.")
+            return BookingResult.Rejected(ServiceError(ErrorCode.TEXT_TOO_LONG, MAX_TEXT))
         }
         val preTriageId = request.preTriageId
         if (preTriageId != null) {
@@ -133,15 +114,16 @@ class SchedulingService(
                 return BookingResult.Created(repository.findAppointment(id)!!)
             }
         }
-        return BookingResult.Conflict("Este horário acabou de ser ocupado. Escolha outro horário.")
+        return BookingResult.Conflict
     }
 
     /** Why the pre-triage cannot be attached, or null when it can. */
-    private fun attachProblem(patientId: Int, preTriageId: Int): String? {
-        val preTriage = preTriages.find(patientId, preTriageId) ?: return "Pré-triagem não encontrada."
+    private fun attachProblem(patientId: Int, preTriageId: Int): ServiceError? {
+        val preTriage = preTriages.find(patientId, preTriageId)
+            ?: return ServiceError(ErrorCode.PRE_TRIAGE_NOT_FOUND)
         val current = preTriage.appointmentId?.let { repository.findAppointment(it) }
         return if (current != null && current.status != AppointmentStatus.Cancelled) {
-            "Esta pré-triagem já está vinculada a outra consulta."
+            ServiceError(ErrorCode.PRE_TRIAGE_ALREADY_ATTACHED)
         } else {
             null
         }
@@ -153,7 +135,7 @@ class SchedulingService(
     fun cancel(patientId: Int, appointmentId: Int): CancelResult {
         val current = repository.findAppointmentOf(patientId, appointmentId) ?: return CancelResult.NotFound
         if (!current.isCancellableAt(nowAt(current.clinic)) || !repository.cancel(patientId, appointmentId, current.status)) {
-            return CancelResult.NotCancellable("Esta consulta não pode mais ser cancelada.")
+            return CancelResult.NotCancellable
         }
         return CancelResult.Cancelled(repository.findAppointment(appointmentId)!!)
     }

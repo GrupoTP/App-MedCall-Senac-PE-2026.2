@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.server.controller
 
-import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
 import grupotp.recifesaudavel.server.plugin.SESSION_AUTH
@@ -29,14 +29,14 @@ fun Application.configureAuthController() {
                 val request = call.receive<RegisterAccountRequest>()
                 when (val result = authService.register(request)) {
                     is RegistrationResult.Created -> call.respond(HttpStatusCode.Created, result.account)
-                    is RegistrationResult.Rejected -> call.respond(HttpStatusCode.BadRequest, ApiError(result.message))
+                    is RegistrationResult.Rejected -> call.respondError(HttpStatusCode.BadRequest, result.error)
                 }
             }
             post("/login") {
                 val request = call.receive<SignInRequest>()
                 when (val result = authService.signIn(request)) {
                     is SignInResult.Authenticated -> call.respond(result.account)
-                    is SignInResult.Rejected -> call.respond(HttpStatusCode.Unauthorized, ApiError(result.message))
+                    SignInResult.Rejected -> call.respondError(HttpStatusCode.Unauthorized, ErrorCode.WRONG_CREDENTIALS)
                 }
             }
             authenticate(SESSION_AUTH) {

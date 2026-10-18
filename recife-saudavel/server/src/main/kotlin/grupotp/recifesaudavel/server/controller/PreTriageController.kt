@@ -1,6 +1,5 @@
 package grupotp.recifesaudavel.server.controller
 
-import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.server.plugin.authenticatedRoute
 import grupotp.recifesaudavel.server.service.PreTriageResult
@@ -11,7 +10,6 @@ import io.ktor.server.request.receive
 import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
-import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import org.koin.ktor.ext.inject
 
@@ -38,7 +36,7 @@ fun Application.configurePreTriageController() {
                 val form = call.receive<PreTriageForm>()
                 when (val result = preTriages.submit(call.signedIn.userId, form)) {
                     is PreTriageResult.Created -> call.respond(HttpStatusCode.Created, result.preTriage)
-                    is PreTriageResult.Rejected -> call.respond(HttpStatusCode.BadRequest, ApiError(result.message))
+                    is PreTriageResult.Rejected -> call.respondError(HttpStatusCode.BadRequest, result.error)
                 }
             }
         }

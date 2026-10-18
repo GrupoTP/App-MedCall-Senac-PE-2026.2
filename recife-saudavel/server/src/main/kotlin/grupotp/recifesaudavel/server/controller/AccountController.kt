@@ -3,7 +3,6 @@ package grupotp.recifesaudavel.server.controller
 import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
-import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.server.plugin.authenticatedRoute
 import grupotp.recifesaudavel.server.service.AccountResult
 import grupotp.recifesaudavel.server.service.AccountService
@@ -15,7 +14,6 @@ import io.ktor.server.response.respond
 import io.ktor.server.routing.get
 import io.ktor.server.routing.post
 import io.ktor.server.routing.put
-import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import org.koin.ktor.ext.inject
 
@@ -57,7 +55,7 @@ fun Application.configureAccountController() {
 private suspend fun ApplicationCall.respondResult(result: AccountResult) {
     when (result) {
         is AccountResult.Done -> respond(result.profile)
-        is AccountResult.Rejected -> respond(HttpStatusCode.BadRequest, ApiError(result.message))
+        is AccountResult.Rejected -> respondError(HttpStatusCode.BadRequest, result.error)
         AccountResult.UnknownUser -> respondSessionExpired()
     }
 }
