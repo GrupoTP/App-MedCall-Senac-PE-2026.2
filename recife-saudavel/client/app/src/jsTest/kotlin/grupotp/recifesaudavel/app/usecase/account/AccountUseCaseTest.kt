@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.usecase.account
 
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.account.SavedProfile
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.app.fake.FakeAccountGateway
 import grupotp.recifesaudavel.app.fake.MemoryLocalAccounts
 import grupotp.recifesaudavel.common.account.AccountProfile
@@ -56,13 +56,13 @@ class AccountUseCaseTest {
     fun savedProfileUpdatesTheDeviceCopyKeepingTheToken() = runTest {
         // Arrange
         val local = MemoryLocalAccounts()
-        val save = SaveAccountProfileUseCase(FakeAccountGateway(SchedulingResult.Success(profile)), local)
+        val save = SaveAccountProfileUseCase(FakeAccountGateway(RemoteResult.Success(profile)), local)
 
         // Act
         val result = save(account, request)
 
         // Assert
-        val saved = assertIs<SchedulingResult.Success<SavedProfile>>(result).value
+        val saved = assertIs<RemoteResult.Success<SavedProfile>>(result).value
         val expected = account.copy(
             fullName = "Polyana Fontes",
             socialName = "Poly",
@@ -79,11 +79,11 @@ class AccountUseCaseTest {
         // Arrange
         val local = MemoryLocalAccounts()
         val offline = SaveAccountProfileUseCase(
-            FakeAccountGateway(SchedulingResult.Failed(SchedulingError.Offline)),
+            FakeAccountGateway(RemoteResult.Failed(RemoteError.Offline)),
             local,
         )
         val refused = SaveAccountProfileUseCase(
-            FakeAccountGateway(SchedulingResult.Failed(SchedulingError.Rejected("E-mail já cadastrado."))),
+            FakeAccountGateway(RemoteResult.Failed(RemoteError.Rejected("E-mail já cadastrado."))),
             local,
         )
 
@@ -92,10 +92,10 @@ class AccountUseCaseTest {
         val refusedResult = refused(account, request)
 
         // Assert
-        assertEquals(SchedulingError.Offline, assertIs<SchedulingResult.Failed>(offlineResult).error)
+        assertEquals(RemoteError.Offline, assertIs<RemoteResult.Failed>(offlineResult).error)
         assertEquals(
-            SchedulingError.Rejected("E-mail já cadastrado."),
-            assertIs<SchedulingResult.Failed>(refusedResult).error,
+            RemoteError.Rejected("E-mail já cadastrado."),
+            assertIs<RemoteResult.Failed>(refusedResult).error,
         )
         assertEquals(null, local.stored)
     }
@@ -103,7 +103,7 @@ class AccountUseCaseTest {
     @Test
     fun passwordAndConsentCallsCarryTheSessionToken() = runTest {
         // Arrange
-        val gateway = FakeAccountGateway(SchedulingResult.Success(profile))
+        val gateway = FakeAccountGateway(RemoteResult.Success(profile))
 
         // Act
         ChangePasswordUseCase(gateway)(account, SecretString("segredo"), SecretString("novasenha"), signOutOtherSessions = true)

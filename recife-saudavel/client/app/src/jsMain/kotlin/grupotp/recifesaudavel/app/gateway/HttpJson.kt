@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.gateway
 
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.security.SecretString
 import js.reflect.unsafeCast
@@ -59,20 +59,20 @@ internal suspend inline fun <reified T> Json.callApi(
     url: String,
     token: SecretString?,
     body: String? = null,
-): SchedulingResult<T> {
+): RemoteResult<T> {
     val (status, text) = try {
         sendJson(method, url, body, token)
     } catch (_: IllegalStateException) {
-        return SchedulingResult.Failed(SchedulingError.Offline)
+        return RemoteResult.Failed(RemoteError.Offline)
     }
     return when {
-        status == 0.toShort() -> SchedulingResult.Failed(SchedulingError.Offline)
-        status == UNAUTHORIZED -> SchedulingResult.Failed(SchedulingError.SessionExpired)
-        status in 200..299 -> SchedulingResult.Success(decodeFromString<T>(text))
+        status == 0.toShort() -> RemoteResult.Failed(RemoteError.Offline)
+        status == UNAUTHORIZED -> RemoteResult.Failed(RemoteError.SessionExpired)
+        status in 200..299 -> RemoteResult.Success(decodeFromString<T>(text))
         else -> {
             val message = runCatching { decodeFromString<ApiError>(text).message }
                 .getOrDefault("Não foi possível concluir o pedido.")
-            SchedulingResult.Failed(SchedulingError.Rejected(message))
+            RemoteResult.Failed(RemoteError.Rejected(message))
         }
     }
 }

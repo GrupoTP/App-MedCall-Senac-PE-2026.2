@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.app.domain.scheduling
 
+import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.common.scheduling.Appointment
 
 /**
@@ -9,5 +10,5 @@ import grupotp.recifesaudavel.common.scheduling.Appointment
 data class AppointmentsSnapshot(
     val appointments: List<Appointment>,
     val offline: Boolean,
-    val error: SchedulingError? = null,
+    val error: RemoteError? = null,
 )

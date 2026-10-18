@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.usecase.session
 
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.session.PendingSignOutQueue
 import grupotp.recifesaudavel.app.fake.FakeAccountGateway
 import grupotp.recifesaudavel.app.fake.MemoryLocalAccounts
@@ -59,7 +59,7 @@ class SignOutUseCaseTest {
         // Arrange
         val accounts = MemoryLocalAccounts(account)
         val gateway = FakeAccountGateway()
-        gateway.signOutResult = SchedulingResult.Failed(SchedulingError.Offline)
+        gateway.signOutResult = RemoteResult.Failed(RemoteError.Offline)
         val pending = MemoryPendingSignOuts()
         val queue = PendingSignOutQueue(gateway, pending)
         val signOut = SignOutUseCase(accounts, queue)
@@ -69,7 +69,7 @@ class SignOutUseCaseTest {
         signOut(account.sessionToken)
         flush()
         val stillQueued = pending.tokens
-        gateway.signOutResult = SchedulingResult.Success(Unit)
+        gateway.signOutResult = RemoteResult.Success(Unit)
         flush()
 
         // Assert

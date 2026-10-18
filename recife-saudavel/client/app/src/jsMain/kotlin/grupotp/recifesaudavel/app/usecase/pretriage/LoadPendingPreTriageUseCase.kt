@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.usecase.pretriage
 
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.pretriage.PreTriageGateway
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 
@@ -13,5 +13,5 @@ class LoadPendingPreTriageUseCase(
     private val gateway: PreTriageGateway,
 ) {
     suspend operator fun invoke(account: AuthenticatedAccount): PreTriage? =
-        (gateway.pending(account.sessionToken) as? SchedulingResult.Success)?.value
+        (gateway.pending(account.sessionToken) as? RemoteResult.Success)?.value
 }

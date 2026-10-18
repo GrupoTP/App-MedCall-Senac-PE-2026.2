@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.gateway
 
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.account.AccountGateway
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.account.AccountProfile
 import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
@@ -14,24 +14,24 @@ class RestAccountGateway(
     private val baseUrl: String,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : AccountGateway {
-    override suspend fun profile(token: SecretString): SchedulingResult<AccountProfile> =
+    override suspend fun profile(token: SecretString): RemoteResult<AccountProfile> =
         json.callApi("GET", "$baseUrl/api/v1/account", token)
 
-    override suspend fun update(token: SecretString, request: UpdateProfileRequest): SchedulingResult<AccountProfile> =
+    override suspend fun update(token: SecretString, request: UpdateProfileRequest): RemoteResult<AccountProfile> =
         json.callApi("PUT", "$baseUrl/api/v1/account", token, json.encodeToString(request))
 
-    override suspend fun updateConsents(token: SecretString, request: UpdateConsentsRequest): SchedulingResult<AccountProfile> =
+    override suspend fun updateConsents(token: SecretString, request: UpdateConsentsRequest): RemoteResult<AccountProfile> =
         json.callApi("PUT", "$baseUrl/api/v1/account/consents", token, json.encodeToString(request))
 
-    override suspend fun changePassword(token: SecretString, request: ChangePasswordRequest): SchedulingResult<AccountProfile> =
+    override suspend fun changePassword(token: SecretString, request: ChangePasswordRequest): RemoteResult<AccountProfile> =
         json.callApi("POST", "$baseUrl/api/v1/account/password", token, json.encodeToString(request))
 
-    override suspend fun requestDeletion(token: SecretString): SchedulingResult<AccountProfile> =
+    override suspend fun requestDeletion(token: SecretString): RemoteResult<AccountProfile> =
         json.callApi("POST", "$baseUrl/api/v1/account/deletion-request", token, "{}")
 
-    override suspend fun signOut(token: SecretString): SchedulingResult<Unit> =
+    override suspend fun signOut(token: SecretString): RemoteResult<Unit> =
         when (val result = json.callApi<JsonObject>("POST", "$baseUrl/api/v1/auth/logout", token, "{}")) {
-            is SchedulingResult.Success -> SchedulingResult.Success(Unit)
-            is SchedulingResult.Failed -> result
+            is RemoteResult.Success -> RemoteResult.Success(Unit)
+            is RemoteResult.Failed -> result
         }
 }

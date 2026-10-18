@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.domain.session
 
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.fake.FakeAccountGateway
 import grupotp.recifesaudavel.app.fake.MemoryPendingSignOuts
 import grupotp.recifesaudavel.common.security.SecretString
@@ -14,7 +14,7 @@ class PendingSignOutQueueTest {
     fun expiredSessionIsNotQueuedBecauseThereIsNothingLeftToRevoke() = runTest {
         // Arrange
         val gateway = FakeAccountGateway()
-        gateway.signOutResult = SchedulingResult.Failed(SchedulingError.SessionExpired)
+        gateway.signOutResult = RemoteResult.Failed(RemoteError.SessionExpired)
         val pending = MemoryPendingSignOuts()
 
         // Act
@@ -28,7 +28,7 @@ class PendingSignOutQueueTest {
     fun flushStopsAtTheFirstTokenThatIsStillUnreachable() = runTest {
         // Arrange
         val gateway = FakeAccountGateway()
-        gateway.signOutResult = SchedulingResult.Failed(SchedulingError.Offline)
+        gateway.signOutResult = RemoteResult.Failed(RemoteError.Offline)
         val pending = MemoryPendingSignOuts()
         val queue = PendingSignOutQueue(gateway, pending)
         queue.revokeOrQueue(SecretString("first"))

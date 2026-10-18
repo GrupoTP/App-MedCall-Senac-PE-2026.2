@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.domain.session
 
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.account.AccountGateway
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -17,7 +17,7 @@ class PendingSignOutQueue(
 ) {
     private val lock = Mutex()
 
-    /** Asks the server now; on [SchedulingError.Offline] the token is queued for [flush]. */
+    /** Asks the server now; on [RemoteError.Offline] the token is queued for [flush]. */
     suspend fun revokeOrQueue(token: SecretString) {
         if (!isUnreachable(runCatching { remote.signOut(token) }.getOrNull())) {
             return
@@ -54,6 +54,6 @@ class PendingSignOutQueue(
     }
 
     /** A null [result] is a call that threw, which also means the server was not reached. */
-    private fun isUnreachable(result: SchedulingResult<Unit>?): Boolean =
-        result == null || (result is SchedulingResult.Failed && result.error == SchedulingError.Offline)
+    private fun isUnreachable(result: RemoteResult<Unit>?): Boolean =
+        result == null || (result is RemoteResult.Failed && result.error == RemoteError.Offline)
 }

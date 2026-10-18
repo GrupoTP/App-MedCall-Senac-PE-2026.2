@@ -1,10 +1,10 @@
 package grupotp.recifesaudavel.app.usecase.scheduling
 
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentGateway
 import grupotp.recifesaudavel.app.domain.scheduling.LocalAppointmentGateway
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
 import grupotp.recifesaudavel.app.domain.scheduling.SchedulingOptions
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.app.fake.SampleAppointments.later
 import grupotp.recifesaudavel.app.fake.SampleAppointments.manaus
 import grupotp.recifesaudavel.app.fake.SampleAppointments.recife
@@ -51,7 +51,7 @@ class SchedulingUseCaseTest {
     @Test
     fun listSavesTheServerListOnTheDevice() = runTest {
         // Arrange
-        val gateway = FakeAppointmentGateway(list = SchedulingResult.Success(listOf(later, sooner)))
+        val gateway = FakeAppointmentGateway(list = RemoteResult.Success(listOf(later, sooner)))
         val local = FakeLocalAppointments()
 
         // Act
@@ -68,7 +68,7 @@ class SchedulingUseCaseTest {
     @Test
     fun offlineListShowsTheCopySavedOnTheDevice() = runTest {
         // Arrange
-        val gateway = FakeAppointmentGateway(list = SchedulingResult.Failed(SchedulingError.Offline))
+        val gateway = FakeAppointmentGateway(list = RemoteResult.Failed(RemoteError.Offline))
         val local = FakeLocalAppointments(mutableMapOf(1 to listOf(sooner)))
 
         // Act
@@ -83,7 +83,7 @@ class SchedulingUseCaseTest {
     @Test
     fun expiredSessionKeepsTheDeviceCopyAndReportsIt() = runTest {
         // Arrange
-        val gateway = FakeAppointmentGateway(list = SchedulingResult.Failed(SchedulingError.SessionExpired))
+        val gateway = FakeAppointmentGateway(list = RemoteResult.Failed(RemoteError.SessionExpired))
         val local = FakeLocalAppointments(mutableMapOf(1 to listOf(sooner)))
 
         // Act
@@ -91,14 +91,14 @@ class SchedulingUseCaseTest {
 
         // Assert
         assertFalse(snapshot.offline)
-        assertEquals(SchedulingError.SessionExpired, snapshot.error)
+        assertEquals(RemoteError.SessionExpired, snapshot.error)
         assertEquals(listOf(sooner), snapshot.appointments)
     }
 
     @Test
     fun anotherAccountNeverSeesTheSavedList() = runTest {
         // Arrange
-        val gateway = FakeAppointmentGateway(list = SchedulingResult.Failed(SchedulingError.Offline))
+        val gateway = FakeAppointmentGateway(list = RemoteResult.Failed(RemoteError.Offline))
         val local = FakeLocalAppointments(mutableMapOf(2 to listOf(sooner)))
 
         // Act
@@ -111,14 +111,14 @@ class SchedulingUseCaseTest {
     @Test
     fun bookingAddsTheStoredAppointmentToTheDeviceCopy() = runTest {
         // Arrange
-        val gateway = FakeAppointmentGateway(book = SchedulingResult.Success(sooner))
+        val gateway = FakeAppointmentGateway(book = RemoteResult.Success(sooner))
         val local = FakeLocalAppointments(mutableMapOf(1 to listOf(later)))
 
         // Act
         val result = BookAppointmentUseCase(gateway, local)(account, request)
 
         // Assert
-        assertEquals(SchedulingResult.Success(sooner), result)
+        assertEquals(RemoteResult.Success(sooner), result)
         assertEquals(request, gateway.booked)
         assertEquals(listOf(sooner, later), local.saved[1])
     }
@@ -127,9 +127,9 @@ class SchedulingUseCaseTest {
     fun failedBookingNeverTouchesTheDeviceCopy() = runTest {
         // Arrange
         val local = FakeLocalAppointments(mutableMapOf(1 to listOf(later)))
-        val offline = FakeAppointmentGateway(book = SchedulingResult.Failed(SchedulingError.Offline))
+        val offline = FakeAppointmentGateway(book = RemoteResult.Failed(RemoteError.Offline))
         val conflict = FakeAppointmentGateway(
-            book = SchedulingResult.Failed(SchedulingError.Rejected("Este horário acabou de ser ocupado.")),
+            book = RemoteResult.Failed(RemoteError.Rejected("Este horário acabou de ser ocupado.")),
         )
 
         // Act
@@ -137,8 +137,8 @@ class SchedulingUseCaseTest {
         val conflictResult = BookAppointmentUseCase(conflict, local)(account, request)
 
         // Assert
-        assertEquals(SchedulingError.Offline, assertIs<SchedulingResult.Failed>(offlineResult).error)
-        assertIs<SchedulingResult.Failed>(conflictResult)
+        assertEquals(RemoteError.Offline, assertIs<RemoteResult.Failed>(offlineResult).error)
+        assertIs<RemoteResult.Failed>(conflictResult)
         assertEquals(listOf(later), local.saved[1])
         assertEquals(0, local.saves)
     }
@@ -148,7 +148,7 @@ class SchedulingUseCaseTest {
         // Arrange
         val cancelled = later.copy(status = AppointmentStatus.Cancelled)
         val local = FakeLocalAppointments(mutableMapOf(1 to listOf(sooner, later)))
-        val accepted = FakeAppointmentGateway(cancel = SchedulingResult.Success(cancelled))
+        val accepted = FakeAppointmentGateway(cancel = RemoteResult.Success(cancelled))
         val offline = FakeAppointmentGateway()
 
         // Act
@@ -157,9 +157,9 @@ class SchedulingUseCaseTest {
         val acceptedResult = CancelAppointmentUseCase(accepted, local)(account, later.id)
 
         // Assert
-        assertEquals(SchedulingError.Offline, assertIs<SchedulingResult.Failed>(offlineResult).error)
+        assertEquals(RemoteError.Offline, assertIs<RemoteResult.Failed>(offlineResult).error)
         assertEquals(0, savesAfterOffline)
-        assertEquals(SchedulingResult.Success(cancelled), acceptedResult)
+        assertEquals(RemoteResult.Success(cancelled), acceptedResult)
         assertEquals(listOf(sooner, cancelled), local.saved[1])
     }
 
@@ -167,57 +167,57 @@ class SchedulingUseCaseTest {
     fun optionsNeedTheServer() = runTest {
         // Arrange
         val online = FakeAppointmentGateway()
-        val offline = FakeAppointmentGateway(specialties = SchedulingResult.Failed(SchedulingError.Offline))
+        val offline = FakeAppointmentGateway(specialties = RemoteResult.Failed(RemoteError.Offline))
 
         // Act
         val loaded = LoadSchedulingOptionsUseCase(online)(account)
         val failed = LoadSchedulingOptionsUseCase(offline)(account)
 
         // Assert
-        val options = assertIs<SchedulingResult.Success<SchedulingOptions>>(loaded).value
+        val options = assertIs<RemoteResult.Success<SchedulingOptions>>(loaded).value
         assertEquals(listOf(lucia), options.professionalsOf(CARDIOLOGY))
         assertEquals("Recife", options.clinic(lucia.clinicId)?.city)
-        assertEquals(SchedulingResult.Failed(SchedulingError.Offline), failed)
+        assertEquals(RemoteResult.Failed(RemoteError.Offline), failed)
     }
 
     private inner class FakeAppointmentGateway(
-        private val specialties: SchedulingResult<List<Specialty>> =
-            SchedulingResult.Success(listOf(Specialty(id = CARDIOLOGY, name = "Cardiologia"))),
-        private val list: SchedulingResult<List<Appointment>> = SchedulingResult.Success(emptyList()),
-        private val book: SchedulingResult<Appointment> = SchedulingResult.Failed(SchedulingError.Offline),
-        private val cancel: SchedulingResult<Appointment> = SchedulingResult.Failed(SchedulingError.Offline),
+        private val specialties: RemoteResult<List<Specialty>> =
+            RemoteResult.Success(listOf(Specialty(id = CARDIOLOGY, name = "Cardiologia"))),
+        private val list: RemoteResult<List<Appointment>> = RemoteResult.Success(emptyList()),
+        private val book: RemoteResult<Appointment> = RemoteResult.Failed(RemoteError.Offline),
+        private val cancel: RemoteResult<Appointment> = RemoteResult.Failed(RemoteError.Offline),
     ) : AppointmentGateway {
         var lastToken: String? = null
         var booked: CreateAppointmentRequest? = null
 
         override suspend fun specialties(token: SecretString) = specialties
 
-        override suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>> {
+        override suspend fun professionals(token: SecretString): RemoteResult<List<Professional>> {
             lastToken = token.value
-            return SchedulingResult.Success(listOf(lucia, Professional(id = 11, name = "Dr. Marcos Souza", specialtyId = 2, clinicId = recife.id)))
+            return RemoteResult.Success(listOf(lucia, Professional(id = 11, name = "Dr. Marcos Souza", specialtyId = 2, clinicId = recife.id)))
         }
 
-        override suspend fun clinics(token: SecretString): SchedulingResult<List<Clinic>> =
-            SchedulingResult.Success(listOf(recife, manaus))
+        override suspend fun clinics(token: SecretString): RemoteResult<List<Clinic>> =
+            RemoteResult.Success(listOf(recife, manaus))
 
         override suspend fun availability(
             token: SecretString,
             specialtyId: Int,
             professionalId: Int?,
-        ): SchedulingResult<List<ClinicAvailability>> = SchedulingResult.Success(emptyList())
+        ): RemoteResult<List<ClinicAvailability>> = RemoteResult.Success(emptyList())
 
-        override suspend fun book(token: SecretString, request: CreateAppointmentRequest): SchedulingResult<Appointment> {
+        override suspend fun book(token: SecretString, request: CreateAppointmentRequest): RemoteResult<Appointment> {
             lastToken = token.value
             booked = request
             return book
         }
 
-        override suspend fun list(token: SecretString): SchedulingResult<List<Appointment>> {
+        override suspend fun list(token: SecretString): RemoteResult<List<Appointment>> {
             lastToken = token.value
             return list
         }
 
-        override suspend fun cancel(token: SecretString, appointmentId: Int): SchedulingResult<Appointment> {
+        override suspend fun cancel(token: SecretString, appointmentId: Int): RemoteResult<Appointment> {
             lastToken = token.value
             return cancel
         }

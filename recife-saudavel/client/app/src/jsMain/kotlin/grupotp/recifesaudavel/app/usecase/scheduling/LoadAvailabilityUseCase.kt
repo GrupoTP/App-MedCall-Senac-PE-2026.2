@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.usecase.scheduling
 
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentGateway
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 
@@ -15,5 +15,5 @@ class LoadAvailabilityUseCase(
         account: AuthenticatedAccount,
         specialtyId: Int,
         professionalId: Int?,
-    ): SchedulingResult<List<ClinicAvailability>> = gateway.availability(account.sessionToken, specialtyId, professionalId)
+    ): RemoteResult<List<ClinicAvailability>> = gateway.availability(account.sessionToken, specialtyId, professionalId)
 }

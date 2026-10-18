@@ -1,11 +1,11 @@
 package grupotp.recifesaudavel.app.usecase.scheduling
 
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentGateway
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentTimeline
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentsSnapshot
 import grupotp.recifesaudavel.app.domain.scheduling.LocalAppointmentGateway
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 
 /**
@@ -17,15 +17,15 @@ class ListAppointmentsUseCase(
 ) {
     suspend operator fun invoke(account: AuthenticatedAccount): AppointmentsSnapshot =
         when (val result = gateway.list(account.sessionToken)) {
-            is SchedulingResult.Success -> {
+            is RemoteResult.Success -> {
                 val appointments = AppointmentTimeline.soonestFirst(result.value)
                 runCatching { local.saveAppointments(account.id, appointments) }
                 AppointmentsSnapshot(appointments, offline = false)
             }
-            is SchedulingResult.Failed -> AppointmentsSnapshot(
+            is RemoteResult.Failed -> AppointmentsSnapshot(
                 appointments = runCatching { local.loadAppointments(account.id) }.getOrNull().orEmpty(),
-                offline = result.error == SchedulingError.Offline,
-                error = result.error.takeUnless { it == SchedulingError.Offline },
+                offline = result.error == RemoteError.Offline,
+                error = result.error.takeUnless { it == RemoteError.Offline },
             )
         }
 }

@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.ui.format
 
+import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.app.domain.auth.AuthError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -22,9 +22,9 @@ class ErrorMessagesTest {
     @Test
     fun offlineMessagesSayWhatWasNotDone() {
         // Act
-        val scheduling = ErrorMessages.scheduling(SchedulingError.Offline)
-        val cancellation = ErrorMessages.cancellation(SchedulingError.Offline)
-        val preTriage = ErrorMessages.preTriage(SchedulingError.Offline)
+        val scheduling = ErrorMessages.scheduling(RemoteError.Offline)
+        val cancellation = ErrorMessages.cancellation(RemoteError.Offline)
+        val preTriage = ErrorMessages.preTriage(RemoteError.Offline)
 
         // Assert
         assertEquals(ErrorMessages.SCHEDULING_OFFLINE, scheduling)
@@ -35,8 +35,8 @@ class ErrorMessagesTest {
     @Test
     fun expiredSessionAndServerRefusalReadTheSameEverywhere() {
         // Act
-        val expired = ErrorMessages.cancellation(SchedulingError.SessionExpired)
-        val rejected = ErrorMessages.preTriage(SchedulingError.Rejected("Erro na clínica."))
+        val expired = ErrorMessages.cancellation(RemoteError.SessionExpired)
+        val rejected = ErrorMessages.preTriage(RemoteError.Rejected("Erro na clínica."))
 
         // Assert
         assertEquals(ErrorMessages.SESSION_EXPIRED, expired)

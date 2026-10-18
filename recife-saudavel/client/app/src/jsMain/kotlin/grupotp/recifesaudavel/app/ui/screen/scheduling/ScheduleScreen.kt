@@ -1,9 +1,9 @@
 package grupotp.recifesaudavel.app.ui.screen.scheduling
 
 import grupotp.recifesaudavel.app.di.useInject
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.scheduling.SchedulingOptions
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.app.ui.component.alert.infoAlert
 import grupotp.recifesaudavel.app.ui.component.alert.infoAlertRich
 import grupotp.recifesaudavel.app.ui.component.alert.sessionExpiredAlert
@@ -84,7 +84,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     var time by useState<LocalTime?>(null)
     var notes by useState("")
     var fieldErrors by useState<Map<String, String>>(emptyMap())
-    var error by useState<SchedulingError?>(null)
+    var error by useState<RemoteError?>(null)
     var busy by useState(false)
     var preTriage by useState<PreTriage?>(null)
     var attachPreTriage by useState(true)
@@ -99,8 +99,8 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                 reason = pending.form.reason
             }
             when (val result = loadSchedulingOptions(props.account)) {
-                is SchedulingResult.Success -> options = result.value
-                is SchedulingResult.Failed -> error = result.error
+                is RemoteResult.Success -> options = result.value
+                is RemoteResult.Failed -> error = result.error
             }
         }
     }
@@ -121,7 +121,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
             val result = loadAvailability(props.account, chosenSpecialty, professionalId)
             busy = false
             when (result) {
-                is SchedulingResult.Success -> {
+                is RemoteResult.Success -> {
                     val fresh = result.value
                     availability = fresh
                     // One clinic needs no choice; with several, a choice still offered is kept.
@@ -137,7 +137,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                     }
                     step = 1
                 }
-                is SchedulingResult.Failed -> error = result.error
+                is RemoteResult.Failed -> error = result.error
             }
         }
     }
@@ -167,8 +167,8 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
             )
             busy = false
             when (result) {
-                is SchedulingResult.Success -> props.onBooked(result.value)
-                is SchedulingResult.Failed -> error = result.error
+                is RemoteResult.Success -> props.onBooked(result.value)
+                is RemoteResult.Failed -> error = result.error
             }
         }
     }

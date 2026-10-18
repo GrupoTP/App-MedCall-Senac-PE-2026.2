@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.ui.screen.settings
 
 import grupotp.recifesaudavel.app.di.useInject
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.platform.Linking
 import grupotp.recifesaudavel.app.ui.component.alert.confirmDialog
 import grupotp.recifesaudavel.app.ui.component.alert.errorAlert
@@ -79,7 +79,7 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
     val requestAccountDeletion = useInject<RequestAccountDeletionUseCase>()
     var profile by useState<AccountProfile?>(null)
     var form by useState<UpdateProfileRequest?>(null)
-    var problem by useState<SchedulingError?>(null)
+    var problem by useState<RemoteError?>(null)
     var saved by useState(false)
     var busy by useState(false)
     var currentPassword by useState("")
@@ -95,11 +95,11 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
         problem = null
         scope.launch {
             when (val result = loadAccountProfile(props.account)) {
-                is SchedulingResult.Success -> {
+                is RemoteResult.Success -> {
                     profile = result.value
                     form = result.value.toForm()
                 }
-                is SchedulingResult.Failed -> problem = result.error
+                is RemoteResult.Failed -> problem = result.error
             }
         }
     }
@@ -115,10 +115,10 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
         props.onTab(tab)
     }
 
-    fun <T> handle(result: SchedulingResult<T>, onSuccess: (T) -> Unit) {
+    fun <T> handle(result: RemoteResult<T>, onSuccess: (T) -> Unit) {
         when (result) {
-            is SchedulingResult.Success -> onSuccess(result.value)
-            is SchedulingResult.Failed -> problem = result.error
+            is RemoteResult.Success -> onSuccess(result.value)
+            is RemoteResult.Failed -> problem = result.error
         }
     }
 
@@ -171,7 +171,7 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
         scope.launch {
             val result = changePassword(props.account, SecretString(currentPassword), SecretString(newPassword), signOutOtherSessions)
             when (result) {
-                is SchedulingResult.Success -> {
+                is RemoteResult.Success -> {
                     currentPassword = ""
                     newPassword = ""
                     confirmPassword = ""
@@ -181,8 +181,8 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
                         "Senha alterada com sucesso."
                     }
                 }
-                is SchedulingResult.Failed -> when (val error = result.error) {
-                    is SchedulingError.Rejected -> passwordError = error.message
+                is RemoteResult.Failed -> when (val error = result.error) {
+                    is RemoteError.Rejected -> passwordError = error.message
                     else -> problem = error
                 }
             }
@@ -248,7 +248,7 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
             keyboardShouldPersistTaps = "handled"
             problem?.let { error ->
                 sessionExpiredAlert(error, props.onSignOut)
-                if (profile == null && error != SchedulingError.SessionExpired) {
+                if (profile == null && error != RemoteError.SessionExpired) {
                     textLink("Tentar de novo") { load() }
                 }
             }

@@ -1,9 +1,9 @@
 package grupotp.recifesaudavel.app.usecase.scheduling
 
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentGateway
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentTimeline
 import grupotp.recifesaudavel.app.domain.scheduling.LocalAppointmentGateway
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
@@ -19,9 +19,9 @@ class BookAppointmentUseCase(
     suspend operator fun invoke(
         account: AuthenticatedAccount,
         request: CreateAppointmentRequest,
-    ): SchedulingResult<Appointment> {
+    ): RemoteResult<Appointment> {
         val result = gateway.book(account.sessionToken, request)
-        if (result is SchedulingResult.Success) {
+        if (result is RemoteResult.Success) {
             runCatching {
                 val saved = local.loadAppointments(account.id).orEmpty().filter { it.id != result.value.id }
                 local.saveAppointments(account.id, AppointmentTimeline.soonestFirst(saved + result.value))

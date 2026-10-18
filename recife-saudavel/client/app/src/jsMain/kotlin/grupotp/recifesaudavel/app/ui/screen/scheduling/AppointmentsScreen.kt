@@ -1,9 +1,9 @@
 package grupotp.recifesaudavel.app.ui.screen.scheduling
 
 import grupotp.recifesaudavel.app.di.useInject
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.scheduling.AppointmentsSnapshot
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.app.ui.component.alert.errorAlert
 import grupotp.recifesaudavel.app.ui.component.alert.infoAlert
 import grupotp.recifesaudavel.app.ui.component.alert.sessionExpiredAlert
@@ -59,7 +59,7 @@ internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
     var snapshot by useState<AppointmentsSnapshot?>(null)
     var confirming by useState<Int?>(null)
     var cancelling by useState<Int?>(null)
-    var cancelError by useState<SchedulingError?>(null)
+    var cancelError by useState<RemoteError?>(null)
     val scope = useScreenScope()
 
     fun cancel(id: Int) {
@@ -72,13 +72,13 @@ internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
             val result = cancelAppointment(props.account, id)
             cancelling = null
             when (result) {
-                is SchedulingResult.Success -> {
+                is RemoteResult.Success -> {
                     confirming = null
                     snapshot = snapshot?.let { current ->
                         current.copy(appointments = current.appointments.map { if (it.id == id) result.value else it })
                     }
                 }
-                is SchedulingResult.Failed -> cancelError = result.error
+                is RemoteResult.Failed -> cancelError = result.error
             }
         }
     }
@@ -115,7 +115,7 @@ internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
                 }
                 sessionExpiredAlert(current.error, props.onSignOut)
                 val failure = cancelError
-                if (failure is SchedulingError.SessionExpired) {
+                if (failure is RemoteError.SessionExpired) {
                     sessionExpiredAlert(failure, props.onSignOut)
                 } else if (failure != null) {
                     errorAlert(ErrorMessages.cancellation(failure))

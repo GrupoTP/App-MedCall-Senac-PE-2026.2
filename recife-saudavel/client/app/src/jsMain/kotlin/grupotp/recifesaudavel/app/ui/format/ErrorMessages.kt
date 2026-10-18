@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.ui.format
 
+import grupotp.recifesaudavel.app.domain.RemoteError
 import grupotp.recifesaudavel.app.domain.auth.AuthError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
 
 /**
  * Texts shown for the failures the use cases return.
@@ -30,15 +30,15 @@ internal object ErrorMessages {
         is AuthError.Rejected -> error.message
     }
 
-    fun scheduling(error: SchedulingError): String = withOffline(error, SCHEDULING_OFFLINE)
+    fun scheduling(error: RemoteError): String = withOffline(error, SCHEDULING_OFFLINE)
 
-    fun cancellation(error: SchedulingError): String = withOffline(error, CANCELLATION_OFFLINE)
+    fun cancellation(error: RemoteError): String = withOffline(error, CANCELLATION_OFFLINE)
 
-    fun preTriage(error: SchedulingError): String = withOffline(error, PRE_TRIAGE_OFFLINE)
+    fun preTriage(error: RemoteError): String = withOffline(error, PRE_TRIAGE_OFFLINE)
 
-    private fun withOffline(error: SchedulingError, offline: String): String = when (error) {
-        SchedulingError.Offline -> offline
-        SchedulingError.SessionExpired -> SESSION_EXPIRED
-        is SchedulingError.Rejected -> error.message
+    private fun withOffline(error: RemoteError, offline: String): String = when (error) {
+        RemoteError.Offline -> offline
+        RemoteError.SessionExpired -> SESSION_EXPIRED
+        is RemoteError.Rejected -> error.message
     }
 }

@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.usecase.pretriage
 
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.pretriage.PreTriageGateway
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
@@ -25,7 +25,7 @@ class PreTriageUseCaseTest {
     @Test
     fun pendingFailureCountsAsNone() = runTest {
         // Arrange
-        val gateway = FakePreTriageGateway(pending = SchedulingResult.Failed(SchedulingError.Offline))
+        val gateway = FakePreTriageGateway(pending = RemoteResult.Failed(RemoteError.Offline))
 
         // Act
         val pending = LoadPendingPreTriageUseCase(gateway)(account)
@@ -39,7 +39,7 @@ class PreTriageUseCaseTest {
     fun pendingReturnsTheLatestPreTriage() = runTest {
         // Arrange
         val latest = PreTriage(id = 1, createdAt = Instant.fromEpochMilliseconds(0), form = PreTriageForm(reason = "Tontura"))
-        val gateway = FakePreTriageGateway(pending = SchedulingResult.Success(latest))
+        val gateway = FakePreTriageGateway(pending = RemoteResult.Success(latest))
 
         // Act
         val pending = LoadPendingPreTriageUseCase(gateway)(account)
@@ -49,21 +49,21 @@ class PreTriageUseCaseTest {
     }
 
     private class FakePreTriageGateway(
-        private val pending: SchedulingResult<PreTriage?>,
+        private val pending: RemoteResult<PreTriage?>,
     ) : PreTriageGateway {
         var lastToken: String? = null
 
-        override suspend fun draft(token: SecretString): SchedulingResult<PreTriageForm> {
+        override suspend fun draft(token: SecretString): RemoteResult<PreTriageForm> {
             lastToken = token.value
-            return SchedulingResult.Success(PreTriageForm())
+            return RemoteResult.Success(PreTriageForm())
         }
 
-        override suspend fun submit(token: SecretString, form: PreTriageForm): SchedulingResult<PreTriage> {
+        override suspend fun submit(token: SecretString, form: PreTriageForm): RemoteResult<PreTriage> {
             lastToken = token.value
-            return SchedulingResult.Success(PreTriage(id = 1, createdAt = Instant.fromEpochMilliseconds(0), form = form))
+            return RemoteResult.Success(PreTriage(id = 1, createdAt = Instant.fromEpochMilliseconds(0), form = form))
         }
 
-        override suspend fun pending(token: SecretString): SchedulingResult<PreTriage?> {
+        override suspend fun pending(token: SecretString): RemoteResult<PreTriage?> {
             lastToken = token.value
             return pending
         }

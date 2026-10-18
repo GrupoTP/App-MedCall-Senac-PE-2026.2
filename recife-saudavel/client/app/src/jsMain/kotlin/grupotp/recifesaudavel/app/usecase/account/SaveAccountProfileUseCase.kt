@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.usecase.account
 
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.domain.account.AccountGateway
 import grupotp.recifesaudavel.app.domain.account.SavedProfile
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.app.domain.session.LocalAccountGateway
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
@@ -18,10 +18,10 @@ class SaveAccountProfileUseCase(
     suspend operator fun invoke(
         account: AuthenticatedAccount,
         request: UpdateProfileRequest,
-    ): SchedulingResult<SavedProfile> {
+    ): RemoteResult<SavedProfile> {
         return when (val result = gateway.update(account.sessionToken, request)) {
-            is SchedulingResult.Failed -> result
-            is SchedulingResult.Success -> {
+            is RemoteResult.Failed -> result
+            is RemoteResult.Success -> {
                 val profile = result.value
                 val updated = account.copy(
                     fullName = profile.fullName,
@@ -30,7 +30,7 @@ class SaveAccountProfileUseCase(
                     phone = profile.primaryPhone,
                 )
                 runCatching { accounts.save(updated) }
-                SchedulingResult.Success(SavedProfile(profile, updated))
+                RemoteResult.Success(SavedProfile(profile, updated))
             }
         }
     }

@@ -1,8 +1,8 @@
 package grupotp.recifesaudavel.app.ui.screen.pretriage
 
 import grupotp.recifesaudavel.app.di.useInject
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
+import grupotp.recifesaudavel.app.domain.RemoteError
+import grupotp.recifesaudavel.app.domain.RemoteResult
 import grupotp.recifesaudavel.app.ui.component.alert.clinicalDisclaimer
 import grupotp.recifesaudavel.app.ui.component.alert.sessionExpiredAlert
 import grupotp.recifesaudavel.app.ui.component.alert.warnAlert
@@ -68,18 +68,18 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
     var birthDate by useState("")
     var step by useState(0)
     var fieldErrors by useState<Map<String, String>>(emptyMap())
-    var error by useState<SchedulingError?>(null)
+    var error by useState<RemoteError?>(null)
     var busy by useState(false)
     val scope = useScreenScope()
 
     useEffectOnce {
         scope.launch {
             when (val result = loadPreTriageDraft(props.account)) {
-                is SchedulingResult.Success -> {
+                is RemoteResult.Success -> {
                     form = result.value
                     birthDate = BrazilianDate.format(result.value.birthDate)
                 }
-                is SchedulingResult.Failed -> error = result.error
+                is RemoteResult.Failed -> error = result.error
             }
         }
     }
@@ -114,8 +114,8 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
             val result = submitPreTriage(props.account, current.copy(birthDate = BrazilianDate.parse(birthDate)))
             busy = false
             when (result) {
-                is SchedulingResult.Success -> props.onSent(result.value)
-                is SchedulingResult.Failed -> error = result.error
+                is RemoteResult.Success -> props.onSent(result.value)
+                is RemoteResult.Failed -> error = result.error
             }
         }
     }
