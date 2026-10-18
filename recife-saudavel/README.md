@@ -46,7 +46,7 @@ Na pasta `recife-saudavel`:
 ./gradlew :server:run
 ```
 
-O servidor responde em `http://localhost:8080/healthz` e `http://localhost:8080/readyz`.
+O servidor responde em `http://localhost:8080/healthz` (processo no ar) e `http://localhost:8080/readyz` (pronto para atender, o que inclui o banco responder). O `/healthz` não consulta o banco, para que uma queda do banco não faça o servidor ser reiniciado à toa.
 
 O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de execução do servidor. Para apontar outro lugar, defina `DATABASE_JDBC_URL`, `DATABASE_DRIVER`, `DATABASE_USER` e `DATABASE_PASSWORD`.
 

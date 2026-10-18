@@ -15,10 +15,13 @@ import io.ktor.server.netty.EngineMain
 fun main(args: Array<String>): Unit = EngineMain.main(args)
 
 fun Application.module() {
+    // Plugins
     configureDependencyInjection()
     configureDatabase()
     configureSerialization()
     configureCors()
+
+    // Controllers
     configureHealthController()
     configureAuthController()
     configureAccountController()

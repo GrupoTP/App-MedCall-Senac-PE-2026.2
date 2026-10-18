@@ -18,9 +18,10 @@ fun Application.configureCors() {
         .map { it.trim() }
         .filter { it.isNotEmpty() }
         .map(::URI)
+
     install(CORS) {
-        for (origin in origins) {
-            val port = if (origin.port == -1) "" else ":${origin.port}"
+        origins.forEach { origin ->
+            val port = origin.port.let { if (it == -1) "" else ":$it" }
             allowHost("${origin.host}$port", schemes = listOf(origin.scheme))
         }
         allowMethod(HttpMethod.Options)

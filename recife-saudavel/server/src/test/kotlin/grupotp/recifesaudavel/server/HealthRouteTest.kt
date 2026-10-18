@@ -25,7 +25,7 @@ class HealthRouteTest {
     }
 
     @Test
-    fun readyzReportsApplicationUp() = testApplication {
+    fun readyzReportsApplicationAndDatabaseUp() = testApplication {
         // Arrange
         environment {
             config = ApplicationConfig("application.yaml")
@@ -36,6 +36,6 @@ class HealthRouteTest {
 
         // Assert
         assertEquals(HttpStatusCode.OK, response.status)
-        assertEquals("""{"application":true}""", response.bodyAsText())
+        assertEquals("""{"application":true,"database":true}""", response.bodyAsText())
     }
 }

@@ -59,7 +59,14 @@ fun Application.configureDatabase() {
     )
     val database = getKoin().get<Database>()
     transaction(database) {
-        SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
+        SchemaUtils.create(
+            UsersTable,
+            SessionsTable,
+            SpecialtiesTable,
+            ProfessionalsTable,
+            AppointmentsTable,
+            PreTriagesTable
+        )
     }
     SchemaMigrations.run(database)
     getKoin().get<SchedulingRepository>().seedCatalogIfEmpty()
