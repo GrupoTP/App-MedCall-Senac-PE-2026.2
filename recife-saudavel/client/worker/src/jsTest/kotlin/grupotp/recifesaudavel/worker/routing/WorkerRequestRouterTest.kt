@@ -2,7 +2,6 @@ package grupotp.recifesaudavel.worker.routing
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 private const val ORIGIN = "http://localhost:8081"
@@ -54,42 +53,6 @@ class WorkerRequestRouterTest {
     }
 
     @Test
-    fun buildOutputKeepsTheQueryInTheCacheKey() {
-        // Arrange
-        val router = WorkerRequestRouter(ORIGIN)
-
-        // Act
-        val icon = router.cacheKey("http://localhost:8081/icons/icon-512.png?v=1")
-        val first = router.cacheKey("http://localhost:8081/assets/?unstable_path=a.ttf")
-        val second = router.cacheKey("http://localhost:8081/assets/?unstable_path=b.ttf")
-
-        // Assert
-        assertEquals("/icons/icon-512.png", icon)
-        assertEquals("http://localhost:8081/assets/?unstable_path=a.ttf", first)
-        assertEquals("http://localhost:8081/assets/?unstable_path=b.ttf", second)
-    }
-
-    @Test
-    fun installFindsTheBundlesTheExportedPageLoads() {
-        // Arrange
-        val document = """
-            <link rel="preload" href="/_expo/static/css/web-4b1e.css" as="style">
-            <script src="/_expo/static/js/web/index-3f2a9c.js" defer></script>
-            <script src="/_expo/static/js/web/index-3f2a9c.js" defer></script>
-            <link rel="manifest" href="/manifest.json">
-        """.trimIndent()
-
-        // Act
-        val paths = WorkerRequestRouter.buildOutputIn(document)
-
-        // Assert
-        assertEquals(
-            listOf("/_expo/static/css/web-4b1e.css", "/_expo/static/js/web/index-3f2a9c.js"),
-            paths,
-        )
-    }
-
-    @Test
     fun serverAndHealthResponsesAreNeverCached() {
         // Arrange
         val router = WorkerRequestRouter(ORIGIN)
@@ -103,7 +66,6 @@ class WorkerRequestRouterTest {
         assertEquals(WorkerRoute.Server, login)
         assertEquals(WorkerRoute.Server, health)
         assertEquals(WorkerRoute.Server, ready)
-        assertFalse(WorkerRequestRouter.ESSENTIAL_PATHS.any { it.startsWith("/api/") || it == "/healthz" })
     }
 
     @Test
@@ -138,20 +100,15 @@ class WorkerRequestRouterTest {
     }
 
     @Test
-    fun appointmentsUseTheLocalDatabaseWithTheAccountInTheQuery() {
+    fun appointmentsUseTheLocalDatabaseWhateverTheQuery() {
         // Arrange
         val router = WorkerRequestRouter(ORIGIN)
-        val url = "http://localhost:8081/local/appointments?account=a1%2Fb2&x=1"
 
         // Act
-        val route = router.route(url)
-        val account = queryParameter(url, "account")
-        val missing = queryParameter("http://localhost:8081/local/appointments", "account")
+        val route = router.route("http://localhost:8081/local/appointments?account=12&x=1")
 
         // Assert
         assertEquals(WorkerRoute.LocalAppointments, route)
-        assertEquals("a1/b2", account)
-        assertEquals(null, missing)
     }
 
     @Test

@@ -5,6 +5,7 @@ import grupotp.recifesaudavel.app.usecase.LocalAccountGateway
 import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
 import grupotp.recifesaudavel.app.usecase.PendingSignOutGateway
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.offline.LocalWorkerApi
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.security.SecretString
 import js.promise.await
@@ -24,13 +25,7 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 import kotlin.time.Duration.Companion.seconds
 
-private const val LOCAL_ACCOUNT_URL = "/local/account"
-private const val LOCAL_APPOINTMENTS_URL = "/local/appointments"
-private const val LOCAL_PENDING_SIGN_OUTS_URL = "/local/pending-sign-outs"
 private const val SERVICE_WORKER_URL = "/sw.js"
-
-/** Handled by client/worker Main.kt; keep both in sync. */
-private const val CLAIM_MESSAGE = "recife-saudavel:claim"
 private val CONTROLLER_TIMEOUT = 10.seconds
 
 private val getMethod: RequestMethod = unsafeCast("GET")
@@ -38,7 +33,7 @@ private val putMethod: RequestMethod = unsafeCast("PUT")
 private val deleteMethod: RequestMethod = unsafeCast("DELETE")
 
 /**
- * Registers `sw.js` and talks to the Kotlin worker through `/local/account` and `/local/appointments`.
+ * Registers `sw.js` and talks to the Kotlin worker through the paths of [LocalWorkerApi].
  * The worker is the only component that writes the local database.
  */
 class BrowserOfflineShell(
@@ -52,7 +47,7 @@ class BrowserOfflineShell(
 
     override suspend fun save(account: AuthenticatedAccount) {
         ensureReady()
-        val (status, text) = request(putMethod, LOCAL_ACCOUNT_URL, json.encodeToString(account))
+        val (status, text) = request(putMethod, LocalWorkerApi.ACCOUNT_PATH, json.encodeToString(account))
         if (status !in 200..299) {
             throw IllegalStateException(text.ifBlank { "Não foi possível guardar o cadastro neste aparelho." })
         }
@@ -60,7 +55,7 @@ class BrowserOfflineShell(
 
     override suspend fun load(): AuthenticatedAccount? {
         ensureReady()
-        val (status, text) = request(getMethod, LOCAL_ACCOUNT_URL, null)
+        val (status, text) = request(getMethod, LocalWorkerApi.ACCOUNT_PATH, null)
         if (status == 204.toShort() || text.isBlank()) {
             return null
         }
@@ -72,7 +67,7 @@ class BrowserOfflineShell(
 
     override suspend fun clear() {
         ensureReady()
-        val (status, text) = request(deleteMethod, LOCAL_ACCOUNT_URL, null)
+        val (status, text) = request(deleteMethod, LocalWorkerApi.ACCOUNT_PATH, null)
         if (status !in 200..299) {
             throw IllegalStateException(text.ifBlank { "Não foi possível apagar os dados deste aparelho." })
         }
@@ -97,7 +92,7 @@ class BrowserOfflineShell(
 
     override suspend fun loadPendingSignOuts(): List<SecretString> {
         ensureReady()
-        val (status, text) = request(getMethod, LOCAL_PENDING_SIGN_OUTS_URL, null)
+        val (status, text) = request(getMethod, LocalWorkerApi.PENDING_SIGN_OUTS_PATH, null)
         if (status !in 200..299 || status == 204.toShort() || text.isBlank()) {
             return emptyList()
         }
@@ -106,13 +101,13 @@ class BrowserOfflineShell(
 
     override suspend fun savePendingSignOuts(tokens: List<SecretString>) {
         ensureReady()
-        val (status, text) = request(putMethod, LOCAL_PENDING_SIGN_OUTS_URL, json.encodeToString(tokens))
+        val (status, text) = request(putMethod, LocalWorkerApi.PENDING_SIGN_OUTS_PATH, json.encodeToString(tokens))
         if (status !in 200..299) {
             throw IllegalStateException(text.ifBlank { "Não foi possível guardar o encerramento da sessão." })
         }
     }
 
-    private fun appointmentsUrl(accountId: Int): String = "$LOCAL_APPOINTMENTS_URL?account=$accountId"
+    private fun appointmentsUrl(accountId: Int): String = "${LocalWorkerApi.APPOINTMENTS_PATH}?${LocalWorkerApi.ACCOUNT_PARAMETER}=$accountId"
 
     private suspend fun ensureReady() {
         val current = ready
@@ -149,7 +144,7 @@ class BrowserOfflineShell(
         if (container.controller != null) {
             return
         }
-        container.ready.await().active?.postMessage(CLAIM_MESSAGE)
+        container.ready.await().active?.postMessage(LocalWorkerApi.CLAIM_MESSAGE)
         withTimeoutOrNull(CONTROLLER_TIMEOUT) { controlled.await() }
             ?: throw IllegalStateException("O service worker não assumiu a página.")
     }

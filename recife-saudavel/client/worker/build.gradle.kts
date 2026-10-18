@@ -14,6 +14,11 @@ kotlin {
         binaries.executable()
     }
 
+    compilerOptions {
+        // JsString and toJsString(), which the browser wrappers use for IndexedDB and URL values.
+        optIn.add("kotlin.js.ExperimentalWasmJsInterop")
+    }
+
     sourceSets {
         jsMain.dependencies {
             implementation(projects.common)
