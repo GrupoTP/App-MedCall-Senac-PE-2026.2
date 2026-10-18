@@ -10,6 +10,9 @@ import grupotp.recifesaudavel.server.database.ProfessionalsTable
 import grupotp.recifesaudavel.server.database.SchedulingCatalog
 import grupotp.recifesaudavel.server.database.SpecialtiesTable
 import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.common.phone.Phone
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
@@ -27,8 +30,8 @@ import org.jetbrains.exposed.v1.jdbc.update
 /** A professional, a date and a time: one slot of the agenda. */
 data class Slot(
     val professionalId: String,
-    val date: String,
-    val time: String,
+    val date: LocalDate,
+    val time: LocalTime,
 )
 
 data class NewAppointment(
@@ -86,21 +89,21 @@ class SchedulingRepository(
     }
 
     /** Slots already taken by appointments that were not cancelled. */
-    fun takenSlots(professionalIds: List<String>, dates: List<String>): Set<Slot> = transaction(database) {
+    fun takenSlots(professionalIds: List<String>, dates: List<LocalDate>): Set<Slot> = transaction(database) {
         if (professionalIds.isEmpty() || dates.isEmpty()) {
             return@transaction emptySet()
         }
         AppointmentsTable.selectAll()
             .where {
                 (AppointmentsTable.professionalId inList professionalIds) and
-                    (AppointmentsTable.appointmentDate inList dates) and
+                    (AppointmentsTable.appointmentDate inList dates.map { it.toString() }) and
                     (AppointmentsTable.status neq STATUS_CANCELLED)
             }
             .map {
                 Slot(
                     professionalId = it[AppointmentsTable.professionalId],
-                    date = it[AppointmentsTable.appointmentDate],
-                    time = it[AppointmentsTable.appointmentTime],
+                    date = LocalDate.parse(it[AppointmentsTable.appointmentDate]),
+                    time = LocalTime.parse(it[AppointmentsTable.appointmentTime]),
                 )
             }
             .toSet()
@@ -116,13 +119,17 @@ class SchedulingRepository(
                 it[id] = appointment.id
                 it[patientId] = appointment.patientId
                 it[professionalId] = appointment.slot.professionalId
-                it[appointmentDate] = appointment.slot.date
-                it[appointmentTime] = appointment.slot.time
+                it[appointmentDate] = appointment.slot.date.toString()
+                it[appointmentTime] = appointment.slot.time.toColumnText()
                 it[status] = STATUS_PENDING
                 it[reason] = appointment.reason
                 it[notes] = appointment.notes
                 it[createdAt] = appointment.createdAt
-                it[slotKey] = AppointmentsTable.slotKeyOf(appointment.slot.professionalId, appointment.slot.date, appointment.slot.time)
+                it[slotKey] = AppointmentsTable.slotKeyOf(
+                    appointment.slot.professionalId,
+                    appointment.slot.date.toString(),
+                    appointment.slot.time.toColumnText(),
+                )
             }
         }
         true
@@ -190,19 +197,23 @@ class SchedulingRepository(
         id = this[AppointmentsTable.id],
         specialtyName = this[SpecialtiesTable.name],
         professionalName = this[ProfessionalsTable.name],
-        date = this[AppointmentsTable.appointmentDate],
-        time = this[AppointmentsTable.appointmentTime],
+        date = LocalDate.parse(this[AppointmentsTable.appointmentDate]),
+        time = LocalTime.parse(this[AppointmentsTable.appointmentTime]),
         status = when (this[AppointmentsTable.status]) {
             STATUS_CONFIRMED -> AppointmentStatus.Confirmed
             STATUS_CANCELLED -> AppointmentStatus.Cancelled
             else -> AppointmentStatus.Pending
         },
         patientName = this[UsersTable.socialName].ifBlank { this[UsersTable.fullName] },
-        contactPhone = this[UsersTable.primaryPhone],
+        contactPhone = Phone(this[UsersTable.primaryPhone]),
         reason = this[AppointmentsTable.reason],
         notes = this[AppointmentsTable.notes],
         preTriageId = this.getOrNull(PreTriagesTable.id),
     )
+
+    /** `HH:mm`, the column format: text order is time order, and old rows keep matching. */
+    private fun LocalTime.toColumnText(): String =
+        "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
 
     private companion object {
         const val STATUS_PENDING = "pending"

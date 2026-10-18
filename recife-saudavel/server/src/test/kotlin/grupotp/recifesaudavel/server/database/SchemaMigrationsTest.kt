@@ -1,10 +1,14 @@
 package grupotp.recifesaudavel.server.database
 
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.repository.NewAppointment
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.Slot
 import grupotp.recifesaudavel.server.repository.UserRepository
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -95,7 +99,7 @@ class SchemaMigrationsTest {
     private fun newAppointment(time: String) = NewAppointment(
         id = UUID.randomUUID().toString(),
         patientId = patient,
-        slot = Slot(lucia, "2026-10-13", time),
+        slot = Slot(lucia, LocalDate.parse("2026-10-13"), LocalTime.parse(time)),
         reason = "",
         notes = "",
         createdAt = 0,
@@ -105,13 +109,13 @@ class SchemaMigrationsTest {
         fullName = "Maria das Graças Silva",
         socialName = "",
         email = "maria@email.com",
-        password = "segredo",
-        primaryPhone = "(81) 99999-9999",
+        password = SecretString("segredo"),
+        primaryPhone = Phone.parse("(81) 99999-9999"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "",
-        emergencyContactPhone = "",
+        emergencyContactPhone = Phone.parse(""),
         acceptedPrivacyPolicy = true,
         acceptedTreatment = true,
         wantsNotifications = false,

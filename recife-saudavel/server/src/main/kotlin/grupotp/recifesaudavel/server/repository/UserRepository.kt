@@ -15,6 +15,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
+import kotlin.time.Instant
 
 data class StoredUser(
     val account: AuthenticatedAccount,
@@ -24,12 +25,12 @@ data class StoredUser(
 data class UserProfile(
     val fullName: String,
     val socialName: String,
-    val primaryPhone: String,
+    val primaryPhone: Phone,
     val primaryPhoneWhatsapp: Boolean,
-    val secondaryPhone: String,
+    val secondaryPhone: Phone,
     val secondaryPhoneWhatsapp: Boolean,
     val emergencyContactName: String,
-    val emergencyContactPhone: String,
+    val emergencyContactPhone: Phone,
 )
 
 class UserRepository(
@@ -59,12 +60,12 @@ class UserRepository(
                 UserProfile(
                     fullName = it[UsersTable.fullName],
                     socialName = it[UsersTable.socialName],
-                    primaryPhone = it[UsersTable.primaryPhone],
+                    primaryPhone = Phone(it[UsersTable.primaryPhone]),
                     primaryPhoneWhatsapp = it[UsersTable.primaryPhoneWhatsapp],
-                    secondaryPhone = it[UsersTable.secondaryPhone],
+                    secondaryPhone = Phone(it[UsersTable.secondaryPhone]),
                     secondaryPhoneWhatsapp = it[UsersTable.secondaryPhoneWhatsapp],
                     emergencyContactName = it[UsersTable.emergencyContactName],
-                    emergencyContactPhone = it[UsersTable.emergencyContactPhone],
+                    emergencyContactPhone = Phone(it[UsersTable.emergencyContactPhone]),
                 )
             }
     }
@@ -79,18 +80,18 @@ class UserRepository(
                     fullName = it[UsersTable.fullName],
                     socialName = it[UsersTable.socialName],
                     email = it[UsersTable.email],
-                    primaryPhone = it[UsersTable.primaryPhone],
+                    primaryPhone = Phone(it[UsersTable.primaryPhone]),
                     primaryPhoneWhatsapp = it[UsersTable.primaryPhoneWhatsapp],
-                    secondaryPhone = it[UsersTable.secondaryPhone],
+                    secondaryPhone = Phone(it[UsersTable.secondaryPhone]),
                     secondaryPhoneWhatsapp = it[UsersTable.secondaryPhoneWhatsapp],
                     emergencyContactName = it[UsersTable.emergencyContactName],
-                    emergencyContactPhone = it[UsersTable.emergencyContactPhone],
+                    emergencyContactPhone = Phone(it[UsersTable.emergencyContactPhone]),
                     acceptedPrivacyPolicy = it[UsersTable.acceptedPrivacyPolicy],
                     acceptedTreatment = it[UsersTable.acceptedTreatment],
                     wantsNotifications = it[UsersTable.wantsNotifications],
-                    createdAt = it[UsersTable.createdAt],
-                    lastLoginAt = it[UsersTable.lastLoginAt],
-                    deletionRequestedAt = it[UsersTable.deletionRequestedAt],
+                    createdAt = it[UsersTable.createdAt]?.let(Instant::fromEpochMilliseconds),
+                    lastLoginAt = it[UsersTable.lastLoginAt]?.let(Instant::fromEpochMilliseconds),
+                    deletionRequestedAt = it[UsersTable.deletionRequestedAt]?.let(Instant::fromEpochMilliseconds),
                 )
             }
     }
@@ -112,12 +113,12 @@ class UserRepository(
                 it[fullName] = request.fullName.trim()
                 it[socialName] = request.socialName.trim()
                 it[email] = request.email.trim().lowercase()
-                it[primaryPhone] = Phone.digits(request.primaryPhone)
+                it[primaryPhone] = request.primaryPhone.digits
                 it[primaryPhoneWhatsapp] = request.primaryPhoneWhatsapp
-                it[secondaryPhone] = Phone.digits(request.secondaryPhone)
+                it[secondaryPhone] = request.secondaryPhone.digits
                 it[secondaryPhoneWhatsapp] = request.secondaryPhoneWhatsapp
                 it[emergencyContactName] = request.emergencyContactName.trim()
-                it[emergencyContactPhone] = Phone.digits(request.emergencyContactPhone)
+                it[emergencyContactPhone] = request.emergencyContactPhone.digits
             }
         }
         true
@@ -176,12 +177,12 @@ class UserRepository(
                 it[socialName] = request.socialName.trim()
                 it[email] = request.email.trim().lowercase()
                 it[UsersTable.passwordHash] = passwordHash
-                it[primaryPhone] = Phone.digits(request.primaryPhone)
+                it[primaryPhone] = request.primaryPhone.digits
                 it[primaryPhoneWhatsapp] = request.primaryPhoneWhatsapp
-                it[secondaryPhone] = Phone.digits(request.secondaryPhone)
+                it[secondaryPhone] = request.secondaryPhone.digits
                 it[secondaryPhoneWhatsapp] = request.secondaryPhoneWhatsapp
                 it[emergencyContactName] = request.emergencyContactName.trim()
-                it[emergencyContactPhone] = Phone.digits(request.emergencyContactPhone)
+                it[emergencyContactPhone] = request.emergencyContactPhone.digits
                 it[acceptedPrivacyPolicy] = request.acceptedPrivacyPolicy
                 it[acceptedTreatment] = request.acceptedTreatment
                 it[wantsNotifications] = request.wantsNotifications
@@ -193,7 +194,7 @@ class UserRepository(
                 fullName = request.fullName.trim(),
                 socialName = request.socialName.trim(),
                 email = request.email.trim().lowercase(),
-                phone = Phone.digits(request.primaryPhone),
+                phone = request.primaryPhone,
             )
         }
     } catch (error: ExposedSQLException) {
@@ -209,7 +210,7 @@ class UserRepository(
             fullName = this[UsersTable.fullName],
             socialName = this[UsersTable.socialName],
             email = this[UsersTable.email],
-            phone = this[UsersTable.primaryPhone],
+            phone = Phone(this[UsersTable.primaryPhone]),
         ),
         passwordHash = this[UsersTable.passwordHash],
     )

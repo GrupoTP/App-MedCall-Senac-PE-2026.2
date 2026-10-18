@@ -3,6 +3,8 @@ package grupotp.recifesaudavel.app.usecase
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -11,7 +13,7 @@ class AuthUseCaseTest {
     @Test
     fun signInDelegatesTheJsonRequest() = runTest {
         // Arrange
-        val request = SignInRequest(email = "maria@email.com", password = "segredo")
+        val request = SignInRequest(email = "maria@email.com", password = SecretString("segredo"))
         val account = AuthenticatedAccount(
             id = "1",
             fullName = "Maria das Graças Silva",
@@ -67,13 +69,13 @@ class AuthUseCaseTest {
         fullName = "Maria das Graças Silva",
         socialName = "Graça",
         email = "maria@email.com",
-        password = "segredo",
-        primaryPhone = "(81) 99999-9999",
+        password = SecretString("segredo"),
+        primaryPhone = Phone.parse("(81) 99999-9999"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "Ana Silva",
-        emergencyContactPhone = "(81) 98888-7777",
+        emergencyContactPhone = Phone.parse("(81) 98888-7777"),
         acceptedPrivacyPolicy = true,
         acceptedTreatment = true,
         wantsNotifications = false,
@@ -102,5 +104,5 @@ private class FakeAuthGateway(
 
     var profileResult: AuthResult = AuthResult.Failed(AuthError.Offline)
 
-    override suspend fun profile(token: String): AuthResult = profileResult
+    override suspend fun profile(token: SecretString): AuthResult = profileResult
 }

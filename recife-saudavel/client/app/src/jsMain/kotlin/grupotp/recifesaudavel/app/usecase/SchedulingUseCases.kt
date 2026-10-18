@@ -7,6 +7,8 @@ import grupotp.recifesaudavel.common.scheduling.AvailableDay
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
+import grupotp.recifesaudavel.common.security.SecretString
+import kotlinx.datetime.LocalDateTime
 
 data class SchedulingOptions(
     val specialties: List<Specialty>,
@@ -133,8 +135,8 @@ class SignOut(
      * forgetting the profile; when the server could not be reached the token waits in
      * [PendingSignOuts] and is revoked as soon as the device is online again.
      */
-    suspend operator fun invoke(token: String? = null) {
-        if (!token.isNullOrBlank()) {
+    suspend operator fun invoke(token: SecretString? = null) {
+        if (token != null && !token.isBlank()) {
             runCatching { pendingSignOuts.revokeOrQueue(token) }
         }
         accounts.clear()
@@ -144,13 +146,13 @@ class SignOut(
 /**
  * Appointments not cancelled and not yet past, soonest first.
  *
- * @param now local date and time as `yyyy-MM-ddTHH:mm`.
+ * @param now date and time at the clinics, see [grupotp.recifesaudavel.common.scheduling.ClinicTime].
  */
-fun upcomingAppointments(appointments: List<Appointment>, now: String): List<Appointment> =
-    sortedByTime(appointments).filter { it.status != AppointmentStatus.Cancelled && "${it.date}T${it.time}" >= now }
+fun upcomingAppointments(appointments: List<Appointment>, now: LocalDateTime): List<Appointment> =
+    sortedByTime(appointments).filter { it.status != AppointmentStatus.Cancelled && it.startsAt >= now }
 
 private fun sortedByTime(appointments: List<Appointment>): List<Appointment> =
-    appointments.sortedWith(compareBy({ it.date }, { it.time }))
+    appointments.sortedBy { it.startsAt }
 
 const val SCHEDULING_OFFLINE_MESSAGE =
     "O agendamento precisa de internet. Conecte-se e tente de novo. Nenhuma consulta foi marcada."

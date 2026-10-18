@@ -5,6 +5,8 @@ import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,19 +18,19 @@ class AccountUseCaseTest {
         fullName = "Poly",
         socialName = "",
         email = "poly@email.com",
-        sessionToken = "token",
-        phone = "81999999999",
+        sessionToken = SecretString("token"),
+        phone = Phone.parse("81999999999"),
     )
     private val profile = AccountProfile(
         fullName = "Polyana Fontes",
         socialName = "Poly",
         email = "novo@email.com",
-        primaryPhone = "81988887777",
+        primaryPhone = Phone.parse("81988887777"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "",
-        emergencyContactPhone = "",
+        emergencyContactPhone = Phone.parse(""),
         acceptedPrivacyPolicy = true,
         acceptedTreatment = true,
         wantsNotifications = false,
@@ -37,12 +39,12 @@ class AccountUseCaseTest {
         fullName = "Polyana Fontes",
         socialName = "Poly",
         email = "novo@email.com",
-        primaryPhone = "81988887777",
+        primaryPhone = Phone.parse("81988887777"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "",
-        emergencyContactPhone = "",
+        emergencyContactPhone = Phone.parse(""),
     )
 
     @Test
@@ -60,7 +62,7 @@ class AccountUseCaseTest {
             fullName = "Polyana Fontes",
             socialName = "Poly",
             email = "novo@email.com",
-            phone = "81988887777",
+            phone = Phone.parse("81988887777"),
         )
         assertEquals(expected, saved.account)
         assertEquals(expected, local.stored)
@@ -99,13 +101,13 @@ class AccountUseCaseTest {
         val gateway = FakeAccountGateway(SchedulingResult.Success(profile))
 
         // Act
-        ChangePassword(gateway)(account, "segredo", "novasenha", signOutOtherSessions = true)
+        ChangePassword(gateway)(account, SecretString("segredo"), SecretString("novasenha"), signOutOtherSessions = true)
         UpdateNotificationConsent(gateway)(account, true)
         RequestAccountDeletion(gateway)(account)
 
         // Assert
         assertEquals(listOf("token", "token", "token"), gateway.tokens)
-        assertEquals(ChangePasswordRequest("segredo", "novasenha", signOutOtherSessions = true), gateway.passwordRequest)
+        assertEquals(ChangePasswordRequest(SecretString("segredo"), SecretString("novasenha"), signOutOtherSessions = true), gateway.passwordRequest)
         assertEquals(UpdateConsentsRequest(wantsNotifications = true), gateway.consentRequest)
     }
 
@@ -143,7 +145,7 @@ class AccountUseCaseTest {
 
         // Assert
         assertEquals(null, local.stored)
-        assertEquals(listOf("token"), stillQueued)
+        assertEquals(listOf("token"), stillQueued.map { it.value })
         assertEquals(emptyList(), pending.tokens)
         assertEquals("token", gateway.signedOut)
     }
@@ -156,7 +158,7 @@ class AccountUseCaseTest {
         val pending = MemoryPending()
 
         // Act
-        PendingSignOuts(gateway, pending).revokeOrQueue("token")
+        PendingSignOuts(gateway, pending).revokeOrQueue(SecretString("token"))
 
         // Assert
         assertEquals(emptyList(), pending.tokens)
@@ -169,36 +171,36 @@ class AccountUseCaseTest {
         var passwordRequest: ChangePasswordRequest? = null
         var consentRequest: UpdateConsentsRequest? = null
 
-        override suspend fun profile(token: String): SchedulingResult<AccountProfile> = result.also { tokens += token }
+        override suspend fun profile(token: SecretString): SchedulingResult<AccountProfile> = result.also { tokens += token.value }
 
-        override suspend fun update(token: String, request: UpdateProfileRequest): SchedulingResult<AccountProfile> =
-            result.also { tokens += token }
+        override suspend fun update(token: SecretString, request: UpdateProfileRequest): SchedulingResult<AccountProfile> =
+            result.also { tokens += token.value }
 
         override suspend fun updateConsents(
-            token: String,
+            token: SecretString,
             request: UpdateConsentsRequest,
         ): SchedulingResult<AccountProfile> = result.also {
-            tokens += token
+            tokens += token.value
             consentRequest = request
         }
 
         override suspend fun changePassword(
-            token: String,
+            token: SecretString,
             request: ChangePasswordRequest,
         ): SchedulingResult<AccountProfile> = result.also {
-            tokens += token
+            tokens += token.value
             passwordRequest = request
         }
 
-        override suspend fun requestDeletion(token: String): SchedulingResult<AccountProfile> =
-            result.also { tokens += token }
+        override suspend fun requestDeletion(token: SecretString): SchedulingResult<AccountProfile> =
+            result.also { tokens += token.value }
 
         var signedOut: String? = null
         var signOutResult: SchedulingResult<Unit> = SchedulingResult.Success(Unit)
 
-        override suspend fun signOut(token: String): SchedulingResult<Unit> {
+        override suspend fun signOut(token: SecretString): SchedulingResult<Unit> {
             if (signOutResult is SchedulingResult.Success) {
-                signedOut = token
+                signedOut = token.value
             }
             return signOutResult
         }

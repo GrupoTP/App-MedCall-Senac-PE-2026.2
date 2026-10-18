@@ -1,5 +1,7 @@
 package grupotp.recifesaudavel.common.auth
 
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.serialization.Serializable
 
 /**
@@ -16,6 +18,6 @@ data class AuthenticatedAccount(
     val fullName: String,
     val socialName: String,
     val email: String,
-    val sessionToken: String = "",
-    val phone: String = "",
+    val sessionToken: SecretString = SecretString.EMPTY,
+    val phone: Phone = Phone.EMPTY,
 )

@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.app.usecase
 
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -8,9 +9,9 @@ import kotlinx.coroutines.sync.withLock
  * The only data that survives [LocalAccountGateway.clear], which wipes everything else.
  */
 interface PendingSignOutGateway {
-    suspend fun loadPendingSignOuts(): List<String>
+    suspend fun loadPendingSignOuts(): List<SecretString>
 
-    suspend fun savePendingSignOuts(tokens: List<String>)
+    suspend fun savePendingSignOuts(tokens: List<SecretString>)
 }
 
 /**
@@ -24,7 +25,7 @@ class PendingSignOuts(
     private val lock = Mutex()
 
     /** Asks the server now; on [SchedulingError.Offline] the token is queued for [flush]. */
-    suspend fun revokeOrQueue(token: String) {
+    suspend fun revokeOrQueue(token: SecretString) {
         val result = runCatching { remote.signOut(token) }.getOrNull()
         val unreachable = result == null || (result is SchedulingResult.Failed && result.error == SchedulingError.Offline)
         if (unreachable) {

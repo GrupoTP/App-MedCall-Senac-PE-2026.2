@@ -8,6 +8,8 @@ import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -40,14 +42,14 @@ class AccountRouteTest {
 
         // Act
         val anonymous = client.get("/api/v1/account")
-        val response = client.get("/api/v1/account") { bearerAuth(account.sessionToken) }
+        val response = client.get("/api/v1/account") { bearerAuth(account.sessionToken.value) }
 
         // Assert
         assertEquals(HttpStatusCode.Unauthorized, anonymous.status)
         assertEquals(HttpStatusCode.OK, response.status)
         val profile = decode<AccountProfile>(response)
         assertEquals("Maria das Graças Silva", profile.fullName)
-        assertEquals("81999999999", profile.primaryPhone)
+        assertEquals("81999999999", profile.primaryPhone.digits)
         assertTrue(profile.primaryPhoneWhatsapp)
         assertTrue(profile.acceptedPrivacyPolicy)
         assertFalse(profile.wantsNotifications)
@@ -66,27 +68,27 @@ class AccountRouteTest {
             fullName = "Maria Silva",
             socialName = "",
             email = " Novo.${System.nanoTime()}@Email.com ",
-            primaryPhone = "(81) 97777-6666",
+            primaryPhone = Phone.parse("(81) 97777-6666"),
             primaryPhoneWhatsapp = false,
-            secondaryPhone = "(81) 3333-4444",
+            secondaryPhone = Phone.parse("(81) 3333-4444"),
             secondaryPhoneWhatsapp = true,
             emergencyContactName = "João",
-            emergencyContactPhone = "(81) 95555-4444",
+            emergencyContactPhone = Phone.parse("(81) 95555-4444"),
         )
 
         // Act
         val updated = update(account, edited)
         val taken = update(account, edited.copy(email = other.email))
         val blank = update(account, edited.copy(fullName = " "))
-        val reloaded = decode<AccountProfile>(client.get("/api/v1/account") { bearerAuth(account.sessionToken) })
+        val reloaded = decode<AccountProfile>(client.get("/api/v1/account") { bearerAuth(account.sessionToken.value) })
 
         // Assert
         assertEquals(HttpStatusCode.OK, updated.status)
         assertEquals(edited.email.trim().lowercase(), reloaded.email)
         assertEquals("Maria Silva", reloaded.fullName)
         assertEquals("", reloaded.socialName)
-        assertEquals("81977776666", reloaded.primaryPhone)
-        assertEquals("8133334444", reloaded.secondaryPhone)
+        assertEquals("81977776666", reloaded.primaryPhone.digits)
+        assertEquals("8133334444", reloaded.secondaryPhone.digits)
         assertTrue(reloaded.secondaryPhoneWhatsapp)
         assertEquals(HttpStatusCode.BadRequest, taken.status)
         assertEquals("E-mail já cadastrado.", decode<ApiError>(taken).message)
@@ -126,13 +128,13 @@ class AccountRouteTest {
 
         // Act
         val consent = client.put("/api/v1/account/consents") {
-            bearerAuth(account.sessionToken)
+            bearerAuth(account.sessionToken.value)
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(UpdateConsentsRequest(wantsNotifications = true)))
         }
         val first = requestDeletion(account)
-        val sameSession = client.get("/api/v1/account") { bearerAuth(account.sessionToken) }
-        val otherSession = client.get("/api/v1/account") { bearerAuth(otherDevice.sessionToken) }
+        val sameSession = client.get("/api/v1/account") { bearerAuth(account.sessionToken.value) }
+        val otherSession = client.get("/api/v1/account") { bearerAuth(otherDevice.sessionToken.value) }
         val again = decode<AuthenticatedAccount>(signIn(email, "segredo"))
         val second = requestDeletion(again)
 
@@ -155,10 +157,10 @@ class AccountRouteTest {
 
         // Act
         val kept = changePassword(account, "segredo", "novasenha")
-        val otherAfterKeeping = client.get("/api/v1/account") { bearerAuth(otherDevice.sessionToken) }
+        val otherAfterKeeping = client.get("/api/v1/account") { bearerAuth(otherDevice.sessionToken.value) }
         val ended = changePassword(account, "novasenha", "outrasenha", signOutOtherSessions = true)
-        val otherAfterEnding = client.get("/api/v1/account") { bearerAuth(otherDevice.sessionToken) }
-        val thisAfterEnding = client.get("/api/v1/account") { bearerAuth(account.sessionToken) }
+        val otherAfterEnding = client.get("/api/v1/account") { bearerAuth(otherDevice.sessionToken.value) }
+        val thisAfterEnding = client.get("/api/v1/account") { bearerAuth(account.sessionToken.value) }
 
         // Assert
         assertEquals(HttpStatusCode.OK, kept.status)
@@ -175,13 +177,13 @@ class AccountRouteTest {
         val account = register("sair.${System.nanoTime()}@email.com")
 
         // Act
-        val before = client.get("/api/v1/account") { bearerAuth(account.sessionToken) }
+        val before = client.get("/api/v1/account") { bearerAuth(account.sessionToken.value) }
         val logout = client.post("/api/v1/auth/logout") {
-            bearerAuth(account.sessionToken)
+            bearerAuth(account.sessionToken.value)
             contentType(ContentType.Application.Json)
             setBody("{}")
         }
-        val after = client.get("/api/v1/account") { bearerAuth(account.sessionToken) }
+        val after = client.get("/api/v1/account") { bearerAuth(account.sessionToken.value) }
 
         // Assert
         assertEquals(HttpStatusCode.OK, before.status)
@@ -206,12 +208,12 @@ class AccountRouteTest {
     private suspend fun ApplicationTestBuilder.signIn(email: String, password: String): HttpResponse =
         client.post("/api/v1/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody(Json.encodeToString(SignInRequest(email = email, password = password)))
+            setBody(Json.encodeToString(SignInRequest(email = email, password = SecretString(password))))
         }
 
     private suspend fun ApplicationTestBuilder.update(account: AuthenticatedAccount, request: UpdateProfileRequest) =
         client.put("/api/v1/account") {
-            bearerAuth(account.sessionToken)
+            bearerAuth(account.sessionToken.value)
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(request))
         }
@@ -222,14 +224,14 @@ class AccountRouteTest {
         next: String,
         signOutOtherSessions: Boolean = false,
     ) = client.post("/api/v1/account/password") {
-        bearerAuth(account.sessionToken)
+        bearerAuth(account.sessionToken.value)
         contentType(ContentType.Application.Json)
-        setBody(Json.encodeToString(ChangePasswordRequest(current, next, signOutOtherSessions)))
+        setBody(Json.encodeToString(ChangePasswordRequest(SecretString(current), SecretString(next), signOutOtherSessions)))
     }
 
     private suspend fun ApplicationTestBuilder.requestDeletion(account: AuthenticatedAccount) =
         client.post("/api/v1/account/deletion-request") {
-            bearerAuth(account.sessionToken)
+            bearerAuth(account.sessionToken.value)
             contentType(ContentType.Application.Json)
             setBody("{}")
         }
@@ -241,13 +243,13 @@ class AccountRouteTest {
         fullName = "Maria das Graças Silva",
         socialName = "Graça",
         email = email,
-        password = "segredo",
-        primaryPhone = "(81) 99999-9999",
+        password = SecretString("segredo"),
+        primaryPhone = Phone.parse("(81) 99999-9999"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "Ana Silva",
-        emergencyContactPhone = "(81) 98888-7777",
+        emergencyContactPhone = Phone.parse("(81) 98888-7777"),
         acceptedPrivacyPolicy = true,
         acceptedTreatment = true,
         wantsNotifications = false,

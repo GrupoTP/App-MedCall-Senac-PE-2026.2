@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.server.plugin
 
+import grupotp.recifesaudavel.common.scheduling.ClinicTime
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.AppointmentsTable
@@ -33,7 +34,7 @@ import java.time.Clock
 import java.time.ZoneId
 
 /** Clinics work in Recife time, whatever the server's own time zone. */
-private val CLINIC_ZONE: ZoneId = ZoneId.of("America/Recife")
+private val CLINIC_ZONE: ZoneId = ZoneId.of(ClinicTime.ZONE_ID)
 
 fun Application.configureDatabase() {
     val settings = DatabaseSettings.from(environment.config)

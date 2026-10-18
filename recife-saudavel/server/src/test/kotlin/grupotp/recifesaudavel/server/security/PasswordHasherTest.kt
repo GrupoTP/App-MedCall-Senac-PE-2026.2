@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.server.security
 
+import grupotp.recifesaudavel.common.security.SecretString
 import java.util.Base64
 import javax.crypto.SecretKeyFactory
 import javax.crypto.spec.PBEKeySpec
@@ -13,12 +14,12 @@ class PasswordHasherTest {
     @Test
     fun aHashVerifiesOnlyItsOwnPassword() {
         // Act
-        val stored = hasher.hash("segredo")
+        val stored = hasher.hash(SecretString("segredo"))
 
         // Assert
         assertTrue(stored.startsWith("pbkdf2-sha256\$600000\$"))
-        assertTrue(hasher.verify("segredo", stored))
-        assertFalse(hasher.verify("Segredo", stored))
+        assertTrue(hasher.verify(SecretString("segredo"), stored))
+        assertFalse(hasher.verify(SecretString("Segredo"), stored))
         assertFalse(hasher.needsRehash(stored))
     }
 
@@ -32,7 +33,7 @@ class PasswordHasherTest {
         val old = "pbkdf2-sha256\$1000\$${encoder.encodeToString(salt)}\$${encoder.encodeToString(derived)}"
 
         // Act
-        val verified = hasher.verify("segredo", old)
+        val verified = hasher.verify(SecretString("segredo"), old)
         val rehash = hasher.needsRehash(old)
 
         // Assert
@@ -53,7 +54,7 @@ class PasswordHasherTest {
         )
 
         // Act
-        val verified = values.map { hasher.verify("segredo", it) }
+        val verified = values.map { hasher.verify(SecretString("segredo"), it) }
 
         // Assert
         assertTrue(verified.none { it })

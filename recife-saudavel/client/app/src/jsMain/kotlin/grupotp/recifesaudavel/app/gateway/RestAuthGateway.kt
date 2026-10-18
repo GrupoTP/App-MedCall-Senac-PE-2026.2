@@ -7,6 +7,7 @@ import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.serialization.json.Json
 
 class RestAuthGateway(
@@ -22,12 +23,12 @@ class RestAuthGateway(
     override suspend fun requestPasswordRecovery(email: String): AuthResult =
         AuthResult.Failed(AuthError.NotImplemented)
 
-    override suspend fun profile(token: String): AuthResult = send("GET", "/api/v1/auth/me", body = null, token = token)
+    override suspend fun profile(token: SecretString): AuthResult = send("GET", "/api/v1/auth/me", body = null, token = token)
 
     private suspend inline fun <reified T> post(path: String, body: T): AuthResult =
         send("POST", path, json.encodeToString(body), token = null)
 
-    private suspend fun send(method: String, path: String, body: String?, token: String?): AuthResult {
+    private suspend fun send(method: String, path: String, body: String?, token: SecretString?): AuthResult {
         val (status, text) = try {
             sendJson(method, "$baseUrl$path", body, token)
         } catch (_: IllegalStateException) {

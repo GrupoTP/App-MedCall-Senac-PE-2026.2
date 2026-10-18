@@ -6,6 +6,7 @@ import grupotp.recifesaudavel.app.usecase.SignIn
 import grupotp.recifesaudavel.app.usecase.toMessage
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.SignInRequest
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.ScrollView
@@ -35,7 +36,7 @@ internal val LoginScreen = FC<LoginScreenProps> { props ->
 
     fun submit() {
         scope.launch {
-            val result = props.signIn(SignInRequest(email = email, password = password))
+            val result = props.signIn(SignInRequest(email = email, password = SecretString(password)))
             when (result) {
                 is AuthResult.Success -> props.onAuthenticated(result.account)
                 is AuthResult.Failed -> submissionError = result.error.toMessage()

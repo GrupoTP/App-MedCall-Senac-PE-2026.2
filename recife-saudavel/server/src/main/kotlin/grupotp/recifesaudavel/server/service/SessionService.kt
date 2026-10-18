@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.server.service
 
+import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.repository.SessionRepository
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -19,14 +20,14 @@ class SessionService(
     private val clock: Clock,
     private val settings: SessionSettings,
 ) {
-    fun issue(userId: String): String {
+    fun issue(userId: String): SecretString {
         val bytes = ByteArray(TOKEN_BYTES).also { random.nextBytes(it) }
         val token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
         val now = clock.millis()
         // Housekeeping: expired rows are useless, and sign-ins are rare enough to pay for it.
         settings.idleTimeout?.let { sessions.deleteUnusedSince(now - it.toMillis()) }
         sessions.insert(hash(token), userId, now)
-        return token
+        return SecretString(token)
     }
 
     /** User id of [token], or null when it is unknown, revoked or expired. */

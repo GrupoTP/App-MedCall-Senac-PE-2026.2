@@ -8,7 +8,8 @@
 // user extended attribute on Linux and macOS; Java's UserDefinedFileAttributeView writes either.
 // The attribute goes away with its folder, so it is set again on every build, before any task runs,
 // and after the tasks that delete folders (clean, npm ci, expo export). Missing folders are created
-// first, because the attribute only sticks to an existing folder.
+// first, because the attribute only sticks to an existing folder. `npm ci` keeps the node_modules
+// folder itself (npm 11 only empties it), so its flag survives the install.
 import java.nio.ByteBuffer
 import java.nio.file.Files
 import java.nio.file.attribute.UserDefinedFileAttributeView
@@ -55,11 +56,23 @@ fun ignoreGeneratedFolders() {
 
 ignoreGeneratedFolders()
 
+// Runs after the tasks that delete folders. A separate task and not a doLast on them: Gradle counts
+// a task's actions in its up-to-date check, so an action added from here would make npmInstall run
+// `npm ci` again whenever this plugin changes, and on Windows `npm ci` fails with EBUSY while
+// Dropbox holds files it is deleting.
+val restoreTask = "restoreDropboxIgnore"
+gradle.rootProject {
+    tasks.register(restoreTask) {
+        description = "Flags the generated folders as ignored by Dropbox again."
+        doLast { ignoreGeneratedFolders() }
+    }
+}
+
 val deletesIgnoredFolders = setOf(":client:expo:npmInstall", ":client:expo:exportWeb")
 gradle.allprojects {
     tasks.configureEach {
         if (name == "clean" || path in deletesIgnoredFolders) {
-            doLast { ignoreGeneratedFolders() }
+            finalizedBy(":$restoreTask")
         }
     }
 }

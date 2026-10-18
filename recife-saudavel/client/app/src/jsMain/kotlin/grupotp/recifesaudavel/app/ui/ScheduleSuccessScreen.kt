@@ -1,6 +1,5 @@
 package grupotp.recifesaudavel.app.ui
 
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import ojaynico.kotlin.react.json
 import ojaynico.kotlin.react.native.component.ScrollView
@@ -54,18 +53,18 @@ internal val ScheduleSuccessScreen = FC<ScheduleSuccessScreenProps> { props ->
                         summaryRow("Profissional", appointment.professionalName, loose = true)
                         summaryRow(
                             "Data e hora",
-                            "${formatDate(appointment.date)} às ${appointment.time}",
+                            "${formatDate(appointment.date)} às ${formatTime(appointment.time)}",
                             last = true,
                             loose = true,
                         )
                     }
                 }
                 infoAlertRich(icon = { emoji("📱") }) {
-                    if (appointment.contactPhone.isBlank()) {
+                    if (appointment.contactPhone.isEmpty()) {
                         +"Confirmação para o telefone do seu cadastro. "
                     } else {
                         +"Confirmação para "
-                        strongText(Phone.format(appointment.contactPhone))
+                        strongText(appointment.contactPhone.formatted())
                         +". "
                     }
                     +"Informações médicas não serão expostas em notificações externas."

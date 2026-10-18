@@ -7,6 +7,7 @@ import grupotp.recifesaudavel.common.scheduling.AvailableDay
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.serialization.json.Json
 
 class RestAppointmentGateway(
@@ -16,11 +17,11 @@ class RestAppointmentGateway(
     override suspend fun specialties(): SchedulingResult<List<Specialty>> =
         call("GET", "/api/v1/specialties", token = null)
 
-    override suspend fun professionals(token: String): SchedulingResult<List<Professional>> =
+    override suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>> =
         call("GET", "/api/v1/professionals", token)
 
     override suspend fun availability(
-        token: String,
+        token: SecretString,
         specialtyId: String,
         professionalId: String?,
     ): SchedulingResult<List<AvailableDay>> {
@@ -33,19 +34,19 @@ class RestAppointmentGateway(
         return call("GET", "/api/v1/availability$query", token)
     }
 
-    override suspend fun book(token: String, request: CreateAppointmentRequest): SchedulingResult<Appointment> =
+    override suspend fun book(token: SecretString, request: CreateAppointmentRequest): SchedulingResult<Appointment> =
         call("POST", "/api/v1/appointments", token, json.encodeToString(request))
 
-    override suspend fun list(token: String): SchedulingResult<List<Appointment>> =
+    override suspend fun list(token: SecretString): SchedulingResult<List<Appointment>> =
         call("GET", "/api/v1/appointments", token)
 
-    override suspend fun cancel(token: String, appointmentId: String): SchedulingResult<Appointment> =
+    override suspend fun cancel(token: SecretString, appointmentId: String): SchedulingResult<Appointment> =
         call("POST", "/api/v1/appointments/${encodeURIComponent(appointmentId)}/cancel", token, "{}")
 
     private suspend inline fun <reified T> call(
         method: String,
         path: String,
-        token: String?,
+        token: SecretString?,
         body: String? = null,
     ): SchedulingResult<T> = json.callApi(method, "$baseUrl$path", token, body)
 }

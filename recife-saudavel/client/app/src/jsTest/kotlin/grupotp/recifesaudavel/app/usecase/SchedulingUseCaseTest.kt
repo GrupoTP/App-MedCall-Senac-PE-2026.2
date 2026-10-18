@@ -1,13 +1,18 @@
 package grupotp.recifesaudavel.app.usecase
 
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.AvailableDay
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -21,7 +26,7 @@ class SchedulingUseCaseTest {
         fullName = "Maria das Graças Silva",
         socialName = "Graça",
         email = "maria@email.com",
-        sessionToken = "token-da-maria",
+        sessionToken = SecretString("token-da-maria"),
     )
 
     @Test
@@ -180,11 +185,11 @@ class SchedulingUseCaseTest {
     @Test
     fun upcomingSkipsPastAndCancelledAppointments() {
         // Arrange
-        val past = sooner.copy(id = "past", date = "2026-10-01")
+        val past = sooner.copy(id = "past", date = LocalDate(2026, 10, 1))
         val cancelled = later.copy(id = "cancelled", status = AppointmentStatus.Cancelled)
 
         // Act
-        val upcoming = upcomingAppointments(listOf(later, cancelled, past, sooner), now = "2026-10-13T08:00")
+        val upcoming = upcomingAppointments(listOf(later, cancelled, past, sooner), now = LocalDateTime(2026, 10, 13, 8, 0))
 
         // Assert
         assertEquals(listOf(sooner, later), upcoming)
@@ -196,8 +201,8 @@ class SchedulingUseCaseTest {
     private val request = CreateAppointmentRequest(
         specialtyId = "cardio",
         professionalId = null,
-        date = "2026-10-14",
-        time = "09:00",
+        date = LocalDate(2026, 10, 14),
+        time = LocalTime(9, 0),
         reason = "",
         notes = "",
     )
@@ -206,11 +211,11 @@ class SchedulingUseCaseTest {
         id = id,
         specialtyName = "Cardiologia",
         professionalName = "Dra. Lúcia Oliveira",
-        date = date,
-        time = time,
+        date = LocalDate.parse(date),
+        time = LocalTime.parse(time),
         status = AppointmentStatus.Pending,
         patientName = "Graça",
-        contactPhone = "(81) 99999-9999",
+        contactPhone = Phone.parse("(81) 99999-9999"),
     )
 
     private inner class FakeAppointmentGateway(
@@ -225,30 +230,30 @@ class SchedulingUseCaseTest {
 
         override suspend fun specialties() = specialties
 
-        override suspend fun professionals(token: String): SchedulingResult<List<Professional>> {
-            lastToken = token
+        override suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>> {
+            lastToken = token.value
             return SchedulingResult.Success(listOf(lucia, Professional(id = "marcos", name = "Dr. Marcos Souza", specialtyId = "pedi")))
         }
 
         override suspend fun availability(
-            token: String,
+            token: SecretString,
             specialtyId: String,
             professionalId: String?,
         ): SchedulingResult<List<AvailableDay>> = SchedulingResult.Success(emptyList())
 
-        override suspend fun book(token: String, request: CreateAppointmentRequest): SchedulingResult<Appointment> {
-            lastToken = token
+        override suspend fun book(token: SecretString, request: CreateAppointmentRequest): SchedulingResult<Appointment> {
+            lastToken = token.value
             booked = request
             return book
         }
 
-        override suspend fun list(token: String): SchedulingResult<List<Appointment>> {
-            lastToken = token
+        override suspend fun list(token: SecretString): SchedulingResult<List<Appointment>> {
+            lastToken = token.value
             return list
         }
 
-        override suspend fun cancel(token: String, appointmentId: String): SchedulingResult<Appointment> {
-            lastToken = token
+        override suspend fun cancel(token: SecretString, appointmentId: String): SchedulingResult<Appointment> {
+            lastToken = token.value
             return cancel
         }
     }

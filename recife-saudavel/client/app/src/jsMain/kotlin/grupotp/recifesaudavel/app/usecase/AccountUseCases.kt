@@ -5,23 +5,24 @@ import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.security.SecretString
 
 /**
  * Settings API of the server. Every call needs the session token and the network.
  */
 interface AccountGateway {
-    suspend fun profile(token: String): SchedulingResult<AccountProfile>
+    suspend fun profile(token: SecretString): SchedulingResult<AccountProfile>
 
-    suspend fun update(token: String, request: UpdateProfileRequest): SchedulingResult<AccountProfile>
+    suspend fun update(token: SecretString, request: UpdateProfileRequest): SchedulingResult<AccountProfile>
 
-    suspend fun updateConsents(token: String, request: UpdateConsentsRequest): SchedulingResult<AccountProfile>
+    suspend fun updateConsents(token: SecretString, request: UpdateConsentsRequest): SchedulingResult<AccountProfile>
 
-    suspend fun changePassword(token: String, request: ChangePasswordRequest): SchedulingResult<AccountProfile>
+    suspend fun changePassword(token: SecretString, request: ChangePasswordRequest): SchedulingResult<AccountProfile>
 
-    suspend fun requestDeletion(token: String): SchedulingResult<AccountProfile>
+    suspend fun requestDeletion(token: SecretString): SchedulingResult<AccountProfile>
 
     /** Asks the server to forget [token]. */
-    suspend fun signOut(token: String): SchedulingResult<Unit>
+    suspend fun signOut(token: SecretString): SchedulingResult<Unit>
 }
 
 class LoadAccountProfile(
@@ -81,8 +82,8 @@ class ChangePassword(
     /** @param signOutOtherSessions also end the account's sessions on other devices; this one stays. */
     suspend operator fun invoke(
         account: AuthenticatedAccount,
-        currentPassword: String,
-        newPassword: String,
+        currentPassword: SecretString,
+        newPassword: SecretString,
         signOutOtherSessions: Boolean,
     ): SchedulingResult<AccountProfile> =
         gateway.changePassword(

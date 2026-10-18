@@ -1,5 +1,7 @@
 package grupotp.recifesaudavel.common.scheduling
 
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import kotlinx.serialization.Serializable
 
 /**
@@ -10,8 +12,8 @@ import kotlinx.serialization.Serializable
 data class CreateAppointmentRequest(
     val specialtyId: String,
     val professionalId: String?,
-    val date: String,
-    val time: String,
+    val date: LocalDate,
+    val time: LocalTime,
     val reason: String,
     val notes: String,
     val preTriageId: String? = null,

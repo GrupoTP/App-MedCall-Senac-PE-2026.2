@@ -3,10 +3,13 @@ package grupotp.recifesaudavel.app.usecase
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.time.Instant
 
 class PreTriageUseCaseTest {
     private val account = AuthenticatedAccount(
@@ -14,7 +17,7 @@ class PreTriageUseCaseTest {
         fullName = "Maria das Graças Silva",
         socialName = "Graça",
         email = "maria@email.com",
-        sessionToken = "token-da-maria",
+        sessionToken = SecretString("token-da-maria"),
     )
 
     @Test
@@ -33,7 +36,7 @@ class PreTriageUseCaseTest {
     @Test
     fun pendingReturnsTheLatestPreTriage() = runTest {
         // Arrange
-        val latest = PreTriage(id = "pt-1", createdAt = 0, form = PreTriageForm(reason = "Tontura"))
+        val latest = PreTriage(id = "pt-1", createdAt = Instant.fromEpochMilliseconds(0), form = PreTriageForm(reason = "Tontura"))
         val gateway = FakePreTriageGateway(pending = SchedulingResult.Success(latest))
 
         // Act
@@ -46,10 +49,11 @@ class PreTriageUseCaseTest {
     @Test
     fun birthDateConvertsBetweenTypedAndIsoForms() {
         // Assert
-        assertEquals("1980-05-31", brazilianDateToIso("31/05/1980"))
-        assertEquals("", brazilianDateToIso("31/05/80"))
-        assertEquals("31/05/1980", isoDateToBrazilian("1980-05-31"))
-        assertEquals("", isoDateToBrazilian(""))
+        assertEquals(LocalDate(1980, 5, 31), parseBrazilianDate("31/05/1980"))
+        assertNull(parseBrazilianDate("31/05/80"))
+        assertNull(parseBrazilianDate("31/02/1980"))
+        assertEquals("31/05/1980", formatBrazilianDate(LocalDate(1980, 5, 31)))
+        assertEquals("", formatBrazilianDate(null))
         assertEquals("31/05/1980", maskBrazilianDate("31051980"))
         assertEquals("31/05", maskBrazilianDate("31/05"))
         assertEquals("31/05/1980", maskBrazilianDate("31/05/19801"))
@@ -68,18 +72,18 @@ private class FakePreTriageGateway(
 ) : PreTriageGateway {
     var lastToken: String? = null
 
-    override suspend fun draft(token: String): SchedulingResult<PreTriageForm> {
-        lastToken = token
+    override suspend fun draft(token: SecretString): SchedulingResult<PreTriageForm> {
+        lastToken = token.value
         return SchedulingResult.Success(PreTriageForm())
     }
 
-    override suspend fun submit(token: String, form: PreTriageForm): SchedulingResult<PreTriage> {
-        lastToken = token
-        return SchedulingResult.Success(PreTriage(id = "pt-1", createdAt = 0, form = form))
+    override suspend fun submit(token: SecretString, form: PreTriageForm): SchedulingResult<PreTriage> {
+        lastToken = token.value
+        return SchedulingResult.Success(PreTriage(id = "pt-1", createdAt = Instant.fromEpochMilliseconds(0), form = form))
     }
 
-    override suspend fun pending(token: String): SchedulingResult<PreTriage?> {
-        lastToken = token
+    override suspend fun pending(token: SecretString): SchedulingResult<PreTriage?> {
+        lastToken = token.value
         return pending
     }
 }

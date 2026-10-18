@@ -6,6 +6,7 @@ import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
 import grupotp.recifesaudavel.app.usecase.PendingSignOutGateway
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.recifesaudavel.common.security.SecretString
 import js.promise.await
 import js.reflect.unsafeCast
 import kotlinx.coroutines.CompletableDeferred
@@ -94,7 +95,7 @@ class BrowserOfflineShell(
         return json.decodeFromString(text)
     }
 
-    override suspend fun loadPendingSignOuts(): List<String> {
+    override suspend fun loadPendingSignOuts(): List<SecretString> {
         ensureReady()
         val (status, text) = request(getMethod, LOCAL_PENDING_SIGN_OUTS_URL, null)
         if (status !in 200..299 || status == 204.toShort() || text.isBlank()) {
@@ -103,7 +104,7 @@ class BrowserOfflineShell(
         return json.decodeFromString(text)
     }
 
-    override suspend fun savePendingSignOuts(tokens: List<String>) {
+    override suspend fun savePendingSignOuts(tokens: List<SecretString>) {
         ensureReady()
         val (status, text) = request(putMethod, LOCAL_PENDING_SIGN_OUTS_URL, json.encodeToString(tokens))
         if (status !in 200..299) {

@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.app.gateway
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
 import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.common.security.SecretString
 import js.reflect.unsafeCast
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.serialization.json.Json
@@ -23,7 +24,7 @@ internal suspend fun sendJson(
     method: String,
     url: String,
     body: String? = null,
-    bearerToken: String? = null,
+    bearerToken: SecretString? = null,
 ): Pair<Short, String> = suspendCancellableCoroutine { continuation ->
     val request = XMLHttpRequest()
     request.open(unsafeCast<RequestMethod>(method), url, true)
@@ -31,8 +32,8 @@ internal suspend fun sendJson(
     if (body != null) {
         request.setRequestHeader("Content-Type", "application/json")
     }
-    if (!bearerToken.isNullOrBlank()) {
-        request.setRequestHeader("Authorization", "Bearer $bearerToken")
+    if (bearerToken != null && !bearerToken.isBlank()) {
+        request.setRequestHeader("Authorization", "Bearer ${bearerToken.value}")
     }
     val onLoad: () -> Unit = {
         continuation.resume(request.status to request.responseText)
@@ -56,7 +57,7 @@ internal suspend fun sendJson(
 internal suspend inline fun <reified T> Json.callApi(
     method: String,
     url: String,
-    token: String?,
+    token: SecretString?,
     body: String? = null,
 ): SchedulingResult<T> {
     val (status, text) = try {

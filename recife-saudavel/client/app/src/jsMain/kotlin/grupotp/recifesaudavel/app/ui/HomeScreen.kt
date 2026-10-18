@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.app.ui
 
+import grupotp.recifesaudavel.app.platform.clinicNow
 import grupotp.recifesaudavel.app.usecase.AppointmentsSnapshot
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.app.usecase.SchedulingError
@@ -15,8 +16,8 @@ import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
 import ojaynico.kotlin.react.native.safearea.useSafeAreaInsets
 import react.ChildrenBuilder
-import react.Key
 import react.FC
+import react.Key
 import react.Props
 import react.useEffectOnce
 import react.useState
@@ -190,7 +191,7 @@ internal val HomeScreen = FC<HomeScreenProps> { props ->
                         +"Carregando consultas…"
                     }
                     else -> {
-                        val upcoming = upcomingAppointments(current.appointments, localNow()).take(UPCOMING_ON_HOME)
+                        val upcoming = upcomingAppointments(current.appointments, clinicNow()).take(UPCOMING_ON_HOME)
                         if (upcoming.isEmpty()) {
                             Text {
                                 style = Styles.fieldHint
@@ -233,7 +234,7 @@ private fun ChildrenBuilder.upcomingRow(appointment: Appointment) {
         style = Styles.upcomingRow
         accessible = true
         accessibilityLabel = "${appointment.professionalName}, ${appointment.specialtyName}, " +
-            "${formatSpokenDate(appointment.date)} às ${appointment.time}, ${appointment.status.label()}"
+            "${formatSpokenDate(appointment.date)} às ${formatTime(appointment.time)}, ${appointment.status.label()}"
         View {
             style = Styles.dateBadge
             Text {

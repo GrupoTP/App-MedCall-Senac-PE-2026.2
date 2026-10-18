@@ -1,18 +1,21 @@
 package grupotp.recifesaudavel.app.ui
 
+import grupotp.recifesaudavel.app.platform.clinicNow
 import grupotp.recifesaudavel.app.usecase.LoadPreTriageDraft
 import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
 import grupotp.recifesaudavel.app.usecase.SubmitPreTriage
-import grupotp.recifesaudavel.app.usecase.brazilianDateToIso
-import grupotp.recifesaudavel.app.usecase.isoDateToBrazilian
+import grupotp.recifesaudavel.app.usecase.formatBrazilianDate
 import grupotp.recifesaudavel.app.usecase.maskBrazilianDate
+import grupotp.recifesaudavel.app.usecase.parseBrazilianDate
 import grupotp.recifesaudavel.app.usecase.toPreTriageMessage
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.common.pretriage.SymptomsStart
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
@@ -22,7 +25,6 @@ import react.Key
 import react.Props
 import react.useEffectOnce
 import react.useState
-import kotlin.js.Date
 
 private val STEP_LABELS = arrayOf("Dados pessoais", "Queixa principal", "Histórico médico", "Medicamentos")
 private const val LAST_STEP = 3
@@ -56,7 +58,7 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
             when (val result = props.loadPreTriageDraft(props.account)) {
                 is SchedulingResult.Success -> {
                     form = result.value
-                    birthDate = isoDateToBrazilian(result.value.birthDate)
+                    birthDate = formatBrazilianDate(result.value.birthDate)
                 }
                 is SchedulingResult.Failed -> error = result.error
             }
@@ -74,10 +76,10 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
                 if (current.fullName.isBlank()) put("fullName", "Nome completo é obrigatório.")
                 when {
                     birthDate.isBlank() -> put("birthDate", "Informe sua data de nascimento.")
-                    !isValidBirthDate(brazilianDateToIso(birthDate)) ->
+                    !isValidBirthDate(parseBrazilianDate(birthDate)) ->
                         put("birthDate", "Informe uma data válida, no formato dd/mm/aaaa.")
                 }
-                if (current.primaryPhone.isBlank()) put("primaryPhone", "Telefone principal é obrigatório.")
+                if (current.primaryPhone.isEmpty()) put("primaryPhone", "Telefone principal é obrigatório.")
             }
             1 -> if (current.reason.isBlank()) put("reason", "Descreva o motivo da consulta.")
         }
@@ -90,7 +92,7 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
         busy = true
         error = null
         scope.launch {
-            val result = props.submitPreTriage(props.account, current.copy(birthDate = brazilianDateToIso(birthDate)))
+            val result = props.submitPreTriage(props.account, current.copy(birthDate = parseBrazilianDate(birthDate)))
             busy = false
             when (result) {
                 is SchedulingResult.Success -> props.onSent(result.value)
@@ -197,8 +199,8 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
                             textField("Nome do contato de emergência", current.emergencyContactName, "Ex: Ana Silva (filha)", FieldKind.Name) {
                                 update("emergencyContactName") { copy(emergencyContactName = it) }
                             }
-                            textField("Telefone do contato de emergência", current.emergencyContactPhone, "(81) 99888-7766", FieldKind.Phone) {
-                                update("emergencyContactPhone") { copy(emergencyContactPhone = it) }
+                            textField("Telefone do contato de emergência", current.emergencyContactPhone.digits, "(81) 99888-7766", FieldKind.Phone) {
+                                update("emergencyContactPhone") { copy(emergencyContactPhone = Phone(it)) }
                             }
                         }
                     }
@@ -243,17 +245,16 @@ internal val PreTriageScreen = FC<PreTriageScreenProps> { props ->
                             View {
                                 style = Styles.chipWrap
                                 accessibilityRole = "radiogroup"
-                                choiceChip("Prefiro não informar", selected = current.intensity.isEmpty()) {
-                                    update("intensity") { copy(intensity = "") }
+                                choiceChip("Prefiro não informar", selected = current.intensity == null) {
+                                    update("intensity") { copy(intensity = null) }
                                 }
                                 (1..10).forEach { level ->
-                                    val value = level.toString()
                                     choiceChip(
-                                        text = value,
-                                        selected = value == current.intensity,
+                                        text = level.toString(),
+                                        selected = level == current.intensity,
                                         style = Styles.timeChip,
-                                        accessibilityLabel = "Intensidade $value${intensityNote(level)}",
-                                    ) { update("intensity") { copy(intensity = value) } }
+                                        accessibilityLabel = "Intensidade $level${intensityNote(level)}",
+                                    ) { update("intensity") { copy(intensity = level) } }
                                 }
                             }
                         }
@@ -374,13 +375,5 @@ private fun intensityNote(level: Int): String = when (level) {
 }
 
 /** A real calendar date between 1900 and today. */
-private fun isValidBirthDate(iso: String): Boolean {
-    val parts = iso.split("-").mapNotNull(String::toIntOrNull)
-    if (parts.size != 3) {
-        return false
-    }
-    val (year, month, day) = parts
-    val date = Date(year, month - 1, day)
-    val sameDay = date.getFullYear() == year && date.getMonth() == month - 1 && date.getDate() == day
-    return sameDay && year >= MIN_BIRTH_YEAR && date.getTime() <= Date().getTime()
-}
+private fun isValidBirthDate(date: LocalDate?): Boolean =
+    date != null && date.year >= MIN_BIRTH_YEAR && date <= clinicNow().date

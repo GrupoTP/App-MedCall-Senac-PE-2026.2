@@ -1,33 +1,59 @@
 package grupotp.recifesaudavel.common.phone
 
+import kotlinx.serialization.Serializable
+import kotlin.jvm.JvmInline
+
 /**
- * Phone helpers shared by client and server. Phones are stored as digits only (DDD included) and shown with a mask.
+ * A phone number as digits only, DDD included, and empty when not given. It is shown with a mask.
+ * A leading 0 (trunk prefix) is kept as typed: nothing is added or removed.
  */
-object Phone {
-    /** Keeps only the digits. A leading 0 is kept as typed: nothing is added or removed. */
-    fun digits(raw: String): String = raw.filter { it in '0'..'9' }
+@Serializable
+@JvmInline
+value class Phone(val digits: String) {
+    init {
+        require(digits.all { it in '0'..'9' }) { "A phone holds digits only." }
+    }
 
-    /** DDD + 9 digits. A number typed with a leading 0 (trunk prefix) may carry one extra digit. */
-    private const val MAX_DIGITS = 11
+    fun isEmpty(): Boolean = digits.isEmpty()
 
-    /** Largest number of digits [raw] may hold, given its first digit. */
-    fun maxDigits(raw: String): Int = if (digits(raw).startsWith("0")) MAX_DIGITS + 1 else MAX_DIGITS
+    /** False when it has more digits than [maxDigits] allows. */
+    val hasValidLength: Boolean get() = digits.length <= maxDigits(digits)
 
-    /** Digits of [raw] cut to [maxDigits]. */
-    fun limited(raw: String): String = digits(raw).let { it.take(maxDigits(it)) }
+    /** `(XX) XXXX-XXXX` or `(XX) XXXXX-XXXX`; see [format]. */
+    fun formatted(): String = format(digits)
 
-    /**
-     * Masks digits as `(XX) XXXX-XXXX` (10 digits) or `(XX) XXXXX-XXXX` (11 digits). Partial input is masked
-     * progressively, so it can be used while typing. Digits beyond 11 are appended untouched.
-     */
-    fun format(raw: String): String {
-        val d = digits(raw)
-        return when {
-            d.isEmpty() -> ""
-            d.length <= 2 -> "($d"
-            d.length <= 6 -> "(${d.take(2)}) ${d.drop(2)}"
-            d.length <= 10 -> "(${d.take(2)}) ${d.substring(2, 6)}-${d.drop(6)}"
-            else -> "(${d.take(2)}) ${d.substring(2, 7)}-${d.substring(7)}"
+    override fun toString(): String = formatted()
+
+    companion object {
+        val EMPTY = Phone("")
+
+        /** DDD + 9 digits. A number typed with a leading 0 (trunk prefix) may carry one extra digit. */
+        private const val MAX_DIGITS = 11
+
+        /** Keeps only the digits of [raw], such as text typed with a mask. */
+        fun parse(raw: String): Phone = Phone(digitsOf(raw))
+
+        fun digitsOf(raw: String): String = raw.filter { it in '0'..'9' }
+
+        /** Largest number of digits [raw] may hold, given its first digit. */
+        fun maxDigits(raw: String): Int = if (digitsOf(raw).startsWith("0")) MAX_DIGITS + 1 else MAX_DIGITS
+
+        /** Digits of [raw] cut to [maxDigits]. */
+        fun limited(raw: String): String = digitsOf(raw).let { it.take(maxDigits(it)) }
+
+        /**
+         * Masks digits as `(XX) XXXX-XXXX` (10 digits) or `(XX) XXXXX-XXXX` (11 digits). Partial input is masked
+         * progressively, so it can be used while typing. Digits beyond 11 are appended untouched.
+         */
+        fun format(raw: String): String {
+            val d = digitsOf(raw)
+            return when {
+                d.isEmpty() -> ""
+                d.length <= 2 -> "($d"
+                d.length <= 6 -> "(${d.take(2)}) ${d.drop(2)}"
+                d.length <= 10 -> "(${d.take(2)}) ${d.substring(2, 6)}-${d.drop(6)}"
+                else -> "(${d.take(2)}) ${d.substring(2, 7)}-${d.substring(7)}"
+            }
         }
     }
 }

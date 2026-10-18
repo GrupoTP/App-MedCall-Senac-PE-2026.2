@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.common.account
 
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.serialization.Serializable
 
 /**
@@ -8,7 +9,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class ChangePasswordRequest(
-    val currentPassword: String,
-    val newPassword: String,
+    val currentPassword: SecretString,
+    val newPassword: SecretString,
     val signOutOtherSessions: Boolean = false,
 )

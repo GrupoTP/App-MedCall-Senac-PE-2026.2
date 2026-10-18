@@ -3,6 +3,8 @@ package grupotp.recifesaudavel.app.usecase
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,13 +16,13 @@ class RefreshAccountTest {
         fullName = "Poly",
         socialName = "",
         email = "poly@email.com",
-        sessionToken = "token-do-aparelho",
+        sessionToken = SecretString("token-do-aparelho"),
     )
 
     @Test
     fun serverChangesReachTheDeviceAndKeepTheLocalToken() = runTest {
         // Arrange
-        val server = saved.copy(phone = "(81) 99123-4567", sessionToken = "")
+        val server = saved.copy(phone = Phone.parse("(81) 99123-4567"), sessionToken = SecretString.EMPTY)
         val local = MemoryAccounts(saved)
         val refresh = RefreshAccount(ProfileGateway(AuthResult.Success(server)), local)
 
@@ -28,7 +30,7 @@ class RefreshAccountTest {
         val result = refresh(saved)
 
         // Assert
-        val expected = saved.copy(phone = "(81) 99123-4567")
+        val expected = saved.copy(phone = Phone.parse("(81) 99123-4567"))
         assertEquals(expected, result)
         assertEquals(expected, local.stored)
     }
@@ -37,7 +39,7 @@ class RefreshAccountTest {
     fun nothingChangesWhenTheServerHoldsTheSameProfile() = runTest {
         // Arrange
         val local = MemoryAccounts(saved)
-        val refresh = RefreshAccount(ProfileGateway(AuthResult.Success(saved.copy(sessionToken = ""))), local)
+        val refresh = RefreshAccount(ProfileGateway(AuthResult.Success(saved.copy(sessionToken = SecretString.EMPTY))), local)
 
         // Act
         val result = refresh(saved)
@@ -69,7 +71,7 @@ class RefreshAccountTest {
 
         override suspend fun requestPasswordRecovery(email: String): AuthResult = error("not used")
 
-        override suspend fun profile(token: String): AuthResult = result
+        override suspend fun profile(token: SecretString): AuthResult = result
     }
 
     private class MemoryAccounts(var stored: AuthenticatedAccount?) : LocalAccountGateway {

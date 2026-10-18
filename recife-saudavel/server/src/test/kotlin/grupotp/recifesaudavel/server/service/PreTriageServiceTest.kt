@@ -1,9 +1,11 @@
 package grupotp.recifesaudavel.server.service
 
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.common.pretriage.SymptomsStart
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
+import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.AppointmentsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
@@ -16,6 +18,8 @@ import grupotp.recifesaudavel.server.database.UsersTable
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
@@ -85,9 +89,9 @@ class PreTriageServiceTest {
         // Assert
         assertEquals("Maria das Graças Silva", draft.fullName)
         assertEquals("Graça", draft.socialName)
-        assertEquals("81999999999", draft.primaryPhone)
+        assertEquals("81999999999", draft.primaryPhone.digits)
         assertEquals(true, draft.primaryPhoneWhatsapp)
-        assertEquals("", draft.birthDate)
+        assertNull(draft.birthDate)
         assertEquals("", draft.allergies)
     }
 
@@ -101,14 +105,14 @@ class PreTriageServiceTest {
 
         // Assert
         assertEquals("Maria das Graças Silva", draft.fullName)
-        assertEquals("81999999999", draft.primaryPhone)
-        assertEquals("1980-05-31", draft.birthDate)
+        assertEquals("81999999999", draft.primaryPhone.digits)
+        assertEquals(LocalDate(1980, 5, 31), draft.birthDate)
         assertEquals("Hipertensão", draft.previousConditions)
         assertEquals("Dipirona", draft.allergies)
         assertEquals("Losartana 50mg", draft.regularMedications)
         assertEquals("Vitamina D", draft.supplements)
         assertEquals("", draft.reason)
-        assertEquals("", draft.intensity)
+        assertNull(draft.intensity)
     }
 
     @Test
@@ -152,12 +156,13 @@ class PreTriageServiceTest {
         // Act
         val results = listOf(
             form(fullName = " "),
-            form(birthDate = ""),
-            form(birthDate = "31/05/1980"),
-            form(birthDate = "2027-01-01"),
+            form(birthDate = null),
+            form(birthDate = LocalDate(1899, 12, 31)),
+            form(birthDate = LocalDate(2027, 1, 1)),
             form(primaryPhone = ""),
             form(reason = ""),
-            form(intensity = "11"),
+            form(intensity = 0),
+            form(intensity = 11),
         ).map { service.submit(maria, it) }
 
         // Assert
@@ -224,14 +229,14 @@ class PreTriageServiceTest {
 
     private fun form(
         fullName: String = "Maria das Graças Silva",
-        birthDate: String = "1980-05-31",
+        birthDate: LocalDate? = LocalDate(1980, 5, 31),
         primaryPhone: String = "(81) 99999-9999",
         reason: String = "Dor no peito ao subir escadas",
-        intensity: String = "6",
+        intensity: Int? = 6,
     ) = PreTriageForm(
         fullName = fullName,
         birthDate = birthDate,
-        primaryPhone = primaryPhone,
+        primaryPhone = Phone.parse(primaryPhone),
         reason = reason,
         intensity = intensity,
         previousConditions = "Hipertensão",
@@ -243,8 +248,8 @@ class PreTriageServiceTest {
     private fun request(time: String, preTriageId: String?) = CreateAppointmentRequest(
         specialtyId = cardiology,
         professionalId = lucia,
-        date = "2026-10-13",
-        time = time,
+        date = LocalDate(2026, 10, 13),
+        time = LocalTime.parse(time),
         reason = "Dor no peito ao subir escadas",
         notes = "",
         preTriageId = preTriageId,
@@ -254,13 +259,13 @@ class PreTriageServiceTest {
         fullName = "Maria das Graças Silva",
         socialName = "Graça",
         email = email,
-        password = "segredo",
-        primaryPhone = "(81) 99999-9999",
+        password = SecretString("segredo"),
+        primaryPhone = Phone.parse("(81) 99999-9999"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "",
-        emergencyContactPhone = "",
+        emergencyContactPhone = Phone.parse(""),
         acceptedPrivacyPolicy = true,
         acceptedTreatment = true,
         wantsNotifications = false,

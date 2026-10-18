@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.server.repository
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.server.database.PreTriagesTable
+import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
@@ -12,7 +13,7 @@ import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
-import kotlinx.serialization.json.Json
+import kotlin.time.Instant
 
 class PreTriageRepository(
     private val database: Database,
@@ -24,12 +25,12 @@ class PreTriageRepository(
         coerceInputValues = true
     }
 
-    fun insert(id: String, patientId: String, form: PreTriageForm, createdAt: Long): PreTriage = transaction(database) {
+    fun insert(id: String, patientId: String, form: PreTriageForm, createdAt: Instant): PreTriage = transaction(database) {
         PreTriagesTable.insert {
             it[PreTriagesTable.id] = id
             it[PreTriagesTable.patientId] = patientId
             it[PreTriagesTable.form] = json.encodeToString(form)
-            it[PreTriagesTable.createdAt] = createdAt
+            it[PreTriagesTable.createdAt] = createdAt.toEpochMilliseconds()
             it[appointmentId] = null
         }
         PreTriage(id = id, createdAt = createdAt, form = form)
@@ -61,7 +62,7 @@ class PreTriageRepository(
 
     private fun ResultRow.toPreTriage(): PreTriage = PreTriage(
         id = this[PreTriagesTable.id],
-        createdAt = this[PreTriagesTable.createdAt],
+        createdAt = Instant.fromEpochMilliseconds(this[PreTriagesTable.createdAt]),
         form = json.decodeFromString<PreTriageForm>(this[PreTriagesTable.form]),
         appointmentId = this[PreTriagesTable.appointmentId],
     )

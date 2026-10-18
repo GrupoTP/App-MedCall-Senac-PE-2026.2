@@ -8,6 +8,7 @@ import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
 import grupotp.recifesaudavel.app.usecase.PendingSignOutGateway
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.recifesaudavel.common.security.SecretString
 import js.promise.await
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -65,13 +66,13 @@ class SqliteLocalAccounts(
         opened.runAsync(CLEAR_ACCOUNTS_EXCEPT, arrayOf(PENDING_SIGN_OUTS_KEY)).await()
     }
 
-    override suspend fun loadPendingSignOuts(): List<String> {
+    override suspend fun loadPendingSignOuts(): List<SecretString> {
         val stored = open().getFirstAsync<StoredValue>(LOAD_ACCOUNT, arrayOf(PENDING_SIGN_OUTS_KEY)).await()
             ?: return emptyList()
         return json.decodeFromString(stored.value)
     }
 
-    override suspend fun savePendingSignOuts(tokens: List<String>) {
+    override suspend fun savePendingSignOuts(tokens: List<SecretString>) {
         open().runAsync(SAVE_ACCOUNT, arrayOf(PENDING_SIGN_OUTS_KEY, json.encodeToString(tokens))).await()
     }
 

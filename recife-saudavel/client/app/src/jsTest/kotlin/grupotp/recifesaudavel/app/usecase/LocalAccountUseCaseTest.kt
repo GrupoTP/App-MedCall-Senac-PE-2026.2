@@ -1,6 +1,8 @@
 package grupotp.recifesaudavel.app.usecase
 
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
@@ -72,27 +74,27 @@ private class FakeLocalAccountGateway : LocalAccountGateway {
 }
 
 private object NoRemote : AccountGateway {
-    override suspend fun profile(token: String) = error("not used")
+    override suspend fun profile(token: SecretString) = error("not used")
 
-    override suspend fun update(token: String, request: grupotp.recifesaudavel.common.account.UpdateProfileRequest) = error("not used")
+    override suspend fun update(token: SecretString, request: grupotp.recifesaudavel.common.account.UpdateProfileRequest) = error("not used")
 
-    override suspend fun updateConsents(token: String, request: grupotp.recifesaudavel.common.account.UpdateConsentsRequest) =
+    override suspend fun updateConsents(token: SecretString, request: grupotp.recifesaudavel.common.account.UpdateConsentsRequest) =
         error("not used")
 
-    override suspend fun changePassword(token: String, request: grupotp.recifesaudavel.common.account.ChangePasswordRequest) =
+    override suspend fun changePassword(token: SecretString, request: grupotp.recifesaudavel.common.account.ChangePasswordRequest) =
         error("not used")
 
-    override suspend fun requestDeletion(token: String) = error("not used")
+    override suspend fun requestDeletion(token: SecretString) = error("not used")
 
-    override suspend fun signOut(token: String): SchedulingResult<Unit> = error("not used")
+    override suspend fun signOut(token: SecretString): SchedulingResult<Unit> = error("not used")
 }
 
 internal class MemoryPending : PendingSignOutGateway {
-    var tokens: List<String> = emptyList()
+    var tokens: List<SecretString> = emptyList()
 
-    override suspend fun loadPendingSignOuts(): List<String> = tokens
+    override suspend fun loadPendingSignOuts(): List<SecretString> = tokens
 
-    override suspend fun savePendingSignOuts(tokens: List<String>) {
+    override suspend fun savePendingSignOuts(tokens: List<SecretString>) {
         this.tokens = tokens
     }
 }

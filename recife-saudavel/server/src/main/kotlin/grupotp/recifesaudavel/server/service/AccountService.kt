@@ -54,7 +54,7 @@ class AccountService(
         val stored = users.findPasswordHash(userId) ?: return AccountResult.UnknownUser
         return when {
             !passwords.verify(request.currentPassword, stored) -> AccountResult.Rejected("Senha atual incorreta.")
-            request.newPassword.length < MIN_PASSWORD -> AccountResult.Rejected("Mínimo 6 caracteres.")
+            request.newPassword.value.length < MIN_PASSWORD -> AccountResult.Rejected("Mínimo 6 caracteres.")
             request.newPassword == request.currentPassword ->
                 AccountResult.Rejected("A nova senha precisa ser diferente da atual.")
             else -> {
@@ -88,7 +88,9 @@ class AccountService(
     private fun validate(request: UpdateProfileRequest): String? = when {
         request.fullName.isBlank() -> "Nome completo é obrigatório."
         !request.email.contains("@") -> "Informe um e-mail válido."
-        request.primaryPhone.isBlank() -> "Telefone principal é obrigatório."
+        request.primaryPhone.isEmpty() -> "Telefone principal é obrigatório."
+        !request.primaryPhone.hasValidLength || !request.secondaryPhone.hasValidLength ||
+            !request.emergencyContactPhone.hasValidLength -> "Telefone inválido."
         else -> null
     }
 

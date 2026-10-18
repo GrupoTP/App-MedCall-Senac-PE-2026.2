@@ -3,16 +3,19 @@ package grupotp.recifesaudavel.app.usecase
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
+import grupotp.recifesaudavel.common.security.SecretString
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.number
 
 /**
  * Pre-triage API of the server. Every call needs the session token.
  */
 interface PreTriageGateway {
-    suspend fun draft(token: String): SchedulingResult<PreTriageForm>
+    suspend fun draft(token: SecretString): SchedulingResult<PreTriageForm>
 
-    suspend fun submit(token: String, form: PreTriageForm): SchedulingResult<PreTriage>
+    suspend fun submit(token: SecretString, form: PreTriageForm): SchedulingResult<PreTriage>
 
-    suspend fun pending(token: String): SchedulingResult<PreTriage?>
+    suspend fun pending(token: SecretString): SchedulingResult<PreTriage?>
 }
 
 /**
@@ -56,19 +59,28 @@ fun SchedulingError.toPreTriageMessage(): String = when (this) {
     is SchedulingError.Rejected -> message
 }
 
-/** `31/05/1980` → `1980-05-31`, or empty when the text is not a whole date. */
-fun brazilianDateToIso(text: String): String {
+/** `31/05/1980` → the date, or null when the text is not a whole, real date (such as `31/02/1980`). */
+fun parseBrazilianDate(text: String): LocalDate? {
     val parts = text.split("/")
     if (parts.size != 3 || parts[0].length != 2 || parts[1].length != 2 || parts[2].length != 4) {
-        return ""
+        return null
     }
-    return "${parts[2]}-${parts[1]}-${parts[0]}"
+    val (day, month, year) = parts.map { it.toIntOrNull() ?: return null }
+    return try {
+        LocalDate(year, month, day)
+    } catch (_: IllegalArgumentException) {
+        null
+    }
 }
 
-/** `1980-05-31` → `31/05/1980`; anything else becomes empty. */
-fun isoDateToBrazilian(iso: String): String {
-    val parts = iso.split("-")
-    return if (parts.size == 3) "${parts[2]}/${parts[1]}/${parts[0]}" else ""
+/** The date as `31/05/1980`, or empty for null. */
+fun formatBrazilianDate(date: LocalDate?): String {
+    if (date == null) {
+        return ""
+    }
+    val day = date.day.toString().padStart(2, '0')
+    val month = date.month.number.toString().padStart(2, '0')
+    return "$day/$month/${date.year}"
 }
 
 /** Keeps the digits typed and puts the slashes of `dd/MM/aaaa` back in. */

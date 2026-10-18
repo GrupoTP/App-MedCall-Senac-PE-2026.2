@@ -64,8 +64,10 @@ class AuthService(
     private fun validate(request: RegisterAccountRequest): String? = when {
         request.fullName.isBlank() -> "Nome completo é obrigatório."
         !request.email.contains("@") -> "Informe um e-mail válido."
-        request.password.length < 6 -> "Mínimo 6 caracteres."
-        request.primaryPhone.isBlank() -> "Telefone principal é obrigatório."
+        request.password.value.length < 6 -> "Mínimo 6 caracteres."
+        request.primaryPhone.isEmpty() -> "Telefone principal é obrigatório."
+        !request.primaryPhone.hasValidLength || !request.secondaryPhone.hasValidLength ||
+            !request.emergencyContactPhone.hasValidLength -> "Telefone inválido."
         !request.acceptedPrivacyPolicy -> "Leitura da Política de Privacidade é obrigatória."
         !request.acceptedTreatment -> "Consentimento de tratamento de dados é necessário."
         else -> null

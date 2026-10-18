@@ -1,8 +1,10 @@
 package grupotp.recifesaudavel.server.service
 
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
+import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.AppointmentsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
@@ -15,6 +17,8 @@ import grupotp.recifesaudavel.server.database.UsersTable
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.insert
@@ -79,10 +83,10 @@ class SchedulingServiceTest {
 
         // Assert
         val today = days.first()
-        assertEquals("2026-10-12", today.date)
-        assertEquals("10:30", today.times.first())
+        assertEquals(LocalDate(2026, 10, 12), today.date)
+        assertEquals(LocalTime(10, 30), today.times.first())
         assertEquals(SchedulingService.OPENING_TIMES, days[1].times)
-        assertFalse(days.any { it.date == "2026-10-17" || it.date == "2026-10-18" })
+        assertFalse(days.any { it.date == LocalDate(2026, 10, 17) || it.date == LocalDate(2026, 10, 18) })
         assertEquals(10, days.size)
     }
 
@@ -102,8 +106,8 @@ class SchedulingServiceTest {
         assertEquals("Cardiologia", created.specialtyName)
         assertEquals("Graça", created.patientName)
         assertEquals(AppointmentStatus.Pending, created.status)
-        assertFalse("14:00" in days.first { it.date == "2026-10-13" }.times)
-        assertTrue("14:00" in anyProfessional.first { it.date == "2026-10-13" }.times)
+        assertFalse(LocalTime.parse("14:00") in days.first { it.date == LocalDate(2026, 10, 13) }.times)
+        assertTrue(LocalTime.parse("14:00") in anyProfessional.first { it.date == LocalDate(2026, 10, 13) }.times)
         assertEquals(listOf(created), service.appointmentsOf(maria))
     }
 
@@ -132,7 +136,7 @@ class SchedulingServiceTest {
         // Assert
         assertIs<BookingResult.Created>(result)
         assertEquals(AppointmentStatus.Cancelled, service.appointmentsOf(maria).single().status)
-        assertFalse("11:00" in service.availability(cardiology, lucia)!!.first { it.date == "2026-10-13" }.times)
+        assertFalse(LocalTime.parse("11:00") in service.availability(cardiology, lucia)!!.first { it.date == LocalDate(2026, 10, 13) }.times)
     }
 
     @Test
@@ -194,7 +198,7 @@ class SchedulingServiceTest {
 
         // Assert
         assertEquals("Dra. Lúcia Oliveira", assertIs<BookingResult.Created>(result).appointment.professionalName)
-        assertFalse("15:00" in days.first { it.date == "2026-10-13" }.times)
+        assertFalse(LocalTime.parse("15:00") in days.first { it.date == LocalDate(2026, 10, 13) }.times)
     }
 
     @Test
@@ -247,8 +251,8 @@ class SchedulingServiceTest {
     ) = CreateAppointmentRequest(
         specialtyId = cardiology,
         professionalId = professionalId,
-        date = date,
-        time = time,
+        date = LocalDate.parse(date),
+        time = LocalTime.parse(time),
         reason = "Dor no peito ao subir escadas",
         notes = "",
     )
@@ -257,13 +261,13 @@ class SchedulingServiceTest {
         fullName = "Maria das Graças Silva",
         socialName = socialName,
         email = email,
-        password = "segredo",
-        primaryPhone = "(81) 99999-9999",
+        password = SecretString("segredo"),
+        primaryPhone = Phone.parse("(81) 99999-9999"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "",
-        emergencyContactPhone = "",
+        emergencyContactPhone = Phone.parse(""),
         acceptedPrivacyPolicy = true,
         acceptedTreatment = true,
         wantsNotifications = false,

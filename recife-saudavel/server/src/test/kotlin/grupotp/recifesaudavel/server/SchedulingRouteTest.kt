@@ -2,12 +2,14 @@ package grupotp.recifesaudavel.server
 
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.AvailableDay
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
+import grupotp.recifesaudavel.common.security.SecretString
 import io.ktor.client.HttpClient
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
@@ -31,7 +33,7 @@ class SchedulingRouteTest {
         environment {
             config = ApplicationConfig("application.yaml")
         }
-        val token = register(client).sessionToken
+        val token = register(client).sessionToken.value
         val specialties = Json.decodeFromString<List<Specialty>>(client.get("/api/v1/specialties").bodyAsText())
         val specialty = specialties.first { it.name == "Dermatologia" }
         val professionals = Json.decodeFromString<List<Professional>>(
@@ -83,10 +85,10 @@ class SchedulingRouteTest {
         val specialty = Json.decodeFromString<List<Specialty>>(client.get("/api/v1/specialties").bodyAsText())
             .first { it.name == "Cardiologia" }
         val day = Json.decodeFromString<List<AvailableDay>>(
-            client.get("/api/v1/availability?specialtyId=${specialty.id}") { bearerAuth(owner.sessionToken) }.bodyAsText(),
+            client.get("/api/v1/availability?specialtyId=${specialty.id}") { bearerAuth(owner.sessionToken.value) }.bodyAsText(),
         ).first()
         val created = client.post("/api/v1/appointments") {
-            bearerAuth(owner.sessionToken)
+            bearerAuth(owner.sessionToken.value)
             contentType(ContentType.Application.Json)
             setBody(
                 Json.encodeToString(
@@ -97,8 +99,8 @@ class SchedulingRouteTest {
         val appointment = Json.decodeFromString<Appointment>(created.bodyAsText())
 
         // Act
-        val byStranger = client.post("/api/v1/appointments/${appointment.id}/cancel") { bearerAuth(stranger.sessionToken) }
-        val byOwner = client.post("/api/v1/appointments/${appointment.id}/cancel") { bearerAuth(owner.sessionToken) }
+        val byStranger = client.post("/api/v1/appointments/${appointment.id}/cancel") { bearerAuth(stranger.sessionToken.value) }
+        val byOwner = client.post("/api/v1/appointments/${appointment.id}/cancel") { bearerAuth(owner.sessionToken.value) }
 
         // Assert
         assertEquals(HttpStatusCode.NotFound, byStranger.status)
@@ -134,13 +136,13 @@ class SchedulingRouteTest {
                         fullName = "Paciente de Teste",
                         socialName = "",
                         email = "agenda.${System.nanoTime()}@email.com",
-                        password = "segredo",
-                        primaryPhone = "(81) 99999-9999",
+                        password = SecretString("segredo"),
+                        primaryPhone = Phone.parse("(81) 99999-9999"),
                         primaryPhoneWhatsapp = false,
-                        secondaryPhone = "",
+                        secondaryPhone = Phone.parse(""),
                         secondaryPhoneWhatsapp = false,
                         emergencyContactName = "",
-                        emergencyContactPhone = "",
+                        emergencyContactPhone = Phone.parse(""),
                         acceptedPrivacyPolicy = true,
                         acceptedTreatment = true,
                         wantsNotifications = false,

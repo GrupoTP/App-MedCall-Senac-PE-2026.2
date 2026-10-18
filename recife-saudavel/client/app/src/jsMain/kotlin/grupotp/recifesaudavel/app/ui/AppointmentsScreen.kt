@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.app.ui
 
+import grupotp.recifesaudavel.app.platform.clinicNow
 import grupotp.recifesaudavel.app.usecase.AppointmentsSnapshot
 import grupotp.recifesaudavel.app.usecase.CancelAppointment
 import grupotp.recifesaudavel.app.usecase.ListAppointments
@@ -15,8 +16,8 @@ import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
 import react.ChildrenBuilder
-import react.Key
 import react.FC
+import react.Key
 import react.Props
 import react.useEffectOnce
 import react.useState
@@ -149,7 +150,7 @@ private fun ChildrenBuilder.appointmentCard(
         )
         accessible = true
         accessibilityLabel = "${appointment.specialtyName} com ${appointment.professionalName}, " +
-            "${formatSpokenDate(appointment.date)} às ${appointment.time}, ${appointment.status.label()}"
+            "${formatSpokenDate(appointment.date)} às ${formatTime(appointment.time)}, ${appointment.status.label()}"
         View {
             style = Styles.appointmentTop
             View {
@@ -180,7 +181,7 @@ private fun ChildrenBuilder.appointmentCard(
                 emoji("🕐", Styles.emojiMeta)
                 Text {
                     style = Styles.appointmentMetaText
-                    +appointment.time
+                    +formatTime(appointment.time)
                 }
             }
         }
@@ -196,7 +197,7 @@ private fun ChildrenBuilder.appointmentCard(
                 +"Pré-triagem vinculada"
             }
         }
-        if (appointment.isCancellableAt(localNow())) {
+        if (appointment.isCancellableAt(clinicNow())) {
             if (confirming) {
                 Text {
                     style = Styles.appointmentMetaText

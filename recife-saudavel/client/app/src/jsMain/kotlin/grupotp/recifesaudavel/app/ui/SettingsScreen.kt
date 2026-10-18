@@ -12,7 +12,10 @@ import grupotp.recifesaudavel.common.account.AccountProfile
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.launch
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
@@ -23,7 +26,7 @@ import react.Key
 import react.Props
 import react.useEffectOnce
 import react.useState
-import kotlin.js.Date
+import kotlin.time.Instant
 
 internal enum class SettingsTab(val title: String) {
     Account("Conta"),
@@ -146,7 +149,7 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
         }
         busy = true
         scope.launch {
-            val result = props.changePassword(props.account, currentPassword, newPassword, signOutOtherSessions)
+            val result = props.changePassword(props.account, SecretString(currentPassword), SecretString(newPassword), signOutOtherSessions)
             when (result) {
                 is SchedulingResult.Success -> {
                     currentPassword = ""
@@ -391,10 +394,10 @@ private fun ChildrenBuilder.accountTab(
         formField(caption = "Telefone do contato") {
             TextField {
                 label = "Telefone do contato"
-                value = form.emergencyContactPhone
+                value = form.emergencyContactPhone.digits
                 placeholder = "(81) 99888-7766"
                 kind = FieldKind.Phone
-                onValue = { onForm(form.copy(emergencyContactPhone = it)) }
+                onValue = { onForm(form.copy(emergencyContactPhone = Phone(it))) }
             }
         }
     }
@@ -639,21 +642,14 @@ private fun AccountProfile.toForm() = UpdateProfileRequest(
     fullName = fullName,
     socialName = socialName,
     email = email,
-    primaryPhone = Phone.digits(primaryPhone),
+    primaryPhone = primaryPhone,
     primaryPhoneWhatsapp = primaryPhoneWhatsapp,
-    secondaryPhone = Phone.digits(secondaryPhone),
+    secondaryPhone = secondaryPhone,
     secondaryPhoneWhatsapp = secondaryPhoneWhatsapp,
     emergencyContactName = emergencyContactName,
-    emergencyContactPhone = Phone.digits(emergencyContactPhone),
+    emergencyContactPhone = emergencyContactPhone,
 )
 
 /** `dd/MM/yyyy` in the device time zone, or a dash when the server never recorded the date. */
-private fun formatStamp(millis: Long?): String {
-    if (millis == null) {
-        return "—"
-    }
-    val date = Date(millis.toDouble())
-    val day = date.getDate().toString().padStart(2, '0')
-    val month = (date.getMonth() + 1).toString().padStart(2, '0')
-    return "$day/$month/${date.getFullYear()}"
-}
+private fun formatStamp(instant: Instant?): String =
+    instant?.let { formatDate(it.toLocalDateTime(TimeZone.currentSystemDefault()).date) } ?: "—"

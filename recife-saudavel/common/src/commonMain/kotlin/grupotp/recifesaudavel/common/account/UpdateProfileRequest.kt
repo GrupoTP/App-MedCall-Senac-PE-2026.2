@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.common.account
 
+import grupotp.recifesaudavel.common.phone.Phone
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -7,10 +8,10 @@ data class UpdateProfileRequest(
     val fullName: String,
     val socialName: String,
     val email: String,
-    val primaryPhone: String,
+    val primaryPhone: Phone,
     val primaryPhoneWhatsapp: Boolean,
-    val secondaryPhone: String,
+    val secondaryPhone: Phone,
     val secondaryPhoneWhatsapp: Boolean,
     val emergencyContactName: String,
-    val emergencyContactPhone: String,
+    val emergencyContactPhone: Phone,
 )

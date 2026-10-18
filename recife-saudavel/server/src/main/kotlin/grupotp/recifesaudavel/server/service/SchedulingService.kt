@@ -10,13 +10,13 @@ import grupotp.recifesaudavel.server.repository.NewAppointment
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.Slot
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalDateTime
+import kotlinx.datetime.LocalTime
+import kotlinx.datetime.toKotlinLocalDate
+import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.Clock
 import java.time.DayOfWeek
-import java.time.LocalDate
-import java.time.LocalDateTime
-import java.time.LocalTime
-import java.time.format.DateTimeFormatter
-import java.time.format.DateTimeParseException
 import java.util.UUID
 
 sealed interface BookingResult {
@@ -62,14 +62,13 @@ class SchedulingService(
     fun availability(specialtyId: String, professionalId: String?): List<AvailableDay>? {
         val candidates = candidates(specialtyId, professionalId) ?: return null
         val days = bookableDays()
-        val taken = repository.takenSlots(candidates.map { it.id }, days.map { it.toString() })
-        val now = LocalDateTime.now(clock)
+        val taken = repository.takenSlots(candidates.map { it.id }, days)
+        val now = now()
         return days.mapNotNull { day ->
             val times = OPENING_TIMES.filter { time ->
-                LocalDateTime.of(day, LocalTime.parse(time)).isAfter(now) &&
-                    candidates.any { Slot(it.id, day.toString(), time) !in taken }
+                LocalDateTime(day, time) > now && candidates.any { Slot(it.id, day, time) !in taken }
             }
-            if (times.isEmpty()) null else AvailableDay(date = day.toString(), times = times)
+            if (times.isEmpty()) null else AvailableDay(date = day, times = times)
         }
     }
 
@@ -77,13 +76,11 @@ class SchedulingService(
         val professionalId = request.professionalId?.takeIf { it.isNotBlank() }
         val candidates = candidates(request.specialtyId, professionalId)
             ?: return BookingResult.Rejected("Especialidade ou profissional inválido.")
-        val date = parseDate(request.date)
-        if (date == null || date !in bookableDays()) {
+        val date = request.date
+        if (date !in bookableDays()) {
             return BookingResult.Rejected("Escolha uma data disponível.")
         }
-        if (request.time !in OPENING_TIMES ||
-            !LocalDateTime.of(date, LocalTime.parse(request.time)).isAfter(LocalDateTime.now(clock))
-        ) {
+        if (request.time !in OPENING_TIMES || LocalDateTime(date, request.time) <= now()) {
             return BookingResult.Rejected("Escolha um horário disponível.")
         }
         if (request.reason.length > MAX_TEXT || request.notes.length > MAX_TEXT) {
@@ -95,9 +92,9 @@ class SchedulingService(
         }
         // The first free professional wins; if another patient takes it meanwhile, the unique
         // index refuses the insert and the next candidate is tried.
-        val taken = repository.takenSlots(candidates.map { it.id }, listOf(date.toString()))
+        val taken = repository.takenSlots(candidates.map { it.id }, listOf(date))
         for (professional in candidates) {
-            val slot = Slot(professional.id, date.toString(), request.time)
+            val slot = Slot(professional.id, date, request.time)
             if (slot in taken) {
                 continue
             }
@@ -138,8 +135,7 @@ class SchedulingService(
     /** Cancels the patient's own appointment when [isCancellableAt] allows it. */
     fun cancel(patientId: String, appointmentId: String): CancelResult {
         val current = repository.findAppointmentOf(patientId, appointmentId) ?: return CancelResult.NotFound
-        val now = LocalDateTime.now(clock).format(MINUTE_FORMAT)
-        if (!current.isCancellableAt(now) || !repository.cancel(patientId, appointmentId, current.status)) {
+        if (!current.isCancellableAt(now()) || !repository.cancel(patientId, appointmentId, current.status)) {
             return CancelResult.NotCancellable("Esta consulta não pode mais ser cancelada.")
         }
         return CancelResult.Cancelled(repository.findAppointment(appointmentId)!!)
@@ -156,29 +152,26 @@ class SchedulingService(
         return professionals.filter { it.id == professionalId }.ifEmpty { null }
     }
 
+    /** Date and time at the clinics now, from [clock]. */
+    private fun now(): LocalDateTime = java.time.LocalDateTime.now(clock).toKotlinLocalDateTime()
+
     /** Weekdays from today on. Clinics are closed on weekends. */
     private fun bookableDays(): List<LocalDate> {
-        val today = LocalDate.now(clock)
+        val today = java.time.LocalDate.now(clock)
         return (0 until BOOKING_WINDOW_DAYS)
             .map { today.plusDays(it.toLong()) }
             .filter { it.dayOfWeek != DayOfWeek.SATURDAY && it.dayOfWeek != DayOfWeek.SUNDAY }
-    }
-
-    private fun parseDate(value: String): LocalDate? = try {
-        LocalDate.parse(value)
-    } catch (_: DateTimeParseException) {
-        null
+            .map { it.toKotlinLocalDate() }
     }
 
     companion object {
         const val BOOKING_WINDOW_DAYS = 14
-        private val MINUTE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
         const val MAX_TEXT = 1000
 
         /** Same times as the prototype. */
-        val OPENING_TIMES = listOf(
+        val OPENING_TIMES: List<LocalTime> = listOf(
             "08:00", "08:30", "09:00", "09:30", "10:00", "10:30", "11:00", "11:30",
             "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30",
-        )
+        ).map(LocalTime::parse)
     }
 }

@@ -1,6 +1,5 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.pretriage.PendingPreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
@@ -8,10 +7,11 @@ import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
+import kotlinx.datetime.toKotlinLocalDate
 import java.time.Clock
 import java.time.LocalDate
-import java.time.format.DateTimeParseException
 import java.util.UUID
+import kotlin.time.Instant
 
 sealed interface PreTriageResult {
     data class Created(val preTriage: PreTriage) : PreTriageResult
@@ -67,7 +67,7 @@ class PreTriageService(
             id = UUID.randomUUID().toString(),
             patientId = patientId,
             form = clean,
-            createdAt = clock.millis(),
+            createdAt = Instant.fromEpochMilliseconds(clock.millis()),
         )
         return PreTriageResult.Created(created)
     }
@@ -88,7 +88,7 @@ class PreTriageService(
     }
 
     private fun validate(form: PreTriageForm): String? {
-        val birthDate = parseDate(form.birthDate)
+        val birthDate = form.birthDate
         val texts = listOf(
             form.reason, form.currentSymptoms, form.symptomsPattern, form.complaintNotes,
             form.previousConditions, form.surgeries, form.allergies, form.currentTreatment, form.historyNotes,
@@ -96,40 +96,29 @@ class PreTriageService(
             form.medicationNotes,
         )
         val shortTexts = listOf(form.fullName, form.socialName, form.emergencyContactName)
-        val phones = listOf(form.primaryPhone, form.secondaryPhone, form.emergencyContactPhone).map(Phone::digits)
+        val phones = listOf(form.primaryPhone, form.secondaryPhone, form.emergencyContactPhone)
         return when {
             form.fullName.isBlank() -> "Nome completo é obrigatório."
-            form.birthDate.isBlank() -> "Informe sua data de nascimento."
-            birthDate == null || birthDate.isAfter(LocalDate.now(clock)) || birthDate.year < MIN_BIRTH_YEAR ->
+            birthDate == null -> "Informe sua data de nascimento."
+            birthDate > LocalDate.now(clock).toKotlinLocalDate() || birthDate.year < MIN_BIRTH_YEAR ->
                 "Informe uma data de nascimento válida."
-            form.primaryPhone.isBlank() -> "Telefone principal é obrigatório."
+            form.primaryPhone.isEmpty() -> "Telefone principal é obrigatório."
             form.reason.isBlank() -> "Descreva o motivo da consulta."
-            form.intensity.isNotEmpty() && form.intensity.toIntOrNull() !in 1..10 -> "Intensidade deve ser de 1 a 10."
+            form.intensity != null && form.intensity !in 1..10 -> "Intensidade deve ser de 1 a 10."
             texts.any { it.length > MAX_TEXT } -> "Texto muito longo. Use até $MAX_TEXT caracteres."
             shortTexts.any { it.length > MAX_SHORT_TEXT } -> "Texto muito longo. Use até $MAX_SHORT_TEXT caracteres."
-            phones.any { it.length > Phone.maxDigits(it) } -> "Telefone inválido."
+            phones.any { !it.hasValidLength } -> "Telefone inválido."
             else -> null
         }
-    }
-
-    private fun parseDate(value: String): LocalDate? = try {
-        LocalDate.parse(value)
-    } catch (_: DateTimeParseException) {
-        null
     }
 
     private fun PreTriageForm.trimmed(): PreTriageForm = copy(
         fullName = fullName.trim(),
         socialName = socialName.trim(),
-        birthDate = birthDate.trim(),
-        primaryPhone = Phone.digits(primaryPhone),
-        secondaryPhone = Phone.digits(secondaryPhone),
         emergencyContactName = emergencyContactName.trim(),
-        emergencyContactPhone = Phone.digits(emergencyContactPhone),
         reason = reason.trim(),
         currentSymptoms = currentSymptoms.trim(),
         symptomsPattern = symptomsPattern.trim(),
-        intensity = intensity.trim(),
         complaintNotes = complaintNotes.trim(),
         previousConditions = previousConditions.trim(),
         surgeries = surgeries.trim(),

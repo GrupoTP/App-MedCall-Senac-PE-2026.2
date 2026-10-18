@@ -5,6 +5,7 @@ import grupotp.recifesaudavel.common.scheduling.AvailableDay
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
+import grupotp.recifesaudavel.common.security.SecretString
 
 sealed interface SchedulingResult<out T> {
     data class Success<T>(val value: T) : SchedulingResult<T>
@@ -28,15 +29,15 @@ sealed interface SchedulingError {
 interface AppointmentGateway {
     suspend fun specialties(): SchedulingResult<List<Specialty>>
 
-    suspend fun professionals(token: String): SchedulingResult<List<Professional>>
+    suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>>
 
-    suspend fun availability(token: String, specialtyId: String, professionalId: String?): SchedulingResult<List<AvailableDay>>
+    suspend fun availability(token: SecretString, specialtyId: String, professionalId: String?): SchedulingResult<List<AvailableDay>>
 
-    suspend fun book(token: String, request: CreateAppointmentRequest): SchedulingResult<Appointment>
+    suspend fun book(token: SecretString, request: CreateAppointmentRequest): SchedulingResult<Appointment>
 
-    suspend fun list(token: String): SchedulingResult<List<Appointment>>
+    suspend fun list(token: SecretString): SchedulingResult<List<Appointment>>
 
-    suspend fun cancel(token: String, appointmentId: String): SchedulingResult<Appointment>
+    suspend fun cancel(token: SecretString, appointmentId: String): SchedulingResult<Appointment>
 }
 
 /**

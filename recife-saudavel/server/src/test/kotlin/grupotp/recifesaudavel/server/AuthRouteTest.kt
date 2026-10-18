@@ -4,6 +4,8 @@ import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -38,7 +40,7 @@ class AuthRouteTest {
         }
         val loggedIn = client.post("/api/v1/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody(Json.encodeToString(SignInRequest(email = email, password = password)))
+            setBody(Json.encodeToString(SignInRequest(email = email, password = SecretString(password))))
         }
 
         // Assert
@@ -47,8 +49,8 @@ class AuthRouteTest {
         assertEquals(email, account.email)
         assertEquals(HttpStatusCode.OK, loggedIn.status)
         val signedIn = Json.decodeFromString<AuthenticatedAccount>(loggedIn.bodyAsText())
-        assertEquals(account.copy(sessionToken = ""), signedIn.copy(sessionToken = ""))
-        assertTrue(account.sessionToken.isNotBlank())
+        assertEquals(account.copy(sessionToken = SecretString.EMPTY), signedIn.copy(sessionToken = SecretString.EMPTY))
+        assertTrue(account.sessionToken.value.isNotBlank())
         assertNotEquals(account.sessionToken, signedIn.sessionToken)
     }
 
@@ -66,15 +68,15 @@ class AuthRouteTest {
         val account = Json.decodeFromString<AuthenticatedAccount>(created.bodyAsText())
 
         // Act
-        val me = client.get("/api/v1/auth/me") { bearerAuth(account.sessionToken) }
+        val me = client.get("/api/v1/auth/me") { bearerAuth(account.sessionToken.value) }
         val forged = client.get("/api/v1/auth/me") { bearerAuth("token-inventado") }
         val anonymous = client.get("/api/v1/auth/me")
 
         // Assert
         assertEquals(HttpStatusCode.OK, me.status)
         val profile = Json.decodeFromString<AuthenticatedAccount>(me.bodyAsText())
-        assertEquals(account.copy(sessionToken = ""), profile.copy(sessionToken = ""))
-        assertTrue(profile.phone.isNotBlank())
+        assertEquals(account.copy(sessionToken = SecretString.EMPTY), profile.copy(sessionToken = SecretString.EMPTY))
+        assertTrue(!profile.phone.isEmpty())
         assertEquals(HttpStatusCode.Unauthorized, forged.status)
         assertEquals(HttpStatusCode.Unauthorized, anonymous.status)
     }
@@ -94,7 +96,7 @@ class AuthRouteTest {
         // Act
         val response = client.post("/api/v1/auth/login") {
             contentType(ContentType.Application.Json)
-            setBody(Json.encodeToString(SignInRequest(email = email, password = "errada1")))
+            setBody(Json.encodeToString(SignInRequest(email = email, password = SecretString("errada1"))))
         }
 
         // Assert
@@ -109,13 +111,13 @@ class AuthRouteTest {
         fullName = "Maria das Graças Silva",
         socialName = "Graça",
         email = email,
-        password = password,
-        primaryPhone = "(81) 99999-9999",
+        password = SecretString(password),
+        primaryPhone = Phone.parse("(81) 99999-9999"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "Ana Silva",
-        emergencyContactPhone = "(81) 98888-7777",
+        emergencyContactPhone = Phone.parse("(81) 98888-7777"),
         acceptedPrivacyPolicy = true,
         acceptedTreatment = true,
         wantsNotifications = false,

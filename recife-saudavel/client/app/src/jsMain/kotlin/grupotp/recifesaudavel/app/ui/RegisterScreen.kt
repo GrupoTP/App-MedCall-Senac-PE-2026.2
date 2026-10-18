@@ -5,6 +5,8 @@ import grupotp.recifesaudavel.app.usecase.RegisterAccount
 import grupotp.recifesaudavel.app.usecase.toMessage
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
@@ -25,12 +27,12 @@ private data class RegisterDraft(
     val socialName: String = "",
     val email: String = "",
     val password: String = "",
-    val primaryPhone: String = "",
+    val primaryPhone: Phone = Phone.EMPTY,
     val primaryPhoneWhatsapp: Boolean = false,
-    val secondaryPhone: String = "",
+    val secondaryPhone: Phone = Phone.EMPTY,
     val secondaryPhoneWhatsapp: Boolean = false,
     val emergencyContactName: String = "",
-    val emergencyContactPhone: String = "",
+    val emergencyContactPhone: Phone = Phone.EMPTY,
     val acceptedPrivacyPolicy: Boolean = false,
     val acceptedTreatment: Boolean = false,
     val wantsNotifications: Boolean = false,
@@ -161,10 +163,10 @@ internal val RegisterScreen = FC<RegisterScreenProps> { props ->
                 formField(caption = "Telefone do contato") {
                     TextField {
                         label = "Telefone do contato"
-                        value = draft.emergencyContactPhone
+                        value = draft.emergencyContactPhone.digits
                         placeholder = "(81) 99888-7766"
                         kind = FieldKind.Phone
-                        onValue = { update(draft.copy(emergencyContactPhone = it)) }
+                        onValue = { update(draft.copy(emergencyContactPhone = Phone(it))) }
                     }
                 }
             }
@@ -226,7 +228,7 @@ private fun RegisterDraft.toRequest(): RegisterAccountRequest = RegisterAccountR
     fullName = fullName,
     socialName = socialName,
     email = email,
-    password = password,
+    password = SecretString(password),
     primaryPhone = primaryPhone,
     primaryPhoneWhatsapp = primaryPhoneWhatsapp,
     secondaryPhone = secondaryPhone,

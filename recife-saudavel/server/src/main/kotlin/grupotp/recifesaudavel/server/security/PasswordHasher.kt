@@ -1,5 +1,6 @@
 package grupotp.recifesaudavel.server.security
 
+import grupotp.recifesaudavel.common.security.SecretString
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64
@@ -14,13 +15,13 @@ import javax.crypto.spec.PBEKeySpec
  * and [needsRehash] tells when one should be replaced at the next sign-in.
  */
 class PasswordHasher {
-    fun hash(password: String): String {
+    fun hash(password: SecretString): String {
         val salt = ByteArray(SALT_BYTES).also { random.nextBytes(it) }
         val derived = derive(password, salt, ITERATIONS)
         return listOf(SCHEME, ITERATIONS.toString(), encode(salt), encode(derived)).joinToString(SEPARATOR)
     }
 
-    fun verify(password: String, stored: String): Boolean {
+    fun verify(password: SecretString, stored: String): Boolean {
         val parsed = parse(stored) ?: return false
         return MessageDigest.isEqual(derive(password, parsed.salt, parsed.iterations), parsed.hash)
     }
@@ -43,8 +44,8 @@ class PasswordHasher {
         }
     }
 
-    private fun derive(password: String, salt: ByteArray, iterations: Int): ByteArray {
-        val spec = PBEKeySpec(password.toCharArray(), salt, iterations, KEY_BITS)
+    private fun derive(password: SecretString, salt: ByteArray, iterations: Int): ByteArray {
+        val spec = PBEKeySpec(password.value.toCharArray(), salt, iterations, KEY_BITS)
         try {
             return SecretKeyFactory.getInstance(ALGORITHM).generateSecret(spec).encoded
         } finally {

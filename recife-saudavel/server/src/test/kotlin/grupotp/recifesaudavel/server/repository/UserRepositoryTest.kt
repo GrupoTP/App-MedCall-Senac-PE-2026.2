@@ -2,6 +2,8 @@ package grupotp.recifesaudavel.server.repository
 
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.UsersTable
@@ -67,12 +69,12 @@ class UserRepositoryTest {
                 fullName = "Ana",
                 socialName = "",
                 email = "maria@email.com",
-                primaryPhone = "81999999999",
+                primaryPhone = Phone.parse("81999999999"),
                 primaryPhoneWhatsapp = false,
-                secondaryPhone = "",
+                secondaryPhone = Phone.parse(""),
                 secondaryPhoneWhatsapp = false,
                 emergencyContactName = "",
-                emergencyContactPhone = "",
+                emergencyContactPhone = Phone.parse(""),
             ),
         )
 
@@ -84,13 +86,13 @@ class UserRepositoryTest {
         fullName = "Maria das Graças Silva",
         socialName = "",
         email = email,
-        password = "segredo",
-        primaryPhone = "(81) 99999-9999",
+        password = SecretString("segredo"),
+        primaryPhone = Phone.parse("(81) 99999-9999"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "",
-        emergencyContactPhone = "",
+        emergencyContactPhone = Phone.parse(""),
         acceptedPrivacyPolicy = true,
         acceptedTreatment = true,
         wantsNotifications = false,

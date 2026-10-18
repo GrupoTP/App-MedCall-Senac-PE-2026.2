@@ -1,6 +1,8 @@
 package grupotp.recifesaudavel.server.service
 
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.recifesaudavel.common.phone.Phone
+import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
 import grupotp.recifesaudavel.server.database.SessionsTable
@@ -55,7 +57,7 @@ class SessionServiceTest {
     @Test
     fun aTokenInUseNeverExpires() {
         // Arrange
-        val token = sessions.issue(maria)
+        val token = sessions.issue(maria).value
 
         // Act: used every 100 days for two years, always within the 180-day idle timeout.
         val answers = (1..7).map {
@@ -70,7 +72,7 @@ class SessionServiceTest {
     @Test
     fun aTokenStopsWorkingAfterTheIdleTimeoutWithoutUse() {
         // Arrange
-        val token = sessions.issue(maria)
+        val token = sessions.issue(maria).value
 
         // Act
         clock.advance(IDLE.minusMinutes(1))
@@ -90,7 +92,7 @@ class SessionServiceTest {
     fun withoutAnIdleTimeoutTokensNeverExpire() {
         // Arrange
         val forever = SessionService(SessionRepository(database), clock, SessionSettings(idleTimeout = null))
-        val token = forever.issue(maria)
+        val token = forever.issue(maria).value
 
         // Act
         clock.advance(Duration.ofDays(3650))
@@ -103,9 +105,9 @@ class SessionServiceTest {
     @Test
     fun revokeAllKeepsOnlyTheGivenSession() {
         // Arrange
-        val phone = sessions.issue(maria)
-        val laptop = sessions.issue(maria)
-        val tablet = sessions.issue(maria)
+        val phone = sessions.issue(maria).value
+        val laptop = sessions.issue(maria).value
+        val tablet = sessions.issue(maria).value
 
         // Act
         sessions.revokeAll(maria, keepToken = phone)
@@ -134,13 +136,13 @@ class SessionServiceTest {
         fullName = "Maria das Graças Silva",
         socialName = "",
         email = "maria@email.com",
-        password = "segredo",
-        primaryPhone = "(81) 99999-9999",
+        password = SecretString("segredo"),
+        primaryPhone = Phone.parse("(81) 99999-9999"),
         primaryPhoneWhatsapp = true,
-        secondaryPhone = "",
+        secondaryPhone = Phone.parse(""),
         secondaryPhoneWhatsapp = false,
         emergencyContactName = "",
-        emergencyContactPhone = "",
+        emergencyContactPhone = Phone.parse(""),
         acceptedPrivacyPolicy = true,
         acceptedTreatment = true,
         wantsNotifications = false,

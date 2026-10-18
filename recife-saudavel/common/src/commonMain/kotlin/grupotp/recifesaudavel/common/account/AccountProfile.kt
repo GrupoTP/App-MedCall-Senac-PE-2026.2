@@ -1,27 +1,28 @@
 package grupotp.recifesaudavel.common.account
 
+import grupotp.recifesaudavel.common.phone.Phone
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 /**
  * Everything the settings screen shows about the signed-in person.
- * Phones are digits only. Dates are epoch milliseconds, null when the server never recorded them
- * (accounts created before the server kept them).
+ * The instants are null when the server never recorded them (accounts created before it kept them).
  */
 @Serializable
 data class AccountProfile(
     val fullName: String,
     val socialName: String,
     val email: String,
-    val primaryPhone: String,
+    val primaryPhone: Phone,
     val primaryPhoneWhatsapp: Boolean,
-    val secondaryPhone: String,
+    val secondaryPhone: Phone,
     val secondaryPhoneWhatsapp: Boolean,
     val emergencyContactName: String,
-    val emergencyContactPhone: String,
+    val emergencyContactPhone: Phone,
     val acceptedPrivacyPolicy: Boolean,
     val acceptedTreatment: Boolean,
     val wantsNotifications: Boolean,
-    val createdAt: Long? = null,
-    val lastLoginAt: Long? = null,
-    val deletionRequestedAt: Long? = null,
+    val createdAt: Instant? = null,
+    val lastLoginAt: Instant? = null,
+    val deletionRequestedAt: Instant? = null,
 )

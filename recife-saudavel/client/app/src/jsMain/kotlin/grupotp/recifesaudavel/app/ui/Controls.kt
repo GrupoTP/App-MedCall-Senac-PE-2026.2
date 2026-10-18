@@ -9,8 +9,8 @@ import ojaynico.kotlin.react.native.component.TextInput
 import ojaynico.kotlin.react.native.component.View
 import ojaynico.kotlin.react.native.safearea.useSafeAreaInsets
 import react.ChildrenBuilder
-import react.Key
 import react.FC
+import react.Key
 import react.Props
 import react.PropsWithChildren
 import react.useState
@@ -214,7 +214,7 @@ internal val TextField = FC<TextFieldProps> { props ->
             { text ->
                 // The state holds digits only. Erasing a mask character keeps the digits, so drop the last one.
                 val typed = Phone.limited(text)
-                val erasedMask = text.length < shown.length && typed == Phone.digits(props.value)
+                val erasedMask = text.length < shown.length && typed == Phone.digitsOf(props.value)
                 props.onValue(if (erasedMask) typed.dropLast(1) else typed)
             }
         } else {
@@ -253,19 +253,19 @@ internal val CheckBox = FC<CheckBoxProps> { props ->
 
 internal fun ChildrenBuilder.phoneField(
     caption: String,
-    value: String,
+    value: Phone,
     whatsapp: Boolean,
     required: Boolean = false,
-    onValue: (String) -> Unit,
+    onValue: (Phone) -> Unit,
     onWhatsapp: (Boolean) -> Unit,
 ) {
     formField(caption = caption, required = required) {
         TextField {
             label = caption
-            this.value = value
+            this.value = value.digits
             placeholder = "(81) 99999-9999"
             kind = FieldKind.Phone
-            this.onValue = onValue
+            this.onValue = { onValue(Phone(it)) }
         }
         CheckBox {
             checked = whatsapp

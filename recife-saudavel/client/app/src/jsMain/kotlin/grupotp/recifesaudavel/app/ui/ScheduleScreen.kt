@@ -8,18 +8,19 @@ import grupotp.recifesaudavel.app.usecase.SchedulingError
 import grupotp.recifesaudavel.app.usecase.SchedulingOptions
 import grupotp.recifesaudavel.app.usecase.SchedulingResult
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.phone.Phone
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import grupotp.recifesaudavel.common.scheduling.AvailableDay
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import kotlinx.coroutines.launch
+import kotlinx.datetime.LocalDate
+import kotlinx.datetime.LocalTime
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
 import react.ChildrenBuilder
-import react.Key
 import react.FC
+import react.Key
 import react.Props
 import react.useEffectOnce
 import react.useState
@@ -48,8 +49,8 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     var professionalId by useState<String?>(null)
     var reason by useState("")
     var days by useState<List<AvailableDay>?>(null)
-    var date by useState<String?>(null)
-    var time by useState<String?>(null)
+    var date by useState<LocalDate?>(null)
+    var time by useState<LocalTime?>(null)
     var notes by useState("")
     var fieldErrors by useState<Map<String, String>>(emptyMap())
     var error by useState<SchedulingError?>(null)
@@ -290,7 +291,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                     style = Styles.chipWrap
                                     accessibilityRole = "radiogroup"
                                     times.forEach { option ->
-                                        choiceChip(option, selected = option == time, style = Styles.timeChip) {
+                                        choiceChip(formatTime(option), selected = option == time, style = Styles.timeChip) {
                                             time = option
                                             fieldErrors = fieldErrors - "time"
                                         }
@@ -316,7 +317,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                 summaryRow("Especialidade", specialty?.name.orEmpty())
                                 summaryRow("Profissional", professional?.name ?: "Qualquer disponível")
                                 summaryRow("Data", date?.let(::formatDate).orEmpty())
-                                summaryRow("Horário", time.orEmpty())
+                                summaryRow("Horário", time?.let(::formatTime).orEmpty())
                                 preTriage?.let { pending ->
                                     summaryRow(
                                         "Pré-triagem",
@@ -326,10 +327,10 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                 summaryRow(
                                     "Paciente",
                                     props.account.socialName.ifBlank { props.account.fullName },
-                                    last = phone.isBlank(),
+                                    last = phone.isEmpty(),
                                 )
-                                if (phone.isNotBlank()) {
-                                    summaryRow("Telefone", Phone.format(phone), last = true)
+                                if (!phone.isEmpty()) {
+                                    summaryRow("Telefone", phone.formatted(), last = true)
                                 }
                             }
                         }
@@ -344,9 +345,9 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                             }
                         }
                         infoAlertRich(icon = { emoji("📱") }) {
-                            if (props.account.phone.isNotBlank()) {
+                            if (!props.account.phone.isEmpty()) {
                                 +"Confirmação enviada para "
-                                strongText(Phone.format(props.account.phone))
+                                strongText(props.account.phone.formatted())
                                 +". "
                             } else {
                                 +"A confirmação será enviada para o telefone principal do seu cadastro. "
