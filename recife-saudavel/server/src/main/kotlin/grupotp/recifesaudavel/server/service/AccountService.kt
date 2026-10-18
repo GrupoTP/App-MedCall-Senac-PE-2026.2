@@ -47,10 +47,10 @@ class AccountService(
     }
 
     /**
-     * @param keepToken session making the request. With [ChangePasswordRequest.signOutOtherSessions]
+     * @param keepSessionId session making the request. With [ChangePasswordRequest.signOutOtherSessions]
      * every other session of the account ends, and this one stays.
      */
-    fun changePassword(userId: String, request: ChangePasswordRequest, keepToken: String?): AccountResult {
+    fun changePassword(userId: String, request: ChangePasswordRequest, keepSessionId: String?): AccountResult {
         val stored = users.findPasswordHash(userId) ?: return AccountResult.UnknownUser
         return when {
             !passwords.verify(request.currentPassword, stored) -> AccountResult.Rejected("Senha atual incorreta.")
@@ -60,7 +60,7 @@ class AccountService(
             else -> {
                 users.updatePasswordHash(userId, passwords.hash(request.newPassword))
                 if (request.signOutOtherSessions) {
-                    sessions.revokeAll(userId, keepToken = keepToken)
+                    sessions.revokeAll(userId, keepId = keepSessionId)
                 }
                 reloaded(userId)
             }

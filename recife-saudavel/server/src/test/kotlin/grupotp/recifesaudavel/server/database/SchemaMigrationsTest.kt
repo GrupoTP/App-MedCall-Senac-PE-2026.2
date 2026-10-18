@@ -6,6 +6,7 @@ import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.ClinicsTable
 import grupotp.recifesaudavel.server.repository.NewAppointment
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
+import grupotp.recifesaudavel.server.repository.SessionRepository
 import grupotp.recifesaudavel.server.repository.Slot
 import grupotp.recifesaudavel.server.repository.UserRepository
 import kotlinx.datetime.LocalDate
@@ -75,6 +76,30 @@ class SchemaMigrationsTest {
         assertFalse(doubleBooked)
     }
 
+    @Test
+    fun theOpaqueTokenSessionsAreReplacedByJwtSessions() {
+        // Arrange
+        transaction(database) {
+            SchemaUtils.drop(SessionsTable)
+            SchemaUtils.create(LegacySessionsTable)
+            LegacySessionsTable.insert {
+                it[tokenHash] = "a".repeat(64)
+                it[userId] = patient
+                it[createdAt] = 0
+            }
+        }
+        val sessions = SessionRepository(database)
+
+        // Act
+        SchemaMigrations.run(database)
+        SchemaMigrations.run(database)
+        sessions.insert(id = "sessao-1", userId = patient, createdAt = 10)
+
+        // Assert
+        assertEquals(patient, sessions.find("sessao-1")?.userId)
+        assertEquals(1, transaction(database) { SessionsTable.selectAll().count() })
+    }
+
     private fun legacyAppointment(time: String, status: String): String {
         val id = UUID.randomUUID().toString()
         transaction(database) {
@@ -121,6 +146,15 @@ class SchemaMigrationsTest {
         acceptedTreatment = true,
         wantsNotifications = false,
     )
+
+    /** The `sessions` table of the opaque tokens, keyed by their hash. */
+    private object LegacySessionsTable : Table("sessions") {
+        val tokenHash = varchar("token_hash", 64)
+        val userId = varchar("user_id", 36).references(UsersTable.id)
+        val createdAt = long("created_at")
+
+        override val primaryKey = PrimaryKey(tokenHash)
+    }
 
     /** The `appointments` table as it was before `slot_key`. */
     private object LegacyAppointmentsTable : Table("appointments") {

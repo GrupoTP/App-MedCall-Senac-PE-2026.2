@@ -14,7 +14,9 @@ import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.SessionRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
+import grupotp.recifesaudavel.server.security.JwtSettings
 import grupotp.recifesaudavel.server.security.PasswordHasher
+import grupotp.recifesaudavel.server.security.SessionTokens
 import grupotp.recifesaudavel.server.service.AccountService
 import grupotp.recifesaudavel.server.service.AuthService
 import grupotp.recifesaudavel.server.service.PreTriageService
@@ -40,6 +42,8 @@ fun Application.configureDatabase() {
             module {
                 single { settings }
                 single { SessionSettings.from(environment.config) }
+                single { JwtSettings.from(environment.config) }
+                singleOf(::SessionTokens)
                 single { DatabaseConnector().connect(get()) }
                 singleOf(::PasswordHasher)
                 // UTC: each clinic has its own zone, and the services convert to it where it matters.

@@ -25,10 +25,10 @@ sealed interface SchedulingError {
 }
 
 /**
- * Appointment API of the server. Every call except [specialties] needs the session token.
+ * Appointment API of the server. Every call needs the session token.
  */
 interface AppointmentGateway {
-    suspend fun specialties(): SchedulingResult<List<Specialty>>
+    suspend fun specialties(token: SecretString): SchedulingResult<List<Specialty>>
 
     suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>>
 

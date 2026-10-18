@@ -35,7 +35,7 @@ class SchedulingRouteTest {
             config = ApplicationConfig("application.yaml")
         }
         val token = register(client).sessionToken.value
-        val specialties = Json.decodeFromString<List<Specialty>>(client.get("/api/v1/specialties").bodyAsText())
+        val specialties = Json.decodeFromString<List<Specialty>>(client.get("/api/v1/specialties") { bearerAuth(token) }.bodyAsText())
         val specialty = specialties.first { it.name == "Dermatologia" }
         val professionals = Json.decodeFromString<List<Professional>>(
             client.get("/api/v1/professionals?specialtyId=${specialty.id}") { bearerAuth(token) }.bodyAsText(),
@@ -86,7 +86,7 @@ class SchedulingRouteTest {
         }
         val owner = register(client)
         val stranger = register(client)
-        val specialty = Json.decodeFromString<List<Specialty>>(client.get("/api/v1/specialties").bodyAsText())
+        val specialty = Json.decodeFromString<List<Specialty>>(client.get("/api/v1/specialties") { bearerAuth(owner.sessionToken.value) }.bodyAsText())
             .first { it.name == "Cardiologia" }
         val day = Json.decodeFromString<List<ClinicAvailability>>(
             client.get("/api/v1/availability?specialtyId=${specialty.id}") { bearerAuth(owner.sessionToken.value) }.bodyAsText(),
@@ -123,11 +123,13 @@ class SchedulingRouteTest {
         val anonymous = client.get("/api/v1/appointments")
         val forged = client.get("/api/v1/appointments") { bearerAuth("token-inventado") }
         val availability = client.get("/api/v1/availability?specialtyId=x")
+        val specialties = client.get("/api/v1/specialties")
 
         // Assert
         assertEquals(HttpStatusCode.Unauthorized, anonymous.status)
         assertEquals(HttpStatusCode.Unauthorized, forged.status)
         assertEquals(HttpStatusCode.Unauthorized, availability.status)
+        assertEquals(HttpStatusCode.Unauthorized, specialties.status)
         assertTrue(anonymous.bodyAsText().contains("sessão"))
     }
 

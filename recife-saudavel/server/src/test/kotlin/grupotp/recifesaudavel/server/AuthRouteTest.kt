@@ -1,5 +1,7 @@
 package grupotp.recifesaudavel.server
 
+import com.auth0.jwt.JWT
+import com.auth0.jwt.algorithms.Algorithm
 import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
@@ -12,6 +14,7 @@ import io.ktor.client.request.post
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
+import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.contentType
 import io.ktor.server.config.ApplicationConfig
@@ -70,6 +73,7 @@ class AuthRouteTest {
         // Act
         val me = client.get("/api/v1/auth/me") { bearerAuth(account.sessionToken.value) }
         val forged = client.get("/api/v1/auth/me") { bearerAuth("token-inventado") }
+        val resigned = client.get("/api/v1/auth/me") { bearerAuth(signedWithAnotherKey(account.sessionToken.value)) }
         val anonymous = client.get("/api/v1/auth/me")
 
         // Assert
@@ -78,7 +82,33 @@ class AuthRouteTest {
         assertEquals(account.copy(sessionToken = SecretString.EMPTY), profile.copy(sessionToken = SecretString.EMPTY))
         assertTrue(!profile.phone.isEmpty())
         assertEquals(HttpStatusCode.Unauthorized, forged.status)
+        assertEquals(HttpStatusCode.Unauthorized, resigned.status)
+        assertEquals("Bearer realm=recife-saudavel", resigned.headers[HttpHeaders.WWWAuthenticate])
         assertEquals(HttpStatusCode.Unauthorized, anonymous.status)
+        assertEquals("Sua sessão expirou. Entre de novo para continuar.", Json.decodeFromString<ApiError>(resigned.bodyAsText()).message)
+    }
+
+    @Test
+    fun theTokenIsAJwtThatNamesTheUserAndTheSession() = testApplication {
+        // Arrange
+        environment {
+            config = ApplicationConfig("application.yaml")
+        }
+        val email = "jwt.${System.nanoTime()}@email.com"
+
+        // Act
+        val created = client.post("/api/v1/auth/register") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(registration(email, "segredo")))
+        }
+
+        // Assert
+        val account = Json.decodeFromString<AuthenticatedAccount>(created.bodyAsText())
+        val token = JWT.decode(account.sessionToken.value)
+        assertEquals("HS256", token.algorithm)
+        assertEquals(account.id, token.subject)
+        assertTrue(token.id.isNotBlank())
+        assertEquals(setOf("sub", "jti", "iss", "aud", "iat"), token.claims.keys)
     }
 
     @Test
@@ -105,6 +135,17 @@ class AuthRouteTest {
             "E-mail ou senha incorretos.",
             Json.decodeFromString<ApiError>(response.bodyAsText()).message,
         )
+    }
+
+    /** Same claims as [token], signed with a key the server does not know. */
+    private fun signedWithAnotherKey(token: String): String {
+        val decoded = JWT.decode(token)
+        return JWT.create()
+            .withIssuer(decoded.issuer)
+            .withAudience(*decoded.audience.toTypedArray())
+            .withSubject(decoded.subject)
+            .withJWTId(decoded.id)
+            .sign(Algorithm.HMAC256("uma-chave-que-o-servidor-nao-conhece"))
     }
 
     private fun registration(email: String, password: String) = RegisterAccountRequest(

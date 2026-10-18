@@ -5,6 +5,7 @@ import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
+import grupotp.recifesaudavel.server.security.SessionTokens
 import java.time.Clock
 import java.util.UUID
 
@@ -22,6 +23,7 @@ class AuthService(
     private val users: UserRepository,
     private val passwords: PasswordHasher,
     private val sessions: SessionService,
+    private val tokens: SessionTokens,
     private val clock: Clock,
 ) {
     fun register(request: RegisterAccountRequest): RegistrationResult {
@@ -59,7 +61,8 @@ class AuthService(
      */
     fun profileOf(userId: String): AuthenticatedAccount? = users.findById(userId)
 
-    private fun AuthenticatedAccount.withSession(): AuthenticatedAccount = copy(sessionToken = sessions.issue(id))
+    private fun AuthenticatedAccount.withSession(): AuthenticatedAccount =
+        copy(sessionToken = tokens.sign(userId = id, sessionId = sessions.open(id)))
 
     private fun validate(request: RegisterAccountRequest): String? = when {
         request.fullName.isBlank() -> "Nome completo é obrigatório."

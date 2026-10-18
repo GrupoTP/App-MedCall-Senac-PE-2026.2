@@ -12,7 +12,7 @@ Cada profissional atende numa clínica, e cada clínica tem o seu fuso (IANA, co
 
 O agendamento só funciona com internet. Sem conexão, o cartão Agendar aparece como indisponível e o fluxo nunca confirma uma consulta que o servidor não gravou. As consultas já marcadas continuam visíveis offline, na tela inicial e em Minhas consultas: cada lista recebida do servidor substitui a cópia guardada no aparelho, que só guarda as consultas da última conta conectada.
 
-As rotas de paciente (`/api/v1/professionals`, `/clinics`, `/availability` e `/appointments`) exigem `Authorization: Bearer <token>`. O login e o cadastro devolvem esse token em `sessionToken`, junto com a conta; o servidor guarda só o hash SHA-256 dele. O token não expira enquanto o app é usado: ele só cai depois de `SESSION_IDLE_DAYS` dias sem nenhuma requisição (padrão 180; `0` desliga a expiração). Trocar a senha pode encerrar as sessões dos outros aparelhos (o app pergunta), e pedir a exclusão da conta encerra todas. Se o servidor recusar o token, o app pede para entrar de novo e apaga o banco local do aparelho. Só fica a fila de logouts feitos offline, enviada ao servidor quando a conexão volta.
+As rotas de paciente (`/api/v1/specialties`, `/professionals`, `/clinics`, `/availability` e `/appointments`) exigem `Authorization: Bearer <token>`. O login e o cadastro devolvem esse token em `sessionToken`, junto com a conta. Ele é um JWT assinado com HS256 pela chave `JWT_SECRET`, com o usuário em `sub` e o id da sessão em `jti`; o servidor guarda só esse id e confere em toda requisição, pelo plugin de autenticação do Ktor, se a sessão continua aberta. Por isso o JWT não tem `exp`: logout e revogação valem na hora, e a sessão não expira enquanto o app é usado: ela só cai depois de `SESSION_IDLE_DAYS` dias sem nenhuma requisição (padrão 180; `0` desliga a expiração). Trocar a senha pode encerrar as sessões dos outros aparelhos (o app pergunta), e pedir a exclusão da conta encerra todas. Se o servidor recusar o token, o app pede para entrar de novo e apaga o banco local do aparelho. Só fica a fila de logouts feitos offline, enviada ao servidor quando a conexão volta.
 
 As senhas são guardadas com PBKDF2-HMAC-SHA256 (600.000 iterações), no formato `pbkdf2-sha256$<iterações>$<salt>$<hash>`. Bancos criados antes desse formato precisam ser apagados (`server/data`), porque as contas antigas não conseguem mais entrar.
 
@@ -51,6 +51,8 @@ Na pasta `recife-saudavel`:
 O servidor responde em `http://localhost:8080/healthz` (processo no ar) e `http://localhost:8080/readyz` (pronto para atender, o que inclui o banco responder). O `/healthz` não consulta o banco, para que uma queda do banco não faça o servidor ser reiniciado à toa.
 
 O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de execução do servidor. Para apontar outro lugar, defina `DATABASE_JDBC_URL`, `DATABASE_DRIVER`, `DATABASE_USER` e `DATABASE_PASSWORD`.
+
+O servidor não sobe sem `JWT_SECRET`, a chave que assina os tokens de sessão (no mínimo 32 bytes; gere uma com `openssl rand -base64 48`). As tasks `:server:run`, `:server:runDev` e `:server:test` usam uma chave pública de desenvolvimento quando a variável não está definida. Trocar a chave invalida todos os tokens, e as pessoas precisam entrar de novo.
 
 O navegador só pode chamar a API a partir das origens em `CORS_ALLOWED_ORIGINS`, separadas por vírgula (padrão: `http://localhost:8081`). O app Android não envia origem e não depende dessa lista.
 

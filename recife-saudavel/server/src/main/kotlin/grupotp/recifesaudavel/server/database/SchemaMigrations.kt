@@ -23,7 +23,7 @@ object SchemaMigrations {
         transaction(database) {
             addAppointmentSlotKey()
             addUserAccountDates()
-            addSessionLastUse()
+            replaceOpaqueSessions()
         }
     }
 
@@ -32,9 +32,18 @@ object SchemaMigrations {
         SchemaUtils.addMissingColumnsStatements(UsersTable).forEach { exec(it) }
     }
 
-    /** Adds the nullable `last_used_at` column to old `sessions` tables. */
-    private fun JdbcTransaction.addSessionLastUse() {
-        SchemaUtils.addMissingColumnsStatements(SessionsTable).forEach { exec(it) }
+    /**
+     * Swaps the `sessions` table of the old opaque tokens, keyed by `token_hash`, for the one of the
+     * JWT sessions. Those tokens are refused anyway, so their rows are dropped and people sign in again.
+     */
+    private fun JdbcTransaction.replaceOpaqueSessions() {
+        currentDialectMetadata.resetCaches()
+        val columns = currentDialectMetadata.tableColumns(SessionsTable)[SessionsTable].orEmpty()
+        if (columns.any { it.name.equals(LEGACY_SESSION_KEY, ignoreCase = true) }) {
+            SchemaUtils.drop(SessionsTable)
+            SchemaUtils.create(SessionsTable)
+            currentDialectMetadata.resetCaches()
+        }
     }
 
     /**
@@ -70,4 +79,7 @@ object SchemaMigrations {
 
     /** The old unique index on (professional, date, time), which also blocked cancelled slots. */
     private const val LEGACY_SLOT_INDEX = "appointments_slot"
+
+    /** Key of the old `sessions` table: the SHA-256 of an opaque token. */
+    private const val LEGACY_SESSION_KEY = "token_hash"
 }

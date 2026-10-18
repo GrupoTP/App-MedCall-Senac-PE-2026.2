@@ -21,3 +21,12 @@ cors:
 sessions:
   # Days a session survives without any request; each request starts the count again. 0 = never expires.
   idleDays: "$SESSION_IDLE_DAYS:180"
+
+jwt:
+  # HS256 key of the session tokens, at least 32 bytes; generate one with `openssl rand -base64 48`.
+  # Required: the server does not start without it. The Gradle run, runDev and test tasks supply a development key.
+  secret: "$JWT_SECRET:"
+  issuer: "recife-saudavel-server"
+  audience: "recife-saudavel-app"
+  # Sent in WWW-Authenticate, so ASCII only.
+  realm: "recife-saudavel"

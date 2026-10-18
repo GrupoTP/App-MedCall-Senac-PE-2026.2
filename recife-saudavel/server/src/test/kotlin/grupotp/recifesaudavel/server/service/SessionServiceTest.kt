@@ -55,14 +55,14 @@ class SessionServiceTest {
     }
 
     @Test
-    fun aTokenInUseNeverExpires() {
+    fun aSessionInUseNeverExpires() {
         // Arrange
-        val token = sessions.issue(maria).value
+        val session = sessions.open(maria)
 
         // Act: used every 100 days for two years, always within the 180-day idle timeout.
         val answers = (1..7).map {
             clock.advance(Duration.ofDays(100))
-            sessions.userIdFor(token)
+            sessions.userIdFor(session)
         }
 
         // Assert
@@ -70,17 +70,17 @@ class SessionServiceTest {
     }
 
     @Test
-    fun aTokenStopsWorkingAfterTheIdleTimeoutWithoutUse() {
+    fun aSessionEndsAfterTheIdleTimeoutWithoutUse() {
         // Arrange
-        val token = sessions.issue(maria).value
+        val session = sessions.open(maria)
 
         // Act
         clock.advance(IDLE.minusMinutes(1))
-        val almost = sessions.userIdFor(token)
+        val almost = sessions.userIdFor(session)
         clock.advance(IDLE.minusMinutes(1))
-        val stillUsed = sessions.userIdFor(token)
+        val stillUsed = sessions.userIdFor(session)
         clock.advance(IDLE)
-        val expired = sessions.userIdFor(token)
+        val expired = sessions.userIdFor(session)
 
         // Assert
         assertEquals(maria, almost)
@@ -89,14 +89,14 @@ class SessionServiceTest {
     }
 
     @Test
-    fun withoutAnIdleTimeoutTokensNeverExpire() {
+    fun withoutAnIdleTimeoutSessionsNeverExpire() {
         // Arrange
         val forever = SessionService(SessionRepository(database), clock, SessionSettings(idleTimeout = null))
-        val token = forever.issue(maria).value
+        val session = forever.open(maria)
 
         // Act
         clock.advance(Duration.ofDays(3650))
-        val answer = forever.userIdFor(token)
+        val answer = forever.userIdFor(session)
 
         // Assert
         assertEquals(maria, answer)
@@ -105,12 +105,12 @@ class SessionServiceTest {
     @Test
     fun revokeAllKeepsOnlyTheGivenSession() {
         // Arrange
-        val phone = sessions.issue(maria).value
-        val laptop = sessions.issue(maria).value
-        val tablet = sessions.issue(maria).value
+        val phone = sessions.open(maria)
+        val laptop = sessions.open(maria)
+        val tablet = sessions.open(maria)
 
         // Act
-        sessions.revokeAll(maria, keepToken = phone)
+        sessions.revokeAll(maria, keepId = phone)
         val afterKeeping = listOf(phone, laptop, tablet).map(sessions::userIdFor)
         sessions.revokeAll(maria)
         val afterAll = sessions.userIdFor(phone)

@@ -4,9 +4,9 @@ import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.api.ApiError
+import grupotp.recifesaudavel.server.plugin.authenticatedRoute
 import grupotp.recifesaudavel.server.service.AccountResult
 import grupotp.recifesaudavel.server.service.AccountService
-import grupotp.recifesaudavel.server.service.SessionService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall
@@ -24,13 +24,11 @@ import org.koin.ktor.ext.inject
  */
 fun Application.configureAccountController() {
     val accounts by inject<AccountService>()
-    val sessions by inject<SessionService>()
 
     routing {
-        route("/api/v1/account") {
+        authenticatedRoute("/api/v1/account") {
             get {
-                val userId = call.authenticatedUserId(sessions) ?: return@get
-                val profile = accounts.profile(userId)
+                val profile = accounts.profile(call.signedIn.userId)
                 if (profile == null) {
                     call.respondSessionExpired()
                 } else {
@@ -38,22 +36,19 @@ fun Application.configureAccountController() {
                 }
             }
             put {
-                val userId = call.authenticatedUserId(sessions) ?: return@put
-                call.respondResult(accounts.update(userId, call.receive<UpdateProfileRequest>()))
+                call.respondResult(accounts.update(call.signedIn.userId, call.receive<UpdateProfileRequest>()))
             }
             put("/consents") {
-                val userId = call.authenticatedUserId(sessions) ?: return@put
                 val request = call.receive<UpdateConsentsRequest>()
-                call.respondResult(accounts.updateNotifications(userId, request.wantsNotifications))
+                call.respondResult(accounts.updateNotifications(call.signedIn.userId, request.wantsNotifications))
             }
             post("/password") {
-                val userId = call.authenticatedUserId(sessions) ?: return@post
+                val session = call.signedIn
                 val request = call.receive<ChangePasswordRequest>()
-                call.respondResult(accounts.changePassword(userId, request, keepToken = call.bearerToken()))
+                call.respondResult(accounts.changePassword(session.userId, request, keepSessionId = session.sessionId))
             }
             post("/deletion-request") {
-                val userId = call.authenticatedUserId(sessions) ?: return@post
-                call.respondResult(accounts.requestDeletion(userId))
+                call.respondResult(accounts.requestDeletion(call.signedIn.userId))
             }
         }
     }

@@ -2,9 +2,9 @@ package grupotp.recifesaudavel.server.controller
 
 import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
+import grupotp.recifesaudavel.server.plugin.authenticatedRoute
 import grupotp.recifesaudavel.server.service.PreTriageResult
 import grupotp.recifesaudavel.server.service.PreTriageService
-import grupotp.recifesaudavel.server.service.SessionService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.request.receive
@@ -20,27 +20,23 @@ import org.koin.ktor.ext.inject
  */
 fun Application.configurePreTriageController() {
     val preTriages by inject<PreTriageService>()
-    val sessions by inject<SessionService>()
 
     routing {
-        route("/api/v1/pre-triages") {
+        authenticatedRoute("/api/v1/pre-triages") {
             get("/draft") {
-                val patientId = call.authenticatedUserId(sessions) ?: return@get
-                val draft = preTriages.draft(patientId)
+                val draft = preTriages.draft(call.signedIn.userId)
                 if (draft == null) {
-                    call.respond(HttpStatusCode.Unauthorized, ApiError("Sua sessão expirou. Entre de novo para continuar."))
+                    call.respondSessionExpired()
                 } else {
                     call.respond(draft)
                 }
             }
             get("/pending") {
-                val patientId = call.authenticatedUserId(sessions) ?: return@get
-                call.respond(preTriages.pending(patientId))
+                call.respond(preTriages.pending(call.signedIn.userId))
             }
             post {
-                val patientId = call.authenticatedUserId(sessions) ?: return@post
                 val form = call.receive<PreTriageForm>()
-                when (val result = preTriages.submit(patientId, form)) {
+                when (val result = preTriages.submit(call.signedIn.userId, form)) {
                     is PreTriageResult.Created -> call.respond(HttpStatusCode.Created, result.preTriage)
                     is PreTriageResult.Rejected -> call.respond(HttpStatusCode.BadRequest, ApiError(result.message))
                 }

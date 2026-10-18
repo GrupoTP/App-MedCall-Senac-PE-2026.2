@@ -250,7 +250,7 @@ class SchedulingUseCaseTest {
         var lastToken: String? = null
         var booked: CreateAppointmentRequest? = null
 
-        override suspend fun specialties() = specialties
+        override suspend fun specialties(token: SecretString) = specialties
 
         override suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>> {
             lastToken = token.value

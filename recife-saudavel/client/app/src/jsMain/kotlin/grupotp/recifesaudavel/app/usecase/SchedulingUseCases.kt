@@ -31,7 +31,7 @@ class LoadSchedulingOptions(
     private val gateway: AppointmentGateway,
 ) {
     suspend operator fun invoke(account: AuthenticatedAccount): SchedulingResult<SchedulingOptions> {
-        val specialties = when (val result = gateway.specialties()) {
+        val specialties = when (val result = gateway.specialties(account.sessionToken)) {
             is SchedulingResult.Success -> result.value
             is SchedulingResult.Failed -> return result
         }

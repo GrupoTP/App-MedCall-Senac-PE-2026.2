@@ -3,15 +3,14 @@ package grupotp.recifesaudavel.server.database
 import org.jetbrains.exposed.v1.core.Table
 
 /**
- * Bearer sessions. Only the SHA-256 of the token is stored, so a database copy cannot sign in.
+ * Open sessions. The client's token is a JWT signed with `JWT_SECRET` that names one of these
+ * rows by [id]; the token itself is never stored, and the id alone cannot sign in.
  */
 object SessionsTable : Table("sessions") {
-    val tokenHash = varchar("token_hash", 64)
+    val id = varchar("id", 36)
     val userId = varchar("user_id", 36).references(UsersTable.id)
     val createdAt = long("created_at")
+    val lastUsedAt = long("last_used_at")
 
-    // Nullable: sessions created before this column existed count from createdAt.
-    val lastUsedAt = long("last_used_at").nullable()
-
-    override val primaryKey = PrimaryKey(tokenHash)
+    override val primaryKey = PrimaryKey(id)
 }

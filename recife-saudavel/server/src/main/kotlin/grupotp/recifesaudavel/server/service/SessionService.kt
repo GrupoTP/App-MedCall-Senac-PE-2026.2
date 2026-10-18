@@ -1,18 +1,16 @@
 package grupotp.recifesaudavel.server.service
 
-import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.repository.SessionRepository
-import java.security.MessageDigest
-import java.security.SecureRandom
 import java.time.Clock
 import java.time.Duration
-import java.util.Base64
+import java.util.UUID
 
 /**
- * Issues and resolves bearer tokens. The client keeps the token with the signed-in profile;
- * the database only keeps its hash.
+ * Opens and resolves sessions. The client holds a signed token naming the session
+ * ([SessionTokens][grupotp.recifesaudavel.server.security.SessionTokens]); this service decides
+ * whether that session is still open.
  *
- * A token lasts while it is used: it only expires after [SessionSettings.idleTimeout] without
+ * A session lasts while it is used: it only expires after [SessionSettings.idleTimeout] without
  * any request, and never when that is null.
  */
 class SessionService(
@@ -20,59 +18,49 @@ class SessionService(
     private val clock: Clock,
     private val settings: SessionSettings,
 ) {
-    fun issue(userId: String): SecretString {
-        val bytes = ByteArray(TOKEN_BYTES).also { random.nextBytes(it) }
-        val token = Base64.getUrlEncoder().withoutPadding().encodeToString(bytes)
+    /** Starts a session of [userId] and returns its id, to be signed into the token. */
+    fun open(userId: String): String {
+        val id = UUID.randomUUID().toString()
         val now = clock.millis()
         // Housekeeping: expired rows are useless, and sign-ins are rare enough to pay for it.
         settings.idleTimeout?.let { sessions.deleteUnusedSince(now - it.toMillis()) }
-        sessions.insert(hash(token), userId, now)
-        return SecretString(token)
+        sessions.insert(id, userId, now)
+        return id
     }
 
-    /** User id of [token], or null when it is unknown, revoked or expired. */
-    fun userIdFor(token: String): String? {
-        if (token.isBlank()) {
+    /** User id of session [id], or null when it is unknown, revoked or expired. */
+    fun userIdFor(id: String): String? {
+        if (id.isBlank()) {
             return null
         }
-        val tokenHash = hash(token)
-        val session = sessions.find(tokenHash) ?: return null
+        val session = sessions.find(id) ?: return null
         val now = clock.millis()
         val idle = now - session.lastUsedAt
         val timeout = settings.idleTimeout
         if (timeout != null && idle >= timeout.toMillis()) {
-            sessions.delete(tokenHash)
+            sessions.delete(id)
             return null
         }
         // Writing on every request would cost a database write per call; once a day is enough
         // for a timeout counted in days.
         if (idle >= TOUCH_INTERVAL.toMillis()) {
-            sessions.touch(tokenHash, now)
+            sessions.touch(id, now)
         }
         return session.userId
     }
 
-    /** Makes [token] useless from now on. Unknown tokens are ignored. */
-    fun revoke(token: String) {
-        if (token.isNotBlank()) {
-            sessions.delete(hash(token))
-        }
+    /** Ends session [id] from now on. Unknown ids are ignored. */
+    fun revoke(id: String) {
+        sessions.delete(id)
     }
 
-    /** Ends every session of [userId], on every device, except [keepToken] when given. */
-    fun revokeAll(userId: String, keepToken: String? = null) {
-        sessions.deleteAllOf(userId, keepToken?.takeIf { it.isNotBlank() }?.let(::hash))
+    /** Ends every session of [userId], on every device, except [keepId] when given. */
+    fun revokeAll(userId: String, keepId: String? = null) {
+        sessions.deleteAllOf(userId, keepId)
     }
-
-    private fun hash(token: String): String =
-        MessageDigest.getInstance("SHA-256")
-            .digest(token.toByteArray())
-            .joinToString("") { "%02x".format(it) }
 
     companion object {
         /** How often the last use is written down. */
         val TOUCH_INTERVAL: Duration = Duration.ofDays(1)
-        private const val TOKEN_BYTES = 32
-        private val random = SecureRandom()
     }
 }

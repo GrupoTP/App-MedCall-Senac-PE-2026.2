@@ -15,8 +15,8 @@ class RestAppointmentGateway(
     private val baseUrl: String,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) : AppointmentGateway {
-    override suspend fun specialties(): SchedulingResult<List<Specialty>> =
-        call("GET", "/api/v1/specialties", token = null)
+    override suspend fun specialties(token: SecretString): SchedulingResult<List<Specialty>> =
+        call("GET", "/api/v1/specialties", token)
 
     override suspend fun professionals(token: SecretString): SchedulingResult<List<Professional>> =
         call("GET", "/api/v1/professionals", token)
