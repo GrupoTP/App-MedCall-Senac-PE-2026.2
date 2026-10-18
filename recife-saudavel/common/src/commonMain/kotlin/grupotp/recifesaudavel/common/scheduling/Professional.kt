@@ -10,8 +10,8 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Professional(
-    val id: String,
+    val id: Int,
     val name: String,
-    val specialtyId: String,
-    val clinicId: String,
+    val specialtyId: Int,
+    val clinicId: Int,
 )

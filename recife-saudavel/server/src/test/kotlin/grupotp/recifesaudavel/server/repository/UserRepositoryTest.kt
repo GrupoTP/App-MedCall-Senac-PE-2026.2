@@ -6,7 +6,7 @@ import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
-import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.server.database.table.UsersTable
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -18,6 +18,9 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.time.Instant
+
+private val NOW = Instant.parse("2026-10-12T13:00:00Z")
 
 /** The unique e-mail index is the last word when two requests pass the service checks at once. */
 class UserRepositoryTest {
@@ -46,10 +49,10 @@ class UserRepositoryTest {
     @Test
     fun insertingATakenEmailReturnsNullInsteadOfThrowing() {
         // Arrange
-        val first = users.insert(UUID.randomUUID().toString(), registration("maria@email.com"), "hash")
+        val first = users.insert(registration("maria@email.com"), "hash", NOW)
 
         // Act
-        val second = users.insert(UUID.randomUUID().toString(), registration("maria@email.com"), "hash")
+        val second = users.insert(registration("maria@email.com"), "hash", NOW)
 
         // Assert
         assertNotNull(first)
@@ -59,8 +62,8 @@ class UserRepositoryTest {
     @Test
     fun movingToATakenEmailReturnsFalseInsteadOfThrowing() {
         // Arrange
-        users.insert(UUID.randomUUID().toString(), registration("maria@email.com"), "hash")
-        val ana = users.insert(UUID.randomUUID().toString(), registration("ana@email.com"), "hash")!!
+        users.insert(registration("maria@email.com"), "hash", NOW)
+        val ana = users.insert(registration("ana@email.com"), "hash", NOW)!!
 
         // Act
         val updated = users.updateProfile(

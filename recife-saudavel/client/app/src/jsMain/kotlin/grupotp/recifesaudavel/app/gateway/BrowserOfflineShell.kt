@@ -78,7 +78,7 @@ class BrowserOfflineShell(
         }
     }
 
-    override suspend fun saveAppointments(accountId: String, appointments: List<Appointment>) {
+    override suspend fun saveAppointments(accountId: Int, appointments: List<Appointment>) {
         ensureReady()
         val (status, text) = request(putMethod, appointmentsUrl(accountId), json.encodeToString(appointments))
         if (status !in 200..299) {
@@ -86,7 +86,7 @@ class BrowserOfflineShell(
         }
     }
 
-    override suspend fun loadAppointments(accountId: String): List<Appointment>? {
+    override suspend fun loadAppointments(accountId: Int): List<Appointment>? {
         ensureReady()
         val (status, text) = request(getMethod, appointmentsUrl(accountId), null)
         if (status !in 200..299 || status == 204.toShort() || text.isBlank()) {
@@ -112,8 +112,7 @@ class BrowserOfflineShell(
         }
     }
 
-    private fun appointmentsUrl(accountId: String): String =
-        "$LOCAL_APPOINTMENTS_URL?account=${encodeURIComponent(accountId)}"
+    private fun appointmentsUrl(accountId: Int): String = "$LOCAL_APPOINTMENTS_URL?account=$accountId"
 
     private suspend fun ensureReady() {
         val current = ready
@@ -179,4 +178,3 @@ class BrowserOfflineShell(
         }
 }
 
-private external fun encodeURIComponent(value: String): String

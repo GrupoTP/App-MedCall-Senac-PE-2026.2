@@ -10,8 +10,7 @@ import grupotp.recifesaudavel.server.repository.UserRepository
 import kotlinx.datetime.toKotlinLocalDate
 import java.time.Clock
 import java.time.LocalDate
-import java.util.UUID
-import kotlin.time.Instant
+import kotlin.time.toKotlinInstant
 
 sealed interface PreTriageResult {
     data class Created(val preTriage: PreTriage) : PreTriageResult
@@ -34,7 +33,7 @@ class PreTriageService(
      * medical history and the medications come from the last pre-triage, since they rarely
      * change. The complaint always starts empty. Null when the user does not exist.
      */
-    fun draft(patientId: String): PreTriageForm? {
+    fun draft(patientId: Int): PreTriageForm? {
         val profile = users.findProfile(patientId) ?: return null
         val last = preTriages.latestOf(patientId)?.form ?: PreTriageForm()
         return PreTriageForm(
@@ -60,15 +59,10 @@ class PreTriageService(
         )
     }
 
-    fun submit(patientId: String, form: PreTriageForm): PreTriageResult {
+    fun submit(patientId: Int, form: PreTriageForm): PreTriageResult {
         val clean = form.trimmed()
         validate(clean)?.let { return PreTriageResult.Rejected(it) }
-        val created = preTriages.insert(
-            id = UUID.randomUUID().toString(),
-            patientId = patientId,
-            form = clean,
-            createdAt = Instant.fromEpochMilliseconds(clock.millis()),
-        )
+        val created = preTriages.insert(patientId = patientId, form = clean, createdAt = clock.instant().toKotlinInstant())
         return PreTriageResult.Created(created)
     }
 
@@ -76,7 +70,7 @@ class PreTriageService(
      * The latest pre-triage, if the next booking may attach it: it is not attached yet, or the
      * appointment it was attached to has been cancelled.
      */
-    fun pending(patientId: String): PendingPreTriage {
+    fun pending(patientId: Int): PendingPreTriage {
         val latest = preTriages.latestOf(patientId) ?: return PendingPreTriage()
         val appointmentId = latest.appointmentId ?: return PendingPreTriage(latest)
         val status = appointments.findAppointment(appointmentId)?.status

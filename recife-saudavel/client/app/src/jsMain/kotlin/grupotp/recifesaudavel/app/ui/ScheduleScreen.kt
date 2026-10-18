@@ -45,11 +45,11 @@ internal external interface ScheduleScreenProps : Props {
 internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
     var options by useState<SchedulingOptions?>(null)
     var step by useState(0)
-    var specialtyId by useState<String?>(null)
-    var professionalId by useState<String?>(null)
+    var specialtyId by useState<Int?>(null)
+    var professionalId by useState<Int?>(null)
     var reason by useState("")
     var availability by useState<List<ClinicAvailability>?>(null)
-    var clinicId by useState<String?>(null)
+    var clinicId by useState<Int?>(null)
     var date by useState<LocalDate?>(null)
     var time by useState<LocalTime?>(null)
     var notes by useState("")
@@ -283,7 +283,7 @@ internal val ScheduleScreen = FC<ScheduleScreenProps> { props ->
                                     clinics.forEach { option ->
                                         val place = loaded.clinic(option.clinicId)
                                         choiceChip(
-                                            place?.let { "${it.name} · ${it.city}" } ?: option.clinicId,
+                                            place?.let { "${it.name} · ${it.city}" } ?: option.clinicId.toString(),
                                             selected = option.clinicId == clinicId,
                                         ) {
                                             if (option.clinicId != clinicId) {

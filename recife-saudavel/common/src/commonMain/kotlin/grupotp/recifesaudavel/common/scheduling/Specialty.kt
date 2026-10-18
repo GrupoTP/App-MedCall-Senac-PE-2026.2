@@ -4,6 +4,6 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Specialty(
-    val id: String,
+    val id: Int,
     val name: String,
 )

@@ -41,7 +41,7 @@ class SchedulingRouteTest {
             client.get("/api/v1/professionals?specialtyId=${specialty.id}") { bearerAuth(token) }.bodyAsText(),
         )
         val clinics = Json.decodeFromString<List<Clinic>>(client.get("/api/v1/clinics") { bearerAuth(token) }.bodyAsText())
-        // The file database outlives the test, so pick whatever slot is still open.
+        // The database is shared by the route tests, so pick whatever slot is still open.
         val days = Json.decodeFromString<List<ClinicAvailability>>(
             client.get("/api/v1/availability?specialtyId=${specialty.id}") { bearerAuth(token) }.bodyAsText(),
         )

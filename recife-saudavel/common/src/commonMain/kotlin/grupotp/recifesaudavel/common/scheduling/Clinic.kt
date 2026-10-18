@@ -12,7 +12,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Clinic(
-    val id: String,
+    val id: Int,
     val name: String,
     val city: String,
     val timeZoneId: String,

@@ -29,6 +29,8 @@ dependencies {
     implementation(libs.koin.logger.slf4j)
     implementation(libs.exposed.core)
     implementation(libs.exposed.jdbc)
+    implementation(libs.exposed.dao)
+    implementation(libs.exposed.kotlin.datetime)
     implementation(libs.h2)
 
     testImplementation(libs.ktor.server.test.host)
@@ -46,4 +48,6 @@ tasks.withType<JavaExec>().configureEach {
 tasks.test {
     useJUnitPlatform()
     environment("JWT_SECRET", jwtSecret.get())
+    // Route tests load application.yaml; an in-memory database keeps them off the development data.
+    environment("DATABASE_JDBC_URL", "jdbc:h2:mem:route-tests;DB_CLOSE_DELAY=-1")
 }

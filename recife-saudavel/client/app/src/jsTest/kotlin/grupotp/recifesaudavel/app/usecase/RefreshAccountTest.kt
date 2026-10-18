@@ -12,7 +12,7 @@ import kotlin.test.assertNull
 
 class RefreshAccountTest {
     private val saved = AuthenticatedAccount(
-        id = "1",
+        id = 1,
         fullName = "Poly",
         socialName = "",
         email = "poly@email.com",

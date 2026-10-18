@@ -14,7 +14,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class AuthenticatedAccount(
-    val id: String,
+    val id: Int,
     val fullName: String,
     val socialName: String,
     val email: String,

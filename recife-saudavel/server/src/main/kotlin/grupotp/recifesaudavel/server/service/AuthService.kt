@@ -7,7 +7,7 @@ import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
 import grupotp.recifesaudavel.server.security.SessionTokens
 import java.time.Clock
-import java.util.UUID
+import kotlin.time.toKotlinInstant
 
 sealed interface RegistrationResult {
     data class Created(val account: AuthenticatedAccount) : RegistrationResult
@@ -34,10 +34,9 @@ class AuthService(
             return RegistrationResult.Rejected(EMAIL_TAKEN)
         }
         val account = users.insert(
-            id = UUID.randomUUID().toString(),
             request = request,
             passwordHash = passwords.hash(request.password),
-            now = clock.millis(),
+            now = clock.instant().toKotlinInstant(),
         ) ?: return RegistrationResult.Rejected(EMAIL_TAKEN)
         return RegistrationResult.Created(account.withSession())
     }
@@ -51,7 +50,7 @@ class AuthService(
         if (passwords.needsRehash(user.passwordHash)) {
             users.updatePasswordHash(user.account.id, passwords.hash(request.password))
         }
-        users.recordLogin(user.account.id, clock.millis())
+        users.recordLogin(user.account.id, clock.instant().toKotlinInstant())
         return SignInResult.Authenticated(user.account.withSession())
     }
 
@@ -59,10 +58,10 @@ class AuthService(
      * Current profile of a signed-in user, without a token: the client keeps the one it has.
      * Lets a device saved long ago catch up with what the server holds.
      */
-    fun profileOf(userId: String): AuthenticatedAccount? = users.findById(userId)
+    fun profileOf(userId: Int): AuthenticatedAccount? = users.findById(userId)
 
     private fun AuthenticatedAccount.withSession(): AuthenticatedAccount =
-        copy(sessionToken = tokens.sign(userId = id, sessionId = sessions.open(id)))
+        copy(sessionToken = tokens.sign(userId = id, session = sessions.open(id)))
 
     private fun validate(request: RegisterAccountRequest): String? = when {
         request.fullName.isBlank() -> "Nome completo é obrigatório."

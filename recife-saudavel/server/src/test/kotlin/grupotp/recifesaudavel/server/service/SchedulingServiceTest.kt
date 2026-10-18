@@ -5,16 +5,18 @@ import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.security.SecretString
-import grupotp.recifesaudavel.server.database.AppointmentsTable
-import grupotp.recifesaudavel.server.database.ClinicsTable
+import grupotp.recifesaudavel.server.database.table.AppointmentsTable
+import grupotp.recifesaudavel.server.database.table.ClinicsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
-import grupotp.recifesaudavel.server.database.PreTriagesTable
-import grupotp.recifesaudavel.server.database.ProfessionalsTable
-import grupotp.recifesaudavel.server.database.SchedulingCatalog
-import grupotp.recifesaudavel.server.database.SessionsTable
-import grupotp.recifesaudavel.server.database.SpecialtiesTable
-import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.server.database.table.PreTriagesTable
+import grupotp.recifesaudavel.server.database.table.ProfessionalsTable
+import grupotp.recifesaudavel.server.database.table.SessionsTable
+import grupotp.recifesaudavel.server.database.table.SpecialtiesTable
+import grupotp.recifesaudavel.server.database.table.UsersTable
+import grupotp.recifesaudavel.server.database.entity.AppointmentEntity
+import grupotp.recifesaudavel.server.database.entity.ProfessionalEntity
+import grupotp.recifesaudavel.server.database.entity.UserEntity
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
@@ -22,7 +24,6 @@ import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
-import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Clock
@@ -37,21 +38,24 @@ import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Instant
+import kotlin.time.toKotlinInstant
 
 class SchedulingServiceTest {
     private val recife = ZoneId.of("America/Recife")
 
     // Monday, 12 October 2026, 10:10 in Recife.
     private val clock = Clock.fixed(ZonedDateTime.of(2026, 10, 12, 10, 10, 0, 0, recife).toInstant(), recife)
-    private val cardiology = SchedulingCatalog.specialtyId("Cardiologia")
-    private val lucia = SchedulingCatalog.professionalId("Cardiologia", "Dra. Lúcia Oliveira")
-    private val psychiatry = SchedulingCatalog.specialtyId("Psiquiatria")
-    private val antonio = SchedulingCatalog.professionalId("Cardiologia", "Dr. Antônio Ferreira")
 
     private lateinit var database: Database
     private lateinit var service: SchedulingService
-    private lateinit var maria: String
-    private lateinit var ana: String
+    private lateinit var repository: SchedulingRepository
+    private var maria = 0
+    private var ana = 0
+    private var cardiology = 0
+    private var lucia = 0
+    private var psychiatry = 0
+    private var antonio = 0
 
     @BeforeTest
     fun openDatabase() {
@@ -66,11 +70,15 @@ class SchedulingServiceTest {
         transaction(database) {
             SchemaUtils.create(UsersTable, SessionsTable, ClinicsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
         }
-        val repository = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
+        repository = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
+        cardiology = specialty("Cardiologia")
+        psychiatry = specialty("Psiquiatria")
+        lucia = professional("Cardiologia", "Dra. Lúcia Oliveira")
+        antonio = professional("Cardiologia", "Dr. Antônio Ferreira")
         service = SchedulingService(repository, clock, PreTriageRepository(database))
         val users = UserRepository(database)
-        maria = users.insert(UUID.randomUUID().toString(), registration("maria@email.com", "Graça"), "hash")!!.id
-        ana = users.insert(UUID.randomUUID().toString(), registration("ana@email.com", ""), "hash")!!.id
+        maria = users.insert(registration("maria@email.com", "Graça"), "hash", clock.instant().toKotlinInstant())!!.id
+        ana = users.insert(registration("ana@email.com", ""), "hash", clock.instant().toKotlinInstant())!!.id
     }
 
     @AfterTest
@@ -181,7 +189,7 @@ class SchedulingServiceTest {
         // Act
         val again = service.cancel(maria, id)
         val byAna = service.cancel(ana, id)
-        val unknown = service.cancel(maria, "missing")
+        val unknown = service.cancel(maria, -1)
 
         // Assert
         assertIs<CancelResult.NotCancellable>(again)
@@ -209,8 +217,8 @@ class SchedulingServiceTest {
         val byClinic = service.availability(psychiatry, professionalId = null)!!.associateBy { it.clinicId }
 
         // Assert
-        val recife = SchedulingCatalog.clinicId(SchedulingCatalog.boaVista)
-        val manaus = SchedulingCatalog.clinicId(SchedulingCatalog.manaus)
+        val recife = clinic("Recife")
+        val manaus = clinic("Manaus")
         assertEquals(setOf(recife, manaus), byClinic.keys)
         assertEquals(LocalTime(10, 30), byClinic.getValue(recife).days.first().times.first())
         assertEquals(LocalTime(9, 30), byClinic.getValue(manaus).days.first().times.first())
@@ -219,7 +227,7 @@ class SchedulingServiceTest {
     @Test
     fun anyProfessionalNeedsTheClinicWhenTheSpecialtySpansZones() {
         // Arrange
-        val manaus = SchedulingCatalog.clinicId(SchedulingCatalog.manaus)
+        val manaus = clinic("Manaus")
         val base = request(professionalId = null, date = "2026-10-12", time = "09:30").copy(specialtyId = psychiatry)
 
         // Act
@@ -242,42 +250,46 @@ class SchedulingServiceTest {
         val closed = service.book(maria, request(time = "12:00"))
         val otherSpecialty = service.book(
             maria,
-            request(professionalId = SchedulingCatalog.professionalId("Pediatria", "Dr. Marcos Souza")),
+            request(professionalId = professional("Pediatria", "Dr. Marcos Souza")),
         )
 
         // Assert
         listOf(past, weekend, tooFar, closed, otherSpecialty).forEach { assertIs<BookingResult.Rejected>(it) }
-        assertNull(service.availability("desconhecida", null))
+        assertNull(service.availability(-1, null))
         assertTrue(service.appointmentsOf(maria).isEmpty())
     }
 
     /** Writes an appointment straight to the table, for states booking cannot create. */
     private fun storeAppointment(
-        patientId: String,
+        patientId: Int,
         date: String,
         time: String = "09:00",
         status: String,
-    ): String {
-        val id = UUID.randomUUID().toString()
-        transaction(database) {
-            AppointmentsTable.insert {
-                it[AppointmentsTable.id] = id
-                it[AppointmentsTable.patientId] = patientId
-                it[professionalId] = lucia
-                it[appointmentDate] = date
-                it[appointmentTime] = time
-                it[AppointmentsTable.status] = status
-                it[reason] = ""
-                it[notes] = ""
-                it[createdAt] = 0
-                it[slotKey] = AppointmentsTable.slotKeyOf(lucia, date, time)
-            }
-        }
-        return id
+    ): Int = transaction(database) {
+        val day = LocalDate.parse(date)
+        val hour = LocalTime.parse(time)
+        AppointmentEntity.new {
+            patient = UserEntity[patientId]
+            professional = ProfessionalEntity[lucia]
+            this.date = day
+            this.time = hour
+            this.status = status
+            reason = ""
+            notes = ""
+            createdAt = Instant.fromEpochSeconds(0)
+            slotKey = AppointmentsTable.slotKeyOf(lucia, day, hour)
+        }.id.value
     }
 
+    private fun specialty(name: String): Int = repository.specialties().first { it.name == name }.id
+
+    private fun professional(specialty: String, name: String): Int =
+        repository.professionals(specialty(specialty)).first { it.name == name }.id
+
+    private fun clinic(city: String): Int = repository.clinics().first { it.city == city }.id
+
     private fun request(
-        professionalId: String? = lucia,
+        professionalId: Int? = lucia,
         date: String = "2026-10-13",
         time: String = "10:00",
     ) = CreateAppointmentRequest(

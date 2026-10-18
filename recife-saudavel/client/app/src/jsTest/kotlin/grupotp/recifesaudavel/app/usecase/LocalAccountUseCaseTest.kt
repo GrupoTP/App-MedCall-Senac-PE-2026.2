@@ -15,7 +15,7 @@ class LocalAccountUseCaseTest {
     fun rememberAndLoadKeepTheRegistrationProfileWithoutThePassword() = runTest {
         // Arrange
         val account = AuthenticatedAccount(
-            id = "1",
+            id = 1,
             fullName = "Maria das Graças Silva",
             socialName = "Graça",
             email = "maria@email.com",
@@ -37,7 +37,7 @@ class LocalAccountUseCaseTest {
     fun signOutForgetsTheProfile() = runTest {
         // Arrange
         val gateway = FakeLocalAccountGateway()
-        RememberSignedInAccount(gateway)(AuthenticatedAccount(id = "1", fullName = "Ana", socialName = "", email = "ana@email.com"))
+        RememberSignedInAccount(gateway)(AuthenticatedAccount(id = 1, fullName = "Ana", socialName = "", email = "ana@email.com"))
 
         // Act
         SignOut(gateway, PendingSignOuts(NoRemote, MemoryPending()))()

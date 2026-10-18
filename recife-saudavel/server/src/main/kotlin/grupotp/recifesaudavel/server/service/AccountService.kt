@@ -6,6 +6,7 @@ import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
 import java.time.Clock
+import kotlin.time.toKotlinInstant
 
 sealed interface AccountResult {
     data class Done(val profile: AccountProfile) : AccountResult
@@ -22,9 +23,9 @@ class AccountService(
     private val sessions: SessionService,
     private val clock: Clock,
 ) {
-    fun profile(userId: String): AccountProfile? = users.findAccountProfile(userId)
+    fun profile(userId: Int): AccountProfile? = users.findAccountProfile(userId)
 
-    fun update(userId: String, request: UpdateProfileRequest): AccountResult {
+    fun update(userId: Int, request: UpdateProfileRequest): AccountResult {
         validate(request)?.let { return AccountResult.Rejected(it) }
         if (users.emailTakenByOther(request.email.trim().lowercase(), userId)) {
             return AccountResult.Rejected(EMAIL_TAKEN)
@@ -38,7 +39,7 @@ class AccountService(
         return reloaded(userId)
     }
 
-    fun updateNotifications(userId: String, wants: Boolean): AccountResult {
+    fun updateNotifications(userId: Int, wants: Boolean): AccountResult {
         if (users.findAccountProfile(userId) == null) {
             return AccountResult.UnknownUser
         }
@@ -50,7 +51,7 @@ class AccountService(
      * @param keepSessionId session making the request. With [ChangePasswordRequest.signOutOtherSessions]
      * every other session of the account ends, and this one stays.
      */
-    fun changePassword(userId: String, request: ChangePasswordRequest, keepSessionId: String?): AccountResult {
+    fun changePassword(userId: Int, request: ChangePasswordRequest, keepSessionId: Int?): AccountResult {
         val stored = users.findPasswordHash(userId) ?: return AccountResult.UnknownUser
         return when {
             !passwords.verify(request.currentPassword, stored) -> AccountResult.Rejected("Senha atual incorreta.")
@@ -72,17 +73,17 @@ class AccountService(
      * included. Nothing is removed here: the deletion follows the legal retention period and is
      * handled by the clinic. Asking twice keeps the first date.
      */
-    fun requestDeletion(userId: String): AccountResult {
+    fun requestDeletion(userId: Int): AccountResult {
         val current = users.findAccountProfile(userId) ?: return AccountResult.UnknownUser
         if (current.deletionRequestedAt == null) {
-            users.recordDeletionRequest(userId, clock.millis())
+            users.recordDeletionRequest(userId, clock.instant().toKotlinInstant())
         }
         val result = reloaded(userId)
         sessions.revokeAll(userId)
         return result
     }
 
-    private fun reloaded(userId: String): AccountResult =
+    private fun reloaded(userId: Int): AccountResult =
         users.findAccountProfile(userId)?.let { AccountResult.Done(it) } ?: AccountResult.UnknownUser
 
     private fun validate(request: UpdateProfileRequest): String? = when {

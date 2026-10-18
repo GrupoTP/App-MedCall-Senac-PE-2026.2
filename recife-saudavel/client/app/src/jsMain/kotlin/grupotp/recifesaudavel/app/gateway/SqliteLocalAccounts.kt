@@ -77,14 +77,14 @@ class SqliteLocalAccounts(
     }
 
     /** Keeps only the latest list of one account, so another person on the device never sees it. */
-    override suspend fun saveAppointments(accountId: String, appointments: List<Appointment>) {
+    override suspend fun saveAppointments(accountId: Int, appointments: List<Appointment>) {
         val opened = open()
         opened.execAsync(CLEAR_APPOINTMENTS).await()
-        opened.runAsync(SAVE_APPOINTMENTS, arrayOf(accountId, json.encodeToString(appointments))).await()
+        opened.runAsync(SAVE_APPOINTMENTS, arrayOf(accountId.toString(), json.encodeToString(appointments))).await()
     }
 
-    override suspend fun loadAppointments(accountId: String): List<Appointment>? {
-        val stored = open().getFirstAsync<StoredValue>(LOAD_APPOINTMENTS, arrayOf(accountId)).await()
+    override suspend fun loadAppointments(accountId: Int): List<Appointment>? {
+        val stored = open().getFirstAsync<StoredValue>(LOAD_APPOINTMENTS, arrayOf(accountId.toString())).await()
             ?: return null
         return json.decodeFromString(stored.value)
     }

@@ -5,16 +5,14 @@ import grupotp.recifesaudavel.common.account.Phone
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.server.database.table.UsersTable
+import grupotp.recifesaudavel.server.database.entity.UserEntity
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.jetbrains.exposed.v1.jdbc.update
 import kotlin.time.Instant
 
 data class StoredUser(
@@ -37,88 +35,75 @@ class UserRepository(
     private val database: Database,
 ) {
     fun findByEmail(email: String): StoredUser? = transaction(database) {
-        UsersTable.selectAll()
-            .where { UsersTable.email eq email }
+        UserEntity.find { UsersTable.email eq email }
             .singleOrNull()
-            ?.toStoredUser()
+            ?.let { StoredUser(account = it.toAccount(), passwordHash = it.passwordHash) }
     }
 
-    fun findById(id: String): AuthenticatedAccount? = transaction(database) {
-        UsersTable.selectAll()
-            .where { UsersTable.id eq id }
-            .singleOrNull()
-            ?.toStoredUser()
-            ?.account
+    fun findById(id: Int): AuthenticatedAccount? = transaction(database) {
+        UserEntity.findById(id)?.toAccount()
     }
 
     /** Contact data typed at registration, as it is now. */
-    fun findProfile(id: String): UserProfile? = transaction(database) {
-        UsersTable.selectAll()
-            .where { UsersTable.id eq id }
-            .singleOrNull()
-            ?.let {
-                UserProfile(
-                    fullName = it[UsersTable.fullName],
-                    socialName = it[UsersTable.socialName],
-                    primaryPhone = Phone(it[UsersTable.primaryPhone]),
-                    primaryPhoneWhatsapp = it[UsersTable.primaryPhoneWhatsapp],
-                    secondaryPhone = Phone(it[UsersTable.secondaryPhone]),
-                    secondaryPhoneWhatsapp = it[UsersTable.secondaryPhoneWhatsapp],
-                    emergencyContactName = it[UsersTable.emergencyContactName],
-                    emergencyContactPhone = Phone(it[UsersTable.emergencyContactPhone]),
-                )
-            }
+    fun findProfile(id: Int): UserProfile? = transaction(database) {
+        UserEntity.findById(id)?.let {
+            UserProfile(
+                fullName = it.fullName,
+                socialName = it.socialName,
+                primaryPhone = Phone(it.primaryPhone),
+                primaryPhoneWhatsapp = it.primaryPhoneWhatsapp,
+                secondaryPhone = Phone(it.secondaryPhone),
+                secondaryPhoneWhatsapp = it.secondaryPhoneWhatsapp,
+                emergencyContactName = it.emergencyContactName,
+                emergencyContactPhone = Phone(it.emergencyContactPhone),
+            )
+        }
     }
 
     /** Everything the settings screen shows. */
-    fun findAccountProfile(id: String): AccountProfile? = transaction(database) {
-        UsersTable.selectAll()
-            .where { UsersTable.id eq id }
-            .singleOrNull()
-            ?.let {
-                AccountProfile(
-                    fullName = it[UsersTable.fullName],
-                    socialName = it[UsersTable.socialName],
-                    email = it[UsersTable.email],
-                    primaryPhone = Phone(it[UsersTable.primaryPhone]),
-                    primaryPhoneWhatsapp = it[UsersTable.primaryPhoneWhatsapp],
-                    secondaryPhone = Phone(it[UsersTable.secondaryPhone]),
-                    secondaryPhoneWhatsapp = it[UsersTable.secondaryPhoneWhatsapp],
-                    emergencyContactName = it[UsersTable.emergencyContactName],
-                    emergencyContactPhone = Phone(it[UsersTable.emergencyContactPhone]),
-                    acceptedPrivacyPolicy = it[UsersTable.acceptedPrivacyPolicy],
-                    acceptedTreatment = it[UsersTable.acceptedTreatment],
-                    wantsNotifications = it[UsersTable.wantsNotifications],
-                    createdAt = it[UsersTable.createdAt]?.let(Instant::fromEpochMilliseconds),
-                    lastLoginAt = it[UsersTable.lastLoginAt]?.let(Instant::fromEpochMilliseconds),
-                    deletionRequestedAt = it[UsersTable.deletionRequestedAt]?.let(Instant::fromEpochMilliseconds),
-                )
-            }
+    fun findAccountProfile(id: Int): AccountProfile? = transaction(database) {
+        UserEntity.findById(id)?.let {
+            AccountProfile(
+                fullName = it.fullName,
+                socialName = it.socialName,
+                email = it.email,
+                primaryPhone = Phone(it.primaryPhone),
+                primaryPhoneWhatsapp = it.primaryPhoneWhatsapp,
+                secondaryPhone = Phone(it.secondaryPhone),
+                secondaryPhoneWhatsapp = it.secondaryPhoneWhatsapp,
+                emergencyContactName = it.emergencyContactName,
+                emergencyContactPhone = Phone(it.emergencyContactPhone),
+                acceptedPrivacyPolicy = it.acceptedPrivacyPolicy,
+                acceptedTreatment = it.acceptedTreatment,
+                wantsNotifications = it.wantsNotifications,
+                createdAt = it.createdAt,
+                lastLoginAt = it.lastLoginAt,
+                deletionRequestedAt = it.deletionRequestedAt,
+            )
+        }
     }
 
     /** True when another account already uses [email] (already trimmed and lower case). */
-    fun emailTakenByOther(email: String, userId: String): Boolean = transaction(database) {
-        !UsersTable.selectAll()
-            .where { (UsersTable.email eq email) and (UsersTable.id neq userId) }
-            .empty()
+    fun emailTakenByOther(email: String, userId: Int): Boolean = transaction(database) {
+        !UserEntity.find { (UsersTable.email eq email) and (UsersTable.id neq userId) }.empty()
     }
 
     /**
      * Returns false when the new e-mail belongs to another account. [emailTakenByOther] catches
      * that first, but two requests at once can both pass it: the unique index decides.
      */
-    fun updateProfile(id: String, request: UpdateProfileRequest): Boolean = try {
+    fun updateProfile(id: Int, request: UpdateProfileRequest): Boolean = try {
         transaction(database) {
-            UsersTable.update({ UsersTable.id eq id }) {
-                it[fullName] = request.fullName.trim()
-                it[socialName] = request.socialName.trim()
-                it[email] = request.email.trim().lowercase()
-                it[primaryPhone] = request.primaryPhone.digits
-                it[primaryPhoneWhatsapp] = request.primaryPhoneWhatsapp
-                it[secondaryPhone] = request.secondaryPhone.digits
-                it[secondaryPhoneWhatsapp] = request.secondaryPhoneWhatsapp
-                it[emergencyContactName] = request.emergencyContactName.trim()
-                it[emergencyContactPhone] = request.emergencyContactPhone.digits
+            UserEntity.findById(id)?.apply {
+                fullName = request.fullName.trim()
+                socialName = request.socialName.trim()
+                email = request.email.trim().lowercase()
+                primaryPhone = request.primaryPhone.digits
+                primaryPhoneWhatsapp = request.primaryPhoneWhatsapp
+                secondaryPhone = request.secondaryPhone.digits
+                secondaryPhoneWhatsapp = request.secondaryPhoneWhatsapp
+                emergencyContactName = request.emergencyContactName.trim()
+                emergencyContactPhone = request.emergencyContactPhone.digits
             }
         }
         true
@@ -129,34 +114,31 @@ class UserRepository(
         false
     }
 
-    fun updateWantsNotifications(id: String, wants: Boolean) {
+    fun updateWantsNotifications(id: Int, wants: Boolean) {
         transaction(database) {
-            UsersTable.update({ UsersTable.id eq id }) { it[wantsNotifications] = wants }
+            UserEntity.findById(id)?.wantsNotifications = wants
         }
     }
 
-    fun findPasswordHash(id: String): String? = transaction(database) {
-        UsersTable.selectAll()
-            .where { UsersTable.id eq id }
-            .singleOrNull()
-            ?.get(UsersTable.passwordHash)
+    fun findPasswordHash(id: Int): String? = transaction(database) {
+        UserEntity.findById(id)?.passwordHash
     }
 
-    fun updatePasswordHash(id: String, passwordHash: String) {
+    fun updatePasswordHash(id: Int, passwordHash: String) {
         transaction(database) {
-            UsersTable.update({ UsersTable.id eq id }) { it[UsersTable.passwordHash] = passwordHash }
+            UserEntity.findById(id)?.passwordHash = passwordHash
         }
     }
 
-    fun recordLogin(id: String, at: Long) {
+    fun recordLogin(id: Int, at: Instant) {
         transaction(database) {
-            UsersTable.update({ UsersTable.id eq id }) { it[lastLoginAt] = at }
+            UserEntity.findById(id)?.lastLoginAt = at
         }
     }
 
-    fun recordDeletionRequest(id: String, at: Long) {
+    fun recordDeletionRequest(id: Int, at: Instant) {
         transaction(database) {
-            UsersTable.update({ UsersTable.id eq id }) { it[deletionRequestedAt] = at }
+            UserEntity.findById(id)?.deletionRequestedAt = at
         }
     }
 
@@ -164,38 +146,25 @@ class UserRepository(
      * Returns null when the e-mail is already registered. Checking first is not enough: two
      * sign-ups at once can both find the e-mail free, so the unique index is what decides.
      */
-    fun insert(
-        id: String,
-        request: RegisterAccountRequest,
-        passwordHash: String,
-        now: Long = System.currentTimeMillis(),
-    ): AuthenticatedAccount? = try {
+    fun insert(request: RegisterAccountRequest, passwordHash: String, now: Instant): AuthenticatedAccount? = try {
         transaction(database) {
-            UsersTable.insert {
-                it[UsersTable.id] = id
-                it[fullName] = request.fullName.trim()
-                it[socialName] = request.socialName.trim()
-                it[email] = request.email.trim().lowercase()
-                it[UsersTable.passwordHash] = passwordHash
-                it[primaryPhone] = request.primaryPhone.digits
-                it[primaryPhoneWhatsapp] = request.primaryPhoneWhatsapp
-                it[secondaryPhone] = request.secondaryPhone.digits
-                it[secondaryPhoneWhatsapp] = request.secondaryPhoneWhatsapp
-                it[emergencyContactName] = request.emergencyContactName.trim()
-                it[emergencyContactPhone] = request.emergencyContactPhone.digits
-                it[acceptedPrivacyPolicy] = request.acceptedPrivacyPolicy
-                it[acceptedTreatment] = request.acceptedTreatment
-                it[wantsNotifications] = request.wantsNotifications
-                it[createdAt] = now
-                it[lastLoginAt] = now
-            }
-            AuthenticatedAccount(
-                id = id,
-                fullName = request.fullName.trim(),
-                socialName = request.socialName.trim(),
-                email = request.email.trim().lowercase(),
-                phone = request.primaryPhone,
-            )
+            UserEntity.new {
+                fullName = request.fullName.trim()
+                socialName = request.socialName.trim()
+                email = request.email.trim().lowercase()
+                this.passwordHash = passwordHash
+                primaryPhone = request.primaryPhone.digits
+                primaryPhoneWhatsapp = request.primaryPhoneWhatsapp
+                secondaryPhone = request.secondaryPhone.digits
+                secondaryPhoneWhatsapp = request.secondaryPhoneWhatsapp
+                emergencyContactName = request.emergencyContactName.trim()
+                emergencyContactPhone = request.emergencyContactPhone.digits
+                acceptedPrivacyPolicy = request.acceptedPrivacyPolicy
+                acceptedTreatment = request.acceptedTreatment
+                wantsNotifications = request.wantsNotifications
+                createdAt = now
+                lastLoginAt = now
+            }.toAccount()
         }
     } catch (error: ExposedSQLException) {
         if (!error.isUniqueViolation()) {
@@ -204,14 +173,11 @@ class UserRepository(
         null
     }
 
-    private fun org.jetbrains.exposed.v1.core.ResultRow.toStoredUser(): StoredUser = StoredUser(
-        account = AuthenticatedAccount(
-            id = this[UsersTable.id],
-            fullName = this[UsersTable.fullName],
-            socialName = this[UsersTable.socialName],
-            email = this[UsersTable.email],
-            phone = Phone(this[UsersTable.primaryPhone]),
-        ),
-        passwordHash = this[UsersTable.passwordHash],
+    private fun UserEntity.toAccount(): AuthenticatedAccount = AuthenticatedAccount(
+        id = id.value,
+        fullName = fullName,
+        socialName = socialName,
+        email = email,
+        phone = Phone(primaryPhone),
     )
 }

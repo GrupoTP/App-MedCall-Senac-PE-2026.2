@@ -13,6 +13,7 @@ import io.ktor.server.auth.Authentication
 import io.ktor.server.auth.jwt.jwt
 import io.ktor.server.response.header
 import org.koin.ktor.ext.inject
+import kotlin.time.toKotlinInstant
 
 /** Provider of the session JWT. Routes of a signed-in person go under [authenticatedRoute]. */
 const val SESSION_AUTH = "session"
@@ -29,9 +30,14 @@ fun Application.configureAuthentication() {
             // The signature proves the token came from this server; the database says whether its
             // session is still open, so logout and revocation work at once.
             validate { credential ->
-                val userId = credential.payload.subject
-                val sessionId = credential.payload.id
-                if (sessions.userIdFor(sessionId) == userId) SessionPrincipal(userId, sessionId) else null
+                val userId = credential.payload.subject.toIntOrNull()
+                val sessionId = credential.payload.id.toIntOrNull()
+                val issuedAt = credential.payload.issuedAtAsInstant.toKotlinInstant()
+                if (userId != null && sessionId != null && sessions.userIdFor(sessionId, issuedAt) == userId) {
+                    SessionPrincipal(userId, sessionId)
+                } else {
+                    null
+                }
             }
             challenge { scheme, realm ->
                 val header = HttpAuthHeader.Parameterized(scheme, mapOf(HttpAuthHeader.Parameters.Realm to realm))

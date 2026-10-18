@@ -50,7 +50,9 @@ Na pasta `recife-saudavel`:
 
 O servidor responde em `http://localhost:8080/healthz` (processo no ar) e `http://localhost:8080/readyz` (pronto para atender, o que inclui o banco responder). O `/healthz` não consulta o banco, para que uma queda do banco não faça o servidor ser reiniciado à toa.
 
-O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de execução do servidor. Para apontar outro lugar, defina `DATABASE_JDBC_URL`, `DATABASE_DRIVER`, `DATABASE_USER` e `DATABASE_PASSWORD`.
+O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de execução do servidor. Para apontar outro lugar, defina `DATABASE_JDBC_URL`, `DATABASE_DRIVER`, `DATABASE_USER` e `DATABASE_PASSWORD`. Os testes de rota (`:server:test`) usam um H2 em memória e não tocam nesse arquivo.
+
+O acesso ao banco usa o DAO do Exposed: cada tabela é uma `IntIdTable` com chave numérica gerada pelo banco, e os repositórios trabalham com as entidades (`server/.../entity`). Datas e horários são colunas próprias do `exposed-kotlin-datetime`: `timestamp` para momentos, `date` e `time` para o dia e a hora da consulta na clínica. O Exposed cria as tabelas que faltam, mas não altera colunas existentes; um banco criado antes dos ids numéricos é recusado na subida, com a instrução de apagar `server/data`.
 
 O servidor não sobe sem `JWT_SECRET`, a chave que assina os tokens de sessão (no mínimo 32 bytes; gere uma com `openssl rand -base64 48`). As tasks `:server:run`, `:server:runDev` e `:server:test` usam uma chave pública de desenvolvimento quando a variável não está definida. Trocar a chave invalida todos os tokens, e as pessoas precisam entrar de novo.
 

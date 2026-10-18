@@ -12,10 +12,10 @@ import kotlin.test.assertTrue
 
 class AppointmentTest {
     private val appointment = Appointment(
-        id = "a1",
+        id = 1,
         specialtyName = "Cardiologia",
         professionalName = "Dra. Lúcia Oliveira",
-        clinic = Clinic(id = "c1", name = "Clínica Boa Vista", city = "Recife", timeZoneId = "America/Recife"),
+        clinic = Clinic(id = 1, name = "Clínica Boa Vista", city = "Recife", timeZoneId = "America/Recife"),
         date = LocalDate(2026, 10, 14),
         time = LocalTime(9, 30),
         status = AppointmentStatus.Confirmed,

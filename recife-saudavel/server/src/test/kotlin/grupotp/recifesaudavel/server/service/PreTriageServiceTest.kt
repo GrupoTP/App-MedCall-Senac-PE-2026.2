@@ -6,26 +6,24 @@ import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.common.pretriage.SymptomsStart
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.security.SecretString
-import grupotp.recifesaudavel.server.database.AppointmentsTable
-import grupotp.recifesaudavel.server.database.ClinicsTable
+import grupotp.recifesaudavel.server.database.table.AppointmentsTable
+import grupotp.recifesaudavel.server.database.table.ClinicsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
-import grupotp.recifesaudavel.server.database.PreTriagesTable
-import grupotp.recifesaudavel.server.database.ProfessionalsTable
-import grupotp.recifesaudavel.server.database.SchedulingCatalog
-import grupotp.recifesaudavel.server.database.SessionsTable
-import grupotp.recifesaudavel.server.database.SpecialtiesTable
-import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.server.database.table.PreTriagesTable
+import grupotp.recifesaudavel.server.database.table.ProfessionalsTable
+import grupotp.recifesaudavel.server.database.table.SessionsTable
+import grupotp.recifesaudavel.server.database.table.SpecialtiesTable
+import grupotp.recifesaudavel.server.database.table.UsersTable
+import grupotp.recifesaudavel.server.database.entity.PreTriageEntity
+import grupotp.recifesaudavel.server.database.entity.UserEntity
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Clock
@@ -39,21 +37,23 @@ import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Instant
+import kotlin.time.toKotlinInstant
 
 class PreTriageServiceTest {
     private val recife = ZoneId.of("America/Recife")
 
     // Monday, 12 October 2026, 10:10 in Recife.
     private val clock = Clock.fixed(ZonedDateTime.of(2026, 10, 12, 10, 10, 0, 0, recife).toInstant(), recife)
-    private val cardiology = SchedulingCatalog.specialtyId("Cardiologia")
-    private val lucia = SchedulingCatalog.professionalId("Cardiologia", "Dra. Lúcia Oliveira")
 
     private lateinit var database: Database
     private lateinit var service: PreTriageService
     private lateinit var scheduling: SchedulingService
     private lateinit var users: UserRepository
-    private lateinit var maria: String
-    private lateinit var ana: String
+    private var maria = 0
+    private var ana = 0
+    private var cardiology = 0
+    private var lucia = 0
 
     @BeforeTest
     fun openDatabase() {
@@ -69,12 +69,14 @@ class PreTriageServiceTest {
             SchemaUtils.create(UsersTable, SessionsTable, ClinicsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
         }
         val appointments = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
+        cardiology = appointments.specialties().first { it.name == "Cardiologia" }.id
+        lucia = appointments.professionals(cardiology).first { it.name == "Dra. Lúcia Oliveira" }.id
         val preTriages = PreTriageRepository(database)
         users = UserRepository(database)
         service = PreTriageService(preTriages, users, appointments, clock)
         scheduling = SchedulingService(appointments, clock, preTriages)
-        maria = users.insert(UUID.randomUUID().toString(), registration("maria@email.com"), "hash")!!.id
-        ana = users.insert(UUID.randomUUID().toString(), registration("ana@email.com"), "hash")!!.id
+        maria = users.insert(registration("maria@email.com"), "hash", clock.instant().toKotlinInstant())!!.id
+        ana = users.insert(registration("ana@email.com"), "hash", clock.instant().toKotlinInstant())!!.id
     }
 
     @AfterTest
@@ -122,9 +124,7 @@ class PreTriageServiceTest {
         val sent = assertIs<PreTriageResult.Created>(service.submit(maria, form().copy(symptomsStart = SymptomsStart.TwoWeeks)))
 
         // Act
-        val stored = transaction(database) {
-            PreTriagesTable.selectAll().where { PreTriagesTable.id eq sent.preTriage.id }.single()[PreTriagesTable.form]
-        }
+        val stored = transaction(database) { PreTriageEntity[sent.preTriage.id].form }
         val pending = service.pending(maria).preTriage!!
 
         // Assert
@@ -136,11 +136,10 @@ class PreTriageServiceTest {
     fun anOldFreeTextSymptomsStartReadsAsUnanswered() {
         // Arrange: stored before SymptomsStart existed, with the option's text.
         transaction(database) {
-            PreTriagesTable.insert {
-                it[id] = UUID.randomUUID().toString()
-                it[patientId] = maria
-                it[form] = """{"fullName":"Maria","reason":"Dor","symptomsStart":"Há 2 semanas"}"""
-                it[createdAt] = 0
+            PreTriageEntity.new {
+                patient = UserEntity[maria]
+                form = """{"fullName":"Maria","reason":"Dor","symptomsStart":"Há 2 semanas"}"""
+                createdAt = Instant.fromEpochSeconds(0)
             }
         }
 
@@ -246,7 +245,7 @@ class PreTriageServiceTest {
         supplements = "Vitamina D",
     )
 
-    private fun request(time: String, preTriageId: String?) = CreateAppointmentRequest(
+    private fun request(time: String, preTriageId: Int?) = CreateAppointmentRequest(
         specialtyId = cardiology,
         professionalId = lucia,
         date = LocalDate(2026, 10, 13),

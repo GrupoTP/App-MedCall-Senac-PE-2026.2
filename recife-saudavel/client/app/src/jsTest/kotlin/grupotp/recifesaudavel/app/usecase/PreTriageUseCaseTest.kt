@@ -13,7 +13,7 @@ import kotlin.time.Instant
 
 class PreTriageUseCaseTest {
     private val account = AuthenticatedAccount(
-        id = "maria",
+        id = 1,
         fullName = "Maria das Graças Silva",
         socialName = "Graça",
         email = "maria@email.com",
@@ -36,7 +36,7 @@ class PreTriageUseCaseTest {
     @Test
     fun pendingReturnsTheLatestPreTriage() = runTest {
         // Arrange
-        val latest = PreTriage(id = "pt-1", createdAt = Instant.fromEpochMilliseconds(0), form = PreTriageForm(reason = "Tontura"))
+        val latest = PreTriage(id = 1, createdAt = Instant.fromEpochMilliseconds(0), form = PreTriageForm(reason = "Tontura"))
         val gateway = FakePreTriageGateway(pending = SchedulingResult.Success(latest))
 
         // Act
@@ -79,7 +79,7 @@ private class FakePreTriageGateway(
 
     override suspend fun submit(token: SecretString, form: PreTriageForm): SchedulingResult<PreTriage> {
         lastToken = token.value
-        return SchedulingResult.Success(PreTriage(id = "pt-1", createdAt = Instant.fromEpochMilliseconds(0), form = form))
+        return SchedulingResult.Success(PreTriage(id = 1, createdAt = Instant.fromEpochMilliseconds(0), form = form))
     }
 
     override suspend fun pending(token: SecretString): SchedulingResult<PreTriage?> {

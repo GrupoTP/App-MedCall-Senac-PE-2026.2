@@ -5,8 +5,8 @@ import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.security.SecretString
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
-import grupotp.recifesaudavel.server.database.SessionsTable
-import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.server.database.table.SessionsTable
+import grupotp.recifesaudavel.server.database.table.UsersTable
 import grupotp.recifesaudavel.server.repository.SessionRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -24,6 +24,8 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.days
+import kotlin.time.toKotlinInstant
 
 private val IDLE: Duration = Duration.ofDays(180)
 
@@ -32,7 +34,7 @@ class SessionServiceTest {
 
     private lateinit var database: Database
     private lateinit var sessions: SessionService
-    private lateinit var maria: String
+    private var maria = 0
 
     @BeforeTest
     fun openDatabase() {
@@ -46,7 +48,7 @@ class SessionServiceTest {
         )
         transaction(database) { SchemaUtils.create(UsersTable, SessionsTable) }
         sessions = SessionService(SessionRepository(database), clock, SessionSettings(IDLE))
-        maria = UserRepository(database).insert(UUID.randomUUID().toString(), registration(), "hash")!!.id
+        maria = UserRepository(database).insert(registration(), "hash", clock.instant().toKotlinInstant())!!.id
     }
 
     @AfterTest
@@ -110,8 +112,8 @@ class SessionServiceTest {
         val tablet = sessions.open(maria)
 
         // Act
-        sessions.revokeAll(maria, keepId = phone)
-        val afterKeeping = listOf(phone, laptop, tablet).map(sessions::userIdFor)
+        sessions.revokeAll(maria, keepId = phone.id)
+        val afterKeeping = listOf(phone, laptop, tablet).map { sessions.userIdFor(it) }
         sessions.revokeAll(maria)
         val afterAll = sessions.userIdFor(phone)
 
@@ -119,6 +121,22 @@ class SessionServiceTest {
         assertEquals(listOf(maria, null, null), afterKeeping)
         assertNull(afterAll)
     }
+
+    @Test
+    fun aTokenOfAnotherSessionWithTheSameIdIsRefused() {
+        // Arrange: after a database reset, ids start over, but creation times do not repeat.
+        val session = sessions.open(maria)
+
+        // Act
+        val sameSession = sessions.userIdFor(session.id, session.createdAt)
+        val olderToken = sessions.userIdFor(session.id, session.createdAt - 1.days)
+
+        // Assert
+        assertEquals(maria, sameSession)
+        assertNull(olderToken)
+    }
+
+    private fun SessionService.userIdFor(session: OpenedSession): Int? = userIdFor(session.id, session.createdAt)
 
     private class MovableClock(private var now: Instant) : Clock() {
         fun advance(by: Duration) {

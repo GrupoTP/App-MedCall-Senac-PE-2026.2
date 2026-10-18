@@ -26,13 +26,13 @@ class RestAppointmentGateway(
 
     override suspend fun availability(
         token: SecretString,
-        specialtyId: String,
-        professionalId: String?,
+        specialtyId: Int,
+        professionalId: Int?,
     ): SchedulingResult<List<ClinicAvailability>> {
         val query = buildString {
-            append("?specialtyId=").append(encodeURIComponent(specialtyId))
+            append("?specialtyId=").append(specialtyId)
             if (professionalId != null) {
-                append("&professionalId=").append(encodeURIComponent(professionalId))
+                append("&professionalId=").append(professionalId)
             }
         }
         return call("GET", "/api/v1/availability$query", token)
@@ -44,8 +44,8 @@ class RestAppointmentGateway(
     override suspend fun list(token: SecretString): SchedulingResult<List<Appointment>> =
         call("GET", "/api/v1/appointments", token)
 
-    override suspend fun cancel(token: SecretString, appointmentId: String): SchedulingResult<Appointment> =
-        call("POST", "/api/v1/appointments/${encodeURIComponent(appointmentId)}/cancel", token, "{}")
+    override suspend fun cancel(token: SecretString, appointmentId: Int): SchedulingResult<Appointment> =
+        call("POST", "/api/v1/appointments/$appointmentId/cancel", token, "{}")
 
     private suspend inline fun <reified T> call(
         method: String,
@@ -55,4 +55,3 @@ class RestAppointmentGateway(
     ): SchedulingResult<T> = json.callApi(method, "$baseUrl$path", token, body)
 }
 
-private external fun encodeURIComponent(value: String): String

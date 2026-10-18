@@ -37,12 +37,12 @@ internal external interface AppointmentsScreenProps : Props {
  */
 internal val AppointmentsScreen = FC<AppointmentsScreenProps> { props ->
     var snapshot by useState<AppointmentsSnapshot?>(null)
-    var confirming by useState<String?>(null)
-    var cancelling by useState<String?>(null)
+    var confirming by useState<Int?>(null)
+    var cancelling by useState<Int?>(null)
     var cancelError by useState<SchedulingError?>(null)
     val scope = useScreenScope()
 
-    fun cancel(id: String) {
+    fun cancel(id: Int) {
         if (cancelling != null) {
             return
         }

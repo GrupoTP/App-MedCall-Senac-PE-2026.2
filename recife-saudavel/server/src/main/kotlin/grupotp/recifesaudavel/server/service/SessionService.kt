@@ -2,8 +2,19 @@ package grupotp.recifesaudavel.server.service
 
 import grupotp.recifesaudavel.server.repository.SessionRepository
 import java.time.Clock
-import java.time.Duration
-import java.util.UUID
+import kotlin.time.Duration
+import kotlin.time.Duration.Companion.days
+import kotlin.time.Instant
+import kotlin.time.toKotlinDuration
+import kotlin.time.toKotlinInstant
+
+/**
+ * A session just opened. Its token names [id] and carries [createdAt] as `iat`, whole seconds.
+ */
+data class OpenedSession(
+    val id: Int,
+    val createdAt: Instant,
+)
 
 /**
  * Opens and resolves sessions. The client holds a signed token naming the session
@@ -18,49 +29,57 @@ class SessionService(
     private val clock: Clock,
     private val settings: SessionSettings,
 ) {
-    /** Starts a session of [userId] and returns its id, to be signed into the token. */
-    fun open(userId: String): String {
-        val id = UUID.randomUUID().toString()
-        val now = clock.millis()
+    fun open(userId: Int): OpenedSession {
+        val now = now()
         // Housekeeping: expired rows are useless, and sign-ins are rare enough to pay for it.
-        settings.idleTimeout?.let { sessions.deleteUnusedSince(now - it.toMillis()) }
-        sessions.insert(id, userId, now)
-        return id
+        idleTimeout()?.let { sessions.deleteUnusedSince(now - it) }
+        // Whole seconds, like the token's `iat`, so the two compare equal.
+        val createdAt = Instant.fromEpochSeconds(now.epochSeconds)
+        return OpenedSession(id = sessions.insert(userId, createdAt), createdAt = createdAt)
     }
 
-    /** User id of session [id], or null when it is unknown, revoked or expired. */
-    fun userIdFor(id: String): String? {
-        if (id.isBlank()) {
+    /**
+     * User id of session [id], or null when it is unknown, revoked or expired.
+     *
+     * [createdAt] must match too: ids are sequential, so after a database reset a new session can
+     * get the id an old token names, but not its creation time.
+     */
+    fun userIdFor(id: Int, createdAt: Instant): Int? {
+        val session = sessions.find(id) ?: return null
+        if (session.createdAt != createdAt) {
             return null
         }
-        val session = sessions.find(id) ?: return null
-        val now = clock.millis()
+        val now = now()
         val idle = now - session.lastUsedAt
-        val timeout = settings.idleTimeout
-        if (timeout != null && idle >= timeout.toMillis()) {
+        val timeout = idleTimeout()
+        if (timeout != null && idle >= timeout) {
             sessions.delete(id)
             return null
         }
         // Writing on every request would cost a database write per call; once a day is enough
         // for a timeout counted in days.
-        if (idle >= TOUCH_INTERVAL.toMillis()) {
+        if (idle >= TOUCH_INTERVAL) {
             sessions.touch(id, now)
         }
         return session.userId
     }
 
     /** Ends session [id] from now on. Unknown ids are ignored. */
-    fun revoke(id: String) {
+    fun revoke(id: Int) {
         sessions.delete(id)
     }
 
     /** Ends every session of [userId], on every device, except [keepId] when given. */
-    fun revokeAll(userId: String, keepId: String? = null) {
+    fun revokeAll(userId: Int, keepId: Int? = null) {
         sessions.deleteAllOf(userId, keepId)
     }
 
+    private fun now(): Instant = clock.instant().toKotlinInstant()
+
+    private fun idleTimeout(): Duration? = settings.idleTimeout?.toKotlinDuration()
+
     companion object {
         /** How often the last use is written down. */
-        val TOUCH_INTERVAL: Duration = Duration.ofDays(1)
+        val TOUCH_INTERVAL: Duration = 1.days
     }
 }

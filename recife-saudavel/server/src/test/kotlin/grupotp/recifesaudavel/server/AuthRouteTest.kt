@@ -106,7 +106,7 @@ class AuthRouteTest {
         val account = Json.decodeFromString<AuthenticatedAccount>(created.bodyAsText())
         val token = JWT.decode(account.sessionToken.value)
         assertEquals("HS256", token.algorithm)
-        assertEquals(account.id, token.subject)
+        assertEquals(account.id.toString(), token.subject)
         assertTrue(token.id.isNotBlank())
         assertEquals(setOf("sub", "jti", "iss", "aud", "iat"), token.claims.keys)
     }
@@ -145,6 +145,7 @@ class AuthRouteTest {
             .withAudience(*decoded.audience.toTypedArray())
             .withSubject(decoded.subject)
             .withJWTId(decoded.id)
+            .withIssuedAt(decoded.issuedAtAsInstant)
             .sign(Algorithm.HMAC256("uma-chave-que-o-servidor-nao-conhece"))
     }
 

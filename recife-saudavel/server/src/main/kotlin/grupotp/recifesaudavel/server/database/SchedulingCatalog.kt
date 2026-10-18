@@ -1,10 +1,8 @@
 package grupotp.recifesaudavel.server.database
 
-import java.util.UUID
-
 /**
  * Clinics, specialties and professionals from the prototype, inserted when the tables are empty.
- * Ids derive from the names, so every database gets the same ones.
+ * The database numbers them; code that needs one finds it by name.
  *
  * Most professionals attend in Recife. Psychiatry is also offered by teleconsultation from Manaus,
  * one hour behind, so the catalog exercises a specialty spread over two time zones.
@@ -35,13 +33,5 @@ object SchedulingCatalog {
         "Endocrinologia" to inRecife("Dra. Isabela Cardoso", "Dr. Thiago Vieira"),
     )
 
-    fun clinicId(clinic: CatalogClinic): String = stableId("clinic:${clinic.name}")
-
-    fun specialtyId(name: String): String = stableId("specialty:$name")
-
-    fun professionalId(specialty: String, name: String): String = stableId("professional:$specialty:$name")
-
     private fun inRecife(vararg names: String): List<CatalogProfessional> = names.map { CatalogProfessional(it, boaVista) }
-
-    private fun stableId(key: String): String = UUID.nameUUIDFromBytes(key.toByteArray()).toString()
 }

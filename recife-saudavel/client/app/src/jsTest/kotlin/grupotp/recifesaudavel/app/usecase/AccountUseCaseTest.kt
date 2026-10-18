@@ -14,7 +14,7 @@ import kotlin.test.assertIs
 
 class AccountUseCaseTest {
     private val account = AuthenticatedAccount(
-        id = "1",
+        id = 1,
         fullName = "Poly",
         socialName = "",
         email = "poly@email.com",

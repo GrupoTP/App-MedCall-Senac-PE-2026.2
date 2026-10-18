@@ -15,7 +15,7 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class Appointment(
-    val id: String,
+    val id: Int,
     val specialtyName: String,
     val professionalName: String,
     val clinic: Clinic,
@@ -26,7 +26,7 @@ data class Appointment(
     val contactPhone: Phone,
     val reason: String = "",
     val notes: String = "",
-    val preTriageId: String? = null,
+    val preTriageId: Int? = null,
 ) {
     /** Start in the clinic's wall clock. To compare with now, convert now to [Clinic.timeZone]. */
     val startsAt: LocalDateTime get() = LocalDateTime(date, time)

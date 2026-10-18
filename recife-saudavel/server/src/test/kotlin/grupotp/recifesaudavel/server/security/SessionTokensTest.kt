@@ -2,11 +2,13 @@ package grupotp.recifesaudavel.server.security
 
 import com.auth0.jwt.exceptions.JWTVerificationException
 import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.recifesaudavel.server.service.OpenedSession
 import io.ktor.server.config.MapApplicationConfig
-import java.time.Clock
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
 
 class SessionTokensTest {
     private val settings = JwtSettings(
@@ -15,27 +17,29 @@ class SessionTokensTest {
         audience = "recife-saudavel-app",
         realm = "recife-saudavel",
     )
-    private val tokens = SessionTokens(settings, Clock.systemUTC())
+    private val tokens = SessionTokens(settings)
+    private val session = OpenedSession(id = 42, createdAt = Instant.parse("2026-10-12T13:00:00Z"))
 
     @Test
     fun aSignedTokenIsVerifiedWithItsUserAndSession() {
         // Act
-        val decoded = tokens.verifier.verify(tokens.sign(userId = "maria", sessionId = "sessao-1").value)
+        val decoded = tokens.verifier.verify(tokens.sign(userId = 7, session = session).value)
 
         // Assert
-        assertEquals("maria", decoded.subject)
-        assertEquals("sessao-1", decoded.id)
+        assertEquals("7", decoded.subject)
+        assertEquals("42", decoded.id)
+        assertEquals(session.createdAt.toJavaInstant(), decoded.issuedAtAsInstant)
     }
 
     @Test
     fun tokensOfAnotherKeyOrAudienceAreRefused() {
         // Arrange
-        val otherKey = SessionTokens(settings.copy(secret = SecretString("b".repeat(JwtSettings.MIN_SECRET_BYTES))), Clock.systemUTC())
-        val otherAudience = SessionTokens(settings.copy(audience = "outro-app"), Clock.systemUTC())
+        val otherKey = SessionTokens(settings.copy(secret = SecretString("b".repeat(JwtSettings.MIN_SECRET_BYTES))))
+        val otherAudience = SessionTokens(settings.copy(audience = "outro-app"))
 
         // Act + Assert
-        assertFailsWith<JWTVerificationException> { tokens.verifier.verify(otherKey.sign("maria", "sessao-1").value) }
-        assertFailsWith<JWTVerificationException> { tokens.verifier.verify(otherAudience.sign("maria", "sessao-1").value) }
+        assertFailsWith<JWTVerificationException> { tokens.verifier.verify(otherKey.sign(7, session).value) }
+        assertFailsWith<JWTVerificationException> { tokens.verifier.verify(otherAudience.sign(7, session).value) }
     }
 
     @Test

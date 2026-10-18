@@ -11,6 +11,6 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class ClinicAvailability(
-    val clinicId: String,
+    val clinicId: Int,
     val days: List<AvailableDay>,
 )

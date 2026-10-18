@@ -34,13 +34,13 @@ interface AppointmentGateway {
 
     suspend fun clinics(token: SecretString): SchedulingResult<List<Clinic>>
 
-    suspend fun availability(token: SecretString, specialtyId: String, professionalId: String?): SchedulingResult<List<ClinicAvailability>>
+    suspend fun availability(token: SecretString, specialtyId: Int, professionalId: Int?): SchedulingResult<List<ClinicAvailability>>
 
     suspend fun book(token: SecretString, request: CreateAppointmentRequest): SchedulingResult<Appointment>
 
     suspend fun list(token: SecretString): SchedulingResult<List<Appointment>>
 
-    suspend fun cancel(token: SecretString, appointmentId: String): SchedulingResult<Appointment>
+    suspend fun cancel(token: SecretString, appointmentId: Int): SchedulingResult<Appointment>
 }
 
 /**
@@ -48,7 +48,7 @@ interface AppointmentGateway {
  * Only one account is kept: saving for one account drops any other.
  */
 interface LocalAppointmentGateway {
-    suspend fun saveAppointments(accountId: String, appointments: List<Appointment>)
+    suspend fun saveAppointments(accountId: Int, appointments: List<Appointment>)
 
-    suspend fun loadAppointments(accountId: String): List<Appointment>?
+    suspend fun loadAppointments(accountId: Int): List<Appointment>?
 }

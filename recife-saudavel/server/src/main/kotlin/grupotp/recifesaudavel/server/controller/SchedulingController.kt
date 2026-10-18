@@ -16,6 +16,8 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import org.koin.ktor.ext.inject
 
+private const val INVALID_CHOICE = "Especialidade ou profissional inválido."
+
 fun Application.configureSchedulingController() {
     val scheduling by inject<SchedulingService>()
 
@@ -25,17 +27,28 @@ fun Application.configureSchedulingController() {
                 call.respond(scheduling.specialties())
             }
             get("/professionals") {
-                call.respond(scheduling.professionals(call.request.queryParameters["specialtyId"]))
+                val specialtyId = call.request.queryParameters["specialtyId"]
+                val id = specialtyId?.toIntOrNull()
+                if (specialtyId != null && id == null) {
+                    call.respond(HttpStatusCode.BadRequest, ApiError(INVALID_CHOICE))
+                } else {
+                    call.respond(scheduling.professionals(id))
+                }
             }
             get("/clinics") {
                 call.respond(scheduling.clinics())
             }
             get("/availability") {
-                val specialtyId = call.request.queryParameters["specialtyId"].orEmpty()
-                val professionalId = call.request.queryParameters["professionalId"]?.takeIf { it.isNotBlank() }
-                val days = scheduling.availability(specialtyId, professionalId)
+                val specialtyId = call.request.queryParameters["specialtyId"]?.toIntOrNull()
+                val professional = call.request.queryParameters["professionalId"]?.takeIf { it.isNotBlank() }
+                val professionalId = professional?.toIntOrNull()
+                val days = if (specialtyId == null || (professional != null && professionalId == null)) {
+                    null
+                } else {
+                    scheduling.availability(specialtyId, professionalId)
+                }
                 if (days == null) {
-                    call.respond(HttpStatusCode.BadRequest, ApiError("Especialidade ou profissional inválido."))
+                    call.respond(HttpStatusCode.BadRequest, ApiError(INVALID_CHOICE))
                 } else {
                     call.respond(days)
                 }
@@ -45,8 +58,9 @@ fun Application.configureSchedulingController() {
                     call.respond(scheduling.appointmentsOf(call.signedIn.userId))
                 }
                 post("/{id}/cancel") {
-                    val id = call.parameters["id"].orEmpty()
-                    when (val result = scheduling.cancel(call.signedIn.userId, id)) {
+                    val id = call.parameters["id"]?.toIntOrNull()
+                    val result = id?.let { scheduling.cancel(call.signedIn.userId, it) } ?: CancelResult.NotFound
+                    when (result) {
                         is CancelResult.Cancelled -> call.respond(result.appointment)
                         CancelResult.NotFound -> call.respond(HttpStatusCode.NotFound, ApiError("Consulta não encontrada."))
                         is CancelResult.NotCancellable -> call.respond(HttpStatusCode.Conflict, ApiError(result.message))

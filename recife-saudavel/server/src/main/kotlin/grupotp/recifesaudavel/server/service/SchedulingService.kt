@@ -20,7 +20,7 @@ import kotlinx.datetime.toKotlinLocalDateTime
 import java.time.Clock
 import java.time.DayOfWeek
 import java.time.ZoneId
-import java.util.UUID
+import kotlin.time.toKotlinInstant
 
 sealed interface BookingResult {
     data class Created(val appointment: Appointment) : BookingResult
@@ -56,7 +56,7 @@ class SchedulingService(
 ) {
     fun specialties(): List<Specialty> = repository.specialties()
 
-    fun professionals(specialtyId: String?): List<Professional> = repository.professionals(specialtyId)
+    fun professionals(specialtyId: Int?): List<Professional> = repository.professionals(specialtyId)
 
     fun clinics(): List<Clinic> = repository.clinics()
 
@@ -65,7 +65,7 @@ class SchedulingService(
      * open when the chosen professional, or any professional of the specialty at that clinic when
      * none is chosen, is free. Returns null when the specialty or the professional does not exist.
      */
-    fun availability(specialtyId: String, professionalId: String?): List<ClinicAvailability>? {
+    fun availability(specialtyId: Int, professionalId: Int?): List<ClinicAvailability>? {
         val candidates = candidates(specialtyId, professionalId) ?: return null
         val clinics = repository.clinics().associateBy { it.id }
         return candidates.groupBy { it.clinicId }.map { (clinicId, atClinic) ->
@@ -85,10 +85,9 @@ class SchedulingService(
         }
     }
 
-    fun book(patientId: String, request: CreateAppointmentRequest): BookingResult {
-        val professionalId = request.professionalId?.takeIf { it.isNotBlank() }
-        val clinicId = request.clinicId?.takeIf { it.isNotBlank() }
-        val candidates = candidates(request.specialtyId, professionalId)
+    fun book(patientId: Int, request: CreateAppointmentRequest): BookingResult {
+        val clinicId = request.clinicId
+        val candidates = candidates(request.specialtyId, request.professionalId)
             ?.filter { clinicId == null || it.clinicId == clinicId }
             ?.ifEmpty { null }
             ?: return BookingResult.Rejected("Especialidade, profissional ou clínica inválidos.")
@@ -106,7 +105,7 @@ class SchedulingService(
         if (request.reason.length > MAX_TEXT || request.notes.length > MAX_TEXT) {
             return BookingResult.Rejected("Texto muito longo. Use até $MAX_TEXT caracteres.")
         }
-        val preTriageId = request.preTriageId?.takeIf { it.isNotBlank() }
+        val preTriageId = request.preTriageId
         if (preTriageId != null) {
             attachProblem(patientId, preTriageId)?.let { return BookingResult.Rejected(it) }
         }
@@ -118,18 +117,16 @@ class SchedulingService(
             if (slot in taken) {
                 continue
             }
-            val id = UUID.randomUUID().toString()
-            val inserted = repository.insert(
+            val id = repository.insert(
                 NewAppointment(
-                    id = id,
                     patientId = patientId,
                     slot = slot,
                     reason = request.reason.trim(),
                     notes = request.notes.trim(),
-                    createdAt = clock.millis(),
+                    createdAt = clock.instant().toKotlinInstant(),
                 ),
             )
-            if (inserted) {
+            if (id != null) {
                 if (preTriageId != null) {
                     preTriages.attach(patientId, preTriageId, id)
                 }
@@ -140,7 +137,7 @@ class SchedulingService(
     }
 
     /** Why the pre-triage cannot be attached, or null when it can. */
-    private fun attachProblem(patientId: String, preTriageId: String): String? {
+    private fun attachProblem(patientId: Int, preTriageId: Int): String? {
         val preTriage = preTriages.find(patientId, preTriageId) ?: return "Pré-triagem não encontrada."
         val current = preTriage.appointmentId?.let { repository.findAppointment(it) }
         return if (current != null && current.status != AppointmentStatus.Cancelled) {
@@ -150,10 +147,10 @@ class SchedulingService(
         }
     }
 
-    fun appointmentsOf(patientId: String): List<Appointment> = repository.appointmentsOf(patientId)
+    fun appointmentsOf(patientId: Int): List<Appointment> = repository.appointmentsOf(patientId)
 
     /** Cancels the patient's own appointment when [isCancellableAt] allows it. */
-    fun cancel(patientId: String, appointmentId: String): CancelResult {
+    fun cancel(patientId: Int, appointmentId: Int): CancelResult {
         val current = repository.findAppointmentOf(patientId, appointmentId) ?: return CancelResult.NotFound
         if (!current.isCancellableAt(nowAt(current.clinic)) || !repository.cancel(patientId, appointmentId, current.status)) {
             return CancelResult.NotCancellable("Esta consulta não pode mais ser cancelada.")
@@ -161,7 +158,7 @@ class SchedulingService(
         return CancelResult.Cancelled(repository.findAppointment(appointmentId)!!)
     }
 
-    private fun candidates(specialtyId: String, professionalId: String?): List<Professional>? {
+    private fun candidates(specialtyId: Int, professionalId: Int?): List<Professional>? {
         val professionals = repository.professionals(specialtyId)
         if (professionals.isEmpty()) {
             return null

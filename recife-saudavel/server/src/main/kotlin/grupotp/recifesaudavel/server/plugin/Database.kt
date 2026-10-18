@@ -1,15 +1,15 @@
 package grupotp.recifesaudavel.server.plugin
 
+import grupotp.recifesaudavel.server.database.table.AppointmentsTable
+import grupotp.recifesaudavel.server.database.table.ClinicsTable
 import grupotp.recifesaudavel.server.database.DatabaseConnector
 import grupotp.recifesaudavel.server.database.DatabaseSettings
-import grupotp.recifesaudavel.server.database.AppointmentsTable
-import grupotp.recifesaudavel.server.database.ClinicsTable
-import grupotp.recifesaudavel.server.database.PreTriagesTable
-import grupotp.recifesaudavel.server.database.ProfessionalsTable
-import grupotp.recifesaudavel.server.database.SchemaMigrations
-import grupotp.recifesaudavel.server.database.SessionsTable
-import grupotp.recifesaudavel.server.database.SpecialtiesTable
-import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.server.database.LegacySchemaCheck
+import grupotp.recifesaudavel.server.database.table.PreTriagesTable
+import grupotp.recifesaudavel.server.database.table.ProfessionalsTable
+import grupotp.recifesaudavel.server.database.table.SessionsTable
+import grupotp.recifesaudavel.server.database.table.SpecialtiesTable
+import grupotp.recifesaudavel.server.database.table.UsersTable
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.SessionRepository
@@ -61,6 +61,7 @@ fun Application.configureDatabase() {
         ),
     )
     val database = getKoin().get<Database>()
+    LegacySchemaCheck.run(database)
     transaction(database) {
         SchemaUtils.create(
             UsersTable,
@@ -72,7 +73,6 @@ fun Application.configureDatabase() {
             PreTriagesTable
         )
     }
-    SchemaMigrations.run(database)
     getKoin().get<SchedulingRepository>().seedCatalogIfEmpty()
     monitor.subscribe(ApplicationStopped) {
         TransactionManager.closeAndUnregister(database)

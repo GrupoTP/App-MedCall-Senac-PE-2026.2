@@ -15,7 +15,7 @@ class AuthUseCaseTest {
         // Arrange
         val request = SignInRequest(email = "maria@email.com", password = SecretString("segredo"))
         val account = AuthenticatedAccount(
-            id = "1",
+            id = 1,
             fullName = "Maria das Graças Silva",
             socialName = "Graça",
             email = "maria@email.com",

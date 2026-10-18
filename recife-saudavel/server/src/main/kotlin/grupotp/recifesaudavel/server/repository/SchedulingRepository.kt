@@ -6,43 +6,44 @@ import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.common.scheduling.Clinic
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
-import grupotp.recifesaudavel.server.database.AppointmentsTable
-import grupotp.recifesaudavel.server.database.ClinicsTable
-import grupotp.recifesaudavel.server.database.PreTriagesTable
-import grupotp.recifesaudavel.server.database.ProfessionalsTable
+import grupotp.recifesaudavel.server.database.table.AppointmentsTable
+import grupotp.recifesaudavel.server.database.table.ClinicsTable
+import grupotp.recifesaudavel.server.database.table.ProfessionalsTable
 import grupotp.recifesaudavel.server.database.SchedulingCatalog
-import grupotp.recifesaudavel.server.database.SpecialtiesTable
-import grupotp.recifesaudavel.server.database.UsersTable
+import grupotp.recifesaudavel.server.database.table.SpecialtiesTable
+import grupotp.recifesaudavel.server.database.entity.AppointmentEntity
+import grupotp.recifesaudavel.server.database.entity.ClinicEntity
+import grupotp.recifesaudavel.server.database.entity.ProfessionalEntity
+import grupotp.recifesaudavel.server.database.entity.SpecialtyEntity
+import grupotp.recifesaudavel.server.database.entity.UserEntity
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
-import org.jetbrains.exposed.v1.core.JoinType
-import org.jetbrains.exposed.v1.core.ResultRow
+import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.dao.with
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.insert
-import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.SizedIterable
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import org.jetbrains.exposed.v1.jdbc.update
+import kotlin.time.Instant
 
 /** A professional, a date and a time: one slot of the agenda. */
 data class Slot(
-    val professionalId: String,
+    val professionalId: Int,
     val date: LocalDate,
     val time: LocalTime,
 )
 
 data class NewAppointment(
-    val id: String,
-    val patientId: String,
+    val patientId: Int,
     val slot: Slot,
     val reason: String,
     val notes: String,
-    val createdAt: Long,
+    val createdAt: Instant,
 )
 
 class SchedulingRepository(
@@ -50,29 +51,23 @@ class SchedulingRepository(
 ) {
     fun seedCatalogIfEmpty() {
         transaction(database) {
-            if (SpecialtiesTable.selectAll().count() > 0) {
+            if (!SpecialtyEntity.all().empty()) {
                 return@transaction
             }
-            for (clinic in SchedulingCatalog.clinics) {
-                ClinicsTable.insert {
-                    it[id] = SchedulingCatalog.clinicId(clinic)
-                    it[name] = clinic.name
-                    it[city] = clinic.city
-                    it[timeZone] = clinic.timeZoneId
+            val clinics = SchedulingCatalog.clinics.associateWith { clinic ->
+                ClinicEntity.new {
+                    name = clinic.name
+                    city = clinic.city
+                    timeZone = clinic.timeZoneId
                 }
             }
-            for ((specialty, professionals) in SchedulingCatalog.professionalsBySpecialty) {
-                val specialtyId = SchedulingCatalog.specialtyId(specialty)
-                SpecialtiesTable.insert {
-                    it[id] = specialtyId
-                    it[name] = specialty
-                }
+            for ((specialtyName, professionals) in SchedulingCatalog.professionalsBySpecialty) {
+                val specialty = SpecialtyEntity.new { name = specialtyName }
                 for (professional in professionals) {
-                    ProfessionalsTable.insert {
-                        it[id] = SchedulingCatalog.professionalId(specialty, professional.name)
-                        it[name] = professional.name
-                        it[ProfessionalsTable.specialtyId] = specialtyId
-                        it[clinicId] = SchedulingCatalog.clinicId(professional.clinic)
+                    ProfessionalEntity.new {
+                        name = professional.name
+                        this.specialty = specialty
+                        clinic = clinics.getValue(professional.clinic)
                     }
                 }
             }
@@ -80,169 +75,153 @@ class SchedulingRepository(
     }
 
     fun specialties(): List<Specialty> = transaction(database) {
-        SpecialtiesTable.selectAll()
-            .orderBy(SpecialtiesTable.name)
-            .map { Specialty(id = it[SpecialtiesTable.id], name = it[SpecialtiesTable.name]) }
+        SpecialtyEntity.all()
+            .orderBy(SpecialtiesTable.name to SortOrder.ASC)
+            .map { Specialty(id = it.id.value, name = it.name) }
     }
 
     fun clinics(): List<Clinic> = transaction(database) {
-        ClinicsTable.selectAll().orderBy(ClinicsTable.name).map { it.toClinic() }
+        ClinicEntity.all().orderBy(ClinicsTable.name to SortOrder.ASC).map { it.toClinic() }
     }
 
-    fun findClinic(id: String): Clinic? = transaction(database) {
-        ClinicsTable.selectAll().where { ClinicsTable.id eq id }.singleOrNull()?.toClinic()
+    fun findClinic(id: Int): Clinic? = transaction(database) {
+        ClinicEntity.findById(id)?.toClinic()
     }
 
-    fun professionals(specialtyId: String? = null): List<Professional> = transaction(database) {
-        val query = ProfessionalsTable.selectAll()
-        if (specialtyId != null) {
-            query.where { ProfessionalsTable.specialtyId eq specialtyId }
+    fun professionals(specialtyId: Int? = null): List<Professional> = transaction(database) {
+        val professionals = if (specialtyId == null) {
+            ProfessionalEntity.all()
+        } else {
+            ProfessionalEntity.find { ProfessionalsTable.specialty eq specialtyId }
         }
-        query.orderBy(ProfessionalsTable.name).map {
+        professionals.orderBy(ProfessionalsTable.name to SortOrder.ASC).map {
             Professional(
-                id = it[ProfessionalsTable.id],
-                name = it[ProfessionalsTable.name],
-                specialtyId = it[ProfessionalsTable.specialtyId],
-                clinicId = it[ProfessionalsTable.clinicId],
+                id = it.id.value,
+                name = it.name,
+                specialtyId = it.specialtyId.value,
+                clinicId = it.clinicId.value,
             )
         }
     }
 
     /** Slots already taken by appointments that were not cancelled. */
-    fun takenSlots(professionalIds: List<String>, dates: List<LocalDate>): Set<Slot> = transaction(database) {
+    fun takenSlots(professionalIds: List<Int>, dates: List<LocalDate>): Set<Slot> = transaction(database) {
         if (professionalIds.isEmpty() || dates.isEmpty()) {
             return@transaction emptySet()
         }
-        AppointmentsTable.selectAll()
-            .where {
-                (AppointmentsTable.professionalId inList professionalIds) and
-                    (AppointmentsTable.appointmentDate inList dates.map { it.toString() }) and
-                    (AppointmentsTable.status neq STATUS_CANCELLED)
-            }
-            .map {
-                Slot(
-                    professionalId = it[AppointmentsTable.professionalId],
-                    date = LocalDate.parse(it[AppointmentsTable.appointmentDate]),
-                    time = LocalTime.parse(it[AppointmentsTable.appointmentTime]),
-                )
-            }
-            .toSet()
+        AppointmentEntity.find {
+            (AppointmentsTable.professional inList professionalIds) and
+                (AppointmentsTable.date inList dates) and
+                (AppointmentsTable.status neq STATUS_CANCELLED)
+        }.mapTo(mutableSetOf()) { Slot(it.professionalId.value, it.date, it.time) }
     }
 
     /**
-     * Inserts the appointment. Returns false when the slot was taken in the meantime:
-     * the unique slot key rejects the second insert even under concurrent requests.
+     * Inserts the appointment and returns its id. Returns null when the slot was taken in the
+     * meantime: the unique slot key rejects the second insert even under concurrent requests.
      */
-    fun insert(appointment: NewAppointment): Boolean = try {
+    fun insert(appointment: NewAppointment): Int? = try {
         transaction(database) {
-            AppointmentsTable.insert {
-                it[id] = appointment.id
-                it[patientId] = appointment.patientId
-                it[professionalId] = appointment.slot.professionalId
-                it[appointmentDate] = appointment.slot.date.toString()
-                it[appointmentTime] = appointment.slot.time.toColumnText()
-                it[status] = STATUS_PENDING
-                it[reason] = appointment.reason
-                it[notes] = appointment.notes
-                it[createdAt] = appointment.createdAt
-                it[slotKey] = AppointmentsTable.slotKeyOf(
-                    appointment.slot.professionalId,
-                    appointment.slot.date.toString(),
-                    appointment.slot.time.toColumnText(),
-                )
-            }
+            val slot = appointment.slot
+            AppointmentEntity.new {
+                patient = UserEntity[appointment.patientId]
+                professional = ProfessionalEntity[slot.professionalId]
+                date = slot.date
+                time = slot.time
+                status = STATUS_PENDING
+                reason = appointment.reason
+                notes = appointment.notes
+                createdAt = appointment.createdAt
+                slotKey = AppointmentsTable.slotKeyOf(slot.professionalId, slot.date, slot.time)
+            }.id.value
         }
-        true
     } catch (error: ExposedSQLException) {
         // Only a taken slot is a conflict; anything else is a server error and must surface as one.
         if (!error.isUniqueViolation()) {
             throw error
         }
-        false
+        null
     }
 
-    fun appointmentsOf(patientId: String): List<Appointment> = transaction(database) {
-        appointmentQuery()
-            .where { AppointmentsTable.patientId eq patientId }
-            .orderBy(AppointmentsTable.appointmentDate to SortOrder.ASC, AppointmentsTable.appointmentTime to SortOrder.ASC)
+    fun appointmentsOf(patientId: Int): List<Appointment> = transaction(database) {
+        AppointmentEntity.find { AppointmentsTable.patient eq patientId }
+            .orderBy(AppointmentsTable.date to SortOrder.ASC, AppointmentsTable.time to SortOrder.ASC)
+            .withDetails()
             .map { it.toAppointment() }
     }
 
     /**
      * Marks the patient's own appointment as cancelled and clears its slot key, so the slot can
      * be booked again while the appointment stays in the history. Only changes it while its
-     * status is still [expected], so a confirmation that lands in between is not overwritten.
-     * Returns false when nothing was changed.
+     * status is still [expected]: the row is locked when read, so a confirmation that lands in
+     * between is not overwritten. Returns false when nothing was changed.
      */
-    fun cancel(patientId: String, id: String, expected: AppointmentStatus): Boolean = transaction(database) {
-        AppointmentsTable.update({
-            (AppointmentsTable.id eq id) and
-                (AppointmentsTable.patientId eq patientId) and
-                (AppointmentsTable.status eq expected.stored())
-        }) {
-            it[status] = STATUS_CANCELLED
-            it[slotKey] = null
-        } > 0
+    fun cancel(patientId: Int, id: Int, expected: AppointmentStatus): Boolean = transaction(database) {
+        val appointment = AppointmentEntity
+            .find { ownedBy(patientId, id) and (AppointmentsTable.status eq expected.stored()) }
+            .forUpdate()
+            .singleOrNull()
+            ?: return@transaction false
+        appointment.status = STATUS_CANCELLED
+        appointment.slotKey = null
+        true
     }
 
     /** The appointment when it belongs to [patientId], else null. */
-    fun findAppointmentOf(patientId: String, id: String): Appointment? = transaction(database) {
-        appointmentQuery()
-            .where { (AppointmentsTable.id eq id) and (AppointmentsTable.patientId eq patientId) }
-            .singleOrNull()
-            ?.toAppointment()
+    fun findAppointmentOf(patientId: Int, id: Int): Appointment? = transaction(database) {
+        AppointmentEntity.find { ownedBy(patientId, id) }.withDetails().singleOrNull()?.toAppointment()
     }
+
+    fun findAppointment(id: Int): Appointment? = transaction(database) {
+        AppointmentEntity.findById(id)?.toAppointment()
+    }
+
+    private fun ownedBy(patientId: Int, id: Int): Op<Boolean> =
+        (AppointmentsTable.id eq id) and (AppointmentsTable.patient eq patientId)
+
+    /** Loads what [toAppointment] reads in a few queries, instead of one per appointment. */
+    private fun SizedIterable<AppointmentEntity>.withDetails() = with(
+        AppointmentEntity::patient,
+        AppointmentEntity::professional,
+        ProfessionalEntity::specialty,
+        ProfessionalEntity::clinic,
+        AppointmentEntity::preTriages,
+    )
+
+    private fun AppointmentEntity.toAppointment(): Appointment {
+        val professional = professional
+        return Appointment(
+            id = id.value,
+            specialtyName = professional.specialty.name,
+            professionalName = professional.name,
+            clinic = professional.clinic.toClinic(),
+            date = date,
+            time = time,
+            status = when (status) {
+                STATUS_CONFIRMED -> AppointmentStatus.Confirmed
+                STATUS_CANCELLED -> AppointmentStatus.Cancelled
+                else -> AppointmentStatus.Pending
+            },
+            patientName = patient.socialName.ifBlank { patient.fullName },
+            contactPhone = Phone(patient.primaryPhone),
+            reason = reason,
+            notes = notes,
+            preTriageId = preTriages.firstOrNull()?.id?.value,
+        )
+    }
+
+    private fun ClinicEntity.toClinic(): Clinic = Clinic(
+        id = id.value,
+        name = name,
+        city = city,
+        timeZoneId = timeZone,
+    )
 
     private fun AppointmentStatus.stored(): String = when (this) {
         AppointmentStatus.Pending -> STATUS_PENDING
         AppointmentStatus.Confirmed -> STATUS_CONFIRMED
         AppointmentStatus.Cancelled -> STATUS_CANCELLED
     }
-
-    fun findAppointment(id: String): Appointment? = transaction(database) {
-        appointmentQuery()
-            .where { AppointmentsTable.id eq id }
-            .singleOrNull()
-            ?.toAppointment()
-    }
-
-    private fun appointmentQuery() = AppointmentsTable
-        .join(ProfessionalsTable, JoinType.INNER, AppointmentsTable.professionalId, ProfessionalsTable.id)
-        .join(SpecialtiesTable, JoinType.INNER, ProfessionalsTable.specialtyId, SpecialtiesTable.id)
-        .join(ClinicsTable, JoinType.INNER, ProfessionalsTable.clinicId, ClinicsTable.id)
-        .join(UsersTable, JoinType.INNER, AppointmentsTable.patientId, UsersTable.id)
-        .join(PreTriagesTable, JoinType.LEFT, AppointmentsTable.id, PreTriagesTable.appointmentId)
-        .selectAll()
-
-    private fun ResultRow.toAppointment(): Appointment = Appointment(
-        id = this[AppointmentsTable.id],
-        specialtyName = this[SpecialtiesTable.name],
-        professionalName = this[ProfessionalsTable.name],
-        clinic = toClinic(),
-        date = LocalDate.parse(this[AppointmentsTable.appointmentDate]),
-        time = LocalTime.parse(this[AppointmentsTable.appointmentTime]),
-        status = when (this[AppointmentsTable.status]) {
-            STATUS_CONFIRMED -> AppointmentStatus.Confirmed
-            STATUS_CANCELLED -> AppointmentStatus.Cancelled
-            else -> AppointmentStatus.Pending
-        },
-        patientName = this[UsersTable.socialName].ifBlank { this[UsersTable.fullName] },
-        contactPhone = Phone(this[UsersTable.primaryPhone]),
-        reason = this[AppointmentsTable.reason],
-        notes = this[AppointmentsTable.notes],
-        preTriageId = this.getOrNull(PreTriagesTable.id),
-    )
-
-    private fun ResultRow.toClinic(): Clinic = Clinic(
-        id = this[ClinicsTable.id],
-        name = this[ClinicsTable.name],
-        city = this[ClinicsTable.city],
-        timeZoneId = this[ClinicsTable.timeZone],
-    )
-
-    /** `HH:mm`, the column format: text order is time order, and old rows keep matching. */
-    private fun LocalTime.toColumnText(): String =
-        "${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}"
 
     private companion object {
         const val STATUS_PENDING = "pending"

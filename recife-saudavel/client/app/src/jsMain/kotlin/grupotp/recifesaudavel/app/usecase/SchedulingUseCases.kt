@@ -18,9 +18,9 @@ data class SchedulingOptions(
     val professionals: List<Professional>,
     val clinics: List<Clinic>,
 ) {
-    fun professionalsOf(specialtyId: String): List<Professional> = professionals.filter { it.specialtyId == specialtyId }
+    fun professionalsOf(specialtyId: Int): List<Professional> = professionals.filter { it.specialtyId == specialtyId }
 
-    fun clinic(id: String?): Clinic? = clinics.firstOrNull { it.id == id }
+    fun clinic(id: Int?): Clinic? = clinics.firstOrNull { it.id == id }
 }
 
 /**
@@ -54,8 +54,8 @@ class LoadAvailability(
 ) {
     suspend operator fun invoke(
         account: AuthenticatedAccount,
-        specialtyId: String,
-        professionalId: String?,
+        specialtyId: Int,
+        professionalId: Int?,
     ): SchedulingResult<List<ClinicAvailability>> = gateway.availability(account.sessionToken, specialtyId, professionalId)
 }
 
@@ -89,7 +89,7 @@ class CancelAppointment(
     private val gateway: AppointmentGateway,
     private val local: LocalAppointmentGateway,
 ) {
-    suspend operator fun invoke(account: AuthenticatedAccount, appointmentId: String): SchedulingResult<Appointment> {
+    suspend operator fun invoke(account: AuthenticatedAccount, appointmentId: Int): SchedulingResult<Appointment> {
         val result = gateway.cancel(account.sessionToken, appointmentId)
         if (result is SchedulingResult.Success) {
             runCatching {

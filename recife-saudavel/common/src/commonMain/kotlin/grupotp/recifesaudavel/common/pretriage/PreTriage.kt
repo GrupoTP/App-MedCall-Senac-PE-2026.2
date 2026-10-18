@@ -10,8 +10,8 @@ import kotlin.time.Instant
  */
 @Serializable
 data class PreTriage(
-    val id: String,
+    val id: Int,
     val createdAt: Instant,
     val form: PreTriageForm,
-    val appointmentId: String? = null,
+    val appointmentId: Int? = null,
 )

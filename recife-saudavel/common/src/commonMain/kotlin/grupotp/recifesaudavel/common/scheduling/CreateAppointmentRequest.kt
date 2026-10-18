@@ -12,12 +12,12 @@ import kotlinx.serialization.Serializable
  */
 @Serializable
 data class CreateAppointmentRequest(
-    val specialtyId: String,
-    val professionalId: String?,
-    val clinicId: String? = null,
+    val specialtyId: Int,
+    val professionalId: Int?,
+    val clinicId: Int? = null,
     val date: LocalDate,
     val time: LocalTime,
     val reason: String,
     val notes: String,
-    val preTriageId: String? = null,
+    val preTriageId: Int? = null,
 )
