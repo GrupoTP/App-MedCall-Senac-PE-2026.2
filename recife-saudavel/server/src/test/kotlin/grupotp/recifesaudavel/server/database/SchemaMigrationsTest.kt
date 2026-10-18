@@ -43,7 +43,7 @@ class SchemaMigrationsTest {
             SchemaUtils.create(UsersTable, SessionsTable, SpecialtiesTable, ProfessionalsTable, LegacyAppointmentsTable)
         }
         repository = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
-        patient = UserRepository(database).insert(UUID.randomUUID().toString(), registration(), "hash").id
+        patient = UserRepository(database).insert(UUID.randomUUID().toString(), registration(), "hash")!!.id
     }
 
     @AfterTest

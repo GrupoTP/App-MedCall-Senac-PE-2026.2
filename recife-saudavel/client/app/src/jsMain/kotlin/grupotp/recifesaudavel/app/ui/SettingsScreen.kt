@@ -63,7 +63,8 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
     var newPassword by useState("")
     var confirmPassword by useState("")
     var passwordError by useState<String?>(null)
-    var passwordChanged by useState(false)
+    var passwordChanged by useState<String?>(null)
+    var askingOtherSessions by useState(false)
     var confirmingDeletion by useState(false)
     val scope = useScreenScope()
 
@@ -86,7 +87,7 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
         problem = null
         saved = false
         passwordError = null
-        passwordChanged = false
+        passwordChanged = null
         confirmingDeletion = false
         props.onTab(tab)
     }
@@ -117,11 +118,12 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
         }
     }
 
+    // Checks the form here, then asks about the other sessions before anything is sent.
     fun submitPassword() {
         if (busy) {
             return
         }
-        passwordChanged = false
+        passwordChanged = null
         problem = null
         when {
             currentPassword.isEmpty() || newPassword.isEmpty() -> {
@@ -134,14 +136,27 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
             }
         }
         passwordError = null
+        askingOtherSessions = true
+    }
+
+    fun sendPassword(signOutOtherSessions: Boolean) {
+        askingOtherSessions = false
+        if (busy) {
+            return
+        }
         busy = true
         scope.launch {
-            when (val result = props.changePassword(props.account, currentPassword, newPassword)) {
+            val result = props.changePassword(props.account, currentPassword, newPassword, signOutOtherSessions)
+            when (result) {
                 is SchedulingResult.Success -> {
                     currentPassword = ""
                     newPassword = ""
                     confirmPassword = ""
-                    passwordChanged = true
+                    passwordChanged = if (signOutOtherSessions) {
+                        "Senha alterada. As sessões nos outros aparelhos foram encerradas."
+                    } else {
+                        "Senha alterada com sucesso."
+                    }
                 }
                 is SchedulingResult.Failed -> when (val error = result.error) {
                     is SchedulingError.Rejected -> passwordError = error.message
@@ -171,10 +186,8 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
         busy = true
         problem = null
         scope.launch {
-            handle(props.requestAccountDeletion(props.account)) {
-                profile = it
-                confirmingDeletion = false
-            }
+            // The server ended every session of the account, so this device leaves too.
+            handle(props.requestAccountDeletion(props.account)) { props.onLogout() }
             busy = false
         }
     }
@@ -274,6 +287,17 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
             }
         }
         AppFooter()
+        confirmDialog(
+            visible = askingOtherSessions,
+            title = "Encerrar outras sessões?",
+            message = "Se você entrou no Recife Saudável em outro aparelho, podemos encerrar essas sessões " +
+                "junto com a troca de senha. Este aparelho continua conectado.",
+            confirmText = "Sim, encerrar",
+            declineText = "Não, manter",
+            onConfirm = { sendPassword(signOutOtherSessions = true) },
+            onDecline = { sendPassword(signOutOtherSessions = false) },
+            onDismiss = { askingOtherSessions = false },
+        )
     }
 }
 
@@ -387,7 +411,7 @@ private fun ChildrenBuilder.securityTab(
     newPassword: String,
     confirmPassword: String,
     passwordError: String?,
-    passwordChanged: Boolean,
+    passwordChanged: String?,
     confirmingDeletion: Boolean,
     onCurrent: (String) -> Unit,
     onNew: (String) -> Unit,
@@ -430,9 +454,7 @@ private fun ChildrenBuilder.securityTab(
             }
         }
         passwordError?.let { errorAlert(it) }
-        if (passwordChanged) {
-            infoAlert("Senha alterada com sucesso.") { checkIcon(it) }
-        }
+        passwordChanged?.let { message -> infoAlert(message) { checkIcon(it) } }
         secondaryButton(if (busy) "Aguarde…" else "Alterar senha", onPress = onSubmitPassword)
     }
     View {
@@ -461,7 +483,7 @@ private fun ChildrenBuilder.securityTab(
             Text {
                 style = Styles.noteText
                 accessibilityRole = "alert"
-                +"Deseja solicitar a exclusão da sua conta?"
+                +"Deseja solicitar a exclusão da sua conta? A sessão será encerrada em todos os aparelhos."
             }
             View {
                 style = Styles.buttonRow

@@ -19,6 +19,7 @@ sealed interface AccountResult {
 class AccountService(
     private val users: UserRepository,
     private val passwords: PasswordHasher,
+    private val sessions: SessionService,
     private val clock: Clock,
 ) {
     fun profile(userId: String): AccountProfile? = users.findAccountProfile(userId)
@@ -26,12 +27,14 @@ class AccountService(
     fun update(userId: String, request: UpdateProfileRequest): AccountResult {
         validate(request)?.let { return AccountResult.Rejected(it) }
         if (users.emailTakenByOther(request.email.trim().lowercase(), userId)) {
-            return AccountResult.Rejected("E-mail já cadastrado.")
+            return AccountResult.Rejected(EMAIL_TAKEN)
         }
         if (users.findAccountProfile(userId) == null) {
             return AccountResult.UnknownUser
         }
-        users.updateProfile(userId, request)
+        if (!users.updateProfile(userId, request)) {
+            return AccountResult.Rejected(EMAIL_TAKEN)
+        }
         return reloaded(userId)
     }
 
@@ -43,7 +46,11 @@ class AccountService(
         return reloaded(userId)
     }
 
-    fun changePassword(userId: String, request: ChangePasswordRequest): AccountResult {
+    /**
+     * @param keepToken session making the request. With [ChangePasswordRequest.signOutOtherSessions]
+     * every other session of the account ends, and this one stays.
+     */
+    fun changePassword(userId: String, request: ChangePasswordRequest, keepToken: String?): AccountResult {
         val stored = users.findPasswordHash(userId) ?: return AccountResult.UnknownUser
         return when {
             !passwords.verify(request.currentPassword, stored) -> AccountResult.Rejected("Senha atual incorreta.")
@@ -52,21 +59,27 @@ class AccountService(
                 AccountResult.Rejected("A nova senha precisa ser diferente da atual.")
             else -> {
                 users.updatePasswordHash(userId, passwords.hash(request.newPassword))
+                if (request.signOutOtherSessions) {
+                    sessions.revokeAll(userId, keepToken = keepToken)
+                }
                 reloaded(userId)
             }
         }
     }
 
     /**
-     * Records that the person asked to delete the account. Nothing is removed here: the deletion
-     * follows the legal retention period and is handled by the clinic. Asking twice keeps the first date.
+     * Records that the person asked to delete the account and ends every session of it, this one
+     * included. Nothing is removed here: the deletion follows the legal retention period and is
+     * handled by the clinic. Asking twice keeps the first date.
      */
     fun requestDeletion(userId: String): AccountResult {
         val current = users.findAccountProfile(userId) ?: return AccountResult.UnknownUser
         if (current.deletionRequestedAt == null) {
             users.recordDeletionRequest(userId, clock.millis())
         }
-        return reloaded(userId)
+        val result = reloaded(userId)
+        sessions.revokeAll(userId)
+        return result
     }
 
     private fun reloaded(userId: String): AccountResult =
@@ -81,5 +94,6 @@ class AccountService(
 
     private companion object {
         const val MIN_PASSWORD = 6
+        const val EMAIL_TAKEN = "E-mail já cadastrado."
     }
 }

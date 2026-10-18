@@ -27,15 +27,16 @@ class AuthService(
     fun register(request: RegisterAccountRequest): RegistrationResult {
         validate(request)?.let { return RegistrationResult.Rejected(it) }
         val email = request.email.trim().lowercase()
+        // Answers the common case without paying for the password hash; insert covers the race.
         if (users.findByEmail(email) != null) {
-            return RegistrationResult.Rejected("E-mail já cadastrado.")
+            return RegistrationResult.Rejected(EMAIL_TAKEN)
         }
         val account = users.insert(
             id = UUID.randomUUID().toString(),
             request = request,
             passwordHash = passwords.hash(request.password),
             now = clock.millis(),
-        )
+        ) ?: return RegistrationResult.Rejected(EMAIL_TAKEN)
         return RegistrationResult.Created(account.withSession())
     }
 
@@ -44,6 +45,9 @@ class AuthService(
         val user = users.findByEmail(email)
         if (user == null || !passwords.verify(request.password, user.passwordHash)) {
             return SignInResult.Rejected("E-mail ou senha incorretos.")
+        }
+        if (passwords.needsRehash(user.passwordHash)) {
+            users.updatePasswordHash(user.account.id, passwords.hash(request.password))
         }
         users.recordLogin(user.account.id, clock.millis())
         return SignInResult.Authenticated(user.account.withSession())
@@ -65,5 +69,9 @@ class AuthService(
         !request.acceptedPrivacyPolicy -> "Leitura da Política de Privacidade é obrigatória."
         !request.acceptedTreatment -> "Consentimento de tratamento de dados é necessário."
         else -> null
+    }
+
+    private companion object {
+        const val EMAIL_TAKEN = "E-mail já cadastrado."
     }
 }

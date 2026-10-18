@@ -6,6 +6,7 @@ import grupotp.recifesaudavel.common.AvailableDay
 import grupotp.recifesaudavel.common.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.Professional
 import grupotp.recifesaudavel.common.Specialty
+import grupotp.recifesaudavel.common.isCancellableAt
 import grupotp.recifesaudavel.server.repository.NewAppointment
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
@@ -15,6 +16,7 @@ import java.time.DayOfWeek
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.UUID
 
@@ -26,6 +28,16 @@ sealed interface BookingResult {
 
     /** Valid request, but someone took the slot first. */
     data class Conflict(val message: String) : BookingResult
+}
+
+sealed interface CancelResult {
+    data class Cancelled(val appointment: Appointment) : CancelResult
+
+    /** No appointment with this id belongs to the patient. */
+    data object NotFound : CancelResult
+
+    /** Already cancelled, or confirmed and already started. */
+    data class NotCancellable(val message: String) : CancelResult
 }
 
 /**
@@ -124,12 +136,14 @@ class SchedulingService(
 
     fun appointmentsOf(patientId: String): List<Appointment> = repository.appointmentsOf(patientId)
 
-    /** Cancels the patient's own appointment. Null when it does not exist or is not theirs. */
-    fun cancel(patientId: String, appointmentId: String): Appointment? {
-        if (!repository.cancel(patientId, appointmentId)) {
-            return null
+    /** Cancels the patient's own appointment when [isCancellableAt] allows it. */
+    fun cancel(patientId: String, appointmentId: String): CancelResult {
+        val current = repository.findAppointmentOf(patientId, appointmentId) ?: return CancelResult.NotFound
+        val now = LocalDateTime.now(clock).format(MINUTE_FORMAT)
+        if (!current.isCancellableAt(now) || !repository.cancel(patientId, appointmentId, current.status)) {
+            return CancelResult.NotCancellable("Esta consulta não pode mais ser cancelada.")
         }
-        return repository.findAppointment(appointmentId)
+        return CancelResult.Cancelled(repository.findAppointment(appointmentId)!!)
     }
 
     private fun candidates(specialtyId: String, professionalId: String?): List<Professional>? {
@@ -159,6 +173,7 @@ class SchedulingService(
 
     companion object {
         const val BOOKING_WINDOW_DAYS = 14
+        private val MINUTE_FORMAT: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm")
         const val MAX_TEXT = 1000
 
         /** Same times as the prototype. */

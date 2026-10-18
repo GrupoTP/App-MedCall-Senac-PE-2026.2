@@ -11,6 +11,10 @@ interface LocalAccountGateway {
 
     suspend fun load(): AuthenticatedAccount?
 
-    /** Forgets the profile and every local copy tied to it, such as the appointments. */
+    /**
+     * Wipes the local database: the profile, its token and every copy tied to it, such as the
+     * appointments. Only the [PendingSignOutGateway] queue stays, so an offline sign-out still
+     * reaches the server later.
+     */
     suspend fun clear()
 }

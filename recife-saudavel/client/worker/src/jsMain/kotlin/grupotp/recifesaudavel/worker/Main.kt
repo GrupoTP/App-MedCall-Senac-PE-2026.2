@@ -31,11 +31,11 @@ private val json = Json { ignoreUnknownKeys = true }
 private val background = CoroutineScope(SupervisorJob())
 
 fun main() {
-    val router = WorkerRequestRouter()
     val shell = ShellCache()
     val accounts = LocalAccountDatabase()
 
     ServiceWorkerModule { self ->
+        val router = WorkerRequestRouter(origin = self.location.origin)
         val onInstall: (ExtendableEvent) -> Unit = { event ->
             event.waitUntil(
                 workerPromise {

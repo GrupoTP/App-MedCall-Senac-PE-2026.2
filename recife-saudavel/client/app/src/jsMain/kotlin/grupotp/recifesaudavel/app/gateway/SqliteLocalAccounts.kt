@@ -20,7 +20,7 @@ private const val CREATE_ACCOUNTS =
     "CREATE TABLE IF NOT EXISTS accounts (key TEXT PRIMARY KEY NOT NULL, value TEXT NOT NULL)"
 private const val SAVE_ACCOUNT = "INSERT OR REPLACE INTO accounts (key, value) VALUES (?, ?)"
 private const val LOAD_ACCOUNT = "SELECT value FROM accounts WHERE key = ?"
-private const val CLEAR_ACCOUNTS = "DELETE FROM accounts WHERE key = ?"
+private const val CLEAR_ACCOUNTS_EXCEPT = "DELETE FROM accounts WHERE key <> ?"
 private const val PENDING_SIGN_OUTS_KEY = "pending-sign-outs"
 
 private const val CREATE_APPOINTMENTS =
@@ -58,10 +58,11 @@ class SqliteLocalAccounts(
         return json.decodeFromString(stored.value)
     }
 
+    /** Wipes every table, keeping only the sign-outs that still have to reach the server. */
     override suspend fun clear() {
         val opened = open()
         opened.execAsync(CLEAR_APPOINTMENTS).await()
-        opened.runAsync(CLEAR_ACCOUNTS, arrayOf(SIGNED_IN_KEY)).await()
+        opened.runAsync(CLEAR_ACCOUNTS_EXCEPT, arrayOf(PENDING_SIGN_OUTS_KEY)).await()
     }
 
     override suspend fun loadPendingSignOuts(): List<String> {

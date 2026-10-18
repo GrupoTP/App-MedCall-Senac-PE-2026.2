@@ -15,6 +15,7 @@ private const val ACCOUNT_STORE = "accounts"
 private const val APPOINTMENT_STORE = "appointments"
 private const val SIGNED_IN_KEY = "signed-in"
 private const val PENDING_SIGN_OUTS_KEY = "pending-sign-outs"
+private val STORES = listOf(ACCOUNT_STORE, APPOINTMENT_STORE)
 
 /**
  * IndexedDB of the signed-in registration profile and of its appointments, keyed by account id.
@@ -50,10 +51,19 @@ class LocalAccountDatabase(
         withStore(ACCOUNT_STORE, READ_WRITE) { store -> await(store.put(tokensJson, PENDING_SIGN_OUTS_KEY)) }
     }
 
-    /** Forgets the profile and the appointments. */
+    /**
+     * Wipes everything the device keeps, except the sign-outs that still have to reach the server.
+     * Every other key of the accounts store goes too, so data added later is not left behind.
+     */
     suspend fun clear() {
-        withStore(ACCOUNT_STORE, READ_WRITE) { store -> await(store.delete(SIGNED_IN_KEY)) }
-        withStore(APPOINTMENT_STORE, READ_WRITE) { store -> await(store.clear()) }
+        withStore(ACCOUNT_STORE, READ_WRITE) { store ->
+            // Queue both before suspending: the transaction commits once it has no pending request.
+            store.delete(IDBKeyRange.upperBound(PENDING_SIGN_OUTS_KEY, true))
+            await(store.delete(IDBKeyRange.lowerBound(PENDING_SIGN_OUTS_KEY, true)))
+        }
+        for (name in STORES - ACCOUNT_STORE) {
+            withStore(name, READ_WRITE) { store -> await(store.clear()) }
+        }
     }
 
     /** Keeps only the latest list of one account, so another person on the device never sees it. */
@@ -89,7 +99,7 @@ class LocalAccountDatabase(
         val request = indexedDB.open(DATABASE_NAME, DATABASE_VERSION)
         request.onupgradeneeded = {
             val database = request.result
-            for (store in listOf(ACCOUNT_STORE, APPOINTMENT_STORE)) {
+            for (store in STORES) {
                 if (!database.objectStoreNames.contains(store)) {
                     database.createObjectStore(store)
                 }
@@ -148,7 +158,13 @@ private external interface IdbStore {
     fun put(value: String, key: String): IdbResultRequest
     fun get(key: String): IdbResultRequest
     fun clear(): IdbResultRequest
-    fun delete(key: String): IdbResultRequest
+    /** [key] is a key or an [IDBKeyRange]. */
+    fun delete(key: Any): IdbResultRequest
+}
+
+private external object IDBKeyRange {
+    fun lowerBound(lower: String, open: Boolean): Any
+    fun upperBound(upper: String, open: Boolean): Any
 }
 
 private external interface IdbResultRequest {

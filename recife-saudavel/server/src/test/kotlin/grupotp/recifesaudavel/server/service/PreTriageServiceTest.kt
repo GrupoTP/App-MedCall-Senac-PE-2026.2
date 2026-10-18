@@ -63,8 +63,8 @@ class PreTriageServiceTest {
         users = UserRepository(database)
         service = PreTriageService(preTriages, users, appointments, clock)
         scheduling = SchedulingService(appointments, clock, preTriages)
-        maria = users.insert(UUID.randomUUID().toString(), registration("maria@email.com"), "hash").id
-        ana = users.insert(UUID.randomUUID().toString(), registration("ana@email.com"), "hash").id
+        maria = users.insert(UUID.randomUUID().toString(), registration("maria@email.com"), "hash")!!.id
+        ana = users.insert(UUID.randomUUID().toString(), registration("ana@email.com"), "hash")!!.id
     }
 
     @AfterTest

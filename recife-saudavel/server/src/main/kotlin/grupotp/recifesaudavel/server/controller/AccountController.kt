@@ -32,7 +32,7 @@ fun Application.configureAccountController() {
                 val userId = call.authenticatedUserId(sessions) ?: return@get
                 val profile = accounts.profile(userId)
                 if (profile == null) {
-                    call.respondUnknownUser()
+                    call.respondSessionExpired()
                 } else {
                     call.respond(profile)
                 }
@@ -48,7 +48,8 @@ fun Application.configureAccountController() {
             }
             post("/password") {
                 val userId = call.authenticatedUserId(sessions) ?: return@post
-                call.respondResult(accounts.changePassword(userId, call.receive<ChangePasswordRequest>()))
+                val request = call.receive<ChangePasswordRequest>()
+                call.respondResult(accounts.changePassword(userId, request, keepToken = call.bearerToken()))
             }
             post("/deletion-request") {
                 val userId = call.authenticatedUserId(sessions) ?: return@post
@@ -62,10 +63,6 @@ private suspend fun ApplicationCall.respondResult(result: AccountResult) {
     when (result) {
         is AccountResult.Done -> respond(result.profile)
         is AccountResult.Rejected -> respond(HttpStatusCode.BadRequest, ApiError(result.message))
-        AccountResult.UnknownUser -> respondUnknownUser()
+        AccountResult.UnknownUser -> respondSessionExpired()
     }
-}
-
-private suspend fun ApplicationCall.respondUnknownUser() {
-    respond(HttpStatusCode.Unauthorized, ApiError("Sua sessão expirou. Entre de novo para continuar."))
 }

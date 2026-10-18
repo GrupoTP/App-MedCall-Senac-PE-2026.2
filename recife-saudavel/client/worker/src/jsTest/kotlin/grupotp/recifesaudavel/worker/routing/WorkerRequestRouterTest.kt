@@ -5,11 +5,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
+private const val ORIGIN = "http://localhost:8081"
+
 class WorkerRequestRouterTest {
     @Test
     fun thePageComesFromTheNetworkFirst() {
         // Arrange
-        val router = WorkerRequestRouter()
+        val router = WorkerRequestRouter(ORIGIN)
 
         // Act
         val routes = listOf(
@@ -24,7 +26,7 @@ class WorkerRequestRouterTest {
     @Test
     fun essentialFilesAndExpoBuildOutputGoToTheShellCache() {
         // Arrange
-        val router = WorkerRequestRouter()
+        val router = WorkerRequestRouter(ORIGIN)
 
         // Act
         val routes = listOf(
@@ -42,7 +44,7 @@ class WorkerRequestRouterTest {
     @Test
     fun metroDevelopmentBundleIsLeftToTheBrowser() {
         // Arrange
-        val router = WorkerRequestRouter()
+        val router = WorkerRequestRouter(ORIGIN)
 
         // Act
         val route = router.route("http://localhost:8081/index.bundle?platform=web&dev=true")
@@ -54,7 +56,7 @@ class WorkerRequestRouterTest {
     @Test
     fun buildOutputKeepsTheQueryInTheCacheKey() {
         // Arrange
-        val router = WorkerRequestRouter()
+        val router = WorkerRequestRouter(ORIGIN)
 
         // Act
         val icon = router.cacheKey("http://localhost:8081/icons/icon-512.png?v=1")
@@ -90,12 +92,12 @@ class WorkerRequestRouterTest {
     @Test
     fun serverAndHealthResponsesAreNeverCached() {
         // Arrange
-        val router = WorkerRequestRouter()
+        val router = WorkerRequestRouter(ORIGIN)
 
         // Act
-        val login = router.route("http://localhost:8080/api/v1/auth/login")
-        val health = router.route("http://localhost:8080/healthz")
-        val ready = router.route("http://localhost:8080/readyz")
+        val login = router.route("$ORIGIN/api/v1/auth/login")
+        val health = router.route("$ORIGIN/healthz")
+        val ready = router.route("$ORIGIN/readyz")
 
         // Assert
         assertEquals(WorkerRoute.Server, login)
@@ -105,9 +107,28 @@ class WorkerRequestRouterTest {
     }
 
     @Test
+    fun otherOriginsAreLeftToTheBrowserWhateverThePath() {
+        // Arrange
+        val router = WorkerRequestRouter(ORIGIN)
+
+        // Act
+        val routes = listOf(
+            "http://localhost:8080/api/v1/auth/login",
+            "https://api.recifesaudavel.example/api/v1/appointments",
+            "https://api.recifesaudavel.example/",
+            "https://cdn.example.com/assets/font.ttf",
+            "https://other.example/local/account",
+            "http://localhost:8082/local/pending-sign-outs",
+        ).map(router::route)
+
+        // Assert
+        assertTrue(routes.all { it == WorkerRoute.Ignore })
+    }
+
+    @Test
     fun signedInProfileUsesTheLocalDatabase() {
         // Arrange
-        val router = WorkerRequestRouter()
+        val router = WorkerRequestRouter(ORIGIN)
 
         // Act
         val route = router.route("http://localhost:8081/local/account")
@@ -119,7 +140,7 @@ class WorkerRequestRouterTest {
     @Test
     fun appointmentsUseTheLocalDatabaseWithTheAccountInTheQuery() {
         // Arrange
-        val router = WorkerRequestRouter()
+        val router = WorkerRequestRouter(ORIGIN)
         val url = "http://localhost:8081/local/appointments?account=a1%2Fb2&x=1"
 
         // Act
@@ -136,7 +157,7 @@ class WorkerRequestRouterTest {
     @Test
     fun pendingSignOutsHaveTheirOwnLocalRoute() {
         // Arrange
-        val router = WorkerRequestRouter()
+        val router = WorkerRequestRouter(ORIGIN)
 
         // Act
         val route = router.route("http://localhost:8081/local/pending-sign-outs")

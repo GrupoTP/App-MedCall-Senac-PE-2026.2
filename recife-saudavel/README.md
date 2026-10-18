@@ -10,7 +10,9 @@ O botão Agendar abre o fluxo do protótipo em três etapas (especialidade e pro
 
 O agendamento só funciona com internet. Sem conexão, o cartão Agendar aparece como indisponível e o fluxo nunca confirma uma consulta que o servidor não gravou. As consultas já marcadas continuam visíveis offline, na tela inicial e em Minhas consultas: cada lista recebida do servidor substitui a cópia guardada no aparelho, que só guarda as consultas da última conta conectada.
 
-As rotas de paciente (`/api/v1/professionals`, `/availability` e `/appointments`) exigem `Authorization: Bearer <token>`. O login e o cadastro devolvem esse token em `sessionToken`, junto com a conta; o servidor guarda só o hash SHA-256 dele. Se o servidor recusar o token, o app pede para entrar de novo e apaga do aparelho a conta e as consultas.
+As rotas de paciente (`/api/v1/professionals`, `/availability` e `/appointments`) exigem `Authorization: Bearer <token>`. O login e o cadastro devolvem esse token em `sessionToken`, junto com a conta; o servidor guarda só o hash SHA-256 dele. O token vale 30 dias a partir do login. Trocar a senha pode encerrar as sessões dos outros aparelhos (o app pergunta), e pedir a exclusão da conta encerra todas. Se o servidor recusar o token, o app pede para entrar de novo e apaga o banco local do aparelho. Só fica a fila de logouts feitos offline, enviada ao servidor quando a conexão volta.
+
+As senhas são guardadas com PBKDF2-HMAC-SHA256 (600.000 iterações), no formato `pbkdf2-sha256$<iterações>$<salt>$<hash>`. Bancos criados antes desse formato precisam ser apagados (`server/data`), porque as contas antigas não conseguem mais entrar.
 
 ## Módulos
 
@@ -46,6 +48,14 @@ Na pasta `recife-saudavel`:
 O servidor responde em `http://localhost:8080/healthz` e `http://localhost:8080/readyz`.
 
 O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de execução do servidor. Para apontar outro lugar, defina `DATABASE_JDBC_URL`, `DATABASE_DRIVER`, `DATABASE_USER` e `DATABASE_PASSWORD`.
+
+O navegador só pode chamar a API a partir das origens em `CORS_ALLOWED_ORIGINS`, separadas por vírgula (padrão: `http://localhost:8081`). O app Android não envia origem e não depende dessa lista.
+
+O cliente usa `API_BASE_URL` como endereço do servidor, lida pelo `client/expo/app.config.js` quando o Metro sobe ou quando o app é exportado. Sem ela, o cliente chama a porta 8080 da máquina que serve o bundle. Exemplo de build para outro ambiente:
+
+```bash
+API_BASE_URL=https://api.exemplo.com ./gradlew :client:expo:exportWeb
+```
 
 #### Servidor em desenvolvimento
 

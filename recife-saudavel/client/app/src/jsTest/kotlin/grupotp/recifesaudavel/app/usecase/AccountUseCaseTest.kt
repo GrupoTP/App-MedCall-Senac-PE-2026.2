@@ -99,13 +99,13 @@ class AccountUseCaseTest {
         val gateway = FakeAccountGateway(SchedulingResult.Success(profile))
 
         // Act
-        ChangePassword(gateway)(account, "segredo", "novasenha")
+        ChangePassword(gateway)(account, "segredo", "novasenha", signOutOtherSessions = true)
         UpdateNotificationConsent(gateway)(account, true)
         RequestAccountDeletion(gateway)(account)
 
         // Assert
         assertEquals(listOf("token", "token", "token"), gateway.tokens)
-        assertEquals(ChangePasswordRequest("segredo", "novasenha"), gateway.passwordRequest)
+        assertEquals(ChangePasswordRequest("segredo", "novasenha", signOutOtherSessions = true), gateway.passwordRequest)
         assertEquals(UpdateConsentsRequest(wantsNotifications = true), gateway.consentRequest)
     }
 

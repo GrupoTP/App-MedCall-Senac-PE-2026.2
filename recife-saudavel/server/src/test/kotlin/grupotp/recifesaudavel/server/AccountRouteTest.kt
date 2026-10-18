@@ -120,7 +120,9 @@ class AccountRouteTest {
     fun optionalConsentAndDeletionRequestArePersisted() = testApplication {
         // Arrange
         useApplicationConfig()
-        val account = register("consent.${System.nanoTime()}@email.com")
+        val email = "consent.${System.nanoTime()}@email.com"
+        val account = register(email)
+        val otherDevice = decode<AuthenticatedAccount>(signIn(email, "segredo"))
 
         // Act
         val consent = client.put("/api/v1/account/consents") {
@@ -128,22 +130,42 @@ class AccountRouteTest {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(UpdateConsentsRequest(wantsNotifications = true)))
         }
-        val first = client.post("/api/v1/account/deletion-request") {
-            bearerAuth(account.sessionToken)
-            contentType(ContentType.Application.Json)
-            setBody("{}")
-        }
-        val second = client.post("/api/v1/account/deletion-request") {
-            bearerAuth(account.sessionToken)
-            contentType(ContentType.Application.Json)
-            setBody("{}")
-        }
+        val first = requestDeletion(account)
+        val sameSession = client.get("/api/v1/account") { bearerAuth(account.sessionToken) }
+        val otherSession = client.get("/api/v1/account") { bearerAuth(otherDevice.sessionToken) }
+        val again = decode<AuthenticatedAccount>(signIn(email, "segredo"))
+        val second = requestDeletion(again)
 
         // Assert
         assertTrue(decode<AccountProfile>(consent).wantsNotifications)
         val firstDate = decode<AccountProfile>(first).deletionRequestedAt
         assertNotNull(firstDate)
+        assertEquals(HttpStatusCode.Unauthorized, sameSession.status)
+        assertEquals(HttpStatusCode.Unauthorized, otherSession.status)
         assertEquals(firstDate, decode<AccountProfile>(second).deletionRequestedAt)
+    }
+
+    @Test
+    fun changingThePasswordCanEndTheOtherSessionsOnly() = testApplication {
+        // Arrange
+        useApplicationConfig()
+        val email = "sessoes.${System.nanoTime()}@email.com"
+        val account = register(email)
+        val otherDevice = decode<AuthenticatedAccount>(signIn(email, "segredo"))
+
+        // Act
+        val kept = changePassword(account, "segredo", "novasenha")
+        val otherAfterKeeping = client.get("/api/v1/account") { bearerAuth(otherDevice.sessionToken) }
+        val ended = changePassword(account, "novasenha", "outrasenha", signOutOtherSessions = true)
+        val otherAfterEnding = client.get("/api/v1/account") { bearerAuth(otherDevice.sessionToken) }
+        val thisAfterEnding = client.get("/api/v1/account") { bearerAuth(account.sessionToken) }
+
+        // Assert
+        assertEquals(HttpStatusCode.OK, kept.status)
+        assertEquals(HttpStatusCode.OK, otherAfterKeeping.status)
+        assertEquals(HttpStatusCode.OK, ended.status)
+        assertEquals(HttpStatusCode.Unauthorized, otherAfterEnding.status)
+        assertEquals(HttpStatusCode.OK, thisAfterEnding.status)
     }
 
     @Test
@@ -198,11 +220,19 @@ class AccountRouteTest {
         account: AuthenticatedAccount,
         current: String,
         next: String,
+        signOutOtherSessions: Boolean = false,
     ) = client.post("/api/v1/account/password") {
         bearerAuth(account.sessionToken)
         contentType(ContentType.Application.Json)
-        setBody(Json.encodeToString(ChangePasswordRequest(currentPassword = current, newPassword = next)))
+        setBody(Json.encodeToString(ChangePasswordRequest(current, next, signOutOtherSessions)))
     }
+
+    private suspend fun ApplicationTestBuilder.requestDeletion(account: AuthenticatedAccount) =
+        client.post("/api/v1/account/deletion-request") {
+            bearerAuth(account.sessionToken)
+            contentType(ContentType.Application.Json)
+            setBody("{}")
+        }
 
     private suspend inline fun <reified T> decode(response: HttpResponse): T =
         Json { ignoreUnknownKeys = true }.decodeFromString(response.bodyAsText())

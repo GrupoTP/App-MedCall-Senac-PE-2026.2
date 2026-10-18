@@ -78,14 +78,20 @@ class UpdateNotificationConsent(
 class ChangePassword(
     private val gateway: AccountGateway,
 ) {
+    /** @param signOutOtherSessions also end the account's sessions on other devices; this one stays. */
     suspend operator fun invoke(
         account: AuthenticatedAccount,
         currentPassword: String,
         newPassword: String,
+        signOutOtherSessions: Boolean,
     ): SchedulingResult<AccountProfile> =
-        gateway.changePassword(account.sessionToken, ChangePasswordRequest(currentPassword, newPassword))
+        gateway.changePassword(
+            account.sessionToken,
+            ChangePasswordRequest(currentPassword, newPassword, signOutOtherSessions),
+        )
 }
 
+/** The server also ends every session of the account, this one included. */
 class RequestAccountDeletion(
     private val gateway: AccountGateway,
 ) {

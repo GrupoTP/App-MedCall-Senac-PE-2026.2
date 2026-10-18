@@ -7,7 +7,6 @@ import grupotp.recifesaudavel.server.service.AuthService
 import grupotp.recifesaudavel.server.service.RegistrationResult
 import grupotp.recifesaudavel.server.service.SignInResult
 import grupotp.recifesaudavel.server.service.SessionService
-import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.request.receive
@@ -32,21 +31,16 @@ fun Application.configureAuthController() {
                 }
             }
             get("/me") {
-                val header = call.request.headers[HttpHeaders.Authorization].orEmpty()
-                val userId = header.removePrefix("Bearer ").trim().takeIf { header.startsWith("Bearer ") }
-                    ?.let { sessions.userIdFor(it) }
-                val account = userId?.let { authService.profileOf(it) }
+                val userId = call.authenticatedUserId(sessions) ?: return@get
+                val account = authService.profileOf(userId)
                 if (account == null) {
-                    call.respond(HttpStatusCode.Unauthorized, ApiError("Sua sessão expirou. Entre de novo para continuar."))
+                    call.respondSessionExpired()
                 } else {
                     call.respond(account)
                 }
             }
             post("/logout") {
-                val header = call.request.headers[HttpHeaders.Authorization].orEmpty()
-                if (header.startsWith("Bearer ")) {
-                    sessions.revoke(header.removePrefix("Bearer ").trim())
-                }
+                call.bearerToken()?.let(sessions::revoke)
                 call.respond(HttpStatusCode.OK, buildJsonObject { })
             }
             post("/login") {

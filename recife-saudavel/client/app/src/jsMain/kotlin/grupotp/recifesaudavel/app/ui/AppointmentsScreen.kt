@@ -8,6 +8,7 @@ import grupotp.recifesaudavel.app.usecase.toCancellationMessage
 import grupotp.recifesaudavel.app.usecase.ListAppointments
 import grupotp.recifesaudavel.common.Appointment
 import grupotp.recifesaudavel.common.AppointmentStatus
+import grupotp.recifesaudavel.common.isCancellableAt
 import grupotp.recifesaudavel.common.AuthenticatedAccount
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.Pressable
@@ -196,7 +197,7 @@ private fun ChildrenBuilder.appointmentCard(
                 +"Pré-triagem vinculada"
             }
         }
-        if (appointment.status != AppointmentStatus.Cancelled) {
+        if (appointment.isCancellableAt(localNow())) {
             if (confirming) {
                 Text {
                     style = Styles.appointmentMetaText

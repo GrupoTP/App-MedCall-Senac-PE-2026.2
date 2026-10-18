@@ -5,7 +5,7 @@ import kotlinx.coroutines.sync.withLock
 
 /**
  * Session tokens whose sign-out could not reach the server, kept on the device until they can.
- * Survives [LocalAccountGateway.clear], which only forgets the profile.
+ * The only data that survives [LocalAccountGateway.clear], which wipes everything else.
  */
 interface PendingSignOutGateway {
     suspend fun loadPendingSignOuts(): List<String>

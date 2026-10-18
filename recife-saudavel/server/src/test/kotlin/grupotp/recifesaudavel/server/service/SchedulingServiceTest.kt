@@ -17,6 +17,7 @@ import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
+import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.time.Clock
@@ -62,8 +63,8 @@ class SchedulingServiceTest {
         val repository = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
         service = SchedulingService(repository, clock, PreTriageRepository(database))
         val users = UserRepository(database)
-        maria = users.insert(UUID.randomUUID().toString(), registration("maria@email.com", "Graça"), "hash").id
-        ana = users.insert(UUID.randomUUID().toString(), registration("ana@email.com", ""), "hash").id
+        maria = users.insert(UUID.randomUUID().toString(), registration("maria@email.com", "Graça"), "hash")!!.id
+        ana = users.insert(UUID.randomUUID().toString(), registration("ana@email.com", ""), "hash")!!.id
     }
 
     @AfterTest
@@ -135,6 +136,54 @@ class SchedulingServiceTest {
     }
 
     @Test
+    fun aPendingAppointmentCanBeCancelledEvenAfterItsTime() {
+        // Arrange: Friday before the fixed clock, never confirmed by the clinic.
+        val id = storeAppointment(maria, date = "2026-10-09", status = "pending")
+
+        // Act
+        val result = service.cancel(maria, id)
+
+        // Assert
+        assertEquals(AppointmentStatus.Cancelled, assertIs<CancelResult.Cancelled>(result).appointment.status)
+    }
+
+    @Test
+    fun aConfirmedAppointmentCanOnlyBeCancelledBeforeItStarts() {
+        // Arrange
+        val past = storeAppointment(maria, date = "2026-10-12", time = "10:00", status = "confirmed")
+        val future = storeAppointment(maria, date = "2026-10-12", time = "10:30", status = "confirmed")
+
+        // Act
+        val pastResult = service.cancel(maria, past)
+        val futureResult = service.cancel(maria, future)
+
+        // Assert
+        assertIs<CancelResult.NotCancellable>(pastResult)
+        assertIs<CancelResult.Cancelled>(futureResult)
+        assertEquals(
+            AppointmentStatus.Confirmed,
+            service.appointmentsOf(maria).single { it.id == past }.status,
+        )
+    }
+
+    @Test
+    fun cancellingTwiceOrSomeoneElsesAppointmentIsRefused() {
+        // Arrange
+        val id = assertIs<BookingResult.Created>(service.book(maria, request(time = "16:00"))).appointment.id
+        service.cancel(maria, id)
+
+        // Act
+        val again = service.cancel(maria, id)
+        val byAna = service.cancel(ana, id)
+        val unknown = service.cancel(maria, "missing")
+
+        // Assert
+        assertIs<CancelResult.NotCancellable>(again)
+        assertEquals(CancelResult.NotFound, byAna)
+        assertEquals(CancelResult.NotFound, unknown)
+    }
+
+    @Test
     fun anyProfessionalPicksTheOneStillFree() {
         // Arrange
         service.book(maria, request(professionalId = antonio, time = "15:00"))
@@ -164,6 +213,31 @@ class SchedulingServiceTest {
         listOf(past, weekend, tooFar, closed, otherSpecialty).forEach { assertIs<BookingResult.Rejected>(it) }
         assertNull(service.availability("desconhecida", null))
         assertTrue(service.appointmentsOf(maria).isEmpty())
+    }
+
+    /** Writes an appointment straight to the table, for states booking cannot create. */
+    private fun storeAppointment(
+        patientId: String,
+        date: String,
+        time: String = "09:00",
+        status: String,
+    ): String {
+        val id = UUID.randomUUID().toString()
+        transaction(database) {
+            AppointmentsTable.insert {
+                it[AppointmentsTable.id] = id
+                it[AppointmentsTable.patientId] = patientId
+                it[professionalId] = lucia
+                it[appointmentDate] = date
+                it[appointmentTime] = time
+                it[AppointmentsTable.status] = status
+                it[reason] = ""
+                it[notes] = ""
+                it[createdAt] = 0
+                it[slotKey] = AppointmentsTable.slotKeyOf(lucia, date, time)
+            }
+        }
+        return id
     }
 
     private fun request(

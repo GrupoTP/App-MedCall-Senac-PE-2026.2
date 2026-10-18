@@ -76,3 +76,15 @@ data class Appointment(
     val notes: String = "",
     val preTriageId: String? = null,
 )
+
+/**
+ * Whether the patient may still cancel. A pending appointment can be cancelled even after its
+ * time, since the clinic may never have confirmed it; a confirmed one only before it starts.
+ *
+ * @param now date and time in Recife as `yyyy-MM-ddTHH:mm`, which compares as text with [Appointment.date] and [Appointment.time].
+ */
+fun Appointment.isCancellableAt(now: String): Boolean = when (status) {
+    AppointmentStatus.Pending -> true
+    AppointmentStatus.Confirmed -> "${date}T$time" > now
+    AppointmentStatus.Cancelled -> false
+}

@@ -9,6 +9,7 @@ import grupotp.recifesaudavel.server.database.UsersTable
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.selectAll
@@ -101,7 +102,11 @@ class UserRepository(
             .empty()
     }
 
-    fun updateProfile(id: String, request: UpdateProfileRequest) {
+    /**
+     * Returns false when the new e-mail belongs to another account. [emailTakenByOther] catches
+     * that first, but two requests at once can both pass it: the unique index decides.
+     */
+    fun updateProfile(id: String, request: UpdateProfileRequest): Boolean = try {
         transaction(database) {
             UsersTable.update({ UsersTable.id eq id }) {
                 it[fullName] = request.fullName.trim()
@@ -115,6 +120,12 @@ class UserRepository(
                 it[emergencyContactPhone] = Phone.digits(request.emergencyContactPhone)
             }
         }
+        true
+    } catch (error: ExposedSQLException) {
+        if (!error.isUniqueViolation()) {
+            throw error
+        }
+        false
     }
 
     fun updateWantsNotifications(id: String, wants: Boolean) {
@@ -148,12 +159,16 @@ class UserRepository(
         }
     }
 
+    /**
+     * Returns null when the e-mail is already registered. Checking first is not enough: two
+     * sign-ups at once can both find the e-mail free, so the unique index is what decides.
+     */
     fun insert(
         id: String,
         request: RegisterAccountRequest,
         passwordHash: String,
         now: Long = System.currentTimeMillis(),
-    ): AuthenticatedAccount =
+    ): AuthenticatedAccount? = try {
         transaction(database) {
             UsersTable.insert {
                 it[UsersTable.id] = id
@@ -181,6 +196,12 @@ class UserRepository(
                 phone = Phone.digits(request.primaryPhone),
             )
         }
+    } catch (error: ExposedSQLException) {
+        if (!error.isUniqueViolation()) {
+            throw error
+        }
+        null
+    }
 
     private fun org.jetbrains.exposed.v1.core.ResultRow.toStoredUser(): StoredUser = StoredUser(
         account = AuthenticatedAccount(

@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.server.controller
 import grupotp.recifesaudavel.common.ApiError
 import grupotp.recifesaudavel.common.CreateAppointmentRequest
 import grupotp.recifesaudavel.server.service.BookingResult
+import grupotp.recifesaudavel.server.service.CancelResult
 import grupotp.recifesaudavel.server.service.SchedulingService
 import grupotp.recifesaudavel.server.service.SessionService
 import io.ktor.http.HttpStatusCode
@@ -51,11 +52,10 @@ fun Application.configureSchedulingController() {
                 post("/{id}/cancel") {
                     val patientId = call.patientId() ?: return@post
                     val id = call.parameters["id"].orEmpty()
-                    val cancelled = scheduling.cancel(patientId, id)
-                    if (cancelled == null) {
-                        call.respond(HttpStatusCode.NotFound, ApiError("Consulta não encontrada."))
-                    } else {
-                        call.respond(cancelled)
+                    when (val result = scheduling.cancel(patientId, id)) {
+                        is CancelResult.Cancelled -> call.respond(result.appointment)
+                        CancelResult.NotFound -> call.respond(HttpStatusCode.NotFound, ApiError("Consulta não encontrada."))
+                        is CancelResult.NotCancellable -> call.respond(HttpStatusCode.Conflict, ApiError(result.message))
                     }
                 }
                 post {

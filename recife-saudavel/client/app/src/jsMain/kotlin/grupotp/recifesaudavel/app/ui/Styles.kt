@@ -704,6 +704,27 @@ internal object Styles {
     val policyHeroText = text(size = 12, lineHeight = 18, color = "rgba(255, 255, 255, 0.8)")
     val policyTitle = text(size = 14, lineHeight = 20, family = FontFamily.DISPLAY)
     val policyText = text(size = 14, lineHeight = 22, color = Palette.MUTED, marginTop = 6)
+
+    // Confirmation dialog
+
+    val dialogBackdrop = ViewStyle(
+        flex = 1,
+        alignItems = "center",
+        justifyContent = "center",
+        padding = 16,
+        backgroundColor = "rgba(0, 0, 0, 0.4)",
+    )
+    val dialogCard = ViewStyle(
+        width = "100%",
+        maxWidth = 400,
+        gap = 16,
+        padding = 20,
+        borderRadius = 16,
+        backgroundColor = Palette.WHITE,
+        boxShadow = "0px 10px 15px -3px rgba(0, 0, 0, 0.12)",
+    )
+    val dialogTitle = text(size = 16, lineHeight = 24, family = FontFamily.DISPLAY)
+    val dialogText = text(size = 14, lineHeight = 21, color = Palette.MUTED)
 }
 
 private fun text(

@@ -3,14 +3,22 @@ package grupotp.recifesaudavel.worker.routing
 /**
  * Decides what the service worker may do with a request.
  * Server responses, including health data, are never stored in the app-shell cache.
+ *
+ * @param origin the worker's own origin, such as `http://localhost:8081`. Requests to any
+ * other origin, the API server included, are left to the browser: only the page's own files
+ * are cached, and only the page itself can reach the local database.
  */
 class WorkerRequestRouter(
+    private val origin: String,
     private val essentialPaths: Set<String> = ESSENTIAL_PATHS,
 ) {
     fun route(url: String): WorkerRoute {
+        if (originOf(url) != origin) {
+            return WorkerRoute.Ignore
+        }
         val path = pathOf(url)
         return when {
-            isServerData(url, path) -> WorkerRoute.Server
+            isServerData(path) -> WorkerRoute.Server
             path == LOCAL_ACCOUNT_PATH -> WorkerRoute.LocalAccount
             path == LOCAL_APPOINTMENTS_PATH -> WorkerRoute.LocalAppointments
             path == LOCAL_PENDING_SIGN_OUTS_PATH -> WorkerRoute.LocalPendingSignOuts
@@ -29,13 +37,9 @@ class WorkerRequestRouter(
         return if (isBuildOutput(path)) url.substringBefore("#") else path
     }
 
-    private fun isServerData(url: String, path: String): Boolean {
-        if (path.startsWith("/api/") || path == "/healthz" || path == "/readyz") {
-            return true
-        }
-        val host = hostOf(url)
-        return host.endsWith(":8080")
-    }
+    /** API routes served from the page's own origin, as behind a reverse proxy. */
+    private fun isServerData(path: String): Boolean =
+        path.startsWith("/api/") || path == "/healthz" || path == "/readyz"
 
     private fun isBuildOutput(path: String): Boolean = BUILD_OUTPUT_PREFIXES.any(path::startsWith)
 
@@ -87,10 +91,10 @@ sealed interface WorkerRoute {
     /** Session tokens waiting to be revoked on the server after an offline sign-out. */
     data object LocalPendingSignOuts : WorkerRoute
 
-    /** API and health responses. Must not be written to the cache. */
+    /** API and health responses on the page's origin. Must not be written to the cache. */
     data object Server : WorkerRoute
 
-    /** Leave the request to the browser. */
+    /** Leave the request to the browser: other origins and files the worker does not keep. */
     data object Ignore : WorkerRoute
 }
 
@@ -126,6 +130,15 @@ fun queryParameter(url: String, name: String): String? {
 }
 
 private external fun decodeURIComponent(value: String): String
+
+/** `scheme://host[:port]` of an absolute URL, or an empty string for a relative one. */
+internal fun originOf(url: String): String {
+    val schemeEnd = url.indexOf("://")
+    if (schemeEnd < 0) {
+        return ""
+    }
+    return url.substring(0, schemeEnd + 3) + hostOf(url)
+}
 
 internal fun hostOf(url: String): String {
     val schemeEnd = url.indexOf("://")

@@ -126,7 +126,11 @@ class SchedulingRepository(
             }
         }
         true
-    } catch (_: ExposedSQLException) {
+    } catch (error: ExposedSQLException) {
+        // Only a taken slot is a conflict; anything else is a server error and must surface as one.
+        if (!error.isUniqueViolation()) {
+            throw error
+        }
         false
     }
 
@@ -139,14 +143,33 @@ class SchedulingRepository(
 
     /**
      * Marks the patient's own appointment as cancelled and clears its slot key, so the slot can
-     * be booked again while the appointment stays in the history. Returns false when the
-     * appointment does not exist or belongs to someone else.
+     * be booked again while the appointment stays in the history. Only changes it while its
+     * status is still [expected], so a confirmation that lands in between is not overwritten.
+     * Returns false when nothing was changed.
      */
-    fun cancel(patientId: String, id: String): Boolean = transaction(database) {
-        AppointmentsTable.update({ (AppointmentsTable.id eq id) and (AppointmentsTable.patientId eq patientId) }) {
+    fun cancel(patientId: String, id: String, expected: AppointmentStatus): Boolean = transaction(database) {
+        AppointmentsTable.update({
+            (AppointmentsTable.id eq id) and
+                (AppointmentsTable.patientId eq patientId) and
+                (AppointmentsTable.status eq expected.stored())
+        }) {
             it[status] = STATUS_CANCELLED
             it[slotKey] = null
         } > 0
+    }
+
+    /** The appointment when it belongs to [patientId], else null. */
+    fun findAppointmentOf(patientId: String, id: String): Appointment? = transaction(database) {
+        appointmentQuery()
+            .where { (AppointmentsTable.id eq id) and (AppointmentsTable.patientId eq patientId) }
+            .singleOrNull()
+            ?.toAppointment()
+    }
+
+    private fun AppointmentStatus.stored(): String = when (this) {
+        AppointmentStatus.Pending -> STATUS_PENDING
+        AppointmentStatus.Confirmed -> STATUS_CONFIRMED
+        AppointmentStatus.Cancelled -> STATUS_CANCELLED
     }
 
     fun findAppointment(id: String): Appointment? = transaction(database) {
