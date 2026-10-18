@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.gateway
 
-import grupotp.recifesaudavel.app.usecase.SchedulingError
-import grupotp.recifesaudavel.app.usecase.SchedulingResult
+import grupotp.recifesaudavel.app.domain.scheduling.SchedulingError
+import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.security.SecretString
 import js.reflect.unsafeCast

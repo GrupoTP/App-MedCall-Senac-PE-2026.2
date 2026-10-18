@@ -1,9 +1,9 @@
 package grupotp.recifesaudavel.app.gateway
 
-import grupotp.recifesaudavel.app.usecase.AppShellGateway
-import grupotp.recifesaudavel.app.usecase.LocalAccountGateway
-import grupotp.recifesaudavel.app.usecase.LocalAppointmentGateway
-import grupotp.recifesaudavel.app.usecase.PendingSignOutGateway
+import grupotp.recifesaudavel.app.domain.offline.AppShellGateway
+import grupotp.recifesaudavel.app.domain.scheduling.LocalAppointmentGateway
+import grupotp.recifesaudavel.app.domain.session.LocalAccountGateway
+import grupotp.recifesaudavel.app.domain.session.PendingSignOutGateway
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.offline.LocalWorkerApi
 import grupotp.recifesaudavel.common.scheduling.Appointment

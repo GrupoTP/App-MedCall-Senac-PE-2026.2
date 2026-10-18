@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.gateway
 
-import grupotp.recifesaudavel.app.usecase.PreTriageGateway
-import grupotp.recifesaudavel.app.usecase.SchedulingResult
+import grupotp.recifesaudavel.app.domain.pretriage.PreTriageGateway
+import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.pretriage.PendingPreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriage
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm

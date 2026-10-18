@@ -1,45 +1,30 @@
 package grupotp.recifesaudavel.app
 
-import grupotp.recifesaudavel.app.ui.AppointmentsScreen
-import grupotp.recifesaudavel.app.ui.FloatingMenu
-import grupotp.recifesaudavel.app.ui.HomeScreen
-import grupotp.recifesaudavel.app.ui.LoginScreen
-import grupotp.recifesaudavel.app.ui.MenuDestination
-import grupotp.recifesaudavel.app.ui.Palette
-import grupotp.recifesaudavel.app.ui.PreTriageScreen
-import grupotp.recifesaudavel.app.ui.PreTriageSuccessScreen
-import grupotp.recifesaudavel.app.ui.PrivacyPolicyScreen
-import grupotp.recifesaudavel.app.ui.RegisterScreen
-import grupotp.recifesaudavel.app.ui.ScheduleScreen
-import grupotp.recifesaudavel.app.ui.ScheduleSuccessScreen
-import grupotp.recifesaudavel.app.ui.SettingsScreen
-import grupotp.recifesaudavel.app.ui.SettingsTab
-import grupotp.recifesaudavel.app.ui.Styles
-import grupotp.recifesaudavel.app.ui.WelcomeScreen
+import grupotp.recifesaudavel.app.di.useInject
+import grupotp.recifesaudavel.app.ui.component.menu.FloatingMenu
+import grupotp.recifesaudavel.app.ui.component.menu.MenuDestination
 import grupotp.recifesaudavel.app.ui.font.useAppFonts
-import grupotp.recifesaudavel.app.ui.useScreenScope
-import grupotp.recifesaudavel.app.usecase.BookAppointment
-import grupotp.recifesaudavel.app.usecase.CancelAppointment
-import grupotp.recifesaudavel.app.usecase.ChangePassword
-import grupotp.recifesaudavel.app.usecase.ListAppointments
-import grupotp.recifesaudavel.app.usecase.LoadAccountProfile
-import grupotp.recifesaudavel.app.usecase.LoadAvailability
-import grupotp.recifesaudavel.app.usecase.LoadPendingPreTriage
-import grupotp.recifesaudavel.app.usecase.LoadPreTriageDraft
-import grupotp.recifesaudavel.app.usecase.LoadSchedulingOptions
-import grupotp.recifesaudavel.app.usecase.LoadSignedInAccount
-import grupotp.recifesaudavel.app.usecase.PendingSignOuts
-import grupotp.recifesaudavel.app.usecase.PrepareOfflineShell
-import grupotp.recifesaudavel.app.usecase.RefreshAccount
-import grupotp.recifesaudavel.app.usecase.RegisterAccount
-import grupotp.recifesaudavel.app.usecase.RememberSignedInAccount
-import grupotp.recifesaudavel.app.usecase.RequestAccountDeletion
-import grupotp.recifesaudavel.app.usecase.RequestPasswordRecovery
-import grupotp.recifesaudavel.app.usecase.SaveAccountProfile
-import grupotp.recifesaudavel.app.usecase.SignIn
-import grupotp.recifesaudavel.app.usecase.SignOut
-import grupotp.recifesaudavel.app.usecase.SubmitPreTriage
-import grupotp.recifesaudavel.app.usecase.UpdateNotificationConsent
+import grupotp.recifesaudavel.app.ui.hook.useScreenScope
+import grupotp.recifesaudavel.app.ui.screen.auth.LoginScreen
+import grupotp.recifesaudavel.app.ui.screen.auth.RegisterScreen
+import grupotp.recifesaudavel.app.ui.screen.auth.WelcomeScreen
+import grupotp.recifesaudavel.app.ui.screen.home.HomeScreen
+import grupotp.recifesaudavel.app.ui.screen.pretriage.PreTriageScreen
+import grupotp.recifesaudavel.app.ui.screen.pretriage.PreTriageSuccessScreen
+import grupotp.recifesaudavel.app.ui.screen.scheduling.AppointmentsScreen
+import grupotp.recifesaudavel.app.ui.screen.scheduling.ScheduleScreen
+import grupotp.recifesaudavel.app.ui.screen.scheduling.ScheduleSuccessScreen
+import grupotp.recifesaudavel.app.ui.screen.settings.PrivacyPolicyScreen
+import grupotp.recifesaudavel.app.ui.screen.settings.SettingsScreen
+import grupotp.recifesaudavel.app.ui.screen.settings.SettingsTab
+import grupotp.recifesaudavel.app.ui.theme.Palette
+import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.recifesaudavel.app.usecase.offline.PrepareOfflineShellUseCase
+import grupotp.recifesaudavel.app.usecase.session.FlushPendingSignOutsUseCase
+import grupotp.recifesaudavel.app.usecase.session.LoadSignedInAccountUseCase
+import grupotp.recifesaudavel.app.usecase.session.RefreshAccountUseCase
+import grupotp.recifesaudavel.app.usecase.session.RememberSignedInAccountUseCase
+import grupotp.recifesaudavel.app.usecase.session.SignOutUseCase
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.scheduling.Appointment
 import kotlinx.coroutines.delay
@@ -48,7 +33,6 @@ import ojaynico.kotlin.react.native.component.StatusBar
 import ojaynico.kotlin.react.native.component.View
 import ojaynico.kotlin.react.native.safearea.SafeAreaProvider
 import ojaynico.kotlin.react.native.safearea.initialWindowMetrics
-import org.koin.mp.KoinPlatform
 import react.FC
 import react.Props
 import react.useEffect
@@ -71,69 +55,26 @@ internal enum class AppScreen {
     PrivacyPolicy,
 }
 
-internal external interface AppProps : Props {
-    var signIn: SignIn
-    var registerAccount: RegisterAccount
-    var requestPasswordRecovery: RequestPasswordRecovery
-    var prepareOfflineShell: PrepareOfflineShell
-    var rememberSignedInAccount: RememberSignedInAccount
-    var loadSignedInAccount: LoadSignedInAccount
-    var signOut: SignOut
-    var pendingSignOuts: PendingSignOuts
-    var refreshAccount: RefreshAccount
-    var listAppointments: ListAppointments
-    var loadSchedulingOptions: LoadSchedulingOptions
-    var loadAvailability: LoadAvailability
-    var bookAppointment: BookAppointment
-    var cancelAppointment: CancelAppointment
-    var loadPreTriageDraft: LoadPreTriageDraft
-    var submitPreTriage: SubmitPreTriage
-    var loadPendingPreTriage: LoadPendingPreTriage
-    var loadAccountProfile: LoadAccountProfile
-    var saveAccountProfile: SaveAccountProfile
-    var updateNotificationConsent: UpdateNotificationConsent
-    var changePassword: ChangePassword
-    var requestAccountDeletion: RequestAccountDeletion
-}
-
 /**
- * Wires Koin into [App] once the fonts are ready.
+ * Shows [App] once the fonts are ready.
  */
 internal val Root = FC<Props> {
     val fontsReady = useAppFonts()
     SafeAreaProvider {
         initialMetrics = initialWindowMetrics
         if (fontsReady) {
-            val koin = KoinPlatform.getKoin()
-            App {
-                signIn = koin.get()
-                registerAccount = koin.get()
-                requestPasswordRecovery = koin.get()
-                prepareOfflineShell = koin.get()
-                rememberSignedInAccount = koin.get()
-                loadSignedInAccount = koin.get()
-                signOut = koin.get()
-                pendingSignOuts = koin.get()
-                refreshAccount = koin.get()
-                listAppointments = koin.get()
-                loadSchedulingOptions = koin.get()
-                loadAvailability = koin.get()
-                bookAppointment = koin.get()
-                cancelAppointment = koin.get()
-                loadPreTriageDraft = koin.get()
-                submitPreTriage = koin.get()
-                loadPendingPreTriage = koin.get()
-                loadAccountProfile = koin.get()
-                saveAccountProfile = koin.get()
-                updateNotificationConsent = koin.get()
-                changePassword = koin.get()
-                requestAccountDeletion = koin.get()
-            }
+            App()
         }
     }
 }
 
-internal val App = FC<AppProps> { props ->
+internal val App = FC<Props> {
+    val prepareOfflineShell = useInject<PrepareOfflineShellUseCase>()
+    val loadSignedInAccount = useInject<LoadSignedInAccountUseCase>()
+    val rememberSignedInAccount = useInject<RememberSignedInAccountUseCase>()
+    val refreshAccount = useInject<RefreshAccountUseCase>()
+    val signOutOfDevice = useInject<SignOutUseCase>()
+    val flushPendingSignOuts = useInject<FlushPendingSignOutsUseCase>()
     var screen by useState(AppScreen.Welcome)
     var account by useState<AuthenticatedAccount?>(null)
     var booked by useState<Appointment?>(null)
@@ -141,8 +82,8 @@ internal val App = FC<AppProps> { props ->
     val scope = useScreenScope()
     useEffectOnce {
         scope.launch {
-            runCatching { props.prepareOfflineShell() }
-            val remembered = runCatching { props.loadSignedInAccount() }.getOrNull()
+            runCatching { prepareOfflineShell() }
+            val remembered = runCatching { loadSignedInAccount() }.getOrNull()
             if (remembered != null) {
                 account = remembered
                 screen = AppScreen.Home
@@ -153,13 +94,13 @@ internal val App = FC<AppProps> { props ->
     // Sign-outs made offline reach the server once the device can reach it: tried at start,
     // on every screen change and then every 30 seconds while the app is open.
     useEffect(screen) {
-        scope.launch { runCatching { props.pendingSignOuts.flush() } }
+        scope.launch { runCatching { flushPendingSignOuts() } }
     }
     useEffectOnce {
         scope.launch {
             while (true) {
                 delay(PENDING_SIGN_OUT_RETRY_MS)
-                runCatching { props.pendingSignOuts.flush() }
+                runCatching { flushPendingSignOuts() }
             }
         }
     }
@@ -170,7 +111,7 @@ internal val App = FC<AppProps> { props ->
         val current = account
         if (screen == AppScreen.Home && current != null) {
             scope.launch {
-                val fresh = runCatching { props.refreshAccount(current) }.getOrNull()
+                val fresh = runCatching { refreshAccount(current) }.getOrNull()
                 if (fresh != null && account?.id == fresh.id) {
                     account = fresh
                 }
@@ -182,7 +123,7 @@ internal val App = FC<AppProps> { props ->
         account = authenticated
         screen = AppScreen.Home
         scope.launch {
-            runCatching { props.rememberSignedInAccount(authenticated) }
+            runCatching { rememberSignedInAccount(authenticated) }
         }
     }
 
@@ -192,7 +133,7 @@ internal val App = FC<AppProps> { props ->
         booked = null
         screen = AppScreen.Login
         scope.launch {
-            runCatching { props.signOut() }
+            runCatching { signOutOfDevice() }
         }
     }
 
@@ -204,7 +145,7 @@ internal val App = FC<AppProps> { props ->
         settingsTab = SettingsTab.Account
         screen = AppScreen.Welcome
         scope.launch {
-            runCatching { props.signOut(token) }
+            runCatching { signOutOfDevice(token) }
         }
     }
 
@@ -251,23 +192,16 @@ internal val App = FC<AppProps> { props ->
                 onLogin = { screen = AppScreen.Login }
             }
             screen == AppScreen.Register -> RegisterScreen {
-                registerAccount = props.registerAccount
                 onBack = { screen = AppScreen.Welcome }
                 onAuthenticated = ::openHome
             }
             screen == AppScreen.Login || signedIn == null -> LoginScreen {
-                signIn = props.signIn
-                requestPasswordRecovery = props.requestPasswordRecovery
                 onRegister = { screen = AppScreen.Register }
                 onBack = { screen = AppScreen.Welcome }
                 onAuthenticated = ::openHome
             }
             screen == AppScreen.Schedule -> ScheduleScreen {
                 this.account = signedIn
-                loadSchedulingOptions = props.loadSchedulingOptions
-                loadAvailability = props.loadAvailability
-                bookAppointment = props.bookAppointment
-                loadPendingPreTriage = props.loadPendingPreTriage
                 onBack = { screen = AppScreen.Home }
                 onBooked = { appointment ->
                     booked = appointment
@@ -282,8 +216,6 @@ internal val App = FC<AppProps> { props ->
             }
             screen == AppScreen.PreTriage -> PreTriageScreen {
                 this.account = signedIn
-                loadPreTriageDraft = props.loadPreTriageDraft
-                submitPreTriage = props.submitPreTriage
                 onBack = { screen = AppScreen.Home }
                 onSent = { screen = AppScreen.PreTriageSuccess }
                 onSignOut = ::signOut
@@ -294,18 +226,11 @@ internal val App = FC<AppProps> { props ->
             }
             screen == AppScreen.Appointments -> AppointmentsScreen {
                 this.account = signedIn
-                listAppointments = props.listAppointments
-                cancelAppointment = props.cancelAppointment
                 onBack = { screen = AppScreen.Home }
                 onSignOut = ::signOut
             }
             screen == AppScreen.Settings -> SettingsScreen {
                 this.account = signedIn
-                loadAccountProfile = props.loadAccountProfile
-                saveAccountProfile = props.saveAccountProfile
-                updateNotificationConsent = props.updateNotificationConsent
-                changePassword = props.changePassword
-                requestAccountDeletion = props.requestAccountDeletion
                 tab = settingsTab
                 onTab = { settingsTab = it }
                 onBack = {
@@ -322,7 +247,6 @@ internal val App = FC<AppProps> { props ->
             }
             else -> HomeScreen {
                 this.account = signedIn
-                listAppointments = props.listAppointments
                 onSchedule = { screen = AppScreen.Schedule }
                 onPreTriage = { screen = AppScreen.PreTriage }
                 onAppointments = { screen = AppScreen.Appointments }

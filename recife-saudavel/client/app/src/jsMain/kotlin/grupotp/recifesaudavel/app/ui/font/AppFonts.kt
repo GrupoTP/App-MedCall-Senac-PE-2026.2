@@ -1,6 +1,6 @@
 package grupotp.recifesaudavel.app.ui.font
 
-import grupotp.recifesaudavel.app.ui.FontFamily
+import grupotp.recifesaudavel.app.ui.theme.FontFamily
 import ojaynico.kotlin.react.json
 
 /**

@@ -1,7 +1,7 @@
 package grupotp.recifesaudavel.app.gateway
 
-import grupotp.recifesaudavel.app.usecase.AccountGateway
-import grupotp.recifesaudavel.app.usecase.SchedulingResult
+import grupotp.recifesaudavel.app.domain.account.AccountGateway
+import grupotp.recifesaudavel.app.domain.scheduling.SchedulingResult
 import grupotp.recifesaudavel.common.account.AccountProfile
 import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest

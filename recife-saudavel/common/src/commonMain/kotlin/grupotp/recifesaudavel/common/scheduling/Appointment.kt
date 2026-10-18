@@ -4,7 +4,10 @@ import grupotp.recifesaudavel.common.account.Phone
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime
+import kotlinx.datetime.toInstant
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.Serializable
+import kotlin.time.Instant
 
 /**
  * Appointment of the signed-in patient. Names are copied so the list reads well offline.
@@ -30,6 +33,12 @@ data class Appointment(
 ) {
     /** Start in the clinic's wall clock. To compare with now, convert now to [Clinic.timeZone]. */
     val startsAt: LocalDateTime get() = LocalDateTime(date, time)
+
+    /** The moment the appointment starts, from the [clinic]'s wall clock and time zone. */
+    fun startInstant(): Instant = startsAt.toInstant(clinic.timeZone)
+
+    /** [isCancellableAt] with the [clinic]'s wall clock at [now]. */
+    fun isCancellableAt(now: Instant): Boolean = isCancellableAt(now.toLocalDateTime(clinic.timeZone))
 
     /**
      * Whether the patient may still cancel. A pending appointment can be cancelled even after its
