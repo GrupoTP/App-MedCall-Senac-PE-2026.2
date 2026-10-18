@@ -1,6 +1,8 @@
 package grupotp.recifesaudavel.server.service
 
 import grupotp.recifesaudavel.server.repository.SessionRepository
+import grupotp.recifesaudavel.server.domain.OpenedSession
+import grupotp.recifesaudavel.server.security.SessionSettings
 import java.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days

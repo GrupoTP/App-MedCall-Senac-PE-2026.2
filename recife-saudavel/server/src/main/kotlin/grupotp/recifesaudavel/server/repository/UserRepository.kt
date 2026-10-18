@@ -7,6 +7,8 @@ import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.server.database.entity.UserEntity
 import grupotp.recifesaudavel.server.database.table.UsersTable
+import grupotp.recifesaudavel.server.domain.StoredUser
+import grupotp.recifesaudavel.server.domain.UserProfile
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.neq

@@ -6,6 +6,8 @@ import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
+import grupotp.recifesaudavel.server.service.result.AccountResult
+import grupotp.recifesaudavel.server.domain.ServiceError
 import java.time.Clock
 import kotlin.time.toKotlinInstant
 

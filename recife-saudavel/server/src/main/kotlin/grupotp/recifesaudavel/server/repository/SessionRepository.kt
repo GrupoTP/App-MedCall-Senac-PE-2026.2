@@ -3,6 +3,7 @@ package grupotp.recifesaudavel.server.repository
 import grupotp.recifesaudavel.server.database.entity.SessionEntity
 import grupotp.recifesaudavel.server.database.entity.UserEntity
 import grupotp.recifesaudavel.server.database.table.SessionsTable
+import grupotp.recifesaudavel.server.domain.StoredSession
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.less
@@ -27,7 +28,11 @@ class SessionRepository(
 
     fun find(id: Int): StoredSession? = transaction(database) {
         SessionEntity.findById(id)?.let {
-            StoredSession(userId = it.userId.value, createdAt = it.createdAt, lastUsedAt = it.lastUsedAt)
+            StoredSession(
+                userId = it.userId.value,
+                createdAt = it.createdAt,
+                lastUsedAt = it.lastUsedAt
+            )
         }
     }
 

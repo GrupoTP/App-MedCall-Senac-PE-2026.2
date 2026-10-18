@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.service
+package grupotp.recifesaudavel.server.domain
 
 import kotlin.time.Instant
 

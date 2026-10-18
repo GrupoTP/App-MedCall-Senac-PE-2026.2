@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.repository
+package grupotp.recifesaudavel.server.domain
 
 import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
 

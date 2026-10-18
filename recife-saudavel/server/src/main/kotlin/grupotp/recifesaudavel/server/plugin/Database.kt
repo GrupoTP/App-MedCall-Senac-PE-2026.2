@@ -22,7 +22,7 @@ import grupotp.recifesaudavel.server.service.AuthService
 import grupotp.recifesaudavel.server.service.PreTriageService
 import grupotp.recifesaudavel.server.service.SchedulingService
 import grupotp.recifesaudavel.server.service.SessionService
-import grupotp.recifesaudavel.server.service.SessionSettings
+import grupotp.recifesaudavel.server.security.SessionSettings
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationStopped
 import org.jetbrains.exposed.v1.jdbc.Database

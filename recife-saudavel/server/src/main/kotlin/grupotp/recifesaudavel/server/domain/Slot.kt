@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.repository
+package grupotp.recifesaudavel.server.domain
 
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime

@@ -16,6 +16,8 @@ import grupotp.recifesaudavel.server.database.table.AppointmentsTable
 import grupotp.recifesaudavel.server.database.table.ClinicsTable
 import grupotp.recifesaudavel.server.database.table.ProfessionalsTable
 import grupotp.recifesaudavel.server.database.table.SpecialtiesTable
+import grupotp.recifesaudavel.server.domain.NewAppointment
+import grupotp.recifesaudavel.server.domain.Slot
 import kotlinx.datetime.LocalDate
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder

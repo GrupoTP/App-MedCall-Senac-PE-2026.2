@@ -3,7 +3,7 @@ package grupotp.recifesaudavel.server.controller
 import grupotp.recifesaudavel.common.api.ApiError
 import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.server.i18n.ErrorMessages
-import grupotp.recifesaudavel.server.service.ServiceError
+import grupotp.recifesaudavel.server.domain.ServiceError
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.response.respond

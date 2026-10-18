@@ -20,6 +20,8 @@ import grupotp.recifesaudavel.server.database.entity.UserEntity
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
+import grupotp.recifesaudavel.server.service.result.BookingResult
+import grupotp.recifesaudavel.server.service.result.PreTriageResult
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 import org.jetbrains.exposed.v1.jdbc.Database

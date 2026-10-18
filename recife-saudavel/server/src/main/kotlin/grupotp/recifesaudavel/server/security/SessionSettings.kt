@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.service
+package grupotp.recifesaudavel.server.security
 
 import io.ktor.server.config.ApplicationConfig
 import java.time.Duration

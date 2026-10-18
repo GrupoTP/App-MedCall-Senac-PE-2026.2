@@ -5,7 +5,7 @@ import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.RegisteredClaims
 import com.auth0.jwt.algorithms.Algorithm
 import grupotp.recifesaudavel.common.security.SecretString
-import grupotp.recifesaudavel.server.service.OpenedSession
+import grupotp.recifesaudavel.server.domain.OpenedSession
 import kotlin.time.toJavaInstant
 
 /**
@@ -13,7 +13,7 @@ import kotlin.time.toJavaInstant
  * the user (`sub`) and the session (`jti`, with its creation time as `iat`); the database only
  * keeps the session row, so a copy of it holds nothing that signs in.
  *
- * There is no `exp`: a session ends after [SessionSettings][grupotp.recifesaudavel.server.service.SessionSettings]
+ * There is no `exp`: a session ends after [SessionSettings][SessionSettings]
  * idle time or when revoked, and the session row, checked on every request, is what says so.
  */
 class SessionTokens(

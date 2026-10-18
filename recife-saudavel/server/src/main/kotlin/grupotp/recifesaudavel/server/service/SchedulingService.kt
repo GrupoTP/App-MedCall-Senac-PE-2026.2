@@ -9,10 +9,13 @@ import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.common.scheduling.Professional
 import grupotp.recifesaudavel.common.scheduling.Specialty
-import grupotp.recifesaudavel.server.repository.NewAppointment
+import grupotp.recifesaudavel.server.domain.NewAppointment
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
-import grupotp.recifesaudavel.server.repository.Slot
+import grupotp.recifesaudavel.server.domain.Slot
+import grupotp.recifesaudavel.server.service.result.BookingResult
+import grupotp.recifesaudavel.server.service.result.CancelResult
+import grupotp.recifesaudavel.server.domain.ServiceError
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime

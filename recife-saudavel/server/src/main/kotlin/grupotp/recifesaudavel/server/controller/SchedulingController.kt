@@ -3,8 +3,8 @@ package grupotp.recifesaudavel.server.controller
 import grupotp.recifesaudavel.common.api.ErrorCode
 import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
 import grupotp.recifesaudavel.server.plugin.authenticatedRoute
-import grupotp.recifesaudavel.server.service.BookingResult
-import grupotp.recifesaudavel.server.service.CancelResult
+import grupotp.recifesaudavel.server.service.result.BookingResult
+import grupotp.recifesaudavel.server.service.result.CancelResult
 import grupotp.recifesaudavel.server.service.SchedulingService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application

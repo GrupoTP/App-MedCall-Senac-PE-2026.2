@@ -2,7 +2,7 @@ package grupotp.recifesaudavel.server.controller
 
 import grupotp.recifesaudavel.common.pretriage.PreTriageForm
 import grupotp.recifesaudavel.server.plugin.authenticatedRoute
-import grupotp.recifesaudavel.server.service.PreTriageResult
+import grupotp.recifesaudavel.server.service.result.PreTriageResult
 import grupotp.recifesaudavel.server.service.PreTriageService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application

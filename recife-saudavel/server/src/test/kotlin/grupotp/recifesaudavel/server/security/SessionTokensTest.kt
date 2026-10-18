@@ -2,7 +2,7 @@ package grupotp.recifesaudavel.server.security
 
 import com.auth0.jwt.exceptions.JWTVerificationException
 import grupotp.recifesaudavel.common.security.SecretString
-import grupotp.recifesaudavel.server.service.OpenedSession
+import grupotp.recifesaudavel.server.domain.OpenedSession
 import io.ktor.server.config.MapApplicationConfig
 import kotlin.test.Test
 import kotlin.test.assertEquals

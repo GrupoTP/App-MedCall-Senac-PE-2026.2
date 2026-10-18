@@ -7,6 +7,8 @@ import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
 import grupotp.recifesaudavel.server.repository.PreTriageRepository
 import grupotp.recifesaudavel.server.repository.SchedulingRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
+import grupotp.recifesaudavel.server.service.result.PreTriageResult
+import grupotp.recifesaudavel.server.domain.ServiceError
 import kotlinx.datetime.toKotlinLocalDate
 import java.time.Clock
 import java.time.LocalDate
@@ -95,7 +97,10 @@ class PreTriageService(
             form.intensity != null && form.intensity !in INTENSITY ->
                 ServiceError(ErrorCode.INTENSITY_OUT_OF_RANGE, INTENSITY.first, INTENSITY.last)
             texts.any { it.length > MAX_TEXT } -> ServiceError(ErrorCode.TEXT_TOO_LONG, MAX_TEXT)
-            shortTexts.any { it.length > MAX_SHORT_TEXT } -> ServiceError(ErrorCode.TEXT_TOO_LONG, MAX_SHORT_TEXT)
+            shortTexts.any { it.length > MAX_SHORT_TEXT } -> ServiceError(
+                ErrorCode.TEXT_TOO_LONG,
+                MAX_SHORT_TEXT
+            )
             phones.any { !it.hasValidLength } -> ServiceError(ErrorCode.PHONE_INVALID)
             else -> null
         }

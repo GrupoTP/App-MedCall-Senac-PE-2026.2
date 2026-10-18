@@ -9,6 +9,8 @@ import grupotp.recifesaudavel.server.database.table.SessionsTable
 import grupotp.recifesaudavel.server.database.table.UsersTable
 import grupotp.recifesaudavel.server.repository.SessionRepository
 import grupotp.recifesaudavel.server.repository.UserRepository
+import grupotp.recifesaudavel.server.domain.OpenedSession
+import grupotp.recifesaudavel.server.security.SessionSettings
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
@@ -93,7 +95,9 @@ class SessionServiceTest {
     @Test
     fun withoutAnIdleTimeoutSessionsNeverExpire() {
         // Arrange
-        val forever = SessionService(SessionRepository(database), clock, SessionSettings(idleTimeout = null))
+        val forever = SessionService(SessionRepository(database), clock,
+            SessionSettings(idleTimeout = null)
+        )
         val session = forever.open(maria)
 
         // Act

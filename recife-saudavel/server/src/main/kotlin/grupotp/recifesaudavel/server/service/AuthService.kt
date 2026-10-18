@@ -7,6 +7,9 @@ import grupotp.recifesaudavel.common.auth.SignInRequest
 import grupotp.recifesaudavel.server.repository.UserRepository
 import grupotp.recifesaudavel.server.security.PasswordHasher
 import grupotp.recifesaudavel.server.security.SessionTokens
+import grupotp.recifesaudavel.server.service.result.RegistrationResult
+import grupotp.recifesaudavel.server.domain.ServiceError
+import grupotp.recifesaudavel.server.service.result.SignInResult
 import java.time.Clock
 import kotlin.time.toKotlinInstant
 
@@ -57,7 +60,10 @@ class AuthService(
     private fun validate(request: RegisterAccountRequest): ServiceError? = when {
         request.fullName.isBlank() -> ServiceError(ErrorCode.FULL_NAME_REQUIRED)
         !request.email.contains("@") -> ServiceError(ErrorCode.EMAIL_INVALID)
-        request.password.value.length < MIN_PASSWORD -> ServiceError(ErrorCode.PASSWORD_TOO_SHORT, MIN_PASSWORD)
+        request.password.value.length < MIN_PASSWORD -> ServiceError(
+            ErrorCode.PASSWORD_TOO_SHORT,
+            MIN_PASSWORD
+        )
         request.primaryPhone.isEmpty() -> ServiceError(ErrorCode.PRIMARY_PHONE_REQUIRED)
         !request.primaryPhone.hasValidLength || !request.secondaryPhone.hasValidLength ||
             !request.emergencyContactPhone.hasValidLength -> ServiceError(ErrorCode.PHONE_INVALID)

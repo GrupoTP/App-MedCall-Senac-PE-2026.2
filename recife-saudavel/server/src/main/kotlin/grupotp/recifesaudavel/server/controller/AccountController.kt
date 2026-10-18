@@ -4,7 +4,7 @@ import grupotp.recifesaudavel.common.account.ChangePasswordRequest
 import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
 import grupotp.recifesaudavel.common.account.UpdateProfileRequest
 import grupotp.recifesaudavel.server.plugin.authenticatedRoute
-import grupotp.recifesaudavel.server.service.AccountResult
+import grupotp.recifesaudavel.server.service.result.AccountResult
 import grupotp.recifesaudavel.server.service.AccountService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application

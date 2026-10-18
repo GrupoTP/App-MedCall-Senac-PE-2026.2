@@ -5,9 +5,9 @@ import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
 import grupotp.recifesaudavel.common.auth.SignInRequest
 import grupotp.recifesaudavel.server.plugin.SESSION_AUTH
 import grupotp.recifesaudavel.server.service.AuthService
-import grupotp.recifesaudavel.server.service.RegistrationResult
+import grupotp.recifesaudavel.server.service.result.RegistrationResult
 import grupotp.recifesaudavel.server.service.SessionService
-import grupotp.recifesaudavel.server.service.SignInResult
+import grupotp.recifesaudavel.server.service.result.SignInResult
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate
