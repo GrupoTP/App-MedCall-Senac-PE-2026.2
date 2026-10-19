@@ -114,6 +114,21 @@ No build release o app chama `http://localhost:8080`, que o `adb reverse` leva a
 
 A pasta `android/` é gerada pelo `expo prebuild` e não vai para o git. Ajustes nativos ficam no config plugin `plugins/withKotlinAndroidBuild.js`, registrado no `app.config.js`. Ele faz a task de bundle do React Native acompanhar o bundle Kotlin, que fica fora da pasta do cliente, para o APK sempre levar o bundle novo.
 
+### Imagens Docker e produção
+
+O `Dockerfile` desta pasta gera duas imagens, publicadas no ghcr.io pelo workflow `.github/workflows/publish-images.yml` a cada push na `main`:
+
+- `ghcr.io/grupotp/rs-server` (`--target server`): o servidor Ktor na porta 8080.
+- `ghcr.io/grupotp/rs-web` (`--target web`): o PWA exportado (`:client:expo:exportWeb`), servido pelo nginx na porta 8080. O `API_BASE_URL` entra como `--build-arg`.
+
+```bash
+git submodule update --init
+docker build --target server -t rs-server .
+docker build --target web --build-arg API_BASE_URL=https://recifesaudavel.grupotp.polyclub.com.br -t rs-web .
+```
+
+Em produção o servidor usa MySQL: `DATABASE_DRIVER=com.mysql.cj.jdbc.Driver` e `DATABASE_JDBC_URL=jdbc:mysql://<host>:3306/<database>`. O driver entra só em tempo de execução; o H2 continua sendo o padrão no desenvolvimento e nos testes.
+
 ### Android no Windows
 
 O código C++ gerado pelo React Native para `react-native-svg` e `react-native-safe-area-context` produz caminhos de arquivo acima de 260 caracteres. O ninja do CMake 3.22.1, que o Android Gradle Plugin usa por padrão, não aceita caminhos assim, e o build falha com `Filename longer than 260 characters` ou `build.ninja still dirty after 100 tries`. Para compilar:

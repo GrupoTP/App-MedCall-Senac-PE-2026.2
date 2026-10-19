@@ -1,0 +1,12 @@
+**/.gradle
+**/build
+**/.kotlin
+**/node_modules
+**/.expo
+client/expo/dist
+data
+*.mv.db
+*.trace.db
+*.log
+.idea
+local.properties
