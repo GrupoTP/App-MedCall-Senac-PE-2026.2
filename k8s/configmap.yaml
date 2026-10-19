@@ -1,0 +1,15 @@
+# Configuração NÃO secreta do servidor. A senha do banco e o JWT_SECRET ficam no
+# SealedSecret rs-secrets (sealedsecret.yaml).
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: rs-config
+data:
+  # MySQL 8.4 NATIVO do host temp-br (IP interno do nó). O usuário recifesaudavel
+  # só conecta a partir dos pods (10.42.%) e do próprio host.
+  DATABASE_DRIVER: com.mysql.cj.jdbc.Driver
+  DATABASE_JDBC_URL: "jdbc:mysql://10.0.0.180:3306/recifesaudavel?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true"
+  DATABASE_USER: recifesaudavel
+  # O PWA e a API ficam no mesmo host.
+  CORS_ALLOWED_ORIGINS: https://recifesaudavel.grupotp.polyclub.com.br
+  SESSION_IDLE_DAYS: "180"

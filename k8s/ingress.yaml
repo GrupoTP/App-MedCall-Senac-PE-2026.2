@@ -1,0 +1,46 @@
+# Um só host: /api, /healthz e /readyz vão para o servidor; o resto, para o PWA.
+# São as mesmas rotas que o service worker trata como "do servidor" (WorkerRequestRouter).
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: rs-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - recifesaudavel.grupotp.polyclub.com.br
+      secretName: recifesaudavel-tls
+  rules:
+    - host: recifesaudavel.grupotp.polyclub.com.br
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: rs-server
+                port:
+                  name: http
+          - path: /healthz
+            pathType: Exact
+            backend:
+              service:
+                name: rs-server
+                port:
+                  name: http
+          - path: /readyz
+            pathType: Exact
+            backend:
+              service:
+                name: rs-server
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: rs-web
+                port:
+                  name: http

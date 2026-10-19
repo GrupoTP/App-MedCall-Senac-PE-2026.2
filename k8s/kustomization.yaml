@@ -1,0 +1,32 @@
+# Recife Saudável — GitOps em recifesaudavel.grupotp.polyclub.com.br (node temp-br).
+# Gerenciado pelo ArgoCD (Application em ../argocd/application.yaml, aplicada à mão no a-ca).
+# Este diretório é PÚBLICO: nenhum segredo em texto puro aqui. A senha do banco e o
+# JWT_SECRET só como SealedSecret (sealedsecret.yaml), que só o controller sealed-secrets
+# do cluster consegue abrir.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: recifesaudavel
+
+labels:
+  - pairs:
+      app.kubernetes.io/part-of: recife-saudavel
+    includeSelectors: false
+
+resources:
+  - namespace.yaml
+  - configmap.yaml
+  - sealedsecret.yaml
+  - server.yaml
+  - web.yaml
+  - ingress.yaml
+
+images:
+  # Imagens públicas no ghcr.io, publicadas pelo workflow .github/workflows/publish-images.yml.
+  # Depois do primeiro build, FIXAR a tag sha-<7 chars> do commit (aba Actions ou página
+  # do pacote) no lugar de latest, como no Observatório. Para atualizar o app depois:
+  # novo commit -> novo build -> trocar a tag aqui.
+  - name: ghcr.io/grupotp/rs-server
+    newTag: latest
+  - name: ghcr.io/grupotp/rs-web
+    newTag: latest
