@@ -23,10 +23,10 @@ resources:
 
 images:
   # Imagens públicas no ghcr.io, publicadas pelo workflow .github/workflows/publish-images.yml.
-  # Depois do primeiro build, FIXAR a tag sha-<7 chars> do commit (aba Actions ou página
-  # do pacote) no lugar de latest, como no Observatório. Para atualizar o app depois:
-  # novo commit -> novo build -> trocar a tag aqui.
+  # Tag FIXADA (sem ArgoCD Image Updater): sha-<7 chars> do commit que gerou a imagem
+  # (aba Actions ou página do pacote). sha-c1095b0 = merge do PR #2.
+  # Para atualizar o app depois: novo commit -> novo build -> trocar as tags aqui.
   - name: ghcr.io/grupotp/rs-server
-    newTag: latest
+    newTag: sha-c1095b0
   - name: ghcr.io/grupotp/rs-web
-    newTag: latest
+    newTag: sha-c1095b0

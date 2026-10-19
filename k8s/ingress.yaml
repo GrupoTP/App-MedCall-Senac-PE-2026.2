@@ -1,5 +1,8 @@
 # Um só host: /api, /healthz e /readyz vão para o servidor; o resto, para o PWA.
 # São as mesmas rotas que o service worker trata como "do servidor" (WorkerRequestRouter).
+# /healthz e /readyz usam Prefix, não Exact: o Traefik dá prioridade pelo tamanho da regra,
+# e Path(`/readyz`) empata com PathPrefix(`/`) (15 caracteres cada), então o PWA podia
+# responder no lugar do servidor. PathPrefix(`/readyz`) é mais longa e sempre ganha.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -24,14 +27,14 @@ spec:
                 port:
                   name: http
           - path: /healthz
-            pathType: Exact
+            pathType: Prefix
             backend:
               service:
                 name: rs-server
                 port:
                   name: http
           - path: /readyz
-            pathType: Exact
+            pathType: Prefix
             backend:
               service:
                 name: rs-server
