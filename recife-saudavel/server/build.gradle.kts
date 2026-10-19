@@ -32,6 +32,8 @@ dependencies {
     implementation(libs.exposed.dao)
     implementation(libs.exposed.kotlin.datetime)
     implementation(libs.h2)
+    // MySQL in production (DATABASE_DRIVER=com.mysql.cj.jdbc.Driver). H2 stays the default for development and tests.
+    runtimeOnly(libs.mysql.connector.j)
 
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit5)
