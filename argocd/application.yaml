@@ -1,4 +1,4 @@
-# AppProject + Application do Recife Saudável (namespace recifesaudavel, node temp-br).
+# AppProject + Application do Recife Saudável (namespace recifesaudavel, node a, a-ca).
 # Este arquivo NÃO é sincronizado pelo ArgoCD: depois de alterar, aplicar no a-ca com
 #   sudo k3s kubectl apply -f argocd/application.yaml
 # Repo público: o ArgoCD lê via HTTPS sem credencial.
@@ -8,7 +8,7 @@ metadata:
   name: recifesaudavel
   namespace: argocd
 spec:
-  description: Recife Saudável (PI Senac PE 2026.2), no temp-br.
+  description: Recife Saudável (PI Senac PE 2026.2), no a-ca.
   sourceRepos:
     - https://github.com/GrupoTP/App-Recife-Saudavel-Senac-PE-2026.2.git
   destinations:

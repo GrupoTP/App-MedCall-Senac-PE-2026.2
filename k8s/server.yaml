@@ -1,4 +1,4 @@
-# Servidor Ktor (API /api/v1, /healthz e /readyz), no node temp-br.
+# Servidor Ktor (API /api/v1, /healthz e /readyz), no node a (a-ca).
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,17 +14,12 @@ spec:
         app: rs-server
     spec:
       nodeSelector:
-        kubernetes.io/hostname: temp-br
-      tolerations:
-        - key: polyclub.games/temp-br
-          operator: Equal
-          value: "true"
-          effect: NoSchedule
+        kubernetes.io/hostname: a
       # Imagem pública no ghcr.io: não precisa de imagePullSecrets.
       initContainers:
         - name: wait-for-db
           image: busybox:1.36
-          command: ["sh", "-c", "until nc -z 10.0.0.180 3306; do echo 'Aguardando MySQL nativo do temp-br...'; sleep 3; done"]
+          command: ["sh", "-c", "until nc -z a.ca.node.polyclub.games 3306; do echo 'Aguardando o MySQL do a-ca...'; sleep 3; done"]
           resources:
             requests: { cpu: 10m, memory: 8Mi }
             limits:   { memory: 32Mi }
@@ -43,7 +38,7 @@ spec:
           env:
             - name: DATABASE_PASSWORD
               valueFrom:
-                secretKeyRef: { name: rs-secrets, key: DATABASE_PASSWORD }
+                secretKeyRef: { name: recife-saudavel-mysql-credenciais, key: DATABASE_PASSWORD }
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef: { name: rs-secrets, key: JWT_SECRET }

@@ -5,11 +5,12 @@ kind: ConfigMap
 metadata:
   name: rs-config
 data:
-  # MySQL 8.4 NATIVO do host temp-br (IP interno do nó). O usuário recifesaudavel
-  # só conecta a partir dos pods (10.42.%) e do próprio host.
+  # MySQL compartilhado do host a-ca (mysql.service), o mesmo dos apps do polyclub.
+  # O usuário recife_saudavel só aceita conexões vindas dos pods (10.42.0.%).
+  # A senha fica no SealedSecret recife-saudavel-mysql-credenciais.
   DATABASE_DRIVER: com.mysql.cj.jdbc.Driver
-  DATABASE_JDBC_URL: "jdbc:mysql://10.0.0.180:3306/recifesaudavel?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true"
-  DATABASE_USER: recifesaudavel
+  DATABASE_JDBC_URL: "jdbc:mysql://a.ca.node.polyclub.games:3306/recife_saudavel?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true"
+  DATABASE_USER: recife_saudavel
   # O PWA e a API ficam no mesmo host.
   CORS_ALLOWED_ORIGINS: https://recifesaudavel.grupotp.polyclub.com.br
   SESSION_IDLE_DAYS: "180"
