@@ -1,8 +1,8 @@
-# Recife Saudável — GitOps em recifesaudavel.grupotp.polyclub.com.br (node temp-br).
+# Recife Saudável — GitOps em recifesaudavel.grupotp.polyclub.com.br (node a, a-ca).
 # Gerenciado pelo ArgoCD (Application em ../argocd/application.yaml, aplicada à mão no a-ca).
-# Este diretório é PÚBLICO: nenhum segredo em texto puro aqui. A senha do banco e o
-# JWT_SECRET só como SealedSecret (sealedsecret.yaml), que só o controller sealed-secrets
-# do cluster consegue abrir.
+# Este diretório é PÚBLICO: nenhum segredo em texto puro aqui. O JWT_SECRET (sealedsecret.yaml)
+# e a senha do MySQL (sealedsecret-recife-saudavel-mysql-credenciais.yaml) só como SealedSecret,
+# que só o controller sealed-secrets do cluster consegue abrir.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -17,6 +17,7 @@ resources:
   - namespace.yaml
   - configmap.yaml
   - sealedsecret.yaml
+  - sealedsecret-recife-saudavel-mysql-credenciais.yaml
   - server.yaml
   - web.yaml
   - ingress.yaml

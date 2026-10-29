@@ -1,4 +1,4 @@
-# PWA (export web do Expo) servido pelo nginx, no node temp-br.
+# PWA (export web do Expo) servido pelo nginx, no node a (a-ca).
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -14,12 +14,7 @@ spec:
         app: rs-web
     spec:
       nodeSelector:
-        kubernetes.io/hostname: temp-br
-      tolerations:
-        - key: polyclub.games/temp-br
-          operator: Equal
-          value: "true"
-          effect: NoSchedule
+        kubernetes.io/hostname: a
       containers:
         - name: web
           image: ghcr.io/grupotp/rs-web   # tag fixada no kustomization.yaml
