@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.app.ui.screen.pretriage.step
+package grupotp.medcall.app.ui.screen.pretriage.step
 
-import grupotp.recifesaudavel.app.ui.component.form.labeledTextField
-import grupotp.recifesaudavel.app.ui.component.layout.sectionTitle
-import grupotp.recifesaudavel.app.ui.theme.Styles
-import grupotp.recifesaudavel.common.pretriage.PreTriageForm
+import grupotp.medcall.app.ui.component.form.labeledTextField
+import grupotp.medcall.app.ui.component.layout.sectionTitle
+import grupotp.medcall.app.ui.theme.Styles
+import grupotp.medcall.common.pretriage.PreTriageForm
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
 import react.FC

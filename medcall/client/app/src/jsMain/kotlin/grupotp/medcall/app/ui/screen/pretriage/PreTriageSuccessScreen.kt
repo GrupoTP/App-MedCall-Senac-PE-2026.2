@@ -1,12 +1,12 @@
-package grupotp.recifesaudavel.app.ui.screen.pretriage
+package grupotp.medcall.app.ui.screen.pretriage
 
-import grupotp.recifesaudavel.app.ui.component.alert.warnAlert
-import grupotp.recifesaudavel.app.ui.component.button.primaryButton
-import grupotp.recifesaudavel.app.ui.component.button.secondaryButton
-import grupotp.recifesaudavel.app.ui.component.layout.AppFooter
-import grupotp.recifesaudavel.app.ui.icon.largeCheckCircleIcon
-import grupotp.recifesaudavel.app.ui.theme.Palette
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.component.alert.warnAlert
+import grupotp.medcall.app.ui.component.button.primaryButton
+import grupotp.medcall.app.ui.component.button.secondaryButton
+import grupotp.medcall.app.ui.component.layout.AppFooter
+import grupotp.medcall.app.ui.icon.largeCheckCircleIcon
+import grupotp.medcall.app.ui.theme.Palette
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.json
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text

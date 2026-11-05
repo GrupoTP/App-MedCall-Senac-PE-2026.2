@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.app.ui.component.alert
+package grupotp.medcall.app.ui.component.alert
 
-import grupotp.recifesaudavel.app.ui.component.button.primaryButton
-import grupotp.recifesaudavel.app.ui.component.button.secondaryButton
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.component.button.primaryButton
+import grupotp.medcall.app.ui.component.button.secondaryButton
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.native.component.Modal
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.Text

@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.domain.account
+package grupotp.medcall.app.domain.account
 
-import grupotp.recifesaudavel.common.account.AccountProfile
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.account.AccountProfile
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 /**
  * @property account the signed-in profile the device keeps, already updated.

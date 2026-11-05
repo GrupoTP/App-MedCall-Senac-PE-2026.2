@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.server.service.result
+package grupotp.medcall.server.service.result
 
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.server.domain.ServiceError
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.server.domain.ServiceError
 
 sealed interface RegistrationResult {
     data class Created(val account: AuthenticatedAccount) : RegistrationResult

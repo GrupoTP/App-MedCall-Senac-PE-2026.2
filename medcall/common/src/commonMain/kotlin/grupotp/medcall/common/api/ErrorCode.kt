@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.common.api
+package grupotp.medcall.common.api
 
 import kotlinx.serialization.Serializable
 

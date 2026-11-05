@@ -6,7 +6,7 @@
 module.exports = () => ({
   name: "Recife Saudável",
   // Project id for Expo's tools. Changing it does not rename the app.
-  slug: "recife-saudavel",
+  slug: "medcall",
   version: "1.0.0",
   orientation: "portrait",
   icon: "./assets/icon.png",
@@ -15,7 +15,7 @@ module.exports = () => ({
 
   android: {
     // Application id on the device. Changing it installs a separate app instead of an update.
-    package: "grupotp.recifesaudavel",
+    package: "grupotp.medcall",
     // Launcher icon on Android 8+: the logo over the brand blue.
     adaptiveIcon: {
       backgroundColor: "#2d7dd2",

@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.service.result
+package grupotp.medcall.server.service.result
 
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 sealed interface SignInResult {
     data class Authenticated(val account: AuthenticatedAccount) : SignInResult

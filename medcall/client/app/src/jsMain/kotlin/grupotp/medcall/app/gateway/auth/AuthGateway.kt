@@ -1,10 +1,10 @@
-package grupotp.recifesaudavel.app.gateway.auth
+package grupotp.medcall.app.gateway.auth
 
-import grupotp.recifesaudavel.app.domain.auth.AuthError
-import grupotp.recifesaudavel.app.domain.auth.AuthResult
-import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.auth.SignInRequest
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.auth.AuthError
+import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.common.auth.RegisterAccountRequest
+import grupotp.medcall.common.auth.SignInRequest
+import grupotp.medcall.common.security.SecretString
 
 /**
  * Authentication API of the server.

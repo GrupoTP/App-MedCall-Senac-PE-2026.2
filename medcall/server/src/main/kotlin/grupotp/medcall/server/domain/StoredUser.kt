@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.domain
+package grupotp.medcall.server.domain
 
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 data class StoredUser(
     val account: AuthenticatedAccount,

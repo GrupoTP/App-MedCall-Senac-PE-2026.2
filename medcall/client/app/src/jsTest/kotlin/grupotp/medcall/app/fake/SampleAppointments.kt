@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.app.fake
+package grupotp.medcall.app.fake
 
-import grupotp.recifesaudavel.common.account.Phone
-import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
-import grupotp.recifesaudavel.common.scheduling.Clinic
+import grupotp.medcall.common.account.Phone
+import grupotp.medcall.common.scheduling.Appointment
+import grupotp.medcall.common.scheduling.AppointmentStatus
+import grupotp.medcall.common.scheduling.Clinic
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime
 

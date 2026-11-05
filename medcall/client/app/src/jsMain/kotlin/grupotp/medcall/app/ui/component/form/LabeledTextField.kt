@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.ui.component.form
+package grupotp.medcall.app.ui.component.form
 
 import react.ChildrenBuilder
 

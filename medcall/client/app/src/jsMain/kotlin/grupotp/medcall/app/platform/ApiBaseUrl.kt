@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.platform
+package grupotp.medcall.app.platform
 
 private const val WEB = "web"
 private const val API_PORT = 8080

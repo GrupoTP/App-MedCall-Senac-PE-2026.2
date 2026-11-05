@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.domain.scheduling
+package grupotp.medcall.app.domain.scheduling
 
-import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.medcall.common.scheduling.Appointment
+import grupotp.medcall.common.scheduling.AppointmentStatus
 import kotlin.time.Instant
 
 /**

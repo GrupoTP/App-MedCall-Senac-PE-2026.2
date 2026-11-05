@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.di
+package grupotp.medcall.app.di
 
 import org.koin.mp.KoinPlatform
 import react.useMemo

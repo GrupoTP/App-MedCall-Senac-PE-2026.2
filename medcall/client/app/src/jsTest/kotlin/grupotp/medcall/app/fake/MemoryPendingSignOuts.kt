@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.fake
+package grupotp.medcall.app.fake
 
-import grupotp.recifesaudavel.app.gateway.local.PendingSignOutGateway
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.gateway.local.PendingSignOutGateway
+import grupotp.medcall.common.security.SecretString
 
 internal class MemoryPendingSignOuts : PendingSignOutGateway {
     var tokens: List<SecretString> = emptyList()

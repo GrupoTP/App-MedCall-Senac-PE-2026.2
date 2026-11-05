@@ -1,10 +1,10 @@
-package grupotp.recifesaudavel.worker.local
+package grupotp.medcall.worker.local
 
-import grupotp.recifesaudavel.common.offline.LocalWorkerApi
-import grupotp.recifesaudavel.common.security.SecretString
-import grupotp.recifesaudavel.worker.http.RequestHandler
-import grupotp.recifesaudavel.worker.http.WorkerResponses
-import grupotp.recifesaudavel.worker.storage.LocalAccountDatabase
+import grupotp.medcall.common.offline.LocalWorkerApi
+import grupotp.medcall.common.security.SecretString
+import grupotp.medcall.worker.http.RequestHandler
+import grupotp.medcall.worker.http.WorkerResponses
+import grupotp.medcall.worker.storage.LocalAccountDatabase
 import kotlinx.serialization.json.Json
 import web.http.GET
 import web.http.PUT

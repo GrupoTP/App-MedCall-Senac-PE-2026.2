@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.server.controller
+package grupotp.medcall.server.controller
 
-import grupotp.recifesaudavel.common.pretriage.PreTriageForm
-import grupotp.recifesaudavel.server.plugin.authenticatedRoute
-import grupotp.recifesaudavel.server.service.result.PreTriageResult
-import grupotp.recifesaudavel.server.service.PreTriageService
+import grupotp.medcall.common.pretriage.PreTriageForm
+import grupotp.medcall.server.plugin.authenticatedRoute
+import grupotp.medcall.server.service.result.PreTriageResult
+import grupotp.medcall.server.service.PreTriageService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.request.receive

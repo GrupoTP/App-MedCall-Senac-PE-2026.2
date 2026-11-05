@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.usecase.session
+package grupotp.medcall.app.usecase.session
 
-import grupotp.recifesaudavel.app.gateway.local.LocalAccountGateway
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.app.gateway.local.LocalAccountGateway
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 class LoadSignedInAccountUseCase(
     private val accounts: LocalAccountGateway,

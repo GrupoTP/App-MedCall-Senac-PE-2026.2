@@ -1,10 +1,10 @@
-package grupotp.recifesaudavel.server.plugin
+package grupotp.medcall.server.plugin
 
-import grupotp.recifesaudavel.server.controller.respondSessionExpired
-import grupotp.recifesaudavel.server.security.JwtSettings
-import grupotp.recifesaudavel.server.security.SessionPrincipal
-import grupotp.recifesaudavel.server.security.SessionTokens
-import grupotp.recifesaudavel.server.service.SessionService
+import grupotp.medcall.server.controller.respondSessionExpired
+import grupotp.medcall.server.security.JwtSettings
+import grupotp.medcall.server.security.SessionPrincipal
+import grupotp.medcall.server.security.SessionTokens
+import grupotp.medcall.server.service.SessionService
 import io.ktor.http.HttpHeaders
 import io.ktor.http.auth.HttpAuthHeader
 import io.ktor.server.application.Application

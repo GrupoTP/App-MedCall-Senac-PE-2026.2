@@ -8,7 +8,7 @@ pluginManagement {
 }
 
 plugins {
-    id("recifesaudavel.dropbox-ignore")
+    id("medcall.dropbox-ignore")
 }
 
 dependencyResolutionManagement {
@@ -22,7 +22,7 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "recife-saudavel"
+rootProject.name = "medcall"
 
 // The submodule has to exist before Gradle reads the included build, so no task could clone it:
 // the first build after `git clone` checks it out here. Later runs only check for the file.

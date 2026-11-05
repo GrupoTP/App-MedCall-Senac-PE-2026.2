@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.common.scheduling
+package grupotp.medcall.common.scheduling
 
 import kotlinx.datetime.TimeZone
 import kotlinx.serialization.Serializable

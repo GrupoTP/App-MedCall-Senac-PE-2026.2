@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.ui.format
+package grupotp.medcall.app.ui.format
 
-import grupotp.recifesaudavel.app.domain.RemoteError
-import grupotp.recifesaudavel.app.domain.auth.AuthError
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.app.domain.auth.AuthError
 
 /**
  * Texts shown for the failures the use cases return.

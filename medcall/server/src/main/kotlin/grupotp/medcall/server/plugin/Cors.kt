@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.plugin
+package grupotp.medcall.server.plugin
 
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod

@@ -1,15 +1,15 @@
-package grupotp.recifesaudavel.server
+package grupotp.medcall.server
 
-import grupotp.recifesaudavel.server.controller.configureAccountController
-import grupotp.recifesaudavel.server.controller.configureAuthController
-import grupotp.recifesaudavel.server.controller.configureHealthController
-import grupotp.recifesaudavel.server.controller.configurePreTriageController
-import grupotp.recifesaudavel.server.controller.configureSchedulingController
-import grupotp.recifesaudavel.server.plugin.configureAuthentication
-import grupotp.recifesaudavel.server.plugin.configureCors
-import grupotp.recifesaudavel.server.plugin.configureDatabase
-import grupotp.recifesaudavel.server.plugin.configureDependencyInjection
-import grupotp.recifesaudavel.server.plugin.configureSerialization
+import grupotp.medcall.server.controller.configureAccountController
+import grupotp.medcall.server.controller.configureAuthController
+import grupotp.medcall.server.controller.configureHealthController
+import grupotp.medcall.server.controller.configurePreTriageController
+import grupotp.medcall.server.controller.configureSchedulingController
+import grupotp.medcall.server.plugin.configureAuthentication
+import grupotp.medcall.server.plugin.configureCors
+import grupotp.medcall.server.plugin.configureDatabase
+import grupotp.medcall.server.plugin.configureDependencyInjection
+import grupotp.medcall.server.plugin.configureSerialization
 import io.ktor.server.application.Application
 import io.ktor.server.netty.EngineMain
 

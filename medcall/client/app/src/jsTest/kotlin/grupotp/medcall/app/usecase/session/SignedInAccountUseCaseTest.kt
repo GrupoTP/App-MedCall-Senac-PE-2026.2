@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.usecase.session
+package grupotp.medcall.app.usecase.session
 
-import grupotp.recifesaudavel.app.fake.MemoryLocalAccounts
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.app.fake.MemoryLocalAccounts
+import grupotp.medcall.common.auth.AuthenticatedAccount
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test

@@ -1,6 +1,6 @@
-// Project plugin `recifesaudavel.ktor-dev-mode`, applied by server/build.gradle.kts.
+// Project plugin `medcall.ktor-dev-mode`, applied by server/build.gradle.kts.
 // Adds `runDev`: the server in Ktor development mode, recompiled by ServerWatcher and reloaded on change.
-import grupotp.recifesaudavel.buildlogic.ServerWatcher
+import grupotp.medcall.buildlogic.ServerWatcher
 
 plugins {
     application

@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.app.ui.component.layout
+package grupotp.medcall.app.ui.component.layout
 
-import grupotp.recifesaudavel.app.ui.component.button.pressable
-import grupotp.recifesaudavel.app.ui.icon.backIcon
-import grupotp.recifesaudavel.app.ui.theme.Palette
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.component.button.pressable
+import grupotp.medcall.app.ui.icon.backIcon
+import grupotp.medcall.app.ui.theme.Palette
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.json
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.Text

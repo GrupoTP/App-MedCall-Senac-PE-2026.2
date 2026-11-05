@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server
+package grupotp.medcall.server
 
 import io.ktor.client.request.get
 import io.ktor.client.statement.bodyAsText

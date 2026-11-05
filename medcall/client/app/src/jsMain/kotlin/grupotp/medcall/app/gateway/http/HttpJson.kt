@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.app.gateway.http
+package grupotp.medcall.app.gateway.http
 
-import grupotp.recifesaudavel.app.domain.RemoteError
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.common.api.ApiError
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.common.api.ApiError
+import grupotp.medcall.common.security.SecretString
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.engine.HttpClientEngine

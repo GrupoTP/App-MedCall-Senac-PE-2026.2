@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.common.security
+package grupotp.medcall.common.security
 
-import grupotp.recifesaudavel.common.auth.SignInRequest
+import grupotp.medcall.common.auth.SignInRequest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals

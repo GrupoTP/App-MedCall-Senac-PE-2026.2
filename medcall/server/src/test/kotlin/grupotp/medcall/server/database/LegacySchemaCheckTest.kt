@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.database
+package grupotp.medcall.server.database
 
-import grupotp.recifesaudavel.server.database.table.UsersTable
+import grupotp.medcall.server.database.table.UsersTable
 import org.jetbrains.exposed.v1.core.Table
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.SchemaUtils

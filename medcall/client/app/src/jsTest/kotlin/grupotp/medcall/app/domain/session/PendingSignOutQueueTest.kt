@@ -1,10 +1,10 @@
-package grupotp.recifesaudavel.app.domain.session
+package grupotp.medcall.app.domain.session
 
-import grupotp.recifesaudavel.app.domain.RemoteError
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.fake.FakeAccountGateway
-import grupotp.recifesaudavel.app.fake.MemoryPendingSignOuts
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.app.fake.FakeAccountGateway
+import grupotp.medcall.app.fake.MemoryPendingSignOuts
+import grupotp.medcall.common.security.SecretString
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

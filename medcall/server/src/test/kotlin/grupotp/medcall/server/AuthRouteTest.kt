@@ -1,14 +1,14 @@
-package grupotp.recifesaudavel.server
+package grupotp.medcall.server
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
-import grupotp.recifesaudavel.common.account.Phone
-import grupotp.recifesaudavel.common.api.ApiError
-import grupotp.recifesaudavel.common.api.ErrorCode
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.auth.SignInRequest
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.common.account.Phone
+import grupotp.medcall.common.api.ApiError
+import grupotp.medcall.common.api.ErrorCode
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.RegisterAccountRequest
+import grupotp.medcall.common.auth.SignInRequest
+import grupotp.medcall.common.security.SecretString
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.post
@@ -84,7 +84,7 @@ class AuthRouteTest {
         assertTrue(!profile.phone.isEmpty())
         assertEquals(HttpStatusCode.Unauthorized, forged.status)
         assertEquals(HttpStatusCode.Unauthorized, resigned.status)
-        assertEquals("Bearer realm=recife-saudavel", resigned.headers[HttpHeaders.WWWAuthenticate])
+        assertEquals("Bearer realm=medcall", resigned.headers[HttpHeaders.WWWAuthenticate])
         assertEquals(HttpStatusCode.Unauthorized, anonymous.status)
         assertEquals(
             ApiError(ErrorCode.SESSION_EXPIRED, "Sua sessão expirou. Entre de novo para continuar."),

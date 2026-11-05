@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.ui.screen.pretriage.step
+package grupotp.medcall.app.ui.screen.pretriage.step
 
-import grupotp.recifesaudavel.common.pretriage.PreTriageForm
+import grupotp.medcall.common.pretriage.PreTriageForm
 import react.Props
 
 /**

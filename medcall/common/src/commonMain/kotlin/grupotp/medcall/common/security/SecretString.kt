@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.common.security
+package grupotp.medcall.common.security
 
 import kotlinx.serialization.Serializable
 import kotlin.jvm.JvmInline

@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.database
+package grupotp.medcall.server.database
 
 /**
  * Clinics, specialties and professionals from the prototype, inserted when the tables are empty.

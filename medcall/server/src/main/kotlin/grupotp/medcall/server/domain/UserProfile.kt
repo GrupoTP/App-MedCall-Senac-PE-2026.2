@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.domain
+package grupotp.medcall.server.domain
 
-import grupotp.recifesaudavel.common.account.Phone
+import grupotp.medcall.common.account.Phone
 
 data class UserProfile(
     val fullName: String,

@@ -1,11 +1,11 @@
-package grupotp.recifesaudavel.server.controller
+package grupotp.medcall.server.controller
 
-import grupotp.recifesaudavel.common.api.ErrorCode
-import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
-import grupotp.recifesaudavel.server.plugin.authenticatedRoute
-import grupotp.recifesaudavel.server.service.result.BookingResult
-import grupotp.recifesaudavel.server.service.result.CancelResult
-import grupotp.recifesaudavel.server.service.SchedulingService
+import grupotp.medcall.common.api.ErrorCode
+import grupotp.medcall.common.scheduling.CreateAppointmentRequest
+import grupotp.medcall.server.plugin.authenticatedRoute
+import grupotp.medcall.server.service.result.BookingResult
+import grupotp.medcall.server.service.result.CancelResult
+import grupotp.medcall.server.service.SchedulingService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.request.receive

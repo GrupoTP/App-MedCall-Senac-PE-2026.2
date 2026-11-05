@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.app.ui.screen.settings
+package grupotp.medcall.app.ui.screen.settings
 
-import grupotp.recifesaudavel.app.ui.component.layout.AppFooter
-import grupotp.recifesaudavel.app.ui.component.layout.ScreenHeader
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.component.layout.AppFooter
+import grupotp.medcall.app.ui.component.layout.ScreenHeader
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.native.component.ScrollView
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View

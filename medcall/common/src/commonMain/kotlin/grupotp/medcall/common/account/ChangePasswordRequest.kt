@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.common.account
+package grupotp.medcall.common.account
 
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.common.security.SecretString
 import kotlinx.serialization.Serializable
 
 /**

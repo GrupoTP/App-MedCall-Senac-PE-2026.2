@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.app.ui.component.alert
+package grupotp.medcall.app.ui.component.alert
 
-import grupotp.recifesaudavel.app.domain.RemoteError
-import grupotp.recifesaudavel.app.ui.component.button.textLink
-import grupotp.recifesaudavel.app.ui.format.ErrorMessages
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.app.ui.component.button.textLink
+import grupotp.medcall.app.ui.format.ErrorMessages
 import react.ChildrenBuilder
 
 /**

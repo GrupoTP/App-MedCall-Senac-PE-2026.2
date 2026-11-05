@@ -1,17 +1,17 @@
-package grupotp.recifesaudavel.app.ui.screen.pretriage.step
+package grupotp.medcall.app.ui.screen.pretriage.step
 
-import grupotp.recifesaudavel.app.ui.component.alert.clinicalDisclaimer
-import grupotp.recifesaudavel.app.ui.component.alert.warnAlert
-import grupotp.recifesaudavel.app.ui.component.form.FieldKind
-import grupotp.recifesaudavel.app.ui.component.form.TextField
-import grupotp.recifesaudavel.app.ui.component.form.fieldError
-import grupotp.recifesaudavel.app.ui.component.form.formField
-import grupotp.recifesaudavel.app.ui.component.form.labeledTextField
-import grupotp.recifesaudavel.app.ui.component.form.phoneField
-import grupotp.recifesaudavel.app.ui.component.layout.sectionTitle
-import grupotp.recifesaudavel.app.ui.theme.Styles
-import grupotp.recifesaudavel.common.account.Phone
-import grupotp.recifesaudavel.common.pretriage.PreTriageForm
+import grupotp.medcall.app.ui.component.alert.clinicalDisclaimer
+import grupotp.medcall.app.ui.component.alert.warnAlert
+import grupotp.medcall.app.ui.component.form.FieldKind
+import grupotp.medcall.app.ui.component.form.TextField
+import grupotp.medcall.app.ui.component.form.fieldError
+import grupotp.medcall.app.ui.component.form.formField
+import grupotp.medcall.app.ui.component.form.labeledTextField
+import grupotp.medcall.app.ui.component.form.phoneField
+import grupotp.medcall.app.ui.component.layout.sectionTitle
+import grupotp.medcall.app.ui.theme.Styles
+import grupotp.medcall.common.account.Phone
+import grupotp.medcall.common.pretriage.PreTriageForm
 import ojaynico.kotlin.react.native.component.View
 import react.FC
 

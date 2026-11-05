@@ -1,13 +1,13 @@
-package grupotp.recifesaudavel.app.fake
+package grupotp.medcall.app.fake
 
-import grupotp.recifesaudavel.app.domain.RemoteError
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.gateway.account.AccountGateway
-import grupotp.recifesaudavel.common.account.AccountProfile
-import grupotp.recifesaudavel.common.account.ChangePasswordRequest
-import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
-import grupotp.recifesaudavel.common.account.UpdateProfileRequest
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.app.gateway.account.AccountGateway
+import grupotp.medcall.common.account.AccountProfile
+import grupotp.medcall.common.account.ChangePasswordRequest
+import grupotp.medcall.common.account.UpdateConsentsRequest
+import grupotp.medcall.common.account.UpdateProfileRequest
+import grupotp.medcall.common.security.SecretString
 
 /**
  * Answers every profile call with [result] and records what it was sent.

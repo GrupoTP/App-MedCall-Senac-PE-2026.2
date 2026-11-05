@@ -1,11 +1,11 @@
-package grupotp.recifesaudavel.server.controller
+package grupotp.medcall.server.controller
 
-import grupotp.recifesaudavel.common.account.ChangePasswordRequest
-import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
-import grupotp.recifesaudavel.common.account.UpdateProfileRequest
-import grupotp.recifesaudavel.server.plugin.authenticatedRoute
-import grupotp.recifesaudavel.server.service.result.AccountResult
-import grupotp.recifesaudavel.server.service.AccountService
+import grupotp.medcall.common.account.ChangePasswordRequest
+import grupotp.medcall.common.account.UpdateConsentsRequest
+import grupotp.medcall.common.account.UpdateProfileRequest
+import grupotp.medcall.server.plugin.authenticatedRoute
+import grupotp.medcall.server.service.result.AccountResult
+import grupotp.medcall.server.service.AccountService
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.application.ApplicationCall

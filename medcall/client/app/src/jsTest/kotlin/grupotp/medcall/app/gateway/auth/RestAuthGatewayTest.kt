@@ -1,13 +1,13 @@
-package grupotp.recifesaudavel.app.gateway.auth
+package grupotp.medcall.app.gateway.auth
 
-import grupotp.recifesaudavel.app.domain.auth.AuthError
-import grupotp.recifesaudavel.app.domain.auth.AuthResult
-import grupotp.recifesaudavel.app.gateway.http.apiHttpClient
-import grupotp.recifesaudavel.common.api.ApiError
-import grupotp.recifesaudavel.common.api.ErrorCode
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.auth.SignInRequest
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.auth.AuthError
+import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.app.gateway.http.apiHttpClient
+import grupotp.medcall.common.api.ApiError
+import grupotp.medcall.common.api.ErrorCode
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.SignInRequest
+import grupotp.medcall.common.security.SecretString
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.MockRequestHandleScope
 import io.ktor.client.engine.mock.respond

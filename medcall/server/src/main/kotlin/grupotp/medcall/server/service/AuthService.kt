@@ -1,15 +1,15 @@
-package grupotp.recifesaudavel.server.service
+package grupotp.medcall.server.service
 
-import grupotp.recifesaudavel.common.api.ErrorCode
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.auth.SignInRequest
-import grupotp.recifesaudavel.server.repository.UserRepository
-import grupotp.recifesaudavel.server.security.PasswordHasher
-import grupotp.recifesaudavel.server.security.SessionTokens
-import grupotp.recifesaudavel.server.service.result.RegistrationResult
-import grupotp.recifesaudavel.server.domain.ServiceError
-import grupotp.recifesaudavel.server.service.result.SignInResult
+import grupotp.medcall.common.api.ErrorCode
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.RegisterAccountRequest
+import grupotp.medcall.common.auth.SignInRequest
+import grupotp.medcall.server.repository.UserRepository
+import grupotp.medcall.server.security.PasswordHasher
+import grupotp.medcall.server.security.SessionTokens
+import grupotp.medcall.server.service.result.RegistrationResult
+import grupotp.medcall.server.domain.ServiceError
+import grupotp.medcall.server.service.result.SignInResult
 import java.time.Clock
 import kotlin.time.toKotlinInstant
 

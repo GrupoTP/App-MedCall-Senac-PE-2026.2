@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.platform
+package grupotp.medcall.app.platform
 
 /**
  * Hermes has no Web Crypto, but `kotlin.uuid.Uuid.random()` calls `crypto.getRandomValues`,

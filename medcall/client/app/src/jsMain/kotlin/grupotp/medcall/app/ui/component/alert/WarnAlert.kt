@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.ui.component.alert
+package grupotp.medcall.app.ui.component.alert
 
-import grupotp.recifesaudavel.app.ui.component.text.emoji
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.component.text.emoji
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
 import react.ChildrenBuilder

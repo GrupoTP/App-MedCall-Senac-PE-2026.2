@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.ui.component.form
+package grupotp.medcall.app.ui.component.form
 
-import grupotp.recifesaudavel.app.ui.component.button.pressable
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.component.button.pressable
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.Text
 import react.ChildrenBuilder

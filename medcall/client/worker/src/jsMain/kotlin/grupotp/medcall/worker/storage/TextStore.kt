@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.worker.storage
+package grupotp.medcall.worker.storage
 
 import kotlinx.coroutines.suspendCancellableCoroutine
 import web.events.EventHandler

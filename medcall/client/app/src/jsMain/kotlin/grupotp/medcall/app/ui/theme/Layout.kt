@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.ui.theme
+package grupotp.medcall.app.ui.theme
 
 /**
  * Column widths of the screens.

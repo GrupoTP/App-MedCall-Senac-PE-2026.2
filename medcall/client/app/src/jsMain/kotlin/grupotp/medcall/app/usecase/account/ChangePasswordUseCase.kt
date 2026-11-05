@@ -1,11 +1,11 @@
-package grupotp.recifesaudavel.app.usecase.account
+package grupotp.medcall.app.usecase.account
 
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.gateway.account.AccountGateway
-import grupotp.recifesaudavel.common.account.AccountProfile
-import grupotp.recifesaudavel.common.account.ChangePasswordRequest
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.app.gateway.account.AccountGateway
+import grupotp.medcall.common.account.AccountProfile
+import grupotp.medcall.common.account.ChangePasswordRequest
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.security.SecretString
 
 class ChangePasswordUseCase(
     private val gateway: AccountGateway,

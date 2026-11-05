@@ -1,11 +1,11 @@
-package grupotp.recifesaudavel.server.repository
+package grupotp.medcall.server.repository
 
-import grupotp.recifesaudavel.common.pretriage.PreTriage
-import grupotp.recifesaudavel.common.pretriage.PreTriageForm
-import grupotp.recifesaudavel.server.database.table.PreTriagesTable
-import grupotp.recifesaudavel.server.database.entity.AppointmentEntity
-import grupotp.recifesaudavel.server.database.entity.PreTriageEntity
-import grupotp.recifesaudavel.server.database.entity.UserEntity
+import grupotp.medcall.common.pretriage.PreTriage
+import grupotp.medcall.common.pretriage.PreTriageForm
+import grupotp.medcall.server.database.table.PreTriagesTable
+import grupotp.medcall.server.database.entity.AppointmentEntity
+import grupotp.medcall.server.database.entity.PreTriageEntity
+import grupotp.medcall.server.database.entity.UserEntity
 import kotlinx.serialization.json.Json
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and

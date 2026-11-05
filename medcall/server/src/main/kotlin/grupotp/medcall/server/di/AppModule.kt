@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.di
+package grupotp.medcall.server.di
 
-import grupotp.recifesaudavel.server.service.HealthService
+import grupotp.medcall.server.service.HealthService
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 

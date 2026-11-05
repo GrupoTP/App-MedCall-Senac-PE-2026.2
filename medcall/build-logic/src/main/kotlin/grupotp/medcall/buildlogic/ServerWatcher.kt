@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.buildlogic
+package grupotp.medcall.buildlogic
 
 import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.logging.Logging

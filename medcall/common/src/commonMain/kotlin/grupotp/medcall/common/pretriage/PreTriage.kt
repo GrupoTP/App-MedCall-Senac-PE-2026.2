@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.common.pretriage
+package grupotp.medcall.common.pretriage
 
 import kotlinx.serialization.Serializable
 import kotlin.time.Instant

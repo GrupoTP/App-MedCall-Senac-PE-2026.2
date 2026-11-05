@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.worker.shell
+package grupotp.medcall.worker.shell
 
 import web.url.URL
 

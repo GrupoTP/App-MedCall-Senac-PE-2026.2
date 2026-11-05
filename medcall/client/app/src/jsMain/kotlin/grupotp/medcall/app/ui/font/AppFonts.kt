@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.ui.font
+package grupotp.medcall.app.ui.font
 
-import grupotp.recifesaudavel.app.ui.theme.FontFamily
+import grupotp.medcall.app.ui.theme.FontFamily
 import ojaynico.kotlin.react.json
 
 /**

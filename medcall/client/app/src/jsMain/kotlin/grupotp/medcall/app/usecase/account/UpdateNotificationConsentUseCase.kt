@@ -1,10 +1,10 @@
-package grupotp.recifesaudavel.app.usecase.account
+package grupotp.medcall.app.usecase.account
 
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.gateway.account.AccountGateway
-import grupotp.recifesaudavel.common.account.AccountProfile
-import grupotp.recifesaudavel.common.account.UpdateConsentsRequest
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.app.gateway.account.AccountGateway
+import grupotp.medcall.common.account.AccountProfile
+import grupotp.medcall.common.account.UpdateConsentsRequest
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 class UpdateNotificationConsentUseCase(
     private val gateway: AccountGateway,

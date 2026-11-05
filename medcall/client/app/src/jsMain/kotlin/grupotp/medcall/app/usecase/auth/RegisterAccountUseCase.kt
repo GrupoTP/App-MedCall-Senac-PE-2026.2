@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.app.usecase.auth
+package grupotp.medcall.app.usecase.auth
 
-import grupotp.recifesaudavel.app.domain.auth.AuthResult
-import grupotp.recifesaudavel.app.gateway.auth.AuthGateway
-import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
+import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.app.gateway.auth.AuthGateway
+import grupotp.medcall.common.auth.RegisterAccountRequest
 
 class RegisterAccountUseCase(
     private val gateway: AuthGateway,

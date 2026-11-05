@@ -1,11 +1,11 @@
-package grupotp.recifesaudavel.app.usecase.scheduling
+package grupotp.medcall.app.usecase.scheduling
 
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.scheduling.AppointmentTimeline
-import grupotp.recifesaudavel.app.gateway.local.LocalAppointmentGateway
-import grupotp.recifesaudavel.app.gateway.scheduling.AppointmentGateway
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.app.domain.scheduling.AppointmentTimeline
+import grupotp.medcall.app.gateway.local.LocalAppointmentGateway
+import grupotp.medcall.app.gateway.scheduling.AppointmentGateway
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.scheduling.Appointment
 
 /**
  * Cancels on the server. Like booking, the device copy only changes after the server accepted it.

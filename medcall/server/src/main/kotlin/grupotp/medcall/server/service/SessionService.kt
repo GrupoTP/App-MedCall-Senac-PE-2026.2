@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.server.service
+package grupotp.medcall.server.service
 
-import grupotp.recifesaudavel.server.repository.SessionRepository
-import grupotp.recifesaudavel.server.domain.OpenedSession
-import grupotp.recifesaudavel.server.security.SessionSettings
+import grupotp.medcall.server.repository.SessionRepository
+import grupotp.medcall.server.domain.OpenedSession
+import grupotp.medcall.server.security.SessionSettings
 import java.time.Clock
 import kotlin.time.Duration
 import kotlin.time.Duration.Companion.days
@@ -12,7 +12,7 @@ import kotlin.time.toKotlinInstant
 
 /**
  * Opens and resolves sessions. The client holds a signed token naming the session
- * ([SessionTokens][grupotp.recifesaudavel.server.security.SessionTokens]); this service decides
+ * ([SessionTokens][grupotp.medcall.server.security.SessionTokens]); this service decides
  * whether that session is still open.
  *
  * A session lasts while it is used: it only expires after [SessionSettings.idleTimeout] without

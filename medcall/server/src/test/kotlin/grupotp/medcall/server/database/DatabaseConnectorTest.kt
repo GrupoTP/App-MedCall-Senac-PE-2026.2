@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.database
+package grupotp.medcall.server.database
 
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
@@ -11,8 +11,8 @@ class DatabaseConnectorTest {
     @Test
     fun fileDatabaseAcceptsAQuery() {
         // Arrange
-        val folder = Files.createTempDirectory("recife-saudavel-h2")
-        val databaseFile = folder.resolve("recife-saudavel")
+        val folder = Files.createTempDirectory("medcall-h2")
+        val databaseFile = folder.resolve("medcall")
         val settings = DatabaseSettings(
             jdbcUrl = "jdbc:h2:file:$databaseFile",
             driver = "org.h2.Driver",
@@ -31,7 +31,7 @@ class DatabaseConnectorTest {
 
         // Assert
         assertEquals(1, value)
-        assertTrue(Files.exists(folder.resolve("recife-saudavel.mv.db")))
+        assertTrue(Files.exists(folder.resolve("medcall.mv.db")))
         TransactionManager.closeAndUnregister(database)
     }
 }

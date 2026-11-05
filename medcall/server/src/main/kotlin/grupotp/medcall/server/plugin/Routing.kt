@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.plugin
+package grupotp.medcall.server.plugin
 
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route

@@ -1,6 +1,6 @@
 @file:JsModule("expo-font")
 
-package grupotp.recifesaudavel.app.ui.font
+package grupotp.medcall.app.ui.font
 
 /**
  * Loads the given font map. Returns `[loaded, error]`.

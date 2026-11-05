@@ -1,14 +1,14 @@
-package grupotp.recifesaudavel.server.repository
+package grupotp.medcall.server.repository
 
-import grupotp.recifesaudavel.common.account.AccountProfile
-import grupotp.recifesaudavel.common.account.Phone
-import grupotp.recifesaudavel.common.account.UpdateProfileRequest
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.server.database.entity.UserEntity
-import grupotp.recifesaudavel.server.database.table.UsersTable
-import grupotp.recifesaudavel.server.domain.StoredUser
-import grupotp.recifesaudavel.server.domain.UserProfile
+import grupotp.medcall.common.account.AccountProfile
+import grupotp.medcall.common.account.Phone
+import grupotp.medcall.common.account.UpdateProfileRequest
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.RegisterAccountRequest
+import grupotp.medcall.server.database.entity.UserEntity
+import grupotp.medcall.server.database.table.UsersTable
+import grupotp.medcall.server.domain.StoredUser
+import grupotp.medcall.server.domain.UserProfile
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.neq

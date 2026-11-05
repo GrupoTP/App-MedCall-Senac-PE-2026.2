@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.app.gateway.pretriage
+package grupotp.medcall.app.gateway.pretriage
 
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.common.pretriage.PreTriage
-import grupotp.recifesaudavel.common.pretriage.PreTriageForm
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.common.pretriage.PreTriage
+import grupotp.medcall.common.pretriage.PreTriageForm
+import grupotp.medcall.common.security.SecretString
 
 /**
  * Pre-triage API of the server. Every call needs the session token.

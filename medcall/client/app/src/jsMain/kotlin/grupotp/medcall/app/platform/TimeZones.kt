@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.platform
+package grupotp.medcall.app.platform
 
 /**
  * Loading this module registers the IANA time zones with js-joda, which kotlinx-datetime uses on
