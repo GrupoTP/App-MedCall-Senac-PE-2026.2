@@ -1,18 +1,18 @@
-# AppProject + Application do Recife Saudável (namespace recifesaudavel, node a, a-ca).
+# AppProject + Application da MedCall (namespace medcall, node a, a-ca).
 # Este arquivo NÃO é sincronizado pelo ArgoCD: depois de alterar, aplicar no a-ca com
 #   sudo k3s kubectl apply -f argocd/application.yaml
 # Repo público: o ArgoCD lê via HTTPS sem credencial.
 apiVersion: argoproj.io/v1alpha1
 kind: AppProject
 metadata:
-  name: recifesaudavel
+  name: medcall
   namespace: argocd
 spec:
-  description: Recife Saudável (PI Senac PE 2026.2), no a-ca.
+  description: MedCall (PI Senac PE 2026.2), no a-ca.
   sourceRepos:
-    - https://github.com/GrupoTP/App-Recife-Saudavel-Senac-PE-2026.2.git
+    - https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
   destinations:
-    - namespace: recifesaudavel
+    - namespace: medcall
       server: https://kubernetes.default.svc
   clusterResourceWhitelist:
     - group: ""
@@ -24,19 +24,19 @@ spec:
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: recifesaudavel
+  name: medcall
   namespace: argocd
   finalizers:
     - resources-finalizer.argocd.argoproj.io
 spec:
-  project: recifesaudavel
+  project: medcall
   source:
-    repoURL: https://github.com/GrupoTP/App-Recife-Saudavel-Senac-PE-2026.2.git
+    repoURL: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
     targetRevision: main
     path: k8s
   destination:
     server: https://kubernetes.default.svc
-    namespace: recifesaudavel
+    namespace: medcall
   syncPolicy:
     automated:
       prune: true

@@ -6,7 +6,57 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: rs-ingress
+  name: medcall-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - medcall.grupotp.polyclub.com.br
+      secretName: medcall-tls
+  rules:
+    - host: medcall.grupotp.polyclub.com.br
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: medcall-server
+                port:
+                  name: http
+          - path: /healthz
+            pathType: Prefix
+            backend:
+              service:
+                name: medcall-server
+                port:
+                  name: http
+          - path: /readyz
+            pathType: Prefix
+            backend:
+              service:
+                name: medcall-server
+                port:
+                  name: http
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: medcall-web
+                port:
+                  name: http
+---
+# Legacy host (recifesaudavel): keeps serving the API so the PWA installed there keeps working.
+# That PWA has the old API_BASE_URL baked into its cached bundle and its service worker calls
+# the API on its own origin. Everything else is redirected to medcall (see medcall-ingress-legado-redirect).
+# This Ingress owns the legacy certificate; the redirect one reuses it, so cert-manager never
+# sees two Ingresses claiming the same secretName.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medcall-ingress-legado-api
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
@@ -23,27 +73,58 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: rs-server
+                name: medcall-server
                 port:
                   name: http
           - path: /healthz
             pathType: Prefix
             backend:
               service:
-                name: rs-server
+                name: medcall-server
                 port:
                   name: http
           - path: /readyz
             pathType: Prefix
             backend:
               service:
-                name: rs-server
+                name: medcall-server
                 port:
                   name: http
+---
+# Legacy host: every path that is not the API (the longer /api, /healthz and /readyz rules above
+# win) is permanently redirected to medcall. A browser tab without the service worker lands on the
+# new host; an installed PWA keeps being served from its service worker cache, never reaching this.
+# The backend is never reached (the middleware answers first); it only satisfies the Ingress spec.
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: medcall-ingress-legado-redirect
+  annotations:
+    traefik.ingress.kubernetes.io/router.entrypoints: websecure
+    traefik.ingress.kubernetes.io/router.tls: "true"
+    traefik.ingress.kubernetes.io/router.middlewares: medcall-redirect-para-medcall@kubernetescrd
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: recifesaudavel.grupotp.polyclub.com.br
+      http:
+        paths:
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: rs-web
+                name: medcall-web
                 port:
                   name: http
+---
+# Traefik middleware (k3s ships the traefik.io CRDs). Keeps path and query string.
+# The namespace here must match the one in the router.middlewares annotation above.
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: redirect-para-medcall
+spec:
+  redirectRegex:
+    regex: ^https?://recifesaudavel\.grupotp\.polyclub\.com\.br/(.*)
+    replacement: https://medcall.grupotp.polyclub.com.br/${1}
+    permanent: true

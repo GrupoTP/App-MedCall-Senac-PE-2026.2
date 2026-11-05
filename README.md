@@ -523,7 +523,7 @@ O aplicativo não realiza diagnóstico, prescrição ou decisão clínica automa
 
 <a href="https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6"><img src="https://img.shields.io/badge/Ver%20Prot%C3%B3tipo%20no%20Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" alt="Ver Protótipo no Figma"></a>
 
-<a href="https://github.com/GrupoTP/App-Recife-Saudavel-Senac-PE-2026.2"><img src="https://img.shields.io/badge/Ver%20Reposit%C3%B3rio%20no%20GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="Ver Repositório no GitHub"></a>
+<a href="https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2"><img src="https://img.shields.io/badge/Ver%20Reposit%C3%B3rio%20no%20GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="Ver Repositório no GitHub"></a>
 
 </div>
 
@@ -581,8 +581,8 @@ O MVP utiliza tecnologias amplamente adotadas e de código aberto, reduzindo cus
 ### Clonar
 
 ```bash
-git clone https://github.com/GrupoTP/App-Recife-Saudavel-Senac-PE-2026.2.git
-cd App-Recife-Saudavel-Senac-PE-2026.2
+git clone https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
+cd App-MedCall-Senac-PE-2026.2
 ```
 
 ### Backend
@@ -652,7 +652,7 @@ Possíveis evoluções incluem integrações institucionais, notificações avan
 ## 📽️ Demonstrações
 
 - [🎨 Ver Protótipo no Figma](https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6)
-- [💻 Ver Repositório no GitHub](https://github.com/GrupoTP/App-Recife-Saudavel-Senac-PE-2026.2)
+- [💻 Ver Repositório no GitHub](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2)
 
 ## 📄 Licença
 
