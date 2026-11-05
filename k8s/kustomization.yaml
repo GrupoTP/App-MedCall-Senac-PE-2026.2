@@ -28,6 +28,6 @@ images:
   # (aba Actions ou página do pacote). Não usar latest no corte.
   # Para atualizar o app: novo commit na main -> novo build -> trocar as tags aqui.
   - name: ghcr.io/grupotp/medcall-server
-    newTag: sha-4c22cba
+    newTag: sha-172da96
   - name: ghcr.io/grupotp/medcall-web
-    newTag: sha-4c22cba
+    newTag: sha-172da96
