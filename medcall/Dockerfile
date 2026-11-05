@@ -1,4 +1,4 @@
-# Imagens do Recife Saudável, construídas a partir desta pasta (medcall/):
+# Imagens da MedCall, construídas a partir desta pasta (medcall/):
 #
 #   docker build --target server -t rs-server .
 #   docker build --target web --build-arg API_BASE_URL=https://recifesaudavel.grupotp.polyclub.com.br -t rs-web .

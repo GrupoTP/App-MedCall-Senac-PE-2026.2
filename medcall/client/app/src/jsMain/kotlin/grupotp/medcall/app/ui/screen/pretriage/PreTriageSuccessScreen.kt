@@ -49,7 +49,7 @@ internal val PreTriageSuccessScreen = FC<PreTriageSuccessScreenProps> { props ->
                     }
                 }
                 warnAlert(
-                    "O Recife Saudável não realiza diagnóstico. A pré-triagem será vinculada à próxima " +
+                    "A MedCall não realiza diagnóstico. A pré-triagem será vinculada à próxima " +
                         "consulta que você agendar. Aguarde o contato da clínica ou agende agora.",
                 )
                 View {
