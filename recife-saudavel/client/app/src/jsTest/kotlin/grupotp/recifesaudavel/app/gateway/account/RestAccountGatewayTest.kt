@@ -107,6 +107,19 @@ class RestAccountGatewayTest {
     }
 
     @Test
+    fun failedFetchMeansOffline() = runTest {
+        // Arrange
+        // What the Js engine throws when fetch rejects: an Error, not an Exception.
+        val offline = gateway { throw Error("Fail to fetch") }
+
+        // Act
+        val result = offline.profile(token)
+
+        // Assert
+        assertEquals(RemoteResult.Failed(RemoteError.Offline), result)
+    }
+
+    @Test
     fun signOutIgnoresTheAnswerBody() = runTest {
         val result = gateway { json(HttpStatusCode.OK, "{\"ok\":true}") }.signOut(token)
 
