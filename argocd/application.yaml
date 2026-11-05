@@ -10,7 +10,7 @@ metadata:
 spec:
   description: MedCall (PI Senac PE 2026.2), no a-ca.
   sourceRepos:
-    - https://github.com/GrupoTP/App-Recife-Saudavel-Senac-PE-2026.2.git
+    - https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
   destinations:
     - namespace: medcall
       server: https://kubernetes.default.svc
@@ -31,7 +31,7 @@ metadata:
 spec:
   project: medcall
   source:
-    repoURL: https://github.com/GrupoTP/App-Recife-Saudavel-Senac-PE-2026.2.git
+    repoURL: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
     targetRevision: main
     path: k8s
   destination:
