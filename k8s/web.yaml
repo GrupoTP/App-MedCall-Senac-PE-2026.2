@@ -2,22 +2,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rs-web
+  name: medcall-web
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rs-web
+      app: medcall-web
   template:
     metadata:
       labels:
-        app: rs-web
+        app: medcall-web
     spec:
       nodeSelector:
         kubernetes.io/hostname: a
       containers:
         - name: web
-          image: ghcr.io/grupotp/rs-web   # tag fixada no kustomization.yaml
+          image: ghcr.io/grupotp/medcall-web   # tag fixada no kustomization.yaml
           ports:
             - name: http
               containerPort: 8080
@@ -35,10 +35,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: rs-web
+  name: medcall-web
 spec:
   selector:
-    app: rs-web
+    app: medcall-web
   ports:
     - name: http
       port: 80

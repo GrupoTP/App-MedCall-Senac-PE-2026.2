@@ -1,13 +1,13 @@
 # Configuração NÃO secreta do servidor. A senha do banco e o JWT_SECRET ficam no
-# SealedSecret rs-secrets (sealedsecret.yaml).
+# SealedSecret medcall-secrets (sealedsecret.yaml).
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: rs-config
+  name: medcall-config
 data:
   # MySQL compartilhado do host a-ca (mysql.service), o mesmo dos apps do polyclub.
   # O usuário recife_saudavel só aceita conexões vindas dos pods (10.42.0.%).
-  # A senha fica no SealedSecret recife-saudavel-mysql-credenciais.
+  # A senha fica no SealedSecret medcall-mysql-credenciais.
   DATABASE_DRIVER: com.mysql.cj.jdbc.Driver
   DATABASE_JDBC_URL: "jdbc:mysql://a.ca.node.polyclub.games:3306/recife_saudavel?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true"
   DATABASE_USER: recife_saudavel

@@ -6,7 +6,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: rs-ingress
+  name: medcall-ingress
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
@@ -23,40 +23,40 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: rs-server
+                name: medcall-server
                 port:
                   name: http
           - path: /healthz
             pathType: Prefix
             backend:
               service:
-                name: rs-server
+                name: medcall-server
                 port:
                   name: http
           - path: /readyz
             pathType: Prefix
             backend:
               service:
-                name: rs-server
+                name: medcall-server
                 port:
                   name: http
           - path: /
             pathType: Prefix
             backend:
               service:
-                name: rs-web
+                name: medcall-web
                 port:
                   name: http
 ---
 # Legacy host (recifesaudavel): keeps serving the API so the PWA installed there keeps working.
 # That PWA has the old API_BASE_URL baked into its cached bundle and its service worker calls
-# the API on its own origin. Everything else is redirected to medcall (see rs-ingress-legado-redirect).
+# the API on its own origin. Everything else is redirected to medcall (see medcall-ingress-legado-redirect).
 # This Ingress owns the legacy certificate; the redirect one reuses it, so cert-manager never
 # sees two Ingresses claiming the same secretName.
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: rs-ingress-legado-api
+  name: medcall-ingress-legado-api
   annotations:
     cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
@@ -73,21 +73,21 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: rs-server
+                name: medcall-server
                 port:
                   name: http
           - path: /healthz
             pathType: Prefix
             backend:
               service:
-                name: rs-server
+                name: medcall-server
                 port:
                   name: http
           - path: /readyz
             pathType: Prefix
             backend:
               service:
-                name: rs-server
+                name: medcall-server
                 port:
                   name: http
 ---
@@ -98,7 +98,7 @@ spec:
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: rs-ingress-legado-redirect
+  name: medcall-ingress-legado-redirect
   annotations:
     traefik.ingress.kubernetes.io/router.entrypoints: websecure
     traefik.ingress.kubernetes.io/router.tls: "true"
@@ -113,7 +113,7 @@ spec:
             pathType: Prefix
             backend:
               service:
-                name: rs-web
+                name: medcall-web
                 port:
                   name: http
 ---

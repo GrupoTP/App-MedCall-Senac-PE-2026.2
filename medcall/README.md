@@ -118,13 +118,13 @@ A pasta `android/` é gerada pelo `expo prebuild` e não vai para o git. Ajustes
 
 O `Dockerfile` desta pasta gera duas imagens, publicadas no ghcr.io pelo workflow `.github/workflows/publish-images.yml` a cada push na `main`:
 
-- `ghcr.io/grupotp/rs-server` (`--target server`): o servidor Ktor na porta 8080.
-- `ghcr.io/grupotp/rs-web` (`--target web`): o PWA exportado (`:client:expo:exportWeb`), servido pelo nginx na porta 8080. O `API_BASE_URL` entra como `--build-arg`.
+- `ghcr.io/grupotp/medcall-server` (`--target server`): o servidor Ktor na porta 8080.
+- `ghcr.io/grupotp/medcall-web` (`--target web`): o PWA exportado (`:client:expo:exportWeb`), servido pelo nginx na porta 8080. O `API_BASE_URL` entra como `--build-arg`.
 
 ```bash
 git submodule update --init
-docker build --target server -t rs-server .
-docker build --target web --build-arg API_BASE_URL=https://medcall.grupotp.polyclub.com.br -t rs-web .
+docker build --target server -t medcall-server .
+docker build --target web --build-arg API_BASE_URL=https://medcall.grupotp.polyclub.com.br -t medcall-web .
 ```
 
 Em produção o servidor usa MySQL: `DATABASE_DRIVER=com.mysql.cj.jdbc.Driver` e `DATABASE_JDBC_URL=jdbc:mysql://<host>:3306/<database>`. O driver entra só em tempo de execução; o H2 continua sendo o padrão no desenvolvimento e nos testes.

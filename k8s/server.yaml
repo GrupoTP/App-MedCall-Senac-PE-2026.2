@@ -2,16 +2,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: rs-server
+  name: medcall-server
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: rs-server
+      app: medcall-server
   template:
     metadata:
       labels:
-        app: rs-server
+        app: medcall-server
     spec:
       nodeSelector:
         kubernetes.io/hostname: a
@@ -28,20 +28,20 @@ spec:
         runAsUser: 10001
       containers:
         - name: server
-          image: ghcr.io/grupotp/rs-server   # tag fixada no kustomization.yaml
+          image: ghcr.io/grupotp/medcall-server   # tag fixada no kustomization.yaml
           ports:
             - name: http
               containerPort: 8080
           envFrom:
             - configMapRef:
-                name: rs-config
+                name: medcall-config
           env:
             - name: DATABASE_PASSWORD
               valueFrom:
-                secretKeyRef: { name: recife-saudavel-mysql-credenciais, key: DATABASE_PASSWORD }
+                secretKeyRef: { name: medcall-mysql-credenciais, key: DATABASE_PASSWORD }
             - name: JWT_SECRET
               valueFrom:
-                secretKeyRef: { name: rs-secrets, key: JWT_SECRET }
+                secretKeyRef: { name: medcall-secrets, key: JWT_SECRET }
             - name: JAVA_OPTS
               value: "-XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError"
           resources:
@@ -66,10 +66,10 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: rs-server
+  name: medcall-server
 spec:
   selector:
-    app: rs-server
+    app: medcall-server
   ports:
     - name: http
       port: 80
