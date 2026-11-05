@@ -1,4 +1,4 @@
-# Publica as imagens do Recife Saudável no GitHub Container Registry (ghcr.io):
+# Publica as imagens da MedCall no GitHub Container Registry (ghcr.io):
 #   ghcr.io/grupotp/rs-server  servidor Ktor (porta 8080)
 #   ghcr.io/grupotp/rs-web     PWA (export web do Expo) servido pelo nginx (porta 8080)
 # Usa só o GITHUB_TOKEN automático. O submódulo é público e vem por HTTPS.
@@ -33,10 +33,10 @@ jobs:
         include:
           - target: server
             image: ghcr.io/grupotp/rs-server   # ghcr exige minúsculas
-            title: Recife Saudável (servidor)
+            title: MedCall (servidor)
           - target: web
             image: ghcr.io/grupotp/rs-web
-            title: Recife Saudável (PWA)
+            title: MedCall (PWA)
     steps:
       - name: Checkout
         uses: actions/checkout@v7

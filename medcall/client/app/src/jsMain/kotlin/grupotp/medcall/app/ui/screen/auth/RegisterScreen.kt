@@ -59,7 +59,7 @@ private data class ConsentOption(
 
 private val consentOptions = listOf(
     ConsentOption(
-        caption = "Li e estou ciente da Política de Privacidade e do tratamento de dados pelo Recife Saudável.",
+        caption = "Li e estou ciente da Política de Privacidade e do tratamento de dados pela MedCall.",
         required = true,
         selected = { it.acceptedPrivacyPolicy },
         update = { draft, value -> draft.copy(acceptedPrivacyPolicy = value) },

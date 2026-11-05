@@ -10,7 +10,7 @@ import react.Props
 
 /** Shown at the bottom of the screens and on the welcome screen. */
 internal const val FOOTER_TEXT =
-    "Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; App Recife Saudável, Senac PE. Todos os direitos reservados."
+    "Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; MedCall, Senac PE. Todos os direitos reservados."
 
 internal val AppFooter = FC<Props> {
     val insets = useSafeAreaInsets()

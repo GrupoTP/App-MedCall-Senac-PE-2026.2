@@ -4,7 +4,7 @@
 // The app reads this object at runtime through expo-constants (Constants.expoConfig), so `extra`
 // is how the build passes values to the Kotlin code.
 module.exports = () => ({
-  name: "Recife Saudável",
+  name: "MedCall",
   // Project id for Expo's tools. Changing it does not rename the app.
   slug: "medcall",
   version: "1.0.0",
@@ -16,10 +16,10 @@ module.exports = () => ({
   android: {
     // Application id on the device. Changing it installs a separate app instead of an update.
     package: "grupotp.medcall",
-    // Launcher icon on Android 8+: the logo over the brand blue.
+    // Launcher icon on Android 8+: the mark over white, from medcall-icon-android-foreground.svg.
     adaptiveIcon: {
-      backgroundColor: "#2d7dd2",
-      foregroundImage: "./assets/icon.png",
+      backgroundColor: "#ffffff",
+      foregroundImage: "./assets/adaptive-icon.png",
     },
   },
 
@@ -31,8 +31,8 @@ module.exports = () => ({
     output: "single",
     favicon: "./assets/favicon.png",
     // Fills %WEB_TITLE% in public/index.html.
-    name: "Recife Saudável",
-    shortName: "Recife Saudável",
+    name: "MedCall",
+    shortName: "MedCall",
     themeColor: "#2d7dd2",
     backgroundColor: "#eef4fa",
     display: "standalone",

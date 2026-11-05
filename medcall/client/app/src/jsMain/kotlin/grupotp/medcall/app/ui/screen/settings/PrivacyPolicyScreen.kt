@@ -15,7 +15,7 @@ internal external interface PrivacyPolicyScreenProps : Props {
 }
 
 private val policyItems = listOf(
-    "Controlador" to "Projeto Recife Saudável — Polyana Fontes e Thayná Batista da Silva, Faculdade Senac PE, Recife.",
+    "Controlador" to "MedCall — Polyana Fontes e Thayná Batista da Silva, Faculdade Senac PE, Recife.",
     "Quais dados coletamos" to "Nome, nome social, data de nascimento, e-mail, telefones, informações de saúde da pré-triagem (dados sensíveis conforme LGPD).",
     "Finalidade" to "Viabilizar o agendamento de consultas e organizar o atendimento médico. Não usamos para diagnóstico automático nem para fins diferentes sem novo consentimento.",
     "Compartilhamento" to "Somente com a clínica parceira responsável pelo atendimento, limitado ao necessário.",

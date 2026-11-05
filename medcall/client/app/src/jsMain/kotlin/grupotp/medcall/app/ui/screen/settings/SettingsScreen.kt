@@ -313,7 +313,7 @@ internal val SettingsScreen = FC<SettingsScreenProps> { props ->
         confirmDialog(
             visible = askingOtherSessions,
             title = "Encerrar outras sessões?",
-            message = "Se você entrou no Recife Saudável em outro aparelho, podemos encerrar essas sessões " +
+            message = "Se você entrou na MedCall em outro aparelho, podemos encerrar essas sessões " +
                 "junto com a troca de senha. Este aparelho continua conectado.",
             confirmText = "Sim, encerrar",
             declineText = "Não, manter",
