@@ -21,7 +21,7 @@ private val policyItems = listOf(
     "Compartilhamento" to "Somente com a clínica parceira responsável pelo atendimento, limitado ao necessário.",
     "Retenção" to "Pelo tempo necessário ao atendimento e conforme exigências legais aplicáveis.",
     "Proteção técnica" to "HTTPS, autenticação, RBAC, auditoria de operações e princípio da necessidade de saber.",
-    "Seus direitos (LGPD)" to "Acesso, correção, portabilidade, eliminação (quando juridicamente possível), revogação de consentimento e informação sobre compartilhamentos. Solicite em: recifesaudavel@senac.br",
+    "Seus direitos (LGPD)" to "Acesso, correção, portabilidade, eliminação (quando juridicamente possível), revogação de consentimento e informação sobre compartilhamentos. Solicite em: $LGPD_EMAIL",
     "RIPD" to "O projeto considera a elaboração de Relatório de Impacto à Proteção de Dados (RIPD) para o tratamento de dados sensíveis previsto.",
     "Dados fictícios no MVP" to "O ambiente acadêmico opera exclusivamente com dados fictícios. Nenhum dado real de saúde é processado neste protótipo.",
 )
