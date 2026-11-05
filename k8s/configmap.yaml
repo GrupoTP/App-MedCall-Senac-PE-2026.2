@@ -12,5 +12,5 @@ data:
   DATABASE_JDBC_URL: "jdbc:mysql://a.ca.node.polyclub.games:3306/recife_saudavel?connectionTimeZone=UTC&forceConnectionTimeZoneToSession=true"
   DATABASE_USER: recife_saudavel
   # O PWA e a API ficam no mesmo host.
-  CORS_ALLOWED_ORIGINS: https://recifesaudavel.grupotp.polyclub.com.br
+  CORS_ALLOWED_ORIGINS: https://medcall.grupotp.polyclub.com.br
   SESSION_IDLE_DAYS: "180"

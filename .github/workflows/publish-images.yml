@@ -22,7 +22,7 @@ concurrency:
 
 env:
   # Endereço público da API, gravado no bundle do PWA (mesmo host do app).
-  API_BASE_URL: https://recifesaudavel.grupotp.polyclub.com.br
+  API_BASE_URL: https://medcall.grupotp.polyclub.com.br
 
 jobs:
   build-and-push:

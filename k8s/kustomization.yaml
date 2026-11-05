@@ -1,4 +1,4 @@
-# Recife Saudável — GitOps em recifesaudavel.grupotp.polyclub.com.br (node a, a-ca).
+# MedCall — GitOps em medcall.grupotp.polyclub.com.br (node a, a-ca).
 # Gerenciado pelo ArgoCD (Application em ../argocd/application.yaml, aplicada à mão no a-ca).
 # Este diretório é PÚBLICO: nenhum segredo em texto puro aqui. O JWT_SECRET (sealedsecret.yaml)
 # e a senha do MySQL (sealedsecret-recife-saudavel-mysql-credenciais.yaml) só como SealedSecret,
@@ -6,11 +6,11 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
-namespace: recifesaudavel
+namespace: medcall
 
 labels:
   - pairs:
-      app.kubernetes.io/part-of: recife-saudavel
+      app.kubernetes.io/part-of: medcall
     includeSelectors: false
 
 resources:

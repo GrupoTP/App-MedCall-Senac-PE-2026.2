@@ -1,7 +1,7 @@
 # Imagens da MedCall, construídas a partir desta pasta (medcall/):
 #
 #   docker build --target server -t rs-server .
-#   docker build --target web --build-arg API_BASE_URL=https://recifesaudavel.grupotp.polyclub.com.br -t rs-web .
+#   docker build --target web --build-arg API_BASE_URL=https://medcall.grupotp.polyclub.com.br -t rs-web .
 #
 # O submódulo grupotp-kotlin-react-native precisa estar presente antes do build
 # (git submodule update --init): o settings.gradle.kts inclui o build dele.

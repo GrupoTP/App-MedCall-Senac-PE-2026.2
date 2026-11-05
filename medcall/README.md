@@ -124,7 +124,7 @@ O `Dockerfile` desta pasta gera duas imagens, publicadas no ghcr.io pelo workflo
 ```bash
 git submodule update --init
 docker build --target server -t rs-server .
-docker build --target web --build-arg API_BASE_URL=https://recifesaudavel.grupotp.polyclub.com.br -t rs-web .
+docker build --target web --build-arg API_BASE_URL=https://medcall.grupotp.polyclub.com.br -t rs-web .
 ```
 
 Em produção o servidor usa MySQL: `DATABASE_DRIVER=com.mysql.cj.jdbc.Driver` e `DATABASE_JDBC_URL=jdbc:mysql://<host>:3306/<database>`. O driver entra só em tempo de execução; o H2 continua sendo o padrão no desenvolvimento e nos testes.
