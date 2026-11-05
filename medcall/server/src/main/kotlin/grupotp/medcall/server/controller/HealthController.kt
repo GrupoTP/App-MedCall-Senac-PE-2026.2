@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.server.controller
+package grupotp.medcall.server.controller
 
 import cc.rbbl.ktor_health_check.Health
-import grupotp.recifesaudavel.server.service.HealthService
+import grupotp.medcall.server.service.HealthService
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import org.koin.ktor.ext.inject

@@ -1,14 +1,14 @@
-package grupotp.recifesaudavel.worker
+package grupotp.medcall.worker
 
-import grupotp.recifesaudavel.worker.local.LocalAccountHandler
-import grupotp.recifesaudavel.worker.local.LocalAppointmentsHandler
-import grupotp.recifesaudavel.worker.local.PendingSignOutsHandler
-import grupotp.recifesaudavel.worker.routing.WorkerRequestRouter
-import grupotp.recifesaudavel.worker.routing.WorkerRoute
-import grupotp.recifesaudavel.worker.shell.DocumentHandler
-import grupotp.recifesaudavel.worker.shell.ShellAssetHandler
-import grupotp.recifesaudavel.worker.shell.ShellCache
-import grupotp.recifesaudavel.worker.storage.LocalAccountDatabase
+import grupotp.medcall.worker.local.LocalAccountHandler
+import grupotp.medcall.worker.local.LocalAppointmentsHandler
+import grupotp.medcall.worker.local.PendingSignOutsHandler
+import grupotp.medcall.worker.routing.WorkerRequestRouter
+import grupotp.medcall.worker.routing.WorkerRoute
+import grupotp.medcall.worker.shell.DocumentHandler
+import grupotp.medcall.worker.shell.ShellAssetHandler
+import grupotp.medcall.worker.shell.ShellCache
+import grupotp.medcall.worker.storage.LocalAccountDatabase
 import kotlinx.serialization.json.Json
 import web.serviceworker.ServiceWorkerModule
 

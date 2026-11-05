@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.worker.http
+package grupotp.medcall.worker.http
 
 import web.http.Request
 import web.http.Response

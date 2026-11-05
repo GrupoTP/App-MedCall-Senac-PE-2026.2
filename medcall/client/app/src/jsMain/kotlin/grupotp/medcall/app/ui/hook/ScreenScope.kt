@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.ui.hook
+package grupotp.medcall.app.ui.hook
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob

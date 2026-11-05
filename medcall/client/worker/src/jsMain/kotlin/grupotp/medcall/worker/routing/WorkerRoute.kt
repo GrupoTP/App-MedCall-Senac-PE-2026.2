@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.worker.routing
+package grupotp.medcall.worker.routing
 
 sealed interface WorkerRoute {
     /** The HTML page. Network first, stored copy when offline. */

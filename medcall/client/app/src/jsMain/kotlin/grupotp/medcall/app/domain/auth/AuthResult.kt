@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.domain.auth
+package grupotp.medcall.app.domain.auth
 
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 sealed interface AuthResult {
     data class Success(val account: AuthenticatedAccount) : AuthResult

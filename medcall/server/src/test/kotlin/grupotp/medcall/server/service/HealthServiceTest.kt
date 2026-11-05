@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.server.service
+package grupotp.medcall.server.service
 
-import grupotp.recifesaudavel.common.health.HealthStatus
-import grupotp.recifesaudavel.server.database.DatabaseConnector
-import grupotp.recifesaudavel.server.database.DatabaseSettings
+import grupotp.medcall.common.health.HealthStatus
+import grupotp.medcall.server.database.DatabaseConnector
+import grupotp.medcall.server.database.DatabaseSettings
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.transactions.TransactionManager
 import java.nio.file.Files

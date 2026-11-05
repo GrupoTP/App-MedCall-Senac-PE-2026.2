@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.server.database.entity
+package grupotp.medcall.server.database.entity
 
-import grupotp.recifesaudavel.server.database.table.AppointmentsTable
-import grupotp.recifesaudavel.server.database.table.PreTriagesTable
+import grupotp.medcall.server.database.table.AppointmentsTable
+import grupotp.medcall.server.database.table.PreTriagesTable
 import org.jetbrains.exposed.v1.core.dao.id.EntityID
 import org.jetbrains.exposed.v1.dao.IntEntity
 import org.jetbrains.exposed.v1.dao.IntEntityClass

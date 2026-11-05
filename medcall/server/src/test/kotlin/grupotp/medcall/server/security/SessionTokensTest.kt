@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.server.security
+package grupotp.medcall.server.security
 
 import com.auth0.jwt.exceptions.JWTVerificationException
-import grupotp.recifesaudavel.common.security.SecretString
-import grupotp.recifesaudavel.server.domain.OpenedSession
+import grupotp.medcall.common.security.SecretString
+import grupotp.medcall.server.domain.OpenedSession
 import io.ktor.server.config.MapApplicationConfig
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -13,9 +13,9 @@ import kotlin.time.toJavaInstant
 class SessionTokensTest {
     private val settings = JwtSettings(
         secret = SecretString("a".repeat(JwtSettings.MIN_SECRET_BYTES)),
-        issuer = "recife-saudavel-server",
-        audience = "recife-saudavel-app",
-        realm = "recife-saudavel",
+        issuer = "medcall-server",
+        audience = "medcall-app",
+        realm = "medcall",
     )
     private val tokens = SessionTokens(settings)
     private val session = OpenedSession(id = 42, createdAt = Instant.parse("2026-10-12T13:00:00Z"))
@@ -54,9 +54,9 @@ class SessionTokensTest {
         // Arrange
         val config = MapApplicationConfig(
             "jwt.secret" to "",
-            "jwt.issuer" to "recife-saudavel-server",
-            "jwt.audience" to "recife-saudavel-app",
-            "jwt.realm" to "recife-saudavel",
+            "jwt.issuer" to "medcall-server",
+            "jwt.audience" to "medcall-app",
+            "jwt.realm" to "medcall",
         )
 
         // Act + Assert

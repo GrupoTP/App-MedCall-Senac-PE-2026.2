@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.app.ui.component.form
+package grupotp.medcall.app.ui.component.form
 
-import grupotp.recifesaudavel.app.ui.icon.checkIcon
-import grupotp.recifesaudavel.app.ui.theme.Palette
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.icon.checkIcon
+import grupotp.medcall.app.ui.theme.Palette
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.View
 import react.FC

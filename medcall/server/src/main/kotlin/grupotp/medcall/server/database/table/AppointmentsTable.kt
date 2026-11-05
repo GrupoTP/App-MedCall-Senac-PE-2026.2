@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.database.table
+package grupotp.medcall.server.database.table
 
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalTime

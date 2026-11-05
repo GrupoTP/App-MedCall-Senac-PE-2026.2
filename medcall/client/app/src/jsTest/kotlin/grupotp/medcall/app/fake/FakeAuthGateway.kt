@@ -1,11 +1,11 @@
-package grupotp.recifesaudavel.app.fake
+package grupotp.medcall.app.fake
 
-import grupotp.recifesaudavel.app.domain.auth.AuthError
-import grupotp.recifesaudavel.app.domain.auth.AuthResult
-import grupotp.recifesaudavel.app.gateway.auth.AuthGateway
-import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.auth.SignInRequest
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.auth.AuthError
+import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.app.gateway.auth.AuthGateway
+import grupotp.medcall.common.auth.RegisterAccountRequest
+import grupotp.medcall.common.auth.SignInRequest
+import grupotp.medcall.common.security.SecretString
 
 /**
  * Answers each call with the result it was given and records the requests.

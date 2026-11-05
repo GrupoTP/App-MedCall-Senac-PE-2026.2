@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.ui.format
+package grupotp.medcall.app.ui.format
 
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.number

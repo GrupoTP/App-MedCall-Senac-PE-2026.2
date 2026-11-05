@@ -23,7 +23,7 @@ As senhas são guardadas com PBKDF2-HMAC-SHA256 (600.000 iterações), no format
 - `client/app`: interface Kotlin/JS com React Native (wrappers do `grupotp-kotlin-react-native`), casos de uso e gateways de cada plataforma. Os testes unitários rodam em Node; o `test-support/native-module-stubs.js` troca os módulos do React Native e do Expo por stubs, porque eles só existem no `client/expo`.
 - `client/worker`: service worker em Kotlin/JS, carregado por `sw.js`.
 - `client/expo`: shell Expo (Metro) que empacota o bundle Kotlin para a web e para o Android.
-- `build-logic`: plugins Gradle do próprio repositório, incluídos via `pluginManagement`. `recifesaudavel.dropbox-ignore` (settings) tira as pastas geradas do Dropbox; `recifesaudavel.ktor-dev-mode` adiciona a task `:server:runDev`.
+- `build-logic`: plugins Gradle do próprio repositório, incluídos via `pluginManagement`. `medcall.dropbox-ignore` (settings) tira as pastas geradas do Dropbox; `medcall.ktor-dev-mode` adiciona a task `:server:runDev`.
 - `grupotp-kotlin-react-native`: submódulo com o fork da biblioteca de wrappers, branch `modern`, incluído via `includeBuild`.
 
 ## Pré-requisitos
@@ -38,7 +38,7 @@ No Windows, use `gradlew` no lugar de `./gradlew`.
 
 ## Comandos
 
-Na pasta `recife-saudavel`:
+Na pasta `medcall`:
 
 ```bash
 ./gradlew :common:allTests
@@ -50,7 +50,7 @@ Na pasta `recife-saudavel`:
 
 O servidor responde em `http://localhost:8080/healthz` (processo no ar) e `http://localhost:8080/readyz` (pronto para atender, o que inclui o banco responder). O `/healthz` não consulta o banco, para que uma queda do banco não faça o servidor ser reiniciado à toa.
 
-O banco padrão é um arquivo H2 em `data/recife-saudavel.mv.db`, na pasta de execução do servidor. Para apontar outro lugar, defina `DATABASE_JDBC_URL`, `DATABASE_DRIVER`, `DATABASE_USER` e `DATABASE_PASSWORD`. Os testes de rota (`:server:test`) usam um H2 em memória e não tocam nesse arquivo.
+O banco padrão é um arquivo H2 em `data/medcall.mv.db`, na pasta de execução do servidor. Para apontar outro lugar, defina `DATABASE_JDBC_URL`, `DATABASE_DRIVER`, `DATABASE_USER` e `DATABASE_PASSWORD`. Os testes de rota (`:server:test`) usam um H2 em memória e não tocam nesse arquivo.
 
 O acesso ao banco usa o DAO do Exposed: cada tabela é uma `IntIdTable` com chave numérica gerada pelo banco, e os repositórios trabalham com as entidades (`server/.../entity`). Datas e horários são colunas próprias do `exposed-kotlin-datetime`: `timestamp` para momentos, `date` e `time` para o dia e a hora da consulta na clínica. O Exposed cria as tabelas que faltam, mas não altera colunas existentes; um banco criado antes dos ids numéricos é recusado na subida, com a instrução de apagar `server/data`.
 

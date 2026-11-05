@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.gateway.local
+package grupotp.medcall.app.gateway.local
 
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 /**
  * Local copy of the signed-in registration profile.

@@ -1,12 +1,12 @@
-package grupotp.recifesaudavel.app.usecase.pretriage
+package grupotp.medcall.app.usecase.pretriage
 
-import grupotp.recifesaudavel.app.domain.RemoteError
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.gateway.pretriage.PreTriageGateway
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.pretriage.PreTriage
-import grupotp.recifesaudavel.common.pretriage.PreTriageForm
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.app.gateway.pretriage.PreTriageGateway
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.pretriage.PreTriage
+import grupotp.medcall.common.pretriage.PreTriageForm
+import grupotp.medcall.common.security.SecretString
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

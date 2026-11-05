@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.worker.routing
+package grupotp.medcall.worker.routing
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -76,8 +76,8 @@ class WorkerRequestRouterTest {
         // Act
         val routes = listOf(
             "http://localhost:8080/api/v1/auth/login",
-            "https://api.recifesaudavel.example/api/v1/appointments",
-            "https://api.recifesaudavel.example/",
+            "https://api.medcall.example/api/v1/appointments",
+            "https://api.medcall.example/",
             "https://cdn.example.com/assets/font.ttf",
             "https://other.example/local/account",
             "http://localhost:8082/local/pending-sign-outs",

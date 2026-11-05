@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.database
+package grupotp.medcall.server.database
 
 import io.ktor.server.config.ApplicationConfig
 

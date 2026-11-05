@@ -1,11 +1,11 @@
-package grupotp.recifesaudavel.server.security
+package grupotp.medcall.server.security
 
 import com.auth0.jwt.JWT
 import com.auth0.jwt.JWTVerifier
 import com.auth0.jwt.RegisteredClaims
 import com.auth0.jwt.algorithms.Algorithm
-import grupotp.recifesaudavel.common.security.SecretString
-import grupotp.recifesaudavel.server.domain.OpenedSession
+import grupotp.medcall.common.security.SecretString
+import grupotp.medcall.server.domain.OpenedSession
 import kotlin.time.toJavaInstant
 
 /**

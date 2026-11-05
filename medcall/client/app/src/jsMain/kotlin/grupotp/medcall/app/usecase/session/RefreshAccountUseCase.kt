@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.app.usecase.session
+package grupotp.medcall.app.usecase.session
 
-import grupotp.recifesaudavel.app.domain.auth.AuthResult
-import grupotp.recifesaudavel.app.gateway.auth.AuthGateway
-import grupotp.recifesaudavel.app.gateway.local.LocalAccountGateway
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.app.gateway.auth.AuthGateway
+import grupotp.medcall.app.gateway.local.LocalAccountGateway
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 /**
  * Catches the profile saved on the device up with the server, so changes made there (or fields

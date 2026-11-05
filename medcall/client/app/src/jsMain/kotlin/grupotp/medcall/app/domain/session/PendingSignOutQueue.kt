@@ -1,10 +1,10 @@
-package grupotp.recifesaudavel.app.domain.session
+package grupotp.medcall.app.domain.session
 
-import grupotp.recifesaudavel.app.domain.RemoteError
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.gateway.account.AccountGateway
-import grupotp.recifesaudavel.app.gateway.local.PendingSignOutGateway
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.app.gateway.account.AccountGateway
+import grupotp.medcall.app.gateway.local.PendingSignOutGateway
+import grupotp.medcall.common.security.SecretString
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

@@ -1,13 +1,13 @@
-package grupotp.recifesaudavel.server.controller
+package grupotp.medcall.server.controller
 
-import grupotp.recifesaudavel.common.api.ErrorCode
-import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.auth.SignInRequest
-import grupotp.recifesaudavel.server.plugin.SESSION_AUTH
-import grupotp.recifesaudavel.server.service.AuthService
-import grupotp.recifesaudavel.server.service.result.RegistrationResult
-import grupotp.recifesaudavel.server.service.SessionService
-import grupotp.recifesaudavel.server.service.result.SignInResult
+import grupotp.medcall.common.api.ErrorCode
+import grupotp.medcall.common.auth.RegisterAccountRequest
+import grupotp.medcall.common.auth.SignInRequest
+import grupotp.medcall.server.plugin.SESSION_AUTH
+import grupotp.medcall.server.service.AuthService
+import grupotp.medcall.server.service.result.RegistrationResult
+import grupotp.medcall.server.service.SessionService
+import grupotp.medcall.server.service.result.SignInResult
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.Application
 import io.ktor.server.auth.authenticate

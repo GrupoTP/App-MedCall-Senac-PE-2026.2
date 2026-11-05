@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.database
+package grupotp.medcall.server.database
 
 import org.jetbrains.exposed.v1.jdbc.Database
 import java.io.File

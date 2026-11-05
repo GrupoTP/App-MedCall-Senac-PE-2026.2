@@ -1,6 +1,6 @@
 @file:JsModule("react-native")
 
-package grupotp.recifesaudavel.app.platform
+package grupotp.medcall.app.platform
 
 /**
  * `Linking` from react-native. Opens a URL with the app registered for it, such as the mail app for `mailto:`.

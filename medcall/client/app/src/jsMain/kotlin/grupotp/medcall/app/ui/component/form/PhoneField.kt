@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.ui.component.form
+package grupotp.medcall.app.ui.component.form
 
-import grupotp.recifesaudavel.app.ui.theme.Styles
-import grupotp.recifesaudavel.common.account.Phone
+import grupotp.medcall.app.ui.theme.Styles
+import grupotp.medcall.common.account.Phone
 import ojaynico.kotlin.react.native.component.Text
 import react.ChildrenBuilder
 

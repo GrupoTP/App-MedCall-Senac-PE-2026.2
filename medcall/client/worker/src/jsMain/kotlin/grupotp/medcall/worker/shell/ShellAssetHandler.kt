@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.worker.shell
+package grupotp.medcall.worker.shell
 
-import grupotp.recifesaudavel.worker.http.RequestHandler
+import grupotp.medcall.worker.http.RequestHandler
 import web.http.Request
 import web.http.Response
 

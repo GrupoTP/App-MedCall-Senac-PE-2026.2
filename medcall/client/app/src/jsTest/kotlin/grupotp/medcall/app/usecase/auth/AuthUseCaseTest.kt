@@ -1,13 +1,13 @@
-package grupotp.recifesaudavel.app.usecase.auth
+package grupotp.medcall.app.usecase.auth
 
-import grupotp.recifesaudavel.app.domain.auth.AuthError
-import grupotp.recifesaudavel.app.domain.auth.AuthResult
-import grupotp.recifesaudavel.app.fake.FakeAuthGateway
-import grupotp.recifesaudavel.common.account.Phone
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.auth.SignInRequest
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.auth.AuthError
+import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.app.fake.FakeAuthGateway
+import grupotp.medcall.common.account.Phone
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.RegisterAccountRequest
+import grupotp.medcall.common.auth.SignInRequest
+import grupotp.medcall.common.security.SecretString
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

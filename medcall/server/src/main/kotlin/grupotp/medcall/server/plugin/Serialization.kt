@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.plugin
+package grupotp.medcall.server.plugin
 
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application

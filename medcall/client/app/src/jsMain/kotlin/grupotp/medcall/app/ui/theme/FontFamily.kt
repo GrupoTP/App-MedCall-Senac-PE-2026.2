@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.ui.theme
+package grupotp.medcall.app.ui.theme
 
 /**
  * Font families registered by [useAppFonts].

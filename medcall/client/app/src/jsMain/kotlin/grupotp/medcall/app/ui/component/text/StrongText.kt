@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.ui.component.text
+package grupotp.medcall.app.ui.component.text
 
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.native.component.Text
 import react.ChildrenBuilder
 

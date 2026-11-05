@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.worker.storage
+package grupotp.medcall.worker.storage
 
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.scheduling.Appointment
+import grupotp.medcall.common.security.SecretString
 import kotlinx.serialization.json.Json
 
 /**
@@ -12,7 +12,7 @@ import kotlinx.serialization.json.Json
  */
 class LocalAccountDatabase(private val json: Json) {
     private companion object {
-        const val NAME = "recife-saudavel"
+        const val NAME = "medcall"
 
         /** Version 2 added the appointments store. */
         const val VERSION = 2

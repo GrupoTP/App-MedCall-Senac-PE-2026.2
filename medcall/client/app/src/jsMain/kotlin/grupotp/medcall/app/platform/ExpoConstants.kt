@@ -1,6 +1,6 @@
 @file:JsModule("expo-constants")
 
-package grupotp.recifesaudavel.app.platform
+package grupotp.medcall.app.platform
 
 /**
  * `Constants` from expo-constants, the default export.

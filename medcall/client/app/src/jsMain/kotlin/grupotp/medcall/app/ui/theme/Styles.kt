@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.ui.theme
+package grupotp.medcall.app.ui.theme
 
 import ojaynico.kotlin.react.TextStyle
 import ojaynico.kotlin.react.ViewStyle

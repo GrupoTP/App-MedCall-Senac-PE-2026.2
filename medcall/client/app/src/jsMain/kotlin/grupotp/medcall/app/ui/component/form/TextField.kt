@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.app.ui.component.form
+package grupotp.medcall.app.ui.component.form
 
-import grupotp.recifesaudavel.app.ui.theme.Palette
-import grupotp.recifesaudavel.app.ui.theme.Styles
-import grupotp.recifesaudavel.common.account.Phone
+import grupotp.medcall.app.ui.theme.Palette
+import grupotp.medcall.app.ui.theme.Styles
+import grupotp.medcall.common.account.Phone
 import ojaynico.kotlin.react.native.component.TextInput
 import react.FC
 import react.Props

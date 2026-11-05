@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.ui.screen.settings
+package grupotp.medcall.app.ui.screen.settings
 
 internal enum class SettingsTab(val title: String) {
     Account("Conta"),

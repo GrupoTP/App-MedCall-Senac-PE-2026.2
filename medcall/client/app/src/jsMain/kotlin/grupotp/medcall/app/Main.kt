@@ -1,10 +1,10 @@
 @file:OptIn(ExperimentalJsExport::class)
 
-package grupotp.recifesaudavel.app
+package grupotp.medcall.app
 
-import grupotp.recifesaudavel.app.di.appModule
-import grupotp.recifesaudavel.app.platform.ensureSecureRandom
-import grupotp.recifesaudavel.app.platform.loadTimeZones
+import grupotp.medcall.app.di.appModule
+import grupotp.medcall.app.platform.ensureSecureRandom
+import grupotp.medcall.app.platform.loadTimeZones
 import ojaynico.kotlin.react.native.api.Platform
 import org.koin.core.context.startKoin
 

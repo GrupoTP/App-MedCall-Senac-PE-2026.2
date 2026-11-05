@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.worker.shell
+package grupotp.medcall.worker.shell
 
-import grupotp.recifesaudavel.worker.http.WorkerResponses
+import grupotp.medcall.worker.http.WorkerResponses
 import js.promise.await
 import web.cache.Cache
 import web.cache.add
@@ -56,6 +56,6 @@ class ShellCache {
     private suspend fun open(): Cache = caches.open(NAME)
 
     private companion object {
-        const val NAME = "recife-saudavel-shell-v3"
+        const val NAME = "medcall-shell-v3"
     }
 }

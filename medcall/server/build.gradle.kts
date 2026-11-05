@@ -2,7 +2,7 @@ plugins {
     alias(libs.plugins.kotlin.jvm)
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.ktor)
-    id("recifesaudavel.ktor-dev-mode")
+    id("medcall.ktor-dev-mode")
 }
 
 kotlin {
@@ -10,7 +10,7 @@ kotlin {
 }
 
 application {
-    mainClass = "grupotp.recifesaudavel.server.ApplicationKt"
+    mainClass = "grupotp.medcall.server.ApplicationKt"
 }
 
 dependencies {
@@ -41,7 +41,7 @@ dependencies {
 
 // Local runs and tests sign session tokens with a public development key unless JWT_SECRET is set.
 // A deployed server starts from the distribution, where JWT_SECRET is required.
-val jwtSecret = providers.environmentVariable("JWT_SECRET").orElse("recife-saudavel-development-only-jwt-secret")
+val jwtSecret = providers.environmentVariable("JWT_SECRET").orElse("medcall-development-only-jwt-secret")
 
 tasks.withType<JavaExec>().configureEach {
     environment("JWT_SECRET", jwtSecret.get())

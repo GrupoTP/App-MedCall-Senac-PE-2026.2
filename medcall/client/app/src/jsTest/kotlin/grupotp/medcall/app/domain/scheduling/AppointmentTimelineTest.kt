@@ -1,12 +1,12 @@
-package grupotp.recifesaudavel.app.domain.scheduling
+package grupotp.medcall.app.domain.scheduling
 
-import grupotp.recifesaudavel.app.fake.SampleAppointments
-import grupotp.recifesaudavel.app.fake.SampleAppointments.appointment
-import grupotp.recifesaudavel.app.fake.SampleAppointments.later
-import grupotp.recifesaudavel.app.fake.SampleAppointments.manaus
-import grupotp.recifesaudavel.app.fake.SampleAppointments.sooner
-import grupotp.recifesaudavel.app.platform.loadTimeZones
-import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.medcall.app.fake.SampleAppointments
+import grupotp.medcall.app.fake.SampleAppointments.appointment
+import grupotp.medcall.app.fake.SampleAppointments.later
+import grupotp.medcall.app.fake.SampleAppointments.manaus
+import grupotp.medcall.app.fake.SampleAppointments.sooner
+import grupotp.medcall.app.platform.loadTimeZones
+import grupotp.medcall.common.scheduling.AppointmentStatus
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals

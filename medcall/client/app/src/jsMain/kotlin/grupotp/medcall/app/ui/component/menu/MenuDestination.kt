@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.ui.component.menu
+package grupotp.medcall.app.ui.component.menu
 
 internal enum class MenuDestination {
     Home,

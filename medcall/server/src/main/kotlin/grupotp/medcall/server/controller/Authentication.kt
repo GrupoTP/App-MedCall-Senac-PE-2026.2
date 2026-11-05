@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.server.controller
+package grupotp.medcall.server.controller
 
-import grupotp.recifesaudavel.common.api.ErrorCode
-import grupotp.recifesaudavel.server.security.SessionPrincipal
+import grupotp.medcall.common.api.ErrorCode
+import grupotp.medcall.server.security.SessionPrincipal
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.application.ApplicationCall
 import io.ktor.server.auth.principal

@@ -1,14 +1,14 @@
-package grupotp.recifesaudavel.app.gateway.auth
+package grupotp.medcall.app.gateway.auth
 
-import grupotp.recifesaudavel.app.domain.RemoteError
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.auth.AuthError
-import grupotp.recifesaudavel.app.domain.auth.AuthResult
-import grupotp.recifesaudavel.app.gateway.http.callApi
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.auth.RegisterAccountRequest
-import grupotp.recifesaudavel.common.auth.SignInRequest
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.app.domain.auth.AuthError
+import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.app.gateway.http.callApi
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.RegisterAccountRequest
+import grupotp.medcall.common.auth.SignInRequest
+import grupotp.medcall.common.security.SecretString
 import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.setBody

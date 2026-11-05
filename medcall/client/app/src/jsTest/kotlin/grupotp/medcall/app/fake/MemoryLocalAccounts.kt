@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.fake
+package grupotp.medcall.app.fake
 
-import grupotp.recifesaudavel.app.gateway.local.LocalAccountGateway
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.app.gateway.local.LocalAccountGateway
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 internal class MemoryLocalAccounts(var stored: AuthenticatedAccount? = null) : LocalAccountGateway {
     override suspend fun save(account: AuthenticatedAccount) {

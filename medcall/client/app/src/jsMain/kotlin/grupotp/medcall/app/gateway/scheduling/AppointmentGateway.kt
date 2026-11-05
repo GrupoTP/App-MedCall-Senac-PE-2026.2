@@ -1,13 +1,13 @@
-package grupotp.recifesaudavel.app.gateway.scheduling
+package grupotp.medcall.app.gateway.scheduling
 
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.common.scheduling.Clinic
-import grupotp.recifesaudavel.common.scheduling.ClinicAvailability
-import grupotp.recifesaudavel.common.scheduling.CreateAppointmentRequest
-import grupotp.recifesaudavel.common.scheduling.Professional
-import grupotp.recifesaudavel.common.scheduling.Specialty
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.common.scheduling.Appointment
+import grupotp.medcall.common.scheduling.Clinic
+import grupotp.medcall.common.scheduling.ClinicAvailability
+import grupotp.medcall.common.scheduling.CreateAppointmentRequest
+import grupotp.medcall.common.scheduling.Professional
+import grupotp.medcall.common.scheduling.Specialty
+import grupotp.medcall.common.security.SecretString
 
 /**
  * Appointment API of the server. Every call needs the session token.

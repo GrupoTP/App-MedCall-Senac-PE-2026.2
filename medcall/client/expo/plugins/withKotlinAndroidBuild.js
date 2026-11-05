@@ -7,7 +7,7 @@
 //    CMake 4.1.2+ (ninja 1.12 accepts paths over 260 characters). We point `cmake.dir` in
 //    android/local.properties at the newest CMake found in the Android SDK.
 // 3. When the project sits in a Dropbox folder on Windows, prebuild recreates android/ without the
-//    com.dropbox.ignored flag set by the recifesaudavel.dropbox-ignore Gradle plugin (build-logic), so we set it again.
+//    com.dropbox.ignored flag set by the medcall.dropbox-ignore Gradle plugin (build-logic), so we set it again.
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
@@ -31,7 +31,7 @@ const withKotlinBundleInput = (config) =>
     config.modResults.contents = CodeGenerator.mergeContents({
       src: config.modResults.contents,
       newSrc: KOTLIN_BUNDLE_GRADLE,
-      tag: "recife-saudavel-kotlin-bundle",
+      tag: "medcall-kotlin-bundle",
       anchor: /^android \{/,
       offset: 0,
       comment: "//",

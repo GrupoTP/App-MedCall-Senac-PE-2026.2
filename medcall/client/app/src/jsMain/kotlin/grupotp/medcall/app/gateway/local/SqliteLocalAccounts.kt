@@ -1,16 +1,16 @@
-package grupotp.recifesaudavel.app.gateway.local
+package grupotp.medcall.app.gateway.local
 
-import grupotp.recifesaudavel.app.gateway.local.sqlite.SQLiteDatabase
-import grupotp.recifesaudavel.app.gateway.local.sqlite.openDatabaseAsync
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.gateway.local.sqlite.SQLiteDatabase
+import grupotp.medcall.app.gateway.local.sqlite.openDatabaseAsync
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.scheduling.Appointment
+import grupotp.medcall.common.security.SecretString
 import js.promise.await
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.serialization.json.Json
 
-private const val DATABASE_NAME = "recife-saudavel.db"
+private const val DATABASE_NAME = "medcall.db"
 private const val SIGNED_IN_KEY = "signed-in"
 
 private const val CREATE_ACCOUNTS =

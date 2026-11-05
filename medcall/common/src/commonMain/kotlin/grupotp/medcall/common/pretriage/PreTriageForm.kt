@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.common.pretriage
+package grupotp.medcall.common.pretriage
 
-import grupotp.recifesaudavel.common.account.Phone
+import grupotp.medcall.common.account.Phone
 import kotlinx.datetime.LocalDate
 import kotlinx.serialization.Serializable
 

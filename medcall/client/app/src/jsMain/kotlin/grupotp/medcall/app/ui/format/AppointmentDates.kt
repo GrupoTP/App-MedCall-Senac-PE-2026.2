@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.ui.format
+package grupotp.medcall.app.ui.format
 
-import grupotp.recifesaudavel.common.scheduling.Clinic
+import grupotp.medcall.common.scheduling.Clinic
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.LocalTime

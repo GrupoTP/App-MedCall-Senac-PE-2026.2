@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.app.domain.scheduling
+package grupotp.medcall.app.domain.scheduling
 
-import grupotp.recifesaudavel.common.scheduling.Clinic
-import grupotp.recifesaudavel.common.scheduling.Professional
-import grupotp.recifesaudavel.common.scheduling.Specialty
+import grupotp.medcall.common.scheduling.Clinic
+import grupotp.medcall.common.scheduling.Professional
+import grupotp.medcall.common.scheduling.Specialty
 
 /**
  * Choices of the first scheduling step.

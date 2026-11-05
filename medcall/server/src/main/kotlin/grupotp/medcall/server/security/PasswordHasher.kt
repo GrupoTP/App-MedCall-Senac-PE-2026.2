@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.security
+package grupotp.medcall.server.security
 
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.common.security.SecretString
 import java.security.MessageDigest
 import java.security.SecureRandom
 import java.util.Base64

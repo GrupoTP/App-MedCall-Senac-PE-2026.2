@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.worker.routing
+package grupotp.medcall.worker.routing
 
-import grupotp.recifesaudavel.common.offline.LocalWorkerApi
-import grupotp.recifesaudavel.worker.shell.ShellFiles
+import grupotp.medcall.common.offline.LocalWorkerApi
+import grupotp.medcall.worker.shell.ShellFiles
 import web.url.URL
 
 /**

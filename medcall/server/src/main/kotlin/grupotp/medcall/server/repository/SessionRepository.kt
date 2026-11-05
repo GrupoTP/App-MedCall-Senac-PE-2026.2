@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.server.repository
+package grupotp.medcall.server.repository
 
-import grupotp.recifesaudavel.server.database.entity.SessionEntity
-import grupotp.recifesaudavel.server.database.entity.UserEntity
-import grupotp.recifesaudavel.server.database.table.SessionsTable
-import grupotp.recifesaudavel.server.domain.StoredSession
+import grupotp.medcall.server.database.entity.SessionEntity
+import grupotp.medcall.server.database.entity.UserEntity
+import grupotp.medcall.server.database.table.SessionsTable
+import grupotp.medcall.server.domain.StoredSession
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.less

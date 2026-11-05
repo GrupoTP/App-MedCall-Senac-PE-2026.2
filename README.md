@@ -378,7 +378,7 @@ PostgreSQL
 ## Estrutura do projeto
 
 ```text
-recife-saudavel/
+medcall/
 │
 ├── frontend/
 │   ├── src/

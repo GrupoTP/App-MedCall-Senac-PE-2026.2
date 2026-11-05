@@ -1,10 +1,10 @@
-package grupotp.recifesaudavel.worker
+package grupotp.medcall.worker
 
-import grupotp.recifesaudavel.common.offline.LocalWorkerApi
-import grupotp.recifesaudavel.worker.http.RequestHandler
-import grupotp.recifesaudavel.worker.routing.WorkerRequestRouter
-import grupotp.recifesaudavel.worker.routing.WorkerRoute
-import grupotp.recifesaudavel.worker.shell.ShellCache
+import grupotp.medcall.common.offline.LocalWorkerApi
+import grupotp.medcall.worker.http.RequestHandler
+import grupotp.medcall.worker.routing.WorkerRequestRouter
+import grupotp.medcall.worker.routing.WorkerRoute
+import grupotp.medcall.worker.shell.ShellCache
 import js.coroutines.promise
 import js.promise.Promise
 import js.reflect.unsafeCast

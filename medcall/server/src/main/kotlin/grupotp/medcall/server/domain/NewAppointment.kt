@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.domain
+package grupotp.medcall.server.domain
 
 import kotlin.time.Instant
 

@@ -6,10 +6,10 @@ ktor:
       - classes
   application:
     modules:
-      - grupotp.recifesaudavel.server.ApplicationKt.module
+      - grupotp.medcall.server.ApplicationKt.module
 
 database:
-  jdbcUrl: "$DATABASE_JDBC_URL:jdbc:h2:file:./data/recife-saudavel"
+  jdbcUrl: "$DATABASE_JDBC_URL:jdbc:h2:file:./data/medcall"
   driver: "$DATABASE_DRIVER:org.h2.Driver"
   user: "$DATABASE_USER:sa"
   password: "$DATABASE_PASSWORD:"
@@ -26,7 +26,7 @@ jwt:
   # HS256 key of the session tokens, at least 32 bytes; generate one with `openssl rand -base64 48`.
   # Required: the server does not start without it. The Gradle run, runDev and test tasks supply a development key.
   secret: "$JWT_SECRET:"
-  issuer: "recife-saudavel-server"
-  audience: "recife-saudavel-app"
+  issuer: "medcall-server"
+  audience: "medcall-app"
   # Sent in WWW-Authenticate, so ASCII only.
-  realm: "recife-saudavel"
+  realm: "medcall"

@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.domain
+package grupotp.medcall.app.domain
 
 /**
  * Outcome of a call to the server that needs the session token.

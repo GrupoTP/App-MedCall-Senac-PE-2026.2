@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.app.usecase.scheduling
+package grupotp.medcall.app.usecase.scheduling
 
-import grupotp.recifesaudavel.app.domain.RemoteResult
-import grupotp.recifesaudavel.app.domain.scheduling.SchedulingOptions
-import grupotp.recifesaudavel.app.gateway.scheduling.AppointmentGateway
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
+import grupotp.medcall.app.domain.RemoteResult
+import grupotp.medcall.app.domain.scheduling.SchedulingOptions
+import grupotp.medcall.app.gateway.scheduling.AppointmentGateway
+import grupotp.medcall.common.auth.AuthenticatedAccount
 
 /**
  * Specialties, professionals and their clinics for the first step. Loading them also tells

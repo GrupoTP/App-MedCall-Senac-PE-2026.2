@@ -1,14 +1,14 @@
-package grupotp.recifesaudavel.server.service
+package grupotp.medcall.server.service
 
-import grupotp.recifesaudavel.common.api.ErrorCode
-import grupotp.recifesaudavel.common.pretriage.PendingPreTriage
-import grupotp.recifesaudavel.common.pretriage.PreTriageForm
-import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
-import grupotp.recifesaudavel.server.repository.PreTriageRepository
-import grupotp.recifesaudavel.server.repository.SchedulingRepository
-import grupotp.recifesaudavel.server.repository.UserRepository
-import grupotp.recifesaudavel.server.service.result.PreTriageResult
-import grupotp.recifesaudavel.server.domain.ServiceError
+import grupotp.medcall.common.api.ErrorCode
+import grupotp.medcall.common.pretriage.PendingPreTriage
+import grupotp.medcall.common.pretriage.PreTriageForm
+import grupotp.medcall.common.scheduling.AppointmentStatus
+import grupotp.medcall.server.repository.PreTriageRepository
+import grupotp.medcall.server.repository.SchedulingRepository
+import grupotp.medcall.server.repository.UserRepository
+import grupotp.medcall.server.service.result.PreTriageResult
+import grupotp.medcall.server.domain.ServiceError
 import kotlinx.datetime.toKotlinLocalDate
 import java.time.Clock
 import java.time.LocalDate

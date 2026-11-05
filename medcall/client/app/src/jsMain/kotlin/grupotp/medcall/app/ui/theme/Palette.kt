@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.ui.theme
+package grupotp.medcall.app.ui.theme
 
 /**
  * Colors from the Figma prototype. Same names the web stylesheet used.

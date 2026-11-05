@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.ui.format
+package grupotp.medcall.app.ui.format
 
-import grupotp.recifesaudavel.common.pretriage.SymptomsStart
-import grupotp.recifesaudavel.common.scheduling.AppointmentStatus
+import grupotp.medcall.common.pretriage.SymptomsStart
+import grupotp.medcall.common.scheduling.AppointmentStatus
 
 // Text shown for the shared enums. The enums only carry codes; the words live here, with an
 // exhaustive `when`, so a new value or another language cannot be missed.

@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.ui.component.layout
+package grupotp.medcall.app.ui.component.layout
 
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
 import react.FC

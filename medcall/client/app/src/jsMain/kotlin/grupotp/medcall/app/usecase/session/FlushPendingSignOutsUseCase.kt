@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.usecase.session
+package grupotp.medcall.app.usecase.session
 
-import grupotp.recifesaudavel.app.domain.session.PendingSignOutQueue
+import grupotp.medcall.app.domain.session.PendingSignOutQueue
 
 /**
  * Sends the sign-outs made offline, now that the server may be reachable again.

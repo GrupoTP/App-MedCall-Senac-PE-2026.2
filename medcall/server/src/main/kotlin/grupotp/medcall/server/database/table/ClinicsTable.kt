@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.database.table
+package grupotp.medcall.server.database.table
 
 import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 

@@ -1,8 +1,8 @@
-package grupotp.recifesaudavel.app.usecase.session
+package grupotp.medcall.app.usecase.session
 
-import grupotp.recifesaudavel.app.domain.session.PendingSignOutQueue
-import grupotp.recifesaudavel.app.gateway.local.LocalAccountGateway
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.app.domain.session.PendingSignOutQueue
+import grupotp.medcall.app.gateway.local.LocalAccountGateway
+import grupotp.medcall.common.security.SecretString
 
 /**
  * Forgets the signed-in profile and its appointments on this device.

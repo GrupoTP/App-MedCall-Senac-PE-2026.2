@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.app.domain.scheduling
+package grupotp.medcall.app.domain.scheduling
 
-import grupotp.recifesaudavel.app.domain.RemoteError
-import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.common.scheduling.Appointment
 
 /**
  * @property offline true when the list came from the device because the server was unreachable.

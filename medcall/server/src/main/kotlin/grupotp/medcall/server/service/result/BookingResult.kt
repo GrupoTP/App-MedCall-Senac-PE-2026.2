@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.server.service.result
+package grupotp.medcall.server.service.result
 
-import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.server.domain.ServiceError
+import grupotp.medcall.common.scheduling.Appointment
+import grupotp.medcall.server.domain.ServiceError
 
 sealed interface BookingResult {
     data class Created(val appointment: Appointment) : BookingResult

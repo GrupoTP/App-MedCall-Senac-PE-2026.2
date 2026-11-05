@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.common.health
+package grupotp.medcall.common.health
 
 import kotlinx.serialization.json.Json
 import kotlin.test.Test

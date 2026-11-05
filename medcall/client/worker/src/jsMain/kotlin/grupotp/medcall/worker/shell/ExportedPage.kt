@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.worker.shell
+package grupotp.medcall.worker.shell
 
 /** HTML of the page exported by Expo. */
 class ExportedPage(private val html: String) {

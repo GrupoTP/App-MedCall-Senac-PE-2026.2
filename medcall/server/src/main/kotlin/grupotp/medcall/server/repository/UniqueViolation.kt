@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.server.repository
+package grupotp.medcall.server.repository
 
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import java.sql.SQLException

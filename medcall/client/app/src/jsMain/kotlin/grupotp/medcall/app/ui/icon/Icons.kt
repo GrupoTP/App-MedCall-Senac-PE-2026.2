@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.ui.icon
+package grupotp.medcall.app.ui.icon
 
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.theme.Styles
 import ojaynico.kotlin.react.native.api.Platform
 import ojaynico.kotlin.react.native.svg.Circle
 import ojaynico.kotlin.react.native.svg.Defs

@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.domain
+package grupotp.medcall.app.domain
 
 sealed interface RemoteError {
     /** The server could not be reached. */

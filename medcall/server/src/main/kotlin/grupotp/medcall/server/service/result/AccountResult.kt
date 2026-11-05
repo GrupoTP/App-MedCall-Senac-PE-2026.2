@@ -1,7 +1,7 @@
-package grupotp.recifesaudavel.server.service.result
+package grupotp.medcall.server.service.result
 
-import grupotp.recifesaudavel.common.account.AccountProfile
-import grupotp.recifesaudavel.server.domain.ServiceError
+import grupotp.medcall.common.account.AccountProfile
+import grupotp.medcall.server.domain.ServiceError
 
 sealed interface AccountResult {
     data class Done(val profile: AccountProfile) : AccountResult

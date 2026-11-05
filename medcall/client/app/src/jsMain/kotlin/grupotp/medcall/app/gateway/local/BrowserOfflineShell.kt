@@ -1,9 +1,9 @@
-package grupotp.recifesaudavel.app.gateway.local
+package grupotp.medcall.app.gateway.local
 
-import grupotp.recifesaudavel.common.auth.AuthenticatedAccount
-import grupotp.recifesaudavel.common.offline.LocalWorkerApi
-import grupotp.recifesaudavel.common.scheduling.Appointment
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.offline.LocalWorkerApi
+import grupotp.medcall.common.scheduling.Appointment
+import grupotp.medcall.common.security.SecretString
 import js.promise.await
 import js.reflect.unsafeCast
 import kotlinx.coroutines.CompletableDeferred

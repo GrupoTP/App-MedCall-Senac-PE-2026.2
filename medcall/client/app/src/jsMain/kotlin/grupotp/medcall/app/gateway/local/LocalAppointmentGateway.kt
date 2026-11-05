@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.gateway.local
+package grupotp.medcall.app.gateway.local
 
-import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.medcall.common.scheduling.Appointment
 
 /**
  * Copy of the signed-in person's appointments kept on the device, so they can be read offline.

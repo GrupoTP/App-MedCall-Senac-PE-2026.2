@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.security
+package grupotp.medcall.server.security
 
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.common.security.SecretString
 import io.ktor.server.config.ApplicationConfig
 
 /**

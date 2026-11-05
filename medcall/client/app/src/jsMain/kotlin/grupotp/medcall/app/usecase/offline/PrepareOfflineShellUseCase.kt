@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.usecase.offline
+package grupotp.medcall.app.usecase.offline
 
-import grupotp.recifesaudavel.app.gateway.local.AppShellGateway
+import grupotp.medcall.app.gateway.local.AppShellGateway
 
 class PrepareOfflineShellUseCase(
     private val shell: AppShellGateway,

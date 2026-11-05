@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.common.account
+package grupotp.medcall.common.account
 
 import kotlinx.serialization.json.Json
 import kotlin.test.Test

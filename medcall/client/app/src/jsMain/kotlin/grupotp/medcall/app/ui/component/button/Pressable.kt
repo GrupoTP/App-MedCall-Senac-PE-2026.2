@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.ui.component.button
+package grupotp.medcall.app.ui.component.button
 
-import grupotp.recifesaudavel.app.ui.theme.Styles
+import grupotp.medcall.app.ui.theme.Styles
 
 /**
  * Pressable style that shrinks slightly while pressed, like the prototype :active rule.

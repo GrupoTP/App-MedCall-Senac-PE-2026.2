@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.i18n
+package grupotp.medcall.server.i18n
 
-import grupotp.recifesaudavel.common.api.ErrorCode
+import grupotp.medcall.common.api.ErrorCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue

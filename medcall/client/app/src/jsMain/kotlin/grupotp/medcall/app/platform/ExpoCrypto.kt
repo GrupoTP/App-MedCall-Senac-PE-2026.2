@@ -1,6 +1,6 @@
 @file:JsModule("expo-crypto")
 
-package grupotp.recifesaudavel.app.platform
+package grupotp.medcall.app.platform
 
 /**
  * Fills the typed array with cryptographically secure random values and returns it.

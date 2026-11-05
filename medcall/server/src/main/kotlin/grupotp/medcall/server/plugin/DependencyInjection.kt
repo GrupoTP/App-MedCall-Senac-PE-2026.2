@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.plugin
+package grupotp.medcall.server.plugin
 
-import grupotp.recifesaudavel.server.di.appModule
+import grupotp.medcall.server.di.appModule
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
 import org.koin.ktor.plugin.Koin

@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.server.service.result
+package grupotp.medcall.server.service.result
 
-import grupotp.recifesaudavel.common.scheduling.Appointment
+import grupotp.medcall.common.scheduling.Appointment
 
 sealed interface CancelResult {
     data class Cancelled(val appointment: Appointment) : CancelResult

@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.platform
+package grupotp.medcall.app.platform
 
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.UtcOffset

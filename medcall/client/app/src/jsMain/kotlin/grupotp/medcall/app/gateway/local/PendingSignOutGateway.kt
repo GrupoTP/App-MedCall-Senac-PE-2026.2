@@ -1,6 +1,6 @@
-package grupotp.recifesaudavel.app.gateway.local
+package grupotp.medcall.app.gateway.local
 
-import grupotp.recifesaudavel.common.security.SecretString
+import grupotp.medcall.common.security.SecretString
 
 /**
  * Session tokens whose sign-out could not reach the server, kept on the device until they can.

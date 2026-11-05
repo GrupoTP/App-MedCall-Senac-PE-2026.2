@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.common.offline
+package grupotp.medcall.common.offline
 
 /**
  * What the web page and its service worker (client/worker) agree on. The page reaches the
@@ -19,5 +19,5 @@ object LocalWorkerApi {
      * Posted by the page when it opens without a controller, as after a hard reload (Shift+F5):
      * an active worker only claims pages when it activates, so the page asks again.
      */
-    const val CLAIM_MESSAGE = "recife-saudavel:claim"
+    const val CLAIM_MESSAGE = "medcall:claim"
 }

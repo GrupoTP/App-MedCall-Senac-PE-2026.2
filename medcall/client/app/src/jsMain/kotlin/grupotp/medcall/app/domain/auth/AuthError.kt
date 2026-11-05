@@ -1,4 +1,4 @@
-package grupotp.recifesaudavel.app.domain.auth
+package grupotp.medcall.app.domain.auth
 
 sealed interface AuthError {
     data object NotImplemented : AuthError

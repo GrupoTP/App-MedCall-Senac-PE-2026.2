@@ -1,4 +1,4 @@
-// Settings plugin `recifesaudavel.dropbox-ignore`, applied by the root settings.gradle.kts.
+// Settings plugin `medcall.dropbox-ignore`, applied by the root settings.gradle.kts.
 //
 // Keeps generated folders out of Dropbox when the clone lives in a Dropbox folder, so the computers
 // sharing it don't sync gigabytes of build output, lock files mid-build or copy the H2 database
