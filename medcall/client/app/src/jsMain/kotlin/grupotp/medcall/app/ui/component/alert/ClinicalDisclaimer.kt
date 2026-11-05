@@ -19,7 +19,7 @@ internal fun ChildrenBuilder.clinicalDisclaimer() {
         }
         Text {
             style = Styles.disclaimerText
-            +"O Recife Saudável não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU)."
+            +"A MedCall não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU)."
         }
     }
 }

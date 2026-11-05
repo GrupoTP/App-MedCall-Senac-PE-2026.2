@@ -19,7 +19,7 @@ object WorkerResponses {
 
     /** Shown by the browser when the page was never stored and there is no connection. */
     private const val OFFLINE_TEXT =
-        "Sem conexão. Abra o Recife Saudável uma vez com internet para guardar a interface neste aparelho."
+        "Sem conexão. Abra a MedCall uma vez com internet para guardar a interface neste aparelho."
 
     /** [body] is JSON already encoded by kotlinx.serialization. */
     fun json(body: String): Response = Response(

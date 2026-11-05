@@ -68,11 +68,6 @@ internal object Styles {
         alignItems = "center",
         justifyContent = "center",
         marginBottom = 24,
-        borderRadius = 24,
-        borderWidth = 1,
-        borderColor = "rgba(255, 255, 255, 0.25)",
-        backgroundColor = "rgba(255, 255, 255, 0.15)",
-        boxShadow = "0px 20px 25px -5px rgba(0, 0, 0, 0.2)",
     )
     val welcomeTitle = text(
         size = 36,

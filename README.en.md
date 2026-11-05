@@ -9,13 +9,13 @@
 
 <img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="140" alt="Logo Senac" />
 
-# Recife Saudável
+# MedCall
 
 **Your health in the palm of your hand.**
 
 A healthcare support application for pre-screening and medical appointment scheduling, developed as the Integrative Project for the 3rd semester of the Systems Analysis and Development program at Faculdade Senac Pernambuco.
 
-> **Clinical disclaimer:** Recife Saudável does not provide medical diagnosis and does not replace professional medical care. Information provided during pre-screening is intended to support the organization and preparation of care. In an emergency, seek urgent medical attention immediately.
+> **Clinical disclaimer:** MedCall does not provide medical diagnosis and does not replace professional medical care. Information provided during pre-screening is intended to support the organization and preparation of care. In an emergency, seek urgent medical attention immediately.
 
 <div align="center">
 
@@ -110,7 +110,7 @@ A healthcare support application for pre-screening and medical appointment sched
 
 ## About the project
 
-Recife Saudável was designed around a simple, accessible, and secure digital journey for patients, with particular consideration for older users.
+MedCall was designed around a simple, accessible, and secure digital journey for patients, with particular consideration for older users.
 
 The system follows a client-server architecture and is designed for future evolution, with a React Native frontend, PWA compatibility, REST API, and Java backend using Spring Boot.
 
@@ -120,7 +120,7 @@ The system follows a client-server architecture and is designed for future evolu
 
 ### Welcome screen
 
-- Recife Saudável logo and visual identity.
+- MedCall logo and visual identity.
 - Tagline: **"Your health in the palm of your hand."**
 - Presentation of the main features.
 - **Get Started** and **Access my account** buttons.
@@ -239,7 +239,7 @@ The administration area contains three tabs:
 
 All screens use the `Footer` component with the text defined in the specification:
 
-> Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; App Recife Saudável, Senac PE. All rights reserved.
+> Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; App MedCall, Senac PE. All rights reserved.
 
 ## Healthcare and security components
 
@@ -504,7 +504,7 @@ medcall/
 
 ---
 
-**Recife Saudável**, an academic digital health MVP focused on UX, Mobile, client-server architecture, accessibility, security, privacy, and governance.
+**MedCall**, an academic digital health MVP focused on UX, Mobile, client-server architecture, accessibility, security, privacy, and governance.
 
 ## 🎯 Problem
 
@@ -512,7 +512,7 @@ The project aims to improve the patient's digital journey by centralizing inform
 
 ## ✅ Solution
 
-The **Recife Saudável App** is an academic, patient-centered MVP featuring registration, authentication, informational pre-screening, appointment scheduling, appointment management, privacy, security, and PWA support.
+The **MedCall App** is an academic, patient-centered MVP featuring registration, authentication, informational pre-screening, appointment scheduling, appointment management, privacy, security, and PWA support.
 
 The application does not provide diagnosis, prescriptions, or automated clinical decisions.
 
@@ -673,7 +673,7 @@ Senac Recife-PE, Systems Analysis and Development.
 
 ## 🎓 Academic Information
 
-**App Name:** 🏫 Recife Saudável App  
+**App Name:** 🏫 MedCall App  
 **Project started:** August 2026  
 **Institution:** Faculdade Senac Pernambuco, Recife-PE, Brazil  
 **Program:** Systems Analysis and Development  

@@ -10,13 +10,13 @@
 
 <img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="140" alt="Logo Senac" />
 
-# Recife Saudável
+# MedCall
 
 **Sua saúde na palma da mão.**
 
 Aplicativo de apoio à pré-triagem e ao agendamento de consultas, desenvolvido como Projeto Integrador do 3º período do curso de Análise e Desenvolvimento de Sistemas da Faculdade Senac Pernambuco.
 
-> **Aviso clínico:** O Recife Saudável não realiza diagnóstico médico e não substitui atendimento profissional. As informações fornecidas na pré-triagem servem para auxiliar a organização e preparação do atendimento. Em caso de emergência, procure imediatamente um serviço de atendimento de urgência.
+> **Aviso clínico:** A MedCall não realiza diagnóstico médico e não substitui atendimento profissional. As informações fornecidas na pré-triagem servem para auxiliar a organização e preparação do atendimento. Em caso de emergência, procure imediatamente um serviço de atendimento de urgência.
 
 <div align="center">
 
@@ -111,7 +111,7 @@ Aplicativo de apoio à pré-triagem e ao agendamento de consultas, desenvolvido 
 
 ## Sobre o projeto
 
-O Recife Saudável foi desenvolvido com foco em uma jornada digital simples, acessível e segura para pacientes, especialmente considerando usuários idosos.
+A MedCall foi desenvolvida com foco em uma jornada digital simples, acessível e segura para pacientes, especialmente considerando usuários idosos.
 
 O sistema foi estruturado segundo uma arquitetura cliente servidor e preparado para evolução futura, com frontend em React Native, compatibilidade com PWA, API REST e backend Java com Spring Boot.
 
@@ -121,7 +121,7 @@ O sistema foi estruturado segundo uma arquitetura cliente servidor e preparado p
 
 ### Tela de boas-vindas
 
-- Logo e identidade do Recife Saudável.
+- Logo e identidade da MedCall.
 - Tagline: **"Sua saúde na palma da mão."**
 - Apresentação das principais funcionalidades.
 - Botões **Começar** e **Acessar minha conta**.
@@ -240,7 +240,7 @@ O ambiente administrativo possui três abas:
 
 Todas as telas utilizam o componente `Footer` com o texto definido na especificação:
 
-> Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; App Recife Saudável, Senac PE. Todos os direitos reservados.
+> Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; App MedCall, Senac PE. Todos os direitos reservados.
 
 ## Componentes de segurança e saúde
 
@@ -505,7 +505,7 @@ medcall/
 
 ---
 
-**Recife Saudável**, um MVP acadêmico de saúde digital com foco em UX, Mobile, arquitetura cliente servidor, acessibilidade, segurança, privacidade e governança.
+**MedCall**, um MVP acadêmico de saúde digital com foco em UX, Mobile, arquitetura cliente servidor, acessibilidade, segurança, privacidade e governança.
 
 ## 🎯 Problema
 
@@ -513,7 +513,7 @@ O projeto busca melhorar a jornada digital do paciente, centralizando informaç�
 
 ## ✅ A Solução
 
-O **App Recife Saudável** é um MVP acadêmico centrado no paciente, com cadastro, autenticação, pré-triagem informativa, agendamento, gerenciamento de consultas, privacidade, segurança e PWA.
+O **App MedCall** é um MVP acadêmico centrado no paciente, com cadastro, autenticação, pré-triagem informativa, agendamento, gerenciamento de consultas, privacidade, segurança e PWA.
 
 O aplicativo não realiza diagnóstico, prescrição ou decisão clínica automatizada.
 
@@ -674,7 +674,7 @@ Senac Recife-PE, Análise e Desenvolvimento de Sistemas.
 
 ## 🎓 Informações Acadêmicas
 
-**Nome do App:** 🏫 App Recife Saudável  
+**Nome do App:** 🏫 App MedCall  
 **Projeto iniciado em:** Agosto de 2026  
 **Instituição:** Faculdade Senac Pernambuco, Recife-PE, Brasil  
 **Curso:** Análise e Desenvolvimento de Sistemas  

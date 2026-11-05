@@ -1,6 +1,6 @@
-# Recife Saudável
+# MedCall
 
-App Kotlin Multiplatform do Recife Saudável. A interface é escrita só em Kotlin, com React Native, e o mesmo código roda como PWA no navegador e como app Android. O shell Expo em `client/expo` só registra o componente Kotlin; no navegador o Metro troca `react-native` por `react-native-web`.
+App Kotlin Multiplatform da MedCall. A interface é escrita só em Kotlin, com React Native, e o mesmo código roda como PWA no navegador e como app Android. O shell Expo em `client/expo` só registra o componente Kotlin; no navegador o Metro troca `react-native` por `react-native-web`.
 
 Na web, o `sw.js` inicia o bundle Kotlin do worker, que guarda a interface em cache e, no IndexedDB, o cadastro autenticado e as consultas dele. No Android não existe service worker: os mesmos dados ficam em SQLite (expo-sqlite), pelo mesmo gateway Kotlin.
 

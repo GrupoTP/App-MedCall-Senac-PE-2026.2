@@ -3,7 +3,7 @@ package grupotp.medcall.app.ui.screen.auth
 import grupotp.medcall.app.ui.component.button.pressable
 import grupotp.medcall.app.ui.component.layout.FOOTER_TEXT
 import grupotp.medcall.app.ui.icon.calendarIcon
-import grupotp.medcall.app.ui.icon.heartIcon
+import grupotp.medcall.app.ui.icon.medCallIcon
 import grupotp.medcall.app.ui.icon.journeyIcon
 import grupotp.medcall.app.ui.icon.triageIcon
 import grupotp.medcall.app.ui.icon.verticalGradient
@@ -51,12 +51,12 @@ internal val WelcomeScreen = FC<WelcomeScreenProps> { props ->
                     style = Styles.welcomeInner
                     View {
                         style = Styles.logoBadge
-                        heartIcon(Palette.WHITE)
+                        medCallIcon(96)
                     }
                     Text {
                         style = Styles.welcomeTitle
                         accessibilityRole = "header"
-                        +"Recife Saudável"
+                        +"MedCall"
                     }
                     Text {
                         style = Styles.welcomeTagline
