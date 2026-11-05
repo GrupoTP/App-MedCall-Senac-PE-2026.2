@@ -8,7 +8,7 @@ on:
   push:
     branches: [main]
     paths:
-      - "recife-saudavel/**"
+      - "medcall/**"
       - ".github/workflows/publish-images.yml"
   workflow_dispatch:
 
@@ -46,7 +46,7 @@ jobs:
       - name: Submódulo por HTTPS
         run: |
           git -c url."https://github.com/".insteadOf="git@github.com:" \
-            submodule update --init --depth 1 recife-saudavel/grupotp-kotlin-react-native
+            submodule update --init --depth 1 medcall/grupotp-kotlin-react-native
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
@@ -73,7 +73,7 @@ jobs:
       - name: Build e push
         uses: docker/build-push-action@v7
         with:
-          context: recife-saudavel
+          context: medcall
           target: ${{ matrix.target }}
           build-args: |
             API_BASE_URL=${{ env.API_BASE_URL }}
