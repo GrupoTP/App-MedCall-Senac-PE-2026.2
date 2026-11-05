@@ -54,7 +54,7 @@ import react.useEffectOnce
 import react.useState
 import kotlin.time.Instant
 
-private const val LGPD_EMAIL = "recifesaudavel@senac.br"
+internal const val LGPD_EMAIL = "lgpd@grupotp.polyclub.com.br"
 
 internal external interface SettingsScreenProps : Props {
     var account: AuthenticatedAccount
