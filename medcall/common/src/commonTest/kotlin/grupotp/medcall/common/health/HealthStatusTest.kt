@@ -9,7 +9,7 @@ class HealthStatusTest {
     fun serializesAndDeserializesHealthStatus() {
         // Arrange
         val status = HealthStatus(
-            service = "Recife Saudável",
+            service = "MedCall",
             status = "ok",
         )
 
@@ -19,7 +19,7 @@ class HealthStatusTest {
 
         // Assert
         assertEquals(status, decoded)
-        assertEquals("Recife Saudável", decoded.service)
+        assertEquals("MedCall", decoded.service)
         assertEquals("ok", decoded.status)
     }
 }

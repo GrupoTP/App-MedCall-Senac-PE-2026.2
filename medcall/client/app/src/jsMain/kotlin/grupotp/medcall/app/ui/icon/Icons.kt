@@ -16,7 +16,7 @@ import react.ChildrenBuilder
 // On the web react-native-svg hands its props to <svg>, and React rejects this Android-only prop.
 private val hideFromAccessibility = Platform.OS != "web"
 
-private fun SvgProps.decorative() {
+internal fun SvgProps.decorative() {
     if (hideFromAccessibility) {
         importantForAccessibility = "no-hide-descendants"
     }

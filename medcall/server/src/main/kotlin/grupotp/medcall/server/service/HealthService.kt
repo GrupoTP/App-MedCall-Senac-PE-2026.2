@@ -12,7 +12,7 @@ class HealthService(
     private val database: Database,
 ) {
     fun healthStatus(): HealthStatus = HealthStatus(
-        service = "Recife Saudável",
+        service = "MedCall",
         status = "ok",
     )
 

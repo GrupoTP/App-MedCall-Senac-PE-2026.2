@@ -15,13 +15,13 @@ internal external interface PrivacyPolicyScreenProps : Props {
 }
 
 private val policyItems = listOf(
-    "Controlador" to "Projeto Recife Saudável — Polyana Fontes e Thayná Batista da Silva, Faculdade Senac PE, Recife.",
+    "Controlador" to "MedCall — Polyana Fontes e Thayná Batista da Silva, Faculdade Senac PE, Recife.",
     "Quais dados coletamos" to "Nome, nome social, data de nascimento, e-mail, telefones, informações de saúde da pré-triagem (dados sensíveis conforme LGPD).",
     "Finalidade" to "Viabilizar o agendamento de consultas e organizar o atendimento médico. Não usamos para diagnóstico automático nem para fins diferentes sem novo consentimento.",
     "Compartilhamento" to "Somente com a clínica parceira responsável pelo atendimento, limitado ao necessário.",
     "Retenção" to "Pelo tempo necessário ao atendimento e conforme exigências legais aplicáveis.",
     "Proteção técnica" to "HTTPS, autenticação, RBAC, auditoria de operações e princípio da necessidade de saber.",
-    "Seus direitos (LGPD)" to "Acesso, correção, portabilidade, eliminação (quando juridicamente possível), revogação de consentimento e informação sobre compartilhamentos. Solicite em: recifesaudavel@senac.br",
+    "Seus direitos (LGPD)" to "Acesso, correção, portabilidade, eliminação (quando juridicamente possível), revogação de consentimento e informação sobre compartilhamentos. Solicite em: $LGPD_EMAIL",
     "RIPD" to "O projeto considera a elaboração de Relatório de Impacto à Proteção de Dados (RIPD) para o tratamento de dados sensíveis previsto.",
     "Dados fictícios no MVP" to "O ambiente acadêmico opera exclusivamente com dados fictícios. Nenhum dado real de saúde é processado neste protótipo.",
 )

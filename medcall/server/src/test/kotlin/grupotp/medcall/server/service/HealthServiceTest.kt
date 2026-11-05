@@ -18,7 +18,7 @@ class HealthServiceTest {
         // Arrange
         val service = HealthService(connect("jdbc:h2:mem:${UUID.randomUUID()};DB_CLOSE_DELAY=-1"))
         val expected = HealthStatus(
-            service = "Recife Saudável",
+            service = "MedCall",
             status = "ok",
         )
 
