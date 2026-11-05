@@ -1,6 +1,6 @@
 # Publica as imagens da MedCall no GitHub Container Registry (ghcr.io):
-#   ghcr.io/grupotp/rs-server  servidor Ktor (porta 8080)
-#   ghcr.io/grupotp/rs-web     PWA (export web do Expo) servido pelo nginx (porta 8080)
+#   ghcr.io/grupotp/medcall-server  servidor Ktor (porta 8080)
+#   ghcr.io/grupotp/medcall-web     PWA (export web do Expo) servido pelo nginx (porta 8080)
 # Usa só o GITHUB_TOKEN automático. O submódulo é público e vem por HTTPS.
 name: Publish images
 
@@ -22,7 +22,7 @@ concurrency:
 
 env:
   # Endereço público da API, gravado no bundle do PWA (mesmo host do app).
-  API_BASE_URL: https://recifesaudavel.grupotp.polyclub.com.br
+  API_BASE_URL: https://medcall.grupotp.polyclub.com.br
 
 jobs:
   build-and-push:
@@ -32,10 +32,10 @@ jobs:
       matrix:
         include:
           - target: server
-            image: ghcr.io/grupotp/rs-server   # ghcr exige minúsculas
+            image: ghcr.io/grupotp/medcall-server   # ghcr exige minúsculas
             title: MedCall (servidor)
           - target: web
-            image: ghcr.io/grupotp/rs-web
+            image: ghcr.io/grupotp/medcall-web
             title: MedCall (PWA)
     steps:
       - name: Checkout
