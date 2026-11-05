@@ -72,7 +72,8 @@ internal suspend inline fun <reified T> HttpClient.callApi(
         }
     } catch (cancelled: CancellationException) {
         throw cancelled
-    } catch (_: Exception) {
+    } catch (_: Throwable) {
+        // The Js engine reports a failed fetch as kotlin.Error("Fail to fetch"), which is no Exception.
         return RemoteResult.Failed(RemoteError.Offline)
     }
     return when {
