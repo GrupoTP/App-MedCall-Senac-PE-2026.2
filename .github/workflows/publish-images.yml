@@ -82,3 +82,43 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha,scope=${{ matrix.target }}
           cache-to: type=gha,mode=max,scope=${{ matrix.target }}
+
+  # Depois que as duas imagens sobem, grava a tag sha-<7> no k8s/kustomization.yaml
+  # e faz o commit na main. O ArgoCD vê o commit e leva a versão nova para produção.
+  # O commit não dispara este workflow de novo: o GITHUB_TOKEN não dispara workflows
+  # e k8s/ fica fora do filtro de paths.
+  deploy:
+    needs: build-and-push
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout da main
+        uses: actions/checkout@v7
+        with:
+          ref: main
+
+      - name: Fixar a tag nova
+        id: tag
+        run: |
+          TAG="sha-${GITHUB_SHA::7}"
+          echo "tag=$TAG" >> "$GITHUB_OUTPUT"
+          sed -i -E "s/^( *newTag: ).*/\1$TAG/" k8s/kustomization.yaml
+          git diff --stat
+
+      - name: Commit na main
+        run: |
+          if git diff --quiet; then
+            echo "As tags já estão em ${{ steps.tag.outputs.tag }}."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -am "chore(deploy): pin MedCall images to ${{ steps.tag.outputs.tag }}"
+          # Outro commit pode ter entrado na main durante o build.
+          for i in 1 2 3; do
+            git pull --rebase origin main && git push origin HEAD:main && exit 0
+            sleep 5
+          done
+          exit 1
