@@ -24,9 +24,9 @@ resources:
 
 images:
   # Imagens públicas no ghcr.io, publicadas pelo workflow .github/workflows/publish-images.yml.
-  # Tag FIXADA (sem ArgoCD Image Updater): sha-<7 chars> do commit da main que gerou a imagem
-  # (aba Actions ou página do pacote). Não usar latest no corte.
-  # Para atualizar o app: novo commit na main -> novo build -> trocar as tags aqui.
+  # Tag FIXADA (sem ArgoCD Image Updater): sha-<7 chars> do commit da main que gerou a imagem.
+  # Não usar latest. O job "deploy" do publish-images.yml troca as tags abaixo sozinho
+  # depois de cada build da main; para voltar uma versão, reverta o commit dele.
   - name: ghcr.io/grupotp/medcall-server
     newTag: sha-172da96
   - name: ghcr.io/grupotp/medcall-web
