@@ -15,8 +15,9 @@ database:
   password: "$DATABASE_PASSWORD:"
 
 cors:
-  # Web origins allowed to call the API, comma-separated. The default is the Metro dev server.
-  allowedOrigins: "$CORS_ALLOWED_ORIGINS:http://localhost:8081"
+  # Web origins allowed to call the API, comma-separated. The defaults are the Metro dev server
+  # (patient PWA) and the webpack dev server of the portals (client/admin).
+  allowedOrigins: "$CORS_ALLOWED_ORIGINS:http://localhost:8081,http://localhost:8082"
 
 sessions:
   # Days a session survives without any request; each request starts the count again. 0 = never expires.
@@ -30,3 +31,25 @@ jwt:
   audience: "medcall-app"
   # Sent in WWW-Authenticate, so ASCII only.
   realm: "medcall"
+
+staff:
+  # First MedCall panel administrator, created only when there is no staff account yet. Leave
+  # blank to create none. The Gradle run, runDev and test tasks supply development values.
+  bootstrapEmail: "$MEDCALL_ADMIN_EMAIL:"
+  bootstrapPassword: "$MEDCALL_ADMIN_PASSWORD:"
+
+demo:
+  # Fills an empty database with fictitious clinics, patients and ~90 days of appointments for the
+  # dashboards (docs/base-sintetica.md). Never set it in production. The Gradle run and runDev
+  # tasks turn it on; the route tests leave it off.
+  seed: "$DEMO_SEED:false"
+  # Password of the demo staff accounts (admin.boavista@demo.medcall.dev and the others).
+  staffPassword: "$DEMO_STAFF_PASSWORD:"
+
+integration:
+  # AMQP URL of RabbitMQ (amqp://user:password@host:5672/vhost). Blank: events go through an
+  # in-process queue, enough for development and tests but lost on restart (the outbox is not).
+  rabbitmqUrl: "$RABBITMQ_URL:"
+  # Lets webhooks point to http:// and internal addresses, to test against a local receiver.
+  # Never in production: it would let a clinic make the server call its internal network (SSRF).
+  allowPrivateWebhooks: "$WEBHOOKS_ALLOW_PRIVATE:false"

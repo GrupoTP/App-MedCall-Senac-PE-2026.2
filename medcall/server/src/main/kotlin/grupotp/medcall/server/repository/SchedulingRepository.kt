@@ -6,7 +6,10 @@ import grupotp.medcall.common.scheduling.AppointmentStatus
 import grupotp.medcall.common.scheduling.Clinic
 import grupotp.medcall.common.scheduling.Professional
 import grupotp.medcall.common.scheduling.Specialty
+import grupotp.medcall.common.clinic.AppointmentEventType
+import grupotp.medcall.server.database.Actor
 import grupotp.medcall.server.database.SchedulingCatalog
+import grupotp.medcall.server.database.recordAppointmentEvent
 import grupotp.medcall.server.database.entity.AppointmentEntity
 import grupotp.medcall.server.database.entity.ClinicEntity
 import grupotp.medcall.server.database.entity.ProfessionalEntity
@@ -19,12 +22,14 @@ import grupotp.medcall.server.database.table.SpecialtiesTable
 import grupotp.medcall.server.domain.NewAppointment
 import grupotp.medcall.server.domain.Slot
 import kotlinx.datetime.LocalDate
+import kotlin.time.Instant
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.inList
-import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.core.notInList
 import org.jetbrains.exposed.v1.dao.with
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -65,19 +70,25 @@ class SchedulingRepository(
             .map { Specialty(id = it.id.value, name = it.name) }
     }
 
+    /** Clinics patients can book: those not switched off in the MedCall panel. */
     fun clinics(): List<Clinic> = transaction(database) {
-        ClinicEntity.all().orderBy(ClinicsTable.name to SortOrder.ASC).map { it.toClinic() }
+        val closed = closedClinicIds()
+        ClinicEntity.all().orderBy(ClinicsTable.name to SortOrder.ASC)
+            .filter { it.id.value !in closed }
+            .map { it.toClinic() }
     }
 
     fun findClinic(id: Int): Clinic? = transaction(database) {
         ClinicEntity.findById(id)?.toClinic()
     }
 
+    /** Professionals patients can book: active, at an active clinic. */
     fun professionals(specialtyId: Int? = null): List<Professional> = transaction(database) {
+        val hidden = hiddenProfessionalIds()
         val professionals = if (specialtyId == null) {
-            ProfessionalEntity.all()
+            ProfessionalEntity.find { ProfessionalsTable.id notInList hidden }
         } else {
-            ProfessionalEntity.find { ProfessionalsTable.specialty eq specialtyId }
+            ProfessionalEntity.find { (ProfessionalsTable.specialty eq specialtyId) and (ProfessionalsTable.id notInList hidden) }
         }
         professionals.orderBy(ProfessionalsTable.name to SortOrder.ASC).map {
             Professional(
@@ -89,7 +100,7 @@ class SchedulingRepository(
         }
     }
 
-    /** Slots already taken by appointments that were not cancelled. */
+    /** Slots held by appointments: every status but declined and cancelled keeps its slot key. */
     fun takenSlots(professionalIds: List<Int>, dates: List<LocalDate>): Set<Slot> = transaction(database) {
         if (professionalIds.isEmpty() || dates.isEmpty()) {
             return@transaction emptySet()
@@ -97,7 +108,7 @@ class SchedulingRepository(
         AppointmentEntity.find {
             (AppointmentsTable.professional inList professionalIds) and
                 (AppointmentsTable.date inList dates) and
-                (AppointmentsTable.status neq STATUS_CANCELLED)
+                AppointmentsTable.slotKey.isNotNull()
         }.mapTo(mutableSetOf()) { Slot(it.professionalId.value, it.date, it.time) }
     }
 
@@ -108,17 +119,23 @@ class SchedulingRepository(
     fun insert(appointment: NewAppointment): Int? = try {
         transaction(database) {
             val slot = appointment.slot
-            AppointmentEntity.new {
+            val professional = ProfessionalEntity[slot.professionalId]
+            val entity = AppointmentEntity.new {
                 patient = UserEntity[appointment.patientId]
-                professional = ProfessionalEntity[slot.professionalId]
+                this.professional = professional
                 date = slot.date
                 time = slot.time
-                status = STATUS_PENDING
+                status = AppointmentStatus.Pending.stored()
                 reason = appointment.reason
                 notes = appointment.notes
                 createdAt = appointment.createdAt
                 slotKey = AppointmentsTable.slotKeyOf(slot.professionalId, slot.date, slot.time)
-            }.id.value
+            }
+            // The event references the row, which the DAO would otherwise only insert at commit.
+            entity.flush()
+            val id = entity.id.value
+            recordAppointmentEvent(id, professional.clinicId.value, AppointmentEventType.Created, Actor.PATIENT, appointment.createdAt)
+            id
         }
     } catch (error: ExposedSQLException) {
         // Only a taken slot is a conflict; anything else is a server error and must surface as one.
@@ -129,10 +146,12 @@ class SchedulingRepository(
     }
 
     fun appointmentsOf(patientId: Int): List<Appointment> = transaction(database) {
-        AppointmentEntity.find { AppointmentsTable.patient eq patientId }
+        val rows = AppointmentEntity.find { AppointmentsTable.patient eq patientId }
             .orderBy(AppointmentsTable.date to SortOrder.ASC, AppointmentsTable.time to SortOrder.ASC)
             .withDetails()
-            .map { it.toAppointment() }
+            .toList()
+        val extras = appointmentExtras(rows.map { it.id.value })
+        rows.map { it.toAppointment(extras[it.id.value]) }
     }
 
     /**
@@ -141,24 +160,26 @@ class SchedulingRepository(
      * status is still [expected]: the row is locked when read, so a confirmation that lands in
      * between is not overwritten. Returns false when nothing was changed.
      */
-    fun cancel(patientId: Int, id: Int, expected: AppointmentStatus): Boolean = transaction(database) {
+    fun cancel(patientId: Int, id: Int, expected: AppointmentStatus, at: Instant): Boolean = transaction(database) {
         val appointment = AppointmentEntity
             .find { ownedBy(patientId, id) and (AppointmentsTable.status eq expected.stored()) }
             .forUpdate()
             .singleOrNull()
             ?: return@transaction false
-        appointment.status = STATUS_CANCELLED
+        appointment.status = AppointmentStatus.Cancelled.stored()
         appointment.slotKey = null
+        recordAppointmentEvent(id, appointment.professional.clinicId.value, AppointmentEventType.Cancelled, Actor.PATIENT, at)
         true
     }
 
     /** The appointment when it belongs to [patientId], else null. */
     fun findAppointmentOf(patientId: Int, id: Int): Appointment? = transaction(database) {
-        AppointmentEntity.find { ownedBy(patientId, id) }.withDetails().singleOrNull()?.toAppointment()
+        AppointmentEntity.find { ownedBy(patientId, id) }.withDetails().singleOrNull()
+            ?.toAppointment(appointmentExtras(listOf(id))[id])
     }
 
     fun findAppointment(id: Int): Appointment? = transaction(database) {
-        AppointmentEntity.findById(id)?.toAppointment()
+        AppointmentEntity.findById(id)?.toAppointment(appointmentExtras(listOf(id))[id])
     }
 
     private fun ownedBy(patientId: Int, id: Int): Op<Boolean> =
@@ -173,7 +194,7 @@ class SchedulingRepository(
         AppointmentEntity::preTriages,
     )
 
-    private fun AppointmentEntity.toAppointment(): Appointment {
+    private fun AppointmentEntity.toAppointment(extras: AppointmentExtras?): Appointment {
         val professional = professional
         return Appointment(
             id = id.value,
@@ -182,16 +203,14 @@ class SchedulingRepository(
             clinic = professional.clinic.toClinic(),
             date = date,
             time = time,
-            status = when (status) {
-                STATUS_CONFIRMED -> AppointmentStatus.Confirmed
-                STATUS_CANCELLED -> AppointmentStatus.Cancelled
-                else -> AppointmentStatus.Pending
-            },
+            status = storedStatus(status),
             patientName = patient.socialName.ifBlank { patient.fullName },
             contactPhone = Phone(patient.primaryPhone),
             reason = reason,
             notes = notes,
             preTriageId = preTriages.firstOrNull()?.id?.value,
+            rescheduled = extras?.rescheduled ?: false,
+            declineReason = extras?.declineReason.orEmpty(),
         )
     }
 
@@ -201,16 +220,4 @@ class SchedulingRepository(
         city = city,
         timeZoneId = timeZone,
     )
-
-    private fun AppointmentStatus.stored(): String = when (this) {
-        AppointmentStatus.Pending -> STATUS_PENDING
-        AppointmentStatus.Confirmed -> STATUS_CONFIRMED
-        AppointmentStatus.Cancelled -> STATUS_CANCELLED
-    }
-
-    private companion object {
-        const val STATUS_PENDING = "pending"
-        const val STATUS_CONFIRMED = "confirmed"
-        const val STATUS_CANCELLED = "cancelled"
-    }
 }

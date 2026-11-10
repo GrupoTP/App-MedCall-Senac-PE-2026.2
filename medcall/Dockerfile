@@ -3,6 +3,8 @@
 #   docker build --target server -t medcall-server .
 #   docker build --target web --build-arg API_BASE_URL=https://medcall.grupotp.polyclub.com.br -t medcall-web .
 #
+# A imagem web leva o PWA na raiz e os portais administrativos em /admin/ (mesmo host da API).
+#
 # O submódulo grupotp-kotlin-react-native precisa estar presente antes do build
 # (git submodule update --init): o settings.gradle.kts inclui o build dele.
 
@@ -43,9 +45,11 @@ FROM build AS web-build
 # Endereço da API gravado no bundle. Mesmo host do PWA em produção.
 ARG API_BASE_URL=""
 ENV API_BASE_URL=${API_BASE_URL}
-RUN sh ./gradlew --no-configuration-cache :client:expo:exportWeb
+# O PWA do paciente e os portais (Portal da Clínica e Painel MedCall, servidos em /admin/).
+RUN sh ./gradlew --no-configuration-cache :client:expo:exportWeb :client:admin:jsBrowserDistribution
 
 FROM nginx:1.30-alpine AS web
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=web-build /src/client/expo/dist/ /usr/share/nginx/html/
+COPY --from=web-build /src/client/admin/build/dist/js/productionExecutable/ /usr/share/nginx/html/admin/
 EXPOSE 8080

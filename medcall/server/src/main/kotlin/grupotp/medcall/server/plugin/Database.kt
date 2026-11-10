@@ -1,15 +1,29 @@
 package grupotp.medcall.server.plugin
 
-import grupotp.medcall.server.database.table.AppointmentsTable
-import grupotp.medcall.server.database.table.ClinicsTable
+import grupotp.medcall.server.database.DemoSeed
+import grupotp.medcall.server.database.MedcallSchema
+import grupotp.medcall.server.integration.EventBus
+import grupotp.medcall.server.integration.InMemoryEventBus
+import grupotp.medcall.server.integration.IntegrationRepository
+import grupotp.medcall.server.integration.IntegrationService
+import grupotp.medcall.server.integration.RabbitMqEventBus
+import grupotp.medcall.server.integration.WebhookSender
+import grupotp.medcall.server.repository.AdminRepository
+import grupotp.medcall.server.repository.AuditRepository
+import grupotp.medcall.server.service.AdminService
+import grupotp.medcall.server.repository.ClinicAgendaRepository
+import grupotp.medcall.server.repository.KpiRepository
+import grupotp.medcall.server.service.ClinicAgendaService
+import grupotp.medcall.server.service.KpiService
+import grupotp.medcall.server.repository.StaffRepository
+import grupotp.medcall.server.repository.StaffSessionRepository
+import grupotp.medcall.server.security.StaffTokens
+import grupotp.medcall.server.service.StaffService
+import grupotp.medcall.server.service.StaffSessionService
+import grupotp.medcall.common.security.SecretString
 import grupotp.medcall.server.database.DatabaseConnector
 import grupotp.medcall.server.database.DatabaseSettings
 import grupotp.medcall.server.database.LegacySchemaCheck
-import grupotp.medcall.server.database.table.PreTriagesTable
-import grupotp.medcall.server.database.table.ProfessionalsTable
-import grupotp.medcall.server.database.table.SessionsTable
-import grupotp.medcall.server.database.table.SpecialtiesTable
-import grupotp.medcall.server.database.table.UsersTable
 import grupotp.medcall.server.repository.PreTriageRepository
 import grupotp.medcall.server.repository.SchedulingRepository
 import grupotp.medcall.server.repository.SessionRepository
@@ -37,13 +51,16 @@ import java.time.Clock
 
 fun Application.configureDatabase() {
     val settings = DatabaseSettings.from(environment.config)
+    val rabbitUrl = environment.config.property("integration.rabbitmqUrl").getString().trim()
+    val allowPrivateWebhooks = environment.config.property("integration.allowPrivateWebhooks").getString().trim().toBoolean()
     getKoin().loadModules(
         listOf(
             module {
                 single { settings }
                 single { SessionSettings.from(environment.config) }
                 single { JwtSettings.from(environment.config) }
-                singleOf(::SessionTokens)
+                single { SessionTokens(get()) }
+                single { StaffTokens(get()) }
                 single { DatabaseConnector().connect(get()) }
                 singleOf(::PasswordHasher)
                 // UTC: each clinic has its own zone, and the services convert to it where it matters.
@@ -52,7 +69,23 @@ fun Application.configureDatabase() {
                 singleOf(::SessionRepository)
                 singleOf(::SchedulingRepository)
                 singleOf(::PreTriageRepository)
-                singleOf(::SessionService)
+                single { SessionService(get<SessionRepository>(), get(), get()) }
+                singleOf(::StaffRepository)
+                singleOf(::StaffSessionRepository)
+                singleOf(::AuditRepository)
+                single { StaffSessionService(get(), get(), get()) }
+                singleOf(::StaffService)
+                singleOf(::ClinicAgendaRepository)
+                singleOf(::ClinicAgendaService)
+                singleOf(::KpiRepository)
+                singleOf(::KpiService)
+                singleOf(::DemoSeed)
+                singleOf(::AdminRepository)
+                singleOf(::AdminService)
+                singleOf(::IntegrationRepository)
+                single { WebhookSender(allowPrivateTargets = allowPrivateWebhooks) }
+                single<EventBus> { if (rabbitUrl.isBlank()) InMemoryEventBus() else RabbitMqEventBus(rabbitUrl) }
+                singleOf(::IntegrationService)
                 singleOf(::AuthService)
                 singleOf(::AccountService)
                 singleOf(::SchedulingService)
@@ -63,18 +96,20 @@ fun Application.configureDatabase() {
     val database = getKoin().get<Database>()
     LegacySchemaCheck.run(database)
     transaction(database) {
-        SchemaUtils.create(
-            UsersTable,
-            SessionsTable,
-            ClinicsTable,
-            SpecialtiesTable,
-            ProfessionalsTable,
-            AppointmentsTable,
-            PreTriagesTable
-        )
+        SchemaUtils.create(*MedcallSchema.tables)
     }
     getKoin().get<SchedulingRepository>().seedCatalogIfEmpty()
+    getKoin().get<StaffService>().bootstrap(
+        email = environment.config.property("staff.bootstrapEmail").getString(),
+        password = SecretString(environment.config.property("staff.bootstrapPassword").getString()),
+    )
+    if (environment.config.property("demo.seed").getString().trim().toBoolean()) {
+        getKoin().get<DemoSeed>().runIfEmpty(SecretString(environment.config.property("demo.staffPassword").getString()))
+    }
+    // Outbox → bus → webhooks; runs while the application runs.
+    getKoin().get<IntegrationService>().start(this)
     monitor.subscribe(ApplicationStopped) {
+        getKoin().get<EventBus>().close()
         TransactionManager.closeAndUnregister(database)
     }
 }

@@ -1,6 +1,6 @@
 package grupotp.medcall.server.service
 
-import grupotp.medcall.server.repository.SessionRepository
+import grupotp.medcall.server.repository.SessionStore
 import grupotp.medcall.server.domain.OpenedSession
 import grupotp.medcall.server.security.SessionSettings
 import java.time.Clock
@@ -18,8 +18,8 @@ import kotlin.time.toKotlinInstant
  * A session lasts while it is used: it only expires after [SessionSettings.idleTimeout] without
  * any request, and never when that is null.
  */
-class SessionService(
-    private val sessions: SessionRepository,
+open class SessionService(
+    private val sessions: SessionStore,
     private val clock: Clock,
     private val settings: SessionSettings,
 ) {

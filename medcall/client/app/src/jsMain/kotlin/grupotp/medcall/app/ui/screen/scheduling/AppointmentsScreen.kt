@@ -19,6 +19,7 @@ import grupotp.medcall.app.ui.format.formatClinicTime
 import grupotp.medcall.app.ui.format.formatDate
 import grupotp.medcall.app.ui.format.formatSpokenDate
 import grupotp.medcall.app.ui.format.label
+import grupotp.medcall.app.ui.format.statusLabel
 import grupotp.medcall.app.ui.hook.useScreenScope
 import grupotp.medcall.app.ui.icon.largeCalendarIcon
 import grupotp.medcall.app.ui.icon.trashIcon
@@ -29,7 +30,6 @@ import grupotp.medcall.app.usecase.scheduling.CancelAppointmentUseCase
 import grupotp.medcall.app.usecase.scheduling.ListAppointmentsUseCase
 import grupotp.medcall.common.auth.AuthenticatedAccount
 import grupotp.medcall.common.scheduling.Appointment
-import grupotp.medcall.common.scheduling.AppointmentStatus
 import kotlinx.coroutines.launch
 import ojaynico.kotlin.react.native.component.Pressable
 import ojaynico.kotlin.react.native.component.ScrollView
@@ -167,12 +167,12 @@ private fun ChildrenBuilder.appointmentCard(
         key = Key(appointment.id)
         style = arrayOf(
             Styles.appointmentCard,
-            if (appointment.status == AppointmentStatus.Cancelled) Styles.appointmentCancelled else null,
+            if (!appointment.status.holdsSlot) Styles.appointmentCancelled else null,
         )
         accessible = true
         accessibilityLabel = "${appointment.specialtyName} com ${appointment.professionalName}, " +
             "${formatSpokenDate(appointment.date)} às ${formatClinicTime(appointment.date, appointment.time, appointment.clinic)}, " +
-            "${appointment.clinic.name}, ${appointment.status.label()}"
+            "${appointment.clinic.name}, ${appointment.statusLabel()}"
         View {
             style = Styles.appointmentTop
             View {
@@ -185,8 +185,14 @@ private fun ChildrenBuilder.appointmentCard(
                     style = Styles.upcomingSubtitle
                     +appointment.professionalName
                 }
+                if (appointment.declineReason.isNotBlank()) {
+                    Text {
+                        style = Styles.upcomingSubtitle
+                        +"Motivo da clínica: ${appointment.declineReason}"
+                    }
+                }
             }
-            statusPill(appointment.status)
+            statusPill(appointment.status, appointment.statusLabel())
         }
         View {
             style = Styles.appointmentMeta

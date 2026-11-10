@@ -7,23 +7,23 @@ import ojaynico.kotlin.react.native.component.Text
 import ojaynico.kotlin.react.native.component.View
 import react.ChildrenBuilder
 
-internal fun ChildrenBuilder.statusPill(status: AppointmentStatus) {
+internal fun ChildrenBuilder.statusPill(status: AppointmentStatus, label: String = status.label()) {
     View {
         style = arrayOf(
             Styles.statusPill,
             when (status) {
                 AppointmentStatus.Pending -> Styles.statusPending
-                AppointmentStatus.Confirmed -> Styles.statusConfirmed
-                AppointmentStatus.Cancelled -> Styles.statusCancelled
+                AppointmentStatus.Confirmed, AppointmentStatus.Attended -> Styles.statusConfirmed
+                AppointmentStatus.Declined, AppointmentStatus.Cancelled, AppointmentStatus.NoShow -> Styles.statusCancelled
             },
         )
         Text {
             style = when (status) {
                 AppointmentStatus.Pending -> Styles.statusPendingText
-                AppointmentStatus.Confirmed -> Styles.statusConfirmedText
-                AppointmentStatus.Cancelled -> Styles.statusCancelledText
+                AppointmentStatus.Confirmed, AppointmentStatus.Attended -> Styles.statusConfirmedText
+                AppointmentStatus.Declined, AppointmentStatus.Cancelled, AppointmentStatus.NoShow -> Styles.statusCancelledText
             }
-            +status.label()
+            +label
         }
     }
 }

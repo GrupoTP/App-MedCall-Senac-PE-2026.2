@@ -1,0 +1,146 @@
+openapi: 3.0.3
+info:
+  title: API pública MedCall
+  version: "1.0"
+  description: |
+    API para o **sistema da clínica** responder aos agendamentos feitos pelos pacientes no app MedCall.
+
+    ## Fluxo
+    1. O paciente agenda no app. O MedCall grava o evento e o coloca numa fila (RabbitMQ).
+    2. O MedCall envia um **webhook** (POST) para a URL cadastrada pelo administrador da clínica no Portal da Clínica.
+    3. O sistema da clínica responde por esta API: confirmar, recusar, remarcar ou registrar comparecimento.
+
+    ## Autenticação
+    `Authorization: Bearer mc_live_...` com uma chave de API gerada no Portal da Clínica (Integrações).
+    A chave vale só para a clínica que a gerou. Revogada, a próxima chamada recebe 401.
+
+    ## Idempotência
+    Envie `Idempotency-Key: <valor único>` nas ações (POST). Repetir o mesmo pedido com a mesma chave
+    devolve a resposta original (cabeçalho `Idempotent-Replayed: true`); a mesma chave com outro corpo recebe 422.
+
+    ## Limite
+    60 chamadas por minuto por chave. Acima disso: 429 com `Retry-After: 60`.
+
+    ## Webhooks
+    Corpo: `WebhookPayload`. Cabeçalhos:
+    - `X-MedCall-Event`: tipo (`appointment.created`, `appointment.cancelled_by_patient`, `appointment.rescheduled`, `appointment.status_changed`, `medcall.test`).
+    - `X-MedCall-Event-Id`: id único do evento. A entrega é **pelo menos uma vez**: descarte repetidos por este id.
+    - `X-MedCall-Signature: t=<segundos unix>,v1=<hex>`, onde hex = HMAC-SHA256 com o segredo do webhook sobre `"<t>.<corpo>"`.
+      Nas 24 horas seguintes à troca do segredo vêm dois `v1` (novo e antigo). Recuse `t` com mais de 5 minutos de diferença.
+
+    Responda 2xx em até 10 segundos. Falhas (timeout, 5xx, 408, 429) são tentadas de novo após 1 min, 5 min,
+    30 min, 2 h e 6 h; depois o evento vai para a fila de mortas e pode ser reenviado pelo portal. Outros 4xx não são repetidos.
+    Um webhook que falha por mais de 24 horas é desativado automaticamente.
+x-action-responses: &actionResponses
+  "200": { description: Agendamento depois da ação, content: { application/json: { schema: { $ref: "#/components/schemas/PublicAppointment" } } } }
+  "400": { description: Corpo inválido }
+  "401": { description: Chave ausente, inválida ou revogada }
+  "404": { description: Agendamento não existe ou é de outra clínica }
+  "409": { description: "Ação não vale para a situação atual (APPOINTMENT_TRANSITION_INVALID), mudou enquanto isso (APPOINTMENT_CHANGED) ou horário ocupado (SLOT_TAKEN)" }
+  "422": { description: Idempotency-Key reutilizada com outro corpo }
+  "429": { description: Limite de chamadas }
+servers:
+  - url: /api/public/v1
+security:
+  - apiKey: []
+paths:
+  /appointments:
+    get:
+      summary: Lista os agendamentos da clínica
+      description: Para conferir o que chegou por webhook. Padrão, hoje e os próximos 13 dias, no relógio da clínica. Até 500 itens.
+      parameters:
+        - { name: from, in: query, schema: { type: string, format: date } }
+        - { name: to, in: query, schema: { type: string, format: date } }
+        - { name: status, in: query, schema: { $ref: "#/components/schemas/AppointmentStatus" } }
+      responses:
+        "200": { description: Agendamentos, content: { application/json: { schema: { type: array, items: { $ref: "#/components/schemas/PublicAppointment" } } } } }
+        "400": { $ref: "#/components/responses/Error" }
+        "401": { description: Chave ausente, inválida ou revogada }
+        "429": { $ref: "#/components/responses/Error" }
+  /appointments/{id}/confirm:
+    post:
+      summary: Confirma um agendamento aguardando
+      parameters: [ { $ref: "#/components/parameters/Id" }, { $ref: "#/components/parameters/IdempotencyKey" } ]
+      responses: *actionResponses
+  /appointments/{id}/decline:
+    post:
+      summary: Recusa (ou cancela, se confirmado e ainda não começou)
+      parameters: [ { $ref: "#/components/parameters/Id" }, { $ref: "#/components/parameters/IdempotencyKey" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: { type: string, enum: [professional_unavailable, clinic_closed, not_covered, duplicate, other] }
+                note: { type: string, maxLength: 280, description: Mensagem que o paciente vê. }
+      responses: *actionResponses
+  /appointments/{id}/reschedule:
+    post:
+      summary: Remarca para outro horário livre do mesmo profissional (fica confirmado)
+      parameters: [ { $ref: "#/components/parameters/Id" }, { $ref: "#/components/parameters/IdempotencyKey" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [date, time]
+              properties:
+                date: { type: string, format: date }
+                time: { type: string, example: "14:30" }
+      responses: *actionResponses
+  /appointments/{id}/attendance:
+    post:
+      summary: Registra comparecimento ou falta de uma consulta confirmada que já começou
+      parameters: [ { $ref: "#/components/parameters/Id" }, { $ref: "#/components/parameters/IdempotencyKey" } ]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [attended], properties: { attended: { type: boolean } } }
+      responses: *actionResponses
+components:
+  securitySchemes:
+    apiKey: { type: http, scheme: bearer, bearerFormat: "mc_live_..." }
+  parameters:
+    Id: { name: id, in: path, required: true, schema: { type: integer } }
+    IdempotencyKey: { name: Idempotency-Key, in: header, required: false, schema: { type: string, maxLength: 100 } }
+  responses:
+    Error:
+      description: Erro com código e mensagem em pt-BR
+      content: { application/json: { schema: { $ref: "#/components/schemas/ApiError" } } }
+  schemas:
+    AppointmentStatus:
+      type: string
+      enum: [pending, confirmed, declined, cancelled, attended, no_show]
+    ApiError:
+      type: object
+      properties:
+        code: { type: string, example: APPOINTMENT_TRANSITION_INVALID }
+        message: { type: string }
+    PublicAppointment:
+      type: object
+      properties:
+        id: { type: integer }
+        status: { $ref: "#/components/schemas/AppointmentStatus" }
+        date: { type: string, format: date, description: Data no relógio da clínica }
+        time: { type: string, example: "09:30", description: Horário no relógio da clínica }
+        professionalId: { type: integer }
+        professionalName: { type: string }
+        specialtyName: { type: string }
+        patientName: { type: string }
+        patientPhone: { type: string, description: Só dígitos, com DDD }
+        reason: { type: string }
+        createdAt: { type: string, format: date-time }
+        lastEvent: { type: string, enum: [created, confirmed, declined, rescheduled, cancelled, attended, no_show, attendance_cleared] }
+    WebhookPayload:
+      type: object
+      properties:
+        eventId: { type: string }
+        type: { type: string, example: appointment.created }
+        occurredAt: { type: string, format: date-time }
+        clinicId: { type: integer }
+        appointment: { $ref: "#/components/schemas/PublicAppointment" }

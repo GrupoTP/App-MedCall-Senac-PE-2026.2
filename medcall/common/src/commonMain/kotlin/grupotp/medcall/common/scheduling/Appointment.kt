@@ -15,6 +15,8 @@ import kotlin.time.Instant
  * @property date date at the [clinic], in its time zone.
  * @property time wall-clock time at the [clinic].
  * @property preTriageId pre-triage attached when booking, if any.
+ * @property rescheduled true when the clinic moved it to the current [date] and [time].
+ * @property declineReason why the clinic declined it, when [status] is [AppointmentStatus.Declined].
  */
 @Serializable
 data class Appointment(
@@ -30,6 +32,8 @@ data class Appointment(
     val reason: String = "",
     val notes: String = "",
     val preTriageId: Int? = null,
+    val rescheduled: Boolean = false,
+    val declineReason: String = "",
 ) {
     /** Start in the clinic's wall clock. To compare with now, convert now to [Clinic.timeZone]. */
     val startsAt: LocalDateTime get() = LocalDateTime(date, time)
@@ -49,6 +53,7 @@ data class Appointment(
     fun isCancellableAt(nowAtClinic: LocalDateTime): Boolean = when (status) {
         AppointmentStatus.Pending -> true
         AppointmentStatus.Confirmed -> startsAt > nowAtClinic
-        AppointmentStatus.Cancelled -> false
+        AppointmentStatus.Declined, AppointmentStatus.Cancelled,
+        AppointmentStatus.Attended, AppointmentStatus.NoShow -> false
     }
 }
