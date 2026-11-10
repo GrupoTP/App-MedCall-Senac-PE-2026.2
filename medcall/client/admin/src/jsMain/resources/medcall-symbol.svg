@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="199.0 198.5 626.0 626.0" width="512" height="512" role="img" aria-labelledby="t">
+  <title id="t">MedCall</title>
+  <defs>
+    <mask id="sy-gap" maskUnits="userSpaceOnUse" x="0" y="0" width="1024" height="1024">
+      <rect width="1024" height="1024" fill="#fff"/>
+      <path d="M430.0,674.0 C356.0,614.0 254.0,530.0 254.0,456.0 C254.0,401.0 296.0,363.0 342.0,363.0 C385.0,363.0 413.0,393.0 430.0,424.0 C447.0,393.0 475.0,363.0 518.0,363.0 C564.0,363.0 606.0,401.0 606.0,456.0 C606.0,530.0 504.0,614.0 430.0,674.0 Z" fill="#000" stroke="#000" stroke-width="62" stroke-linejoin="round"/>
+    </mask>
+  </defs>
+  <g fill="none" stroke-width="30" stroke-linecap="round" stroke-linejoin="round">
+    <g stroke="#236C5D" mask="url(#sy-gap)">
+      <path d="M588,377 H726 A44,44 0 0 1 770,421 V632 A44,44 0 0 1 726,676 H520"/>
+      <path d="M641,465 H770" stroke-linecap="butt"/>
+      <path d="M684,347 V404"/>
+      <path d="M623,585 L647,609 L700,556" stroke-width="28"/>
+    </g>
+    <path d="M430.0,674.0 C356.0,614.0 254.0,530.0 254.0,456.0 C254.0,401.0 296.0,363.0 342.0,363.0 C385.0,363.0 413.0,393.0 430.0,424.0 C447.0,393.0 475.0,363.0 518.0,363.0 C564.0,363.0 606.0,401.0 606.0,456.0 C606.0,530.0 504.0,614.0 430.0,674.0 Z" stroke="#236C5D"/>
+    <path d="M430.0,674.0 C356.0,614.0 254.0,530.0 254.0,456.0 C254.0,401.0 296.0,363.0 342.0,363.0 C385.0,363.0 413.0,393.0 430.0,424.0 C447.0,393.0 475.0,363.0 518.0,363.0 C537.3,363.0 555.9,369.7 571.0,381.6" stroke="#185890" stroke-linecap="butt"/>
+    <circle cx="430" cy="674" r="15.0" fill="#185890"/>
+  </g>
+</svg>

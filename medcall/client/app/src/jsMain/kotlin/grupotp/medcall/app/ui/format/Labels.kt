@@ -1,6 +1,7 @@
 package grupotp.medcall.app.ui.format
 
 import grupotp.medcall.common.pretriage.SymptomsStart
+import grupotp.medcall.common.scheduling.Appointment
 import grupotp.medcall.common.scheduling.AppointmentStatus
 
 // Text shown for the shared enums. The enums only carry codes; the words live here, with an
@@ -9,8 +10,15 @@ import grupotp.medcall.common.scheduling.AppointmentStatus
 internal fun AppointmentStatus.label(): String = when (this) {
     AppointmentStatus.Pending -> "Aguardando"
     AppointmentStatus.Confirmed -> "Confirmada"
+    AppointmentStatus.Declined -> "Recusada"
     AppointmentStatus.Cancelled -> "Cancelada"
+    AppointmentStatus.Attended -> "Realizada"
+    AppointmentStatus.NoShow -> "Falta"
 }
+
+/** Like [AppointmentStatus.label], but says when the clinic moved a confirmed appointment. */
+internal fun Appointment.statusLabel(): String =
+    if (rescheduled && status == AppointmentStatus.Confirmed) "Remarcada" else status.label()
 
 /** Answers of "Quando começaram os sintomas?". */
 internal fun SymptomsStart.label(): String = when (this) {

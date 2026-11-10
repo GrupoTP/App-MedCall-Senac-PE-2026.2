@@ -1,5 +1,6 @@
 package grupotp.medcall.server.service
 
+import grupotp.medcall.server.database.MedcallSchema
 import grupotp.medcall.common.account.Phone
 import grupotp.medcall.common.auth.RegisterAccountRequest
 import grupotp.medcall.common.pretriage.PreTriageForm
@@ -68,7 +69,7 @@ class PreTriageServiceTest {
             ),
         )
         transaction(database) {
-            SchemaUtils.create(UsersTable, SessionsTable, ClinicsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
+            SchemaUtils.create(*MedcallSchema.tables)
         }
         val appointments = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
         cardiology = appointments.specialties().first { it.name == "Cardiologia" }.id
