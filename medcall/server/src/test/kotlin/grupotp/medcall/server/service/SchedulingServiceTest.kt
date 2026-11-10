@@ -1,5 +1,6 @@
 package grupotp.medcall.server.service
 
+import grupotp.medcall.server.database.MedcallSchema
 import grupotp.medcall.common.account.Phone
 import grupotp.medcall.common.auth.RegisterAccountRequest
 import grupotp.medcall.common.scheduling.AppointmentStatus
@@ -70,7 +71,7 @@ class SchedulingServiceTest {
             ),
         )
         transaction(database) {
-            SchemaUtils.create(UsersTable, SessionsTable, ClinicsTable, SpecialtiesTable, ProfessionalsTable, AppointmentsTable, PreTriagesTable)
+            SchemaUtils.create(*MedcallSchema.tables)
         }
         repository = SchedulingRepository(database).also { it.seedCatalogIfEmpty() }
         cardiology = specialty("Cardiologia")

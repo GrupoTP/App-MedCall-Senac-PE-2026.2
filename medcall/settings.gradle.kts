@@ -42,4 +42,4 @@ includeBuild(reactNativeWrappers)
 
 enableFeaturePreview("TYPESAFE_PROJECT_ACCESSORS")
 
-include(":common", ":server", ":client:app", ":client:worker", ":client:expo")
+include(":common", ":server", ":client:app", ":client:worker", ":client:expo", ":client:admin")

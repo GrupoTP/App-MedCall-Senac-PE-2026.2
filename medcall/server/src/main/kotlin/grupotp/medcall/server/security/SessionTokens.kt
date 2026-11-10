@@ -16,15 +16,16 @@ import kotlin.time.toJavaInstant
  * There is no `exp`: a session ends after [SessionSettings][SessionSettings]
  * idle time or when revoked, and the session row, checked on every request, is what says so.
  */
-class SessionTokens(
+open class SessionTokens(
     private val settings: JwtSettings,
+    private val audience: String = settings.audience,
 ) {
     private val algorithm = Algorithm.HMAC256(settings.secret.value)
 
     /** Accepts only tokens signed here, for this audience, naming a user and a session. */
     val verifier: JWTVerifier = JWT.require(algorithm)
         .withIssuer(settings.issuer)
-        .withAudience(settings.audience)
+        .withAudience(audience)
         .withClaimPresence(RegisteredClaims.SUBJECT)
         .withClaimPresence(RegisteredClaims.JWT_ID)
         .withClaimPresence(RegisteredClaims.ISSUED_AT)
@@ -33,10 +34,17 @@ class SessionTokens(
     fun sign(userId: Int, session: OpenedSession): SecretString = SecretString(
         JWT.create()
             .withIssuer(settings.issuer)
-            .withAudience(settings.audience)
+            .withAudience(audience)
             .withSubject(userId.toString())
             .withJWTId(session.id.toString())
             .withIssuedAt(session.createdAt.toJavaInstant())
             .sign(algorithm),
     )
+}
+
+/** Tokens of the staff portals: same key, another audience, so a patient token never opens them. */
+class StaffTokens(settings: JwtSettings) : SessionTokens(settings, STAFF_AUDIENCE) {
+    companion object {
+        const val STAFF_AUDIENCE = "medcall-staff"
+    }
 }

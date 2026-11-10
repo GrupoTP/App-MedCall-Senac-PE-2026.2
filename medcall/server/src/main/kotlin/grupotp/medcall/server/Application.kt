@@ -1,10 +1,14 @@
 package grupotp.medcall.server
 
 import grupotp.medcall.server.controller.configureAccountController
+import grupotp.medcall.server.controller.configureAdminController
 import grupotp.medcall.server.controller.configureAuthController
+import grupotp.medcall.server.controller.configureClinicPortalController
 import grupotp.medcall.server.controller.configureHealthController
+import grupotp.medcall.server.controller.configureIntegrationController
 import grupotp.medcall.server.controller.configurePreTriageController
 import grupotp.medcall.server.controller.configureSchedulingController
+import grupotp.medcall.server.controller.configureStaffAuthController
 import grupotp.medcall.server.plugin.configureAuthentication
 import grupotp.medcall.server.plugin.configureCors
 import grupotp.medcall.server.plugin.configureDatabase
@@ -29,4 +33,8 @@ fun Application.module() {
     configureAccountController()
     configureSchedulingController()
     configurePreTriageController()
+    configureStaffAuthController()
+    configureClinicPortalController()
+    configureAdminController()
+    configureIntegrationController()
 }

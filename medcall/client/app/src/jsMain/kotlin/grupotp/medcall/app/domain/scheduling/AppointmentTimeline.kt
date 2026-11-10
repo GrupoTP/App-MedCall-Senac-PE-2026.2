@@ -1,7 +1,6 @@
 package grupotp.medcall.app.domain.scheduling
 
 import grupotp.medcall.common.scheduling.Appointment
-import grupotp.medcall.common.scheduling.AppointmentStatus
 import kotlin.time.Instant
 
 /**
@@ -13,7 +12,7 @@ object AppointmentTimeline {
     fun soonestFirst(appointments: List<Appointment>): List<Appointment> =
         appointments.sortedBy { it.startInstant() }
 
-    /** Appointments not cancelled and not yet past, soonest first. */
+    /** Appointments still holding their slot (not cancelled or declined) and not yet past, soonest first. */
     fun upcoming(appointments: List<Appointment>, now: Instant): List<Appointment> =
-        soonestFirst(appointments.filter { it.status != AppointmentStatus.Cancelled && it.startInstant() >= now })
+        soonestFirst(appointments.filter { it.status.holdsSlot && it.startInstant() >= now })
 }

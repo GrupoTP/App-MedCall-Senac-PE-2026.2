@@ -16,6 +16,50 @@ As rotas de paciente (`/api/v1/specialties`, `/professionals`, `/clinics`, `/ava
 
 As senhas são guardadas com PBKDF2-HMAC-SHA256 (600.000 iterações), no formato `pbkdf2-sha256$<iterações>$<salt>$<hash>`. Bancos criados antes desse formato precisam ser apagados (`server/data`), porque as contas antigas não conseguem mais entrar.
 
+## Portais administrativos
+
+Além do app do paciente, o MedCall tem dois portais web, num só app (`client/admin`, Kotlin/JS com kotlin-react e o template AdminLTE 4), que falam com o mesmo servidor:
+
+- **Portal da Clínica**, para a equipe de cada clínica parceira. O **administrador** vê os indicadores da clínica, gerencia administradores e recepcionistas e cadastra a integração (webhooks e chaves de API). A **recepcionista** cuida da agenda: confirma, recusa ou remarca os agendamentos feitos pelo app e registra comparecimento ou falta.
+- **Painel de Controle MedCall**, para a equipe interna: indicadores de toda a plataforma e de cada clínica, cadastro de clínicas, profissionais, especialidades e do primeiro administrador de cada clínica. O painel **só vê números agregados**: nenhuma rota dele devolve agendamentos individuais ou dados de pacientes, e grupos com menos de 5 casos aparecem como "< 5".
+
+As contas de equipe ficam em `staff_users`, separadas das de paciente: o token de um paciente não abre os portais (e vice-versa), porque o JWT da equipe tem outro público (`medcall-staff`). Cada rota declara os papéis que aceita (`staffRoute`), e as rotas da clínica sempre leem a clínica da conta, nunca do pedido. Uma conta nova recebe uma senha provisória e só usa o resto do portal depois de trocá-la. O primeiro administrador MedCall é criado na subida a partir de `MEDCALL_ADMIN_EMAIL` e `MEDCALL_ADMIN_PASSWORD`, só quando ainda não existe nenhuma conta de equipe.
+
+Cada mudança de situação de um agendamento vira uma linha em `appointment_events` (só inserção), na mesma transação da mudança. As situações são `pending`, `confirmed` (também depois de uma remarcação), `declined`, `cancelled`, `attended` e `no_show`; recusada e cancelada liberam o horário no app. É desses eventos que saem os indicadores.
+
+### Indicadores (KPIs)
+
+Os indicadores, com fórmula, fonte de dados, decisão que apoiam e limite de cada um, estão em [docs/kpis.md](docs/kpis.md). O código e os gráficos usam os códigos de lá (`C01`, `M03`...). A base fictícia da demonstração e o dicionário do CSV exportado estão em [docs/base-sintetica.md](docs/base-sintetica.md).
+
+### Integração da clínica
+
+Uma clínica com sistema próprio pode dispensar a Agenda do portal. Cada evento de agendamento é gravado também numa tabela `outbox`, na mesma transação; um publicador manda o evento para a fila (RabbitMQ quando `RABBITMQ_URL` está definida; uma fila em memória, sem ela), e o consumidor faz o POST para os webhooks que a clínica cadastrou. O corpo vai assinado com HMAC-SHA256 (`X-MedCall-Signature`), e falhas são tentadas de novo após 1 min, 5 min, 30 min, 2 h e 6 h; depois, o evento vai para a fila de mortas e pode ser reenviado pelo portal. O sistema da clínica responde pela API pública (`/api/public/v1`), com uma chave de API gerada no portal, `Idempotency-Key` e limite de 60 chamadas por minuto. A documentação fica em `/api/public/docs`.
+
+Webhooks só aceitam HTTPS para endereços públicos (proteção contra SSRF). Para testar com um receptor nesta máquina, as tasks locais ligam `WEBHOOKS_ALLOW_PRIVATE=true`.
+
+### Rodar os portais
+
+```bash
+./gradlew :server:run
+```
+
+Em outro terminal:
+
+```bash
+./gradlew :client:admin:jsBrowserDevelopmentRun --continuous
+```
+
+O portal abre em `http://localhost:8082` e chama o servidor na porta 8080 (a origem já está no CORS padrão). As tasks locais do servidor sobem com a base fictícia (`DEMO_SEED=true`) e com estas contas:
+
+| Conta | Senha | Perfil |
+|---|---|---|
+| `admin@medcall.dev` | `medcall-dev-admin` | Equipe MedCall (criada por `MEDCALL_ADMIN_*`) |
+| `medcall@demo.medcall.dev` | `medcall-demo` | Equipe MedCall |
+| `admin.boavista@demo.medcall.dev` | `medcall-demo` | Administrador da Clínica Boa Vista |
+| `recepcao.boavista@demo.medcall.dev` | `medcall-demo` | Recepcionista da Clínica Boa Vista |
+
+Há contas iguais para `derby` e `manaus`. Em produção, o portal é servido pela imagem web em `/admin/`, no mesmo host da API.
+
 ## Módulos
 
 - `common`: código compartilhado, com kotlinx-serialization. Alvos JVM e JavaScript.
@@ -23,6 +67,7 @@ As senhas são guardadas com PBKDF2-HMAC-SHA256 (600.000 iterações), no format
 - `client/app`: interface Kotlin/JS com React Native (wrappers do `grupotp-kotlin-react-native`), casos de uso e gateways de cada plataforma. Os testes unitários rodam em Node; o `test-support/native-module-stubs.js` troca os módulos do React Native e do Expo por stubs, porque eles só existem no `client/expo`.
 - `client/worker`: service worker em Kotlin/JS, carregado por `sw.js`.
 - `client/expo`: shell Expo (Metro) que empacota o bundle Kotlin para a web e para o Android.
+- `client/admin`: Portal da Clínica e Painel de Controle MedCall, em Kotlin/JS com kotlin-react (react-dom), AdminLTE 4 e Chart.js. Servido em `/admin/`.
 - `build-logic`: plugins Gradle do próprio repositório, incluídos via `pluginManagement`. `medcall.dropbox-ignore` (settings) tira as pastas geradas do Dropbox; `medcall.ktor-dev-mode` adiciona a task `:server:runDev`.
 - `grupotp-kotlin-react-native`: submódulo com o fork da biblioteca de wrappers, branch `modern`, incluído via `includeBuild`.
 
