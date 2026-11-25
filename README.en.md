@@ -18,7 +18,10 @@ The product was previously called Recife Saudável. The name is MedCall.
 
 All rights reserved. Use of this code is limited to Polyana Fontes and Thayná Batista da Silva. The terms are in [LICENSE](LICENSE).
 
+![Suite](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml/badge.svg)
+<!-- test-badge:start -->
 ![Tests](https://img.shields.io/badge/tests-128%20passing-1E6B5E)
+<!-- test-badge:end -->
 
 > MedCall does not diagnose and does not replace professional care. In an emergency, call 192 (SAMU). That text lives in `ClinicalDisclaimer`.
 
@@ -88,7 +91,8 @@ The device has no separate expiry. The server ends the session after `SESSION_ID
 
 ## Tests run
 
-Last local run on 24 November 2026, with the command in [Run](#run).
+<!-- test-results:start -->
+Last run on 25 November 2026, with the command in [Run](#run).
 
 | Result | Count |
 |---|---|
@@ -97,7 +101,8 @@ Last local run on 24 November 2026, with the command in [Run](#run).
 | Errors | 0 |
 | Skipped | 0 |
 
-The numbers come from the Gradle XML reports under `common`, `server`, `client/app`, and `client/worker`. `common` tests are counted twice when they run on the JVM and on JavaScript. The table records that run. It does not update itself on every commit.
+The numbers come from the Gradle XML reports under `common`, `server`, `client/app`, and `client/worker`. `common` tests are counted twice when they run on the JVM and on JavaScript. The [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) workflow writes this table and a row in [TESTES.md](TESTES.md) after every run on main, whether it passes or fails.
+<!-- test-results:end -->
 
 ## What this repository contains
 
