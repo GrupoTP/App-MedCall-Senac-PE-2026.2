@@ -4,6 +4,8 @@ App Kotlin Multiplatform da MedCall. A interface é escrita só em Kotlin, com R
 
 Na web, o `sw.js` inicia o bundle Kotlin do worker, que guarda a interface em cache e, no IndexedDB, o cadastro autenticado e as consultas dele. No Android não existe service worker: os mesmos dados ficam em SQLite (expo-sqlite), pelo mesmo gateway Kotlin.
 
+Na PWA, `client/expo/public/index.html` carrega o [AccessAbility Widget 2.3.1](https://github.com/thaynabds/accessability-widget) com uma tag `script`. O pacote publicado é `@thaynabds/accessability-widget`. O painel tem 30 recursos, alinhados à WCAG 2.2 e à Lei Brasileira de Inclusão (Lei nº 13.146/2015). O botão abre com clique ou Alt+A. As preferências ficam no navegador. Sem rede, o script do CDN não carrega e o restante do app continua pelo service worker. O app Android não usa esse HTML.
+
 ## Agendamento e modo offline
 
 O botão Agendar abre o fluxo do protótipo em três etapas (especialidade e profissional, data e horário, confirmação). Especialidades, profissionais e horários livres vêm sempre do servidor, que confere tudo de novo ao confirmar; um índice único por profissional, data e horário impede que a mesma vaga seja marcada duas vezes. Os horários são os dias úteis dos próximos 14 dias.
