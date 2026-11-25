@@ -49,6 +49,43 @@ O aplicativo não diz o nome de uma doença e não substitui o profissional de s
 6. Na conta, atualize o perfil, o consentimento de notificações, a senha, ou peça a exclusão dos dados.
 7. Na versão web, o botão de acessibilidade (AccessAbility Widget 2.3.1) abre com clique ou Alt+A. Ele ajusta contraste, tamanho da letra e leitura. No Android esse botão não aparece, porque ele está no HTML da PWA.
 
+## Recursos da interface
+
+A interface é Kotlin com componentes React Native. O shell Expo em `medcall/client/expo` só registra esse componente. Não é o site antigo aberto dentro de uma WebView.
+
+| Recurso | Onde está | Função |
+|---|---|---|
+| Navegação entre telas | `AppScreen` em `medcall/client/app/src/jsMain/kotlin/grupotp/medcall/app/App.kt` | Troca boas-vindas, cadastro, login, início, pré-triagem, agenda, consultas, conta e política. O estado fica em `useState`. |
+| Menu | `FloatingMenu.kt` | Abre por cima da tela logada e leva a início, pré-triagem, agenda, consultas e conta. |
+| ScrollView | Cadastro, agenda, consultas, conta e política | Rolagem do conteúdo. |
+| TextInput | `TextField.kt` | Campos de cadastro, login e agenda. |
+| Pressable | Botões e links das telas | Toque nos botões. |
+| Modal | `ConfirmDialog.kt` | Confirmação antes de ações da conta. |
+| Ícones | `ui/icon/Icons.kt` | Menu, consultas, conta e saída. |
+
+## Com e sem internet
+
+Na PWA, a interface abre de novo sem rede depois da primeira visita com o service worker. Enviar dados novos exige o servidor.
+
+| Tela | Sem rede |
+|---|---|
+| Boas-vindas, login e cadastro | A tela abre. Entrar ou criar conta exige o servidor. |
+| Início e minhas consultas | A lista já recebida continua. |
+| Agendar e pré-triagem | Exigem rede. O app avisa e não confirma o que o servidor não gravou. |
+| Conta | O perfil já salvo pode ser lido. Gravar perfil, senha ou exclusão exige rede. |
+
+## Dados no aparelho
+
+Na web, o IndexedDB se chama `medcall`, versão 2, com as stores `accounts` e `appointments`. No Android, os mesmos dados ficam em SQLite. A senha não é gravada no aparelho. Fonte: `LocalAccountDatabase.kt`.
+
+| Dado | Onde fica | Quando sai |
+|---|---|---|
+| Perfil da conta logada | chave `signed-in` | Saída, ou quando o servidor recusa a sessão. |
+| Consultas da última conta | store `appointments`, chave do id da conta | A lista nova substitui a anterior. A saída apaga a store. |
+| Fila de saída feita offline | chave `pending-sign-outs` | Continua depois da limpeza e é enviada quando a rede volta. |
+
+Não há prazo separado no aparelho. O servidor encerra a sessão depois de `SESSION_IDLE_DAYS` sem requisição. O padrão é 180 dias.
+
 ## Testes executados
 
 Última execução local em 24 de novembro de 2026, com o comando da seção [Como executar](#como-executar).
