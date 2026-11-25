@@ -20,7 +20,7 @@ Todos los derechos reservados. El uso de este código queda limitado a Polyana F
 
 ![Suite](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml/badge.svg)
 <!-- test-badge:start -->
-![Pruebas](https://img.shields.io/badge/pruebas-132%20con%20fallos-B42318)
+![Pruebas](https://img.shields.io/badge/pruebas-132%20ok-1E6B5E)
 <!-- test-badge:end -->
 
 > MedCall no hace diagnóstico médico y no sustituye la atención profesional. En una emergencia, llama al 192 (SAMU). Ese texto está en el componente `ClinicalDisclaimer`.
@@ -97,11 +97,11 @@ No hay un plazo aparte en el aparato. El servidor cierra la sesión después de 
 | Resultado | Cantidad |
 |---|---|
 | Pruebas ejecutadas | 132 |
-| Fallos | 1 |
+| Fallos | 0 |
 | Errores | 0 |
 | Omitidas | 0 |
 
-Los números salen de los informes XML de Gradle, en las carpetas de `common`, `server`, `client/app` y `client/worker`. Las pruebas de `common` entran dos veces cuando corren en la JVM y en JavaScript. El workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) escribe esta tabla y una línea en [TESTES.md](TESTES.md) después de cada ejecución en main, con o sin fallos. Registro: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45655652705.
+Los números salen de los informes XML de Gradle, en las carpetas de `common`, `server`, `client/app` y `client/worker`. Las pruebas de `common` entran dos veces cuando corren en la JVM y en JavaScript. El workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) escribe esta tabla y una línea en [TESTES.md](TESTES.md) después de cada ejecución en main, con o sin fallos. Registro: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45657081839.
 <!-- test-results:end -->
 
 ## Qué hay en este repositorio
