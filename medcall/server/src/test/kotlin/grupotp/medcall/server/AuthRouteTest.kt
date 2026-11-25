@@ -151,6 +151,7 @@ class AuthRouteTest {
         environment {
             config = ApplicationConfig("application.yaml")
         }
+        System.clearProperty(CapturingRecoveryMail.CAPTURE_PROPERTY)
         val email = "recuperar.${System.nanoTime()}@email.com"
         val created = client.post("/api/v1/auth/register") {
             contentType(ContentType.Application.Json)
@@ -166,8 +167,8 @@ class AuthRouteTest {
             contentType(ContentType.Application.Json)
             setBody(Json.encodeToString(PasswordRecoveryRequest("ninguem.${System.nanoTime()}@email.com")))
         }
-        val code = checkNotNull(CapturingRecoveryMail.active?.lastCode) {
-            "recovery did not keep a code. status=${asked.status} body=${asked.bodyAsText()}"
+        val code = checkNotNull(System.getProperty(CapturingRecoveryMail.CAPTURE_PROPERTY)) {
+            "recovery did not keep a code. register=${created.status} status=${asked.status} body=${asked.bodyAsText()}"
         }
         val wrong = client.post("/api/v1/auth/password-recovery/confirm") {
             contentType(ContentType.Application.Json)
