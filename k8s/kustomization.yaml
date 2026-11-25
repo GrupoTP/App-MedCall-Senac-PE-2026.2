@@ -21,6 +21,7 @@ resources:
   - server.yaml
   - web.yaml
   - ingress.yaml
+  - mailpit.yaml
 
 images:
   # Imagens públicas no ghcr.io, publicadas pelo workflow .github/workflows/publish-images.yml.

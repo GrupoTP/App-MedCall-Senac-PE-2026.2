@@ -51,6 +51,9 @@ jobs:
       - name: Mesma versão do widget na web, no Android e no iOS
         run: node scripts/verify-widget-platforms.mjs
 
+      - name: Caixa de e-mail sem senha no manifesto
+        run: node scripts/verify-mail-catcher.mjs
+
       - name: Testes
         id: suite
         working-directory: medcall
