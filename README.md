@@ -26,6 +26,13 @@ Todos os direitos reservados. O uso deste código é exclusivo de Polyana Fontes
 
 </div>
 
+## Conta para teste
+
+Esta conta existe no [sistema no ar](https://medcall.grupotp.polyclub.com.br). Ela não guarda dados reais de paciente.
+
+- E-mail: `teste@medcall.grupotp.polyclub.com.br`
+- Senha: `MedCall2026`
+
 ## Para que serve
 
 O MedCall é o aplicativo do paciente. Serve para a pessoa contar, antes da consulta, o que está sentindo e para marcar um horário com um profissional. O relato fica na conta. A consulta marcada também.
