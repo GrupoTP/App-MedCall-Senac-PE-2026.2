@@ -2,6 +2,8 @@ package grupotp.medcall.app.usecase.auth
 
 import grupotp.medcall.app.domain.auth.AuthError
 import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.app.domain.auth.RecoveryResult
+import grupotp.medcall.common.auth.ConfirmPasswordRecoveryRequest
 import grupotp.medcall.app.fake.FakeAuthGateway
 import grupotp.medcall.common.account.Phone
 import grupotp.medcall.common.auth.AuthenticatedAccount
@@ -51,16 +53,23 @@ class AuthUseCaseTest {
     }
 
     @Test
-    fun passwordRecoveryStaysUnavailable() = runTest {
-        // Arrange
-        val gateway = FakeAuthGateway(recoveryResult = AuthResult.Failed(AuthError.NotImplemented))
+    fun passwordRecoverySendsTheAddressAndTheCode() = runTest {
+        val gateway = FakeAuthGateway(recoveryResult = RecoveryResult.Accepted, confirmResult = RecoveryResult.Accepted)
         val requestRecovery = RequestPasswordRecoveryUseCase(gateway)
+        val confirmRecovery = ConfirmPasswordRecoveryUseCase(gateway)
+        val confirmation = ConfirmPasswordRecoveryRequest(
+            email = "maria@email.com",
+            code = SecretString("codigo"),
+            newPassword = SecretString("novasenha"),
+        )
 
-        // Act
-        val result = requestRecovery("maria@email.com")
+        val asked = requestRecovery("maria@email.com")
+        val confirmed = confirmRecovery(confirmation)
 
-        // Assert
-        assertEquals(AuthResult.Failed(AuthError.NotImplemented), result)
+        assertEquals("maria@email.com", gateway.recoveryEmail)
+        assertEquals(RecoveryResult.Accepted, asked)
+        assertEquals(confirmation, gateway.confirmRequest)
+        assertEquals(RecoveryResult.Accepted, confirmed)
     }
 
     private fun sampleRegistration() = RegisterAccountRequest(

@@ -22,6 +22,7 @@ import grupotp.medcall.app.usecase.account.LoadAccountProfileUseCase
 import grupotp.medcall.app.usecase.account.RequestAccountDeletionUseCase
 import grupotp.medcall.app.usecase.account.SaveAccountProfileUseCase
 import grupotp.medcall.app.usecase.account.UpdateNotificationConsentUseCase
+import grupotp.medcall.app.usecase.auth.ConfirmPasswordRecoveryUseCase
 import grupotp.medcall.app.usecase.auth.RegisterAccountUseCase
 import grupotp.medcall.app.usecase.auth.RequestPasswordRecoveryUseCase
 import grupotp.medcall.app.usecase.auth.SignInUseCase
@@ -74,6 +75,7 @@ fun appModule(platform: String): Module = module {
     singleOf(::SignInUseCase)
     singleOf(::RegisterAccountUseCase)
     singleOf(::RequestPasswordRecoveryUseCase)
+    singleOf(::ConfirmPasswordRecoveryUseCase)
 
     singleOf(::LoadSignedInAccountUseCase)
     singleOf(::RememberSignedInAccountUseCase)

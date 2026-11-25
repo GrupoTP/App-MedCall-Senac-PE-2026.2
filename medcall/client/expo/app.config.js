@@ -1,8 +1,19 @@
 // Expo configuration, read when Metro starts, when the PWA is exported and when `expo prebuild`
-// generates android/. It replaces app.json, which cannot hold comments.
+// generates android/ and ios/. It replaces app.json, which cannot hold comments.
 //
 // The app reads this object at runtime through expo-constants (Constants.expoConfig), so `extra`
 // is how the build passes values to the Kotlin code.
+const fs = require("fs");
+const path = require("path");
+
+const accessabilityWidgetVersion = fs
+  .readFileSync(path.join(__dirname, "../accessability-widget.version"), "utf8")
+  .trim();
+const accessabilityWidgetUrl =
+  "https://cdn.jsdelivr.net/gh/thaynabds/accessability-widget@" +
+  accessabilityWidgetVersion +
+  "/src/accessability-widget.js";
+
 module.exports = () => ({
   name: "MedCall",
   // Project id for Expo's tools. Changing it does not rename the app.
@@ -12,6 +23,11 @@ module.exports = () => ({
   icon: "./assets/icon.png",
   // The interface has a single, light theme. On the web the accessibility bar offers a dark mode.
   userInterfaceStyle: "light",
+
+  ios: {
+    bundleIdentifier: "grupotp.medcall",
+    supportsTablet: true,
+  },
 
   android: {
     // Application id on the device. Changing it installs a separate app instead of an update.
@@ -63,5 +79,7 @@ module.exports = () => ({
     // where the app calls port 8080 on the computer that serves the bundle. Empty, not null: Expo
     // serializes the config and turns null into {}, which the Kotlin side cannot read as a string.
     apiBaseUrl: process.env.API_BASE_URL || "",
+    accessabilityWidgetVersion,
+    accessabilityWidgetUrl,
   },
 });

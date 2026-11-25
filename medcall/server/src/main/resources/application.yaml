@@ -26,6 +26,15 @@ sessions:
   # Days a session survives without any request; each request starts the count again. 0 = never expires.
   idleDays: "$SESSION_IDLE_DAYS:180"
 
+mail:
+  # smtp sends the recovery code. capture keeps it in memory for the test task only.
+  mode: "$MAIL_MODE:smtp"
+  host: "$MAIL_HOST:"
+  port: "$MAIL_PORT:587"
+  username: "$MAIL_USERNAME:"
+  password: "$MAIL_PASSWORD:"
+  from: "$MAIL_FROM:"
+
 jwt:
   # HS256 key of the session tokens, at least 32 bytes; generate one with `openssl rand -base64 48`.
   # Required: the server does not start without it. The Gradle run, runDev and test tasks supply a development key.

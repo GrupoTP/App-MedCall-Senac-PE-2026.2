@@ -45,12 +45,12 @@ The app does not name a disease and does not replace a health professional. In a
 ## How to use it
 
 1. Open the [live app](https://medcall.grupotp.polyclub.com.br) in a browser, or open the Android app.
-2. Create an account, or sign in with an existing one.
+2. Create an account, or sign in with an existing one. Forgot password sends a code by e-mail when `MAIL_HOST` and `MAIL_FROM` are set. The code lasts 30 minutes, works once, and the answer is the same when the e-mail is unknown.
 3. In pre-screening, describe how you feel. A draft can be resumed. That report is not a diagnosis.
 4. Tap schedule. Choose a specialty and a professional, then a date and a time, and confirm. The server checks the slot again.
 5. Open the appointments already booked. Without internet, that list stays on the screen. Booking another appointment needs a connection.
 6. In the account, update the profile, notification consent, or password, or request data deletion.
-7. On the web, the accessibility button (AccessAbility Widget 2.3.1) opens with a click or Alt+A. It changes contrast, text size, and reading. On Android that button does not appear, because it lives in the PWA HTML.
+7. The accessibility button (AccessAbility Widget) opens with a click or Alt+A on the web, and with the same button on Android and iOS. The version is the one in `medcall/client/accessability-widget.version`. Changing that number without updating web, Android, and iOS makes the GitHub test fail. On Android and iOS, contrast, type size, and reading from that panel apply to the widget document. The Kotlin interface keeps the app theme.
 
 ## Interface resources
 
@@ -114,7 +114,7 @@ Modules, offline behavior, clinic time zones, and environment variables are in [
 
 ## What the app does now
 
-- Welcome, registration, and login.
+- Welcome, registration, login, and a one-time code to set a new password.
 - Informational pre-screening. No diagnosis.
 - Scheduling in three steps: specialty and professional, date and time, confirmation.
 - Booked appointments stay visible offline. Booking needs a connection. The server checks the slot again, and a unique index blocks two bookings of the same slot.
@@ -125,11 +125,11 @@ The clinic dashboard with AI risk pre-analysis is specified and is not in this c
 
 ## API
 
-19 routes under `/api/v1`. Patient routes require `Authorization: Bearer`. The token is an HS256 JWT (`JWT_SECRET`, at least 32 bytes). The server stores only the session id and revokes it on logout.
+21 routes under `/api/v1`. Patient routes require `Authorization: Bearer`. The token is an HS256 JWT (`JWT_SECRET`, at least 32 bytes). The server stores only the session id and revokes it on logout. A reset with the code also ends that account's sessions.
 
 | Area | Routes |
 |---|---|
-| Auth | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `POST /auth/logout` |
+| Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/password-recovery`, `POST /auth/password-recovery/confirm`, `GET /auth/me`, `POST /auth/logout` |
 | Account | `GET /account`, `PUT /account`, `PUT /account/consents`, `POST /account/password`, `POST /account/deletion-request` |
 | Pre-screening | `GET /pre-triages/draft`, `GET /pre-triages/pending`, `POST /pre-triages` |
 | Scheduling | `GET /specialties`, `GET /professionals`, `GET /clinics`, `GET /availability`, `GET /appointments`, `POST /appointments`, `POST /appointments/{id}/cancel` |
@@ -182,7 +182,7 @@ cd App-MedCall-Senac-PE-2026.2/medcall
 ./gradlew :client:expo:startWeb
 ```
 
-The development client opens at `http://localhost:8081`. The server answers at `http://localhost:8080/healthz`. Do not commit `JWT_SECRET`, database passwords, or `.env` files.
+The development client opens at `http://localhost:8081`. The server answers at `http://localhost:8080/healthz`. Do not commit `JWT_SECRET`, database passwords, mail passwords, or `.env` files. The recovery code is sent by SMTP (`MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`). Without that, the route says the code cannot be sent. Tests set `MAIL_MODE=capture` and do not open a mail connection.
 
 Tests:
 
@@ -206,3 +206,4 @@ Thayná: [thaynabdstec@gmail.com](mailto:thaynabdstec@gmail.com).
 - [LGPD, Law No. 13,709/2018](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm).
 - [Ktor development mode](https://ktor.io/docs/server-development-mode.html).
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/), the project's accessibility requirement. Screen-reader test coverage is not finished in this repository.
+- [OWASP Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html): one-time code, the same answer for an unknown e-mail, and sessions ended after the reset.

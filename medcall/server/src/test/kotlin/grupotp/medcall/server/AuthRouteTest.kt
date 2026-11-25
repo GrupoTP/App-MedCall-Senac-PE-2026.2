@@ -6,7 +6,12 @@ import grupotp.medcall.common.account.Phone
 import grupotp.medcall.common.api.ApiError
 import grupotp.medcall.common.api.ErrorCode
 import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.Acknowledged
+import grupotp.medcall.common.auth.ConfirmPasswordRecoveryRequest
+import grupotp.medcall.common.auth.PasswordRecoveryRequest
 import grupotp.medcall.common.auth.RegisterAccountRequest
+import grupotp.medcall.server.mail.CapturingRecoveryMail
+import kotlin.test.assertFalse
 import grupotp.medcall.common.auth.SignInRequest
 import grupotp.medcall.common.security.SecretString
 import io.ktor.client.request.bearerAuth
@@ -139,6 +144,65 @@ class AuthRouteTest {
             ApiError(ErrorCode.WRONG_CREDENTIALS, "E-mail ou senha incorretos."),
             Json.decodeFromString<ApiError>(response.bodyAsText()),
         )
+    }
+
+    @Test
+    fun passwordRecoveryReplacesThePasswordAndEndsOpenSessions() = testApplication {
+        environment {
+            config = ApplicationConfig("application.yaml")
+        }
+        val email = "recuperar.${System.nanoTime()}@email.com"
+        val created = client.post("/api/v1/auth/register") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(registration(email, "segredo")))
+        }
+        val account = Json.decodeFromString<AuthenticatedAccount>(created.bodyAsText())
+
+        val asked = client.post("/api/v1/auth/password-recovery") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(PasswordRecoveryRequest(email)))
+        }
+        val unknown = client.post("/api/v1/auth/password-recovery") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(PasswordRecoveryRequest("ninguem.${System.nanoTime()}@email.com")))
+        }
+        val code = checkNotNull(CapturingRecoveryMail.active?.lastCode) {
+            "recovery did not keep a code. status=${asked.status} body=${asked.bodyAsText()}"
+        }
+        val wrong = client.post("/api/v1/auth/password-recovery/confirm") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(ConfirmPasswordRecoveryRequest(email, SecretString("errado"), SecretString("novasenha"))))
+        }
+        val confirmed = client.post("/api/v1/auth/password-recovery/confirm") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(ConfirmPasswordRecoveryRequest(email, SecretString(code), SecretString("novasenha"))))
+        }
+        val reused = client.post("/api/v1/auth/password-recovery/confirm") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(ConfirmPasswordRecoveryRequest(email, SecretString(code), SecretString("outrasenha"))))
+        }
+        val oldPassword = client.post("/api/v1/auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(SignInRequest(email, SecretString("segredo"))))
+        }
+        val newPassword = client.post("/api/v1/auth/login") {
+            contentType(ContentType.Application.Json)
+            setBody(Json.encodeToString(SignInRequest(email, SecretString("novasenha"))))
+        }
+        val oldSession = client.get("/api/v1/auth/me") {
+            bearerAuth(account.sessionToken.value)
+        }
+
+        assertEquals(HttpStatusCode.OK, asked.status)
+        assertEquals(asked.bodyAsText(), unknown.bodyAsText())
+        assertEquals(Json.decodeFromString<Acknowledged>(asked.bodyAsText()), Acknowledged())
+        assertFalse(asked.bodyAsText().contains(code))
+        assertEquals(HttpStatusCode.BadRequest, wrong.status)
+        assertEquals(HttpStatusCode.OK, confirmed.status)
+        assertEquals(HttpStatusCode.BadRequest, reused.status)
+        assertEquals(HttpStatusCode.Unauthorized, oldPassword.status)
+        assertEquals(HttpStatusCode.OK, newPassword.status)
+        assertEquals(HttpStatusCode.Unauthorized, oldSession.status)
     }
 
     /** Same claims as [token], signed with a key the server does not know. */

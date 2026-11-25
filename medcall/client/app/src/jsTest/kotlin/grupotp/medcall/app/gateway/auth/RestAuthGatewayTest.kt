@@ -2,6 +2,9 @@ package grupotp.medcall.app.gateway.auth
 
 import grupotp.medcall.app.domain.auth.AuthError
 import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.app.domain.auth.RecoveryResult
+import grupotp.medcall.common.auth.Acknowledged
+import grupotp.medcall.common.auth.PasswordRecoveryRequest
 import grupotp.medcall.app.gateway.http.apiHttpClient
 import grupotp.medcall.common.api.ApiError
 import grupotp.medcall.common.api.ErrorCode
@@ -58,6 +61,30 @@ class RestAuthGatewayTest {
         val result = gateway { json(HttpStatusCode.Unauthorized, Json.encodeToString(error)) }.signIn(signIn)
 
         assertEquals(AuthResult.Failed(AuthError.Rejected("E-mail ou senha incorretos.")), result)
+    }
+
+    @Test
+    fun passwordRecoveryPostsTheEmailAndReadsTheAcknowledgement() = runTest {
+        val result = gateway { json(HttpStatusCode.OK, Json.encodeToString(Acknowledged())) }
+            .requestPasswordRecovery("poly@email.com")
+
+        assertEquals(RecoveryResult.Accepted, result)
+        val request = requests.single()
+        assertEquals(
+            PasswordRecoveryRequest("poly@email.com"),
+            Json.decodeFromString<PasswordRecoveryRequest>(request.body.toByteArray().decodeToString()),
+        )
+        assertEquals("/api/v1/auth/password-recovery", request.url.encodedPath)
+    }
+
+    @Test
+    fun passwordRecoveryKeepsTheServerMessage() = runTest {
+        val error = ApiError(ErrorCode.MAIL_UNAVAILABLE, "O envio do código de recuperação não está disponível neste servidor.")
+
+        val result = gateway { json(HttpStatusCode.ServiceUnavailable, Json.encodeToString(error)) }
+            .requestPasswordRecovery("poly@email.com")
+
+        assertEquals(RecoveryResult.Failed(AuthError.Rejected(error.message)), result)
     }
 
     @Test
