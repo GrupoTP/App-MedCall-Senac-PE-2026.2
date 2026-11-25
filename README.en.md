@@ -4,7 +4,9 @@
 
 [Português](README.md) · [English](README.en.md)
 
-<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="140" alt="Senac logo" />
+<img src="medcall/client/expo/assets/brand/medcall-logo.svg" width="360" alt="MedCall" />
+
+<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="100" alt="Senac logo" />
 
 # MedCall
 
@@ -14,11 +16,34 @@ Informational pre-screening and appointment scheduling. Integrative Project, 3rd
 
 The product was previously called Recife Saudável. The name is MedCall.
 
+![Tests](https://img.shields.io/badge/tests-128%20passing-1E6B5E)
+
 > MedCall does not diagnose and does not replace professional care. In an emergency, call 192 (SAMU). That text lives in `ClinicalDisclaimer`.
 
 [Live app](https://medcall.grupotp.polyclub.com.br) · [Requirements V8](https://grupotp.youtrack.cloud/articles/SPM-A-141) · [Figma prototype](https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6) · [Pitch](https://www.canva.com/design/DAHb31ads88/bK-cDvsyY1i6zaBu8-vvZA/edit)
 
 </div>
+
+## The project, in short
+
+A person opens MedCall on a phone or in a browser. They create an account, describe how they feel, and pick a specialty, a professional, and a time. The appointment is saved. If the connection drops, appointments already booked stay on the screen. Booking another one needs the internet.
+
+The app does not name a health condition and does not replace a professional. In an emergency, the on-screen notice says to call 192.
+
+On the web, an accessibility button (AccessAbility Widget 2.3.1) changes contrast, text size, and reading. The Android app uses the same interface without that button, because the button lives in the PWA HTML.
+
+## Tests run
+
+Last local run on 24 November 2026, with the command in [Run](#run).
+
+| Result | Count |
+|---|---|
+| Tests run | 128 |
+| Failures | 0 |
+| Errors | 0 |
+| Skipped | 0 |
+
+The numbers come from the Gradle XML reports under `common`, `server`, `client/app`, and `client/worker`. `common` tests are counted twice when they run on the JVM and on JavaScript. The table records that run. It does not update itself on every commit.
 
 ## What this repository contains
 

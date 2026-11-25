@@ -4,7 +4,9 @@
 
 [Português](README.md) · [English](README.en.md)
 
-<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="140" alt="Logo Senac" />
+<img src="medcall/client/expo/assets/brand/medcall-logo.svg" width="360" alt="MedCall" />
+
+<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="100" alt="Logo Senac" />
 
 # MedCall
 
@@ -14,11 +16,34 @@ Aplicativo de pré-triagem informativa e agendamento de consultas. Projeto Integ
 
 Antes se chamava Recife Saudável. O nome do produto é MedCall.
 
+![Testes](https://img.shields.io/badge/testes-128%20passando-1E6B5E)
+
 > A MedCall não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU). O texto está no componente `ClinicalDisclaimer`.
 
 [Sistema no ar](https://medcall.grupotp.polyclub.com.br) · [Requisitos V8](https://grupotp.youtrack.cloud/articles/SPM-A-141) · [Protótipo no Figma](https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6) · [Pitch](https://www.canva.com/design/DAHb31ads88/bK-cDvsyY1i6zaBu8-vvZA/edit)
 
 </div>
+
+## O projeto, em poucas palavras
+
+A pessoa abre o MedCall no celular ou no navegador. Cria uma conta, descreve o que está sentindo e escolhe especialidade, profissional e horário. A consulta fica salva. Se a internet cair, as consultas já marcadas continuam na tela. Marcar outra só funciona com conexão.
+
+O aplicativo não diz qual é o problema de saúde e não substitui o profissional. Em emergência, o aviso da tela pede para ligar 192.
+
+Na versão web, um botão de acessibilidade (AccessAbility Widget 2.3.1) permite ajustar contraste, tamanho da letra e leitura. O app Android usa a mesma interface, sem esse botão, porque ele vive no HTML da PWA.
+
+## Testes executados
+
+Última execução local em 24 de novembro de 2026, com o comando da seção [Como executar](#como-executar).
+
+| Resultado | Quantidade |
+|---|---|
+| Testes executados | 128 |
+| Falhas | 0 |
+| Erros | 0 |
+| Ignorados | 0 |
+
+Os números saíram dos relatórios XML do Gradle, nas pastas de `common`, `server`, `client/app` e `client/worker`. Os testes de `common` entram duas vezes quando rodam na JVM e no JavaScript. A tabela registra essa execução. Ela não muda sozinha a cada commit.
 
 ## O que está neste repositório
 
