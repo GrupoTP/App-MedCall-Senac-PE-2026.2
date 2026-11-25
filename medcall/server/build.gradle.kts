@@ -52,4 +52,6 @@ tasks.test {
     environment("JWT_SECRET", jwtSecret.get())
     // Route tests load application.yaml; an in-memory database keeps them off the development data.
     environment("DATABASE_JDBC_URL", "jdbc:h2:mem:route-tests;DB_CLOSE_DELAY=-1")
+    // One production hash is hundreds of thousands of rounds and can exceed the 60s test limit.
+    environment("PASSWORD_ITERATIONS", "10000")
 }
