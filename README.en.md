@@ -45,7 +45,7 @@ The app does not name a disease and does not replace a health professional. In a
 ## How to use it
 
 1. Open the [live app](https://medcall.grupotp.polyclub.com.br) in a browser, or open the Android app.
-2. Create an account, or sign in with an existing one. Forgot password sends a code by e-mail when `MAIL_HOST` and `MAIL_FROM` are set. The code lasts 30 minutes, works once, and the answer is the same when the e-mail is unknown.
+2. Create an account, or sign in with an existing one. Forgot password sends a code to the in-cluster Mailpit (`MAIL_HOST=mailpit`, port 1025, no user and no password). The from-address is `medcall@medcall.grupotp.polyclub.com.br`. That mailbox is not on the public internet. The code lasts 30 minutes, works once, and the answer is the same when the e-mail is unknown.
 3. In pre-screening, describe how you feel. A draft can be resumed. That report is not a diagnosis.
 4. Tap schedule. Choose a specialty and a professional, then a date and a time, and confirm. The server checks the slot again.
 5. Open the appointments already booked. Without internet, that list stays on the screen. Booking another appointment needs a connection.
@@ -182,7 +182,7 @@ cd App-MedCall-Senac-PE-2026.2/medcall
 ./gradlew :client:expo:startWeb
 ```
 
-The development client opens at `http://localhost:8081`. The server answers at `http://localhost:8080/healthz`. Do not commit `JWT_SECRET`, database passwords, mail passwords, or `.env` files. The recovery code is sent by SMTP (`MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`). Without that, the route says the code cannot be sent. Tests set `MAIL_MODE=capture` and do not open a mail connection.
+The development client opens at `http://localhost:8081`. The server answers at `http://localhost:8080/healthz`. Do not commit `JWT_SECRET`, database passwords, or `.env` files. In production the recovery code is sent by SMTP to the in-cluster Mailpit, with an empty `MAIL_PASSWORD`. Port 587 turns STARTTLS on. Port 1025, used by Mailpit, stays without STARTTLS. Without `MAIL_HOST` and `MAIL_FROM`, the route says the code cannot be sent. Tests set `MAIL_MODE=capture` and do not open a mail connection.
 
 Tests:
 

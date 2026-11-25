@@ -45,7 +45,7 @@ O aplicativo não diz o nome de uma doença e não substitui o profissional de s
 ## Como usar
 
 1. Abra o [sistema no ar](https://medcall.grupotp.polyclub.com.br) no navegador, ou o aplicativo Android.
-2. Crie uma conta, ou entre com a conta que já existe. Em Esqueci minha senha, o servidor manda um código por e-mail quando `MAIL_HOST` e `MAIL_FROM` estão definidos. O código vale 30 minutos, só serve uma vez, e a resposta é a mesma se o e-mail não existir.
+2. Crie uma conta, ou entre com a conta que já existe. Em Esqueci minha senha, o servidor manda um código para a caixa Mailpit do cluster (`MAIL_HOST=mailpit`, porta 1025, sem usuário e sem senha). O endereço de origem é `medcall@medcall.grupotp.polyclub.com.br`. Essa caixa não fica na internet. O código vale 30 minutos, só serve uma vez, e a resposta é a mesma se o e-mail não existir.
 3. Na pré-triagem, descreva o que está sentindo. O rascunho pode ser retomado. Esse relato não é um diagnóstico.
 4. Toque em agendar. Escolha especialidade e profissional, depois data e horário, e confirme. O servidor confere a vaga de novo.
 5. Abra as consultas já marcadas. Sem internet, essa lista continua na tela. Marcar outra consulta só funciona com conexão.
@@ -182,7 +182,7 @@ cd App-MedCall-Senac-PE-2026.2/medcall
 ./gradlew :client:expo:startWeb
 ```
 
-O cliente de desenvolvimento abre em `http://localhost:8081`. O servidor responde em `http://localhost:8080/healthz`. Não versione `JWT_SECRET`, senha de banco, senha de e-mail nem `.env`. O código de recuperação sai por SMTP (`MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`). Sem esse envio, a rota responde que o código não pode ser enviado. Os testes usam `MAIL_MODE=capture` e não abrem uma conexão de e-mail.
+O cliente de desenvolvimento abre em `http://localhost:8081`. O servidor responde em `http://localhost:8080/healthz`. Não versione `JWT_SECRET`, senha de banco nem `.env`. Em produção o código de recuperação sai por SMTP para o Mailpit do cluster, com `MAIL_PASSWORD` vazio. A porta 587 liga STARTTLS. A porta 1025, usada pelo Mailpit, fica sem STARTTLS. Sem `MAIL_HOST` e `MAIL_FROM`, a rota responde que o código não pode ser enviado. Os testes usam `MAIL_MODE=capture` e não abrem uma conexão de e-mail.
 
 Testes:
 

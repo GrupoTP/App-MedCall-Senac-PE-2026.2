@@ -26,7 +26,7 @@ class SmtpRecoveryMail(
         properties["mail.smtp.host"] = host
         properties["mail.smtp.port"] = port.toString()
         properties["mail.smtp.auth"] = username.isNotBlank().toString()
-        properties["mail.smtp.starttls.enable"] = "true"
+        properties["mail.smtp.starttls.enable"] = if (port == 587) "true" else "false"
         val session = Session.getInstance(
             properties,
             object : Authenticator() {
