@@ -2,7 +2,7 @@
 
 ## Idioma
 
-[Português](README.md) · [English](README.en.md)
+[Português](README.md) · [English](README.en.md) · [Español](README.es.md)
 
 <img src="medcall/client/expo/assets/brand/medcall-logo.svg" width="360" alt="MedCall" />
 
@@ -24,13 +24,21 @@ Antes se chamava Recife Saudável. O nome do produto é MedCall.
 
 </div>
 
-## O projeto, em poucas palavras
+## Para que serve
 
-A pessoa abre o MedCall no celular ou no navegador. Cria uma conta, descreve o que está sentindo e escolhe especialidade, profissional e horário. A consulta fica salva. Se a internet cair, as consultas já marcadas continuam na tela. Marcar outra só funciona com conexão.
+O MedCall é o aplicativo do paciente. Serve para a pessoa contar, antes da consulta, o que está sentindo e para marcar um horário com um profissional. O relato fica na conta. A consulta marcada também.
 
-O aplicativo não diz qual é o problema de saúde e não substitui o profissional. Em emergência, o aviso da tela pede para ligar 192.
+O aplicativo não diz o nome de uma doença e não substitui o profissional de saúde. Em emergência, o aviso da tela pede para ligar 192 (SAMU).
 
-Na versão web, um botão de acessibilidade (AccessAbility Widget 2.3.1) permite ajustar contraste, tamanho da letra e leitura. O app Android usa a mesma interface, sem esse botão, porque ele vive no HTML da PWA.
+## Como usar
+
+1. Abra o [sistema no ar](https://medcall.grupotp.polyclub.com.br) no navegador, ou o aplicativo Android.
+2. Crie uma conta, ou entre com a conta que já existe.
+3. Na pré-triagem, descreva o que está sentindo. O rascunho pode ser retomado. Esse relato não é um diagnóstico.
+4. Toque em agendar. Escolha especialidade e profissional, depois data e horário, e confirme. O servidor confere a vaga de novo.
+5. Abra as consultas já marcadas. Sem internet, essa lista continua na tela. Marcar outra consulta só funciona com conexão.
+6. Na conta, atualize o perfil, o consentimento de notificações, a senha, ou peça a exclusão dos dados.
+7. Na versão web, o botão de acessibilidade (AccessAbility Widget 2.3.1) abre com clique ou Alt+A. Ele ajusta contraste, tamanho da letra e leitura. No Android esse botão não aparece, porque ele está no HTML da PWA.
 
 ## Testes executados
 
