@@ -49,6 +49,43 @@ The app does not name a disease and does not replace a health professional. In a
 6. In the account, update the profile, notification consent, or password, or request data deletion.
 7. On the web, the accessibility button (AccessAbility Widget 2.3.1) opens with a click or Alt+A. It changes contrast, text size, and reading. On Android that button does not appear, because it lives in the PWA HTML.
 
+## Interface resources
+
+The interface is Kotlin using React Native components. The Expo shell in `medcall/client/expo` only registers that component. It is not the old site inside a WebView.
+
+| Resource | Where | Role |
+|---|---|---|
+| Screen navigation | `AppScreen` in `App.kt` | Welcome, register, login, home, pre-screening, schedule, appointments, account, and privacy. State is `useState`. |
+| Menu | `FloatingMenu.kt` | Opens over a signed-in screen and goes to home, pre-screening, schedule, appointments, and account. |
+| ScrollView | Register, schedule, appointments, account, and privacy | Scrolls the content. |
+| TextInput | `TextField.kt` | Register, login, and schedule fields. |
+| Pressable | Buttons and links | Taps. |
+| Modal | `ConfirmDialog.kt` | Confirms account actions. |
+| Icons | `ui/icon/Icons.kt` | Menu, appointments, account, and sign-out. |
+
+## With and without internet
+
+On the PWA, the interface opens again offline after the first visit that installed the service worker. Sending new data needs the server.
+
+| Screen | Offline |
+|---|---|
+| Welcome, login, and register | The screen opens. Signing in or creating an account needs the server. |
+| Home and appointments | The list already received stays. |
+| Schedule and pre-screening | They need the network. The app says so and does not confirm what the server did not store. |
+| Account | A saved profile can be read. Saving the profile, the password, or a deletion needs the network. |
+
+## Data on the device
+
+On the web, IndexedDB is named `medcall`, version 2, with stores `accounts` and `appointments`. On Android the same data is in SQLite. The password is not stored on the device. Source: `LocalAccountDatabase.kt`.
+
+| Data | Where | When it leaves |
+|---|---|---|
+| Signed-in profile | key `signed-in` | Sign-out, or when the server refuses the session. |
+| Appointments of the last account | store `appointments`, keyed by account id | A new list replaces the old one. Sign-out clears the store. |
+| Offline sign-out queue | key `pending-sign-outs` | It survives the wipe and is sent when the network returns. |
+
+The device has no separate expiry. The server ends the session after `SESSION_IDLE_DAYS` without a request. The default is 180 days.
+
 ## Tests run
 
 Last local run on 24 November 2026, with the command in [Run](#run).
