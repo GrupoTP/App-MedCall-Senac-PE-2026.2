@@ -92,7 +92,7 @@ Sobe o Metro com recarga automática (`expo start --web`). O cliente abre em `ht
 ./gradlew :client:expo:serveWeb
 ```
 
-Gera a versão de produção em `client/expo/dist` (`expo export --platform web`) e a serve em `http://localhost:8081` (`expo serve`). Não tem recarga automática: depois de mudar o código, rode a task de novo. Para testar offline, abra a página (ou a PWA instalada) uma vez com a task rodando, para o service worker guardar a interface, e então pare a task. Para ver as consultas offline, entre na conta e abra a tela inicial com o `:server:run` rodando, para o app guardar a lista; depois pare o servidor também. O painel de navegador embutido do app Claude não registra service workers: teste no Chrome ou no Edge.
+Gera a versão de produção em `client/expo/dist` (`expo export --platform web`) e a serve em `http://localhost:8081` (`expo serve`). Não tem recarga automática: depois de mudar o código, rode a task de novo. Para testar offline, abra a página (ou a PWA instalada) uma vez com a task rodando, para o service worker guardar a interface, e então pare a task. Para ver as consultas offline, entre na conta e abra a tela inicial com o `:server:run` rodando, para o app guardar a lista; depois pare o servidor também. Teste o modo offline no Chrome ou no Edge.
 
 #### Celular na mesma rede Wi‑Fi (Expo Go)
 
