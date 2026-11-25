@@ -26,6 +26,13 @@ All rights reserved. Use of this code is limited to Polyana Fontes and Thayná B
 
 </div>
 
+## Test account
+
+This account exists on the [live app](https://medcall.grupotp.polyclub.com.br). It does not hold real patient data.
+
+- E-mail: `teste@medcall.grupotp.polyclub.com.br`
+- Password: `MedCall2026`
+
 ## What it is for
 
 MedCall is the patient app. It lets a person describe how they feel before the appointment and book a time with a professional. The report stays on the account. The booked appointment does too.

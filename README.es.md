@@ -26,6 +26,13 @@ Todos los derechos reservados. El uso de este código queda limitado a Polyana F
 
 </div>
 
+## Cuenta de prueba
+
+Esta cuenta existe en el [sistema en línea](https://medcall.grupotp.polyclub.com.br). No guarda datos reales de un paciente.
+
+- Correo: `teste@medcall.grupotp.polyclub.com.br`
+- Contraseña: `MedCall2026`
+
 ## Para qué sirve
 
 MedCall es la aplicación del paciente. Sirve para que la persona cuente, antes de la consulta, lo que siente y para reservar un horario con un profesional. El relato queda en la cuenta. La consulta reservada también.
