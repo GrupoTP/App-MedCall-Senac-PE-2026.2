@@ -12,9 +12,12 @@ class CapturingRecoveryMail : RecoveryMail {
 
     override fun send(to: String, code: String) {
         lastCode = code
+        System.setProperty(CAPTURE_PROPERTY, code)
     }
 
     companion object {
+        const val CAPTURE_PROPERTY = "medcall.test.recoveryCode"
+
         @Volatile
         var active: CapturingRecoveryMail? = null
     }
