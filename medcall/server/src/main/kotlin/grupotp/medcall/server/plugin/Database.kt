@@ -45,7 +45,7 @@ fun Application.configureDatabase() {
                 single { JwtSettings.from(environment.config) }
                 singleOf(::SessionTokens)
                 single { DatabaseConnector().connect(get()) }
-                singleOf(::PasswordHasher)
+                single { PasswordHasher.from(environment.config) }
                 // UTC: each clinic has its own zone, and the services convert to it where it matters.
                 single { Clock.systemUTC() }
                 singleOf(::UserRepository)
