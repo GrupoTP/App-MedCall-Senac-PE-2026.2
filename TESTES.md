@@ -8,3 +8,4 @@ Os testes de `common` entram duas vezes quando rodam na JVM e no JavaScript.
 |---|---|---:|---:|---:|---:|
 | 25 de novembro de 2026 | máquina local | 128 | 0 | 0 | 0 |
 | 25 de novembro de 2026 | https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45549075023 | 128 | 0 | 0 | 0 |
+| 25 de novembro de 2026 | https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45655652705 | 132 | 1 | 0 | 0 |

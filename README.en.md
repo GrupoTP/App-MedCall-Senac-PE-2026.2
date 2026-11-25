@@ -20,7 +20,7 @@ All rights reserved. Use of this code is limited to Polyana Fontes and Thayná B
 
 ![Suite](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml/badge.svg)
 <!-- test-badge:start -->
-![Tests](https://img.shields.io/badge/tests-128%20passing-1E6B5E)
+![Tests](https://img.shields.io/badge/tests-132%20failed-B42318)
 <!-- test-badge:end -->
 
 > MedCall does not diagnose and does not replace professional care. In an emergency, call 192 (SAMU). That text lives in `ClinicalDisclaimer`.
@@ -96,12 +96,12 @@ Last run on 25 November 2026, with the command in [Run](#run).
 
 | Result | Count |
 |---|---|
-| Tests run | 128 |
-| Failures | 0 |
+| Tests run | 132 |
+| Failures | 1 |
 | Errors | 0 |
 | Skipped | 0 |
 
-The numbers come from the Gradle XML reports under `common`, `server`, `client/app`, and `client/worker`. `common` tests are counted twice when they run on the JVM and on JavaScript. The [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) workflow writes this table and a row in [TESTES.md](TESTES.md) after every run on main, whether it passes or fails. Record: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45549075023.
+The numbers come from the Gradle XML reports under `common`, `server`, `client/app`, and `client/worker`. `common` tests are counted twice when they run on the JVM and on JavaScript. The [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) workflow writes this table and a row in [TESTES.md](TESTES.md) after every run on main, whether it passes or fails. Record: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45655652705.
 <!-- test-results:end -->
 
 ## What this repository contains
