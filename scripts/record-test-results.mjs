@@ -40,6 +40,7 @@ let tests = 0;
 let failures = 0;
 let errors = 0;
 let skipped = 0;
+const broken = [];
 for (const path of reports) {
   const xml = readFileSync(path, "utf8");
   const suite = xml.match(/<testsuite\b[^>]*>/);
@@ -49,6 +50,27 @@ for (const path of reports) {
   failures += read("failures");
   errors += read("errors");
   skipped += read("skipped");
+  broken.push(...namedFailures(xml));
+}
+
+function namedFailures(xml) {
+  const found = [];
+  const cases = xml.matchAll(/<testcase\b([^>]*?)(?:\/>|>([\s\S]*?)<\/testcase>)/g);
+  for (const match of cases) {
+    const body = match[2] ?? "";
+    if (!body.includes("<failure") && !body.includes("<error")) continue;
+    const attrs = match[1];
+    const name = attrs.match(/\bname="([^"]*)"/)?.[1] ?? "";
+    const classname = attrs.match(/\bclassname="([^"]*)"/)?.[1] ?? "";
+    const raw = body.match(/<(?:failure|error)\b[^>]*\bmessage="([^"]*)"/)?.[1] ?? "";
+    const message = raw
+      .replaceAll("&quot;", '"')
+      .replaceAll("&lt;", "<")
+      .replaceAll("&gt;", ">")
+      .replaceAll("&amp;", "&");
+    found.push(`${classname}.${name}: ${message}`);
+  }
+  return found;
 }
 
 const when = new Intl.DateTimeFormat("en-GB", {
@@ -81,6 +103,7 @@ const skipShown = reports.length > 0 ? String(skipped) : "sem relatório";
 const run = process.env.GITHUB_RUN_ID
   ? `${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID}`
   : "execução local";
+const sha = process.env.GITHUB_SHA ?? "sem commit";
 
 function between(text, start, end, body) {
   const a = text.indexOf(start);
@@ -102,7 +125,7 @@ const pages = [
 | Erros | ${errorShown} |
 | Ignorados | ${skipShown} |
 
-Os números saem dos relatórios XML do Gradle, nas pastas de \`common\`, \`server\`, \`client/app\` e \`client/worker\`. Os testes de \`common\` entram duas vezes quando rodam na JVM e no JavaScript. O workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) grava esta tabela e uma linha em [TESTES.md](TESTES.md) depois de cada execução na main, com ou sem falha. Registro: ${run}.`,
+Os números saem dos relatórios XML do Gradle, nas pastas de \`common\`, \`server\`, \`client/app\` e \`client/worker\`. Os testes de \`common\` entram duas vezes quando rodam na JVM e no JavaScript. O workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) grava esta tabela e uma linha em [TESTES.md](TESTES.md) depois de cada execução na main, com ou sem falha. Registro: ${run}. Commit: \`${sha}\`. Quando há falha, o nome do teste fica em TESTES.md.`,
   },
   {
     file: "README.en.md",
@@ -116,7 +139,7 @@ Os números saem dos relatórios XML do Gradle, nas pastas de \`common\`, \`serv
 | Errors | ${errorShown} |
 | Skipped | ${skipShown} |
 
-The numbers come from the Gradle XML reports under \`common\`, \`server\`, \`client/app\`, and \`client/worker\`. \`common\` tests are counted twice when they run on the JVM and on JavaScript. The [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) workflow writes this table and a row in [TESTES.md](TESTES.md) after every run on main, whether it passes or fails. Record: ${run}.`,
+The numbers come from the Gradle XML reports under \`common\`, \`server\`, \`client/app\`, and \`client/worker\`. \`common\` tests are counted twice when they run on the JVM and on JavaScript. The [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) workflow writes this table and a row in [TESTES.md](TESTES.md) after every run on main, whether it passes or fails. Record: ${run}. Commit: \`${sha}\`. A failed test is named in TESTES.md.`,
   },
   {
     file: "README.es.md",
@@ -130,7 +153,7 @@ The numbers come from the Gradle XML reports under \`common\`, \`server\`, \`cli
 | Errores | ${errorShown} |
 | Omitidas | ${skipShown} |
 
-Los números salen de los informes XML de Gradle, en las carpetas de \`common\`, \`server\`, \`client/app\` y \`client/worker\`. Las pruebas de \`common\` entran dos veces cuando corren en la JVM y en JavaScript. El workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) escribe esta tabla y una línea en [TESTES.md](TESTES.md) después de cada ejecución en main, con o sin fallos. Registro: ${run}.`,
+Los números salen de los informes XML de Gradle, en las carpetas de \`common\`, \`server\`, \`client/app\` y \`client/worker\`. Las pruebas de \`common\` entran dos veces cuando corren en la JVM y en JavaScript. El workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) escribe esta tabla y una línea en [TESTES.md](TESTES.md) después de cada ejecución en main, con o sin fallos. Registro: ${run}. Commit: \`${sha}\`. Si hay un fallo, el nombre de la prueba queda en TESTES.md.`,
   },
 ];
 
@@ -144,16 +167,23 @@ if (process.env.WRITE_TEST_RECORD === "1") {
   }
   const log = join(repo, "TESTES.md");
   const current = readFileSync(log, "utf8");
-  const row = `| ${date.pt} | ${run} | ${shown} | ${failShown} | ${errorShown} | ${skipShown} |`;
-  if (!current.includes(run) || run === "execução local") {
-    if (!current.includes(row)) appendFileSync(log, row + "\n");
+  const row = `| ${date.pt} | ${run} | \`${sha}\` | ${shown} | ${failShown} | ${errorShown} | ${skipShown} |`;
+  const marker = "<!-- rows:end -->";
+  if (!current.includes(marker)) throw new Error("TESTES.md sem marcador de linhas");
+  if ((!current.includes(run) || run === "execução local") && !current.includes(row)) {
+    writeFileSync(log, current.replace(marker, row + "\n" + marker));
+  }
+  if (broken.length > 0 && !current.includes(broken[0])) {
+    const lines = ["", `Execução ${run}, commit \`${sha}\`:`];
+    for (const item of broken) lines.push(`- \`${item}\``);
+    appendFileSync(log, lines.join("\n") + "\n");
   }
 }
 
 if (process.env.GITHUB_STEP_SUMMARY) {
   appendFileSync(
     process.env.GITHUB_STEP_SUMMARY,
-    `### Testes\n\nRelatórios: ${reports.length}. Executados: ${shown}. Falhas: ${failShown}. Erros: ${errorShown}. Ignorados: ${skipShown}.\n`,
+    `### Testes\n\nRelatórios: ${reports.length}. Executados: ${shown}. Falhas: ${failShown}. Erros: ${errorShown}. Ignorados: ${skipShown}. Commit: \`${sha}\`.\n${broken.map((item) => `- ${item}`).join("\n")}\n`,
   );
 }
 
