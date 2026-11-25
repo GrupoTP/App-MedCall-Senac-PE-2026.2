@@ -45,12 +45,12 @@ La aplicación no dice el nombre de una enfermedad y no sustituye al profesional
 ## Cómo usarla
 
 1. Abre el [sistema en línea](https://medcall.grupotp.polyclub.com.br) en el navegador, o la aplicación Android.
-2. Crea una cuenta, o entra con la cuenta que ya existe.
+2. Crea una cuenta, o entra con la cuenta que ya existe. En Olvidé mi contraseña, el servidor manda un código por correo cuando `MAIL_HOST` y `MAIL_FROM` están definidos. El código vale 30 minutos, sirve una sola vez, y la respuesta es la misma si el correo no existe.
 3. En el pretriaje, describe lo que sientes. El borrador se puede retomar. Ese relato no es un diagnóstico.
 4. Toca reservar. Elige especialidad y profesional, después fecha y horario, y confirma. El servidor vuelve a comprobar el cupo.
 5. Abre las consultas ya reservadas. Sin internet, esa lista sigue en la pantalla. Reservar otra consulta solo funciona con conexión.
 6. En la cuenta, actualiza el perfil, el consentimiento de notificaciones, la contraseña, o pide la eliminación de los datos.
-7. En la versión web, el botón de accesibilidad (AccessAbility Widget 2.3.1) se abre con un clic o con Alt+A. Ajusta contraste, tamaño de letra y lectura. En Android ese botón no aparece, porque está en el HTML de la PWA.
+7. El botón de accesibilidad (AccessAbility Widget) se abre con un clic o con Alt+A en la web, y con el mismo botón en Android y en iOS. La versión es la del archivo `medcall/client/accessability-widget.version`. Cambiar ese número sin actualizar la web, Android e iOS hace fallar la prueba de GitHub. En Android y en iOS, el contraste, la fuente y la lectura de ese panel valen para el documento del widget. La interfaz en Kotlin sigue el tema de la aplicación.
 
 ## Recursos de la interfaz
 
@@ -114,7 +114,7 @@ El detalle de módulos, modo sin conexión, zona horaria de la clínica y variab
 
 ## Qué hace la aplicación hoy
 
-- Bienvenida, registro e inicio de sesión.
+- Bienvenida, registro, inicio de sesión y cambio de contraseña con un código de un solo uso.
 - Pretriaje informativo, sin diagnóstico.
 - Reserva en tres pasos: especialidad y profesional, fecha y horario, confirmación.
 - Consultas ya reservadas visibles sin internet. Reservar exige conexión. El servidor vuelve a comprobar el cupo, y un índice único impide dos reservas en el mismo horario.
@@ -125,11 +125,11 @@ El preanálisis de riesgo del panel de la clínica está especificado y todavía
 
 ## API
 
-19 rutas en `/api/v1`. Las del paciente exigen `Authorization: Bearer`. El token es un JWT HS256 (`JWT_SECRET`, como mínimo 32 bytes). El servidor guarda solo el id de la sesión y lo revoca al cerrar sesión.
+21 rutas en `/api/v1`. Las del paciente exigen `Authorization: Bearer`. El token es un JWT HS256 (`JWT_SECRET`, como mínimo 32 bytes). El servidor guarda solo el id de la sesión y lo revoca al cerrar sesión. El cambio con código también cierra las sesiones de la cuenta.
 
 | Área | Rutas |
 |---|---|
-| Auth | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `POST /auth/logout` |
+| Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/password-recovery`, `POST /auth/password-recovery/confirm`, `GET /auth/me`, `POST /auth/logout` |
 | Cuenta | `GET /account`, `PUT /account`, `PUT /account/consents`, `POST /account/password`, `POST /account/deletion-request` |
 | Pretriaje | `GET /pre-triages/draft`, `GET /pre-triages/pending`, `POST /pre-triages` |
 | Agenda | `GET /specialties`, `GET /professionals`, `GET /clinics`, `GET /availability`, `GET /appointments`, `POST /appointments`, `POST /appointments/{id}/cancel` |
@@ -182,7 +182,7 @@ cd App-MedCall-Senac-PE-2026.2/medcall
 ./gradlew :client:expo:startWeb
 ```
 
-El cliente de desarrollo abre en `http://localhost:8081`. El servidor responde en `http://localhost:8080/healthz`. No versiones `JWT_SECRET`, la contraseña de la base ni `.env`.
+El cliente de desarrollo abre en `http://localhost:8081`. El servidor responde en `http://localhost:8080/healthz`. No versiones `JWT_SECRET`, la contraseña de la base, la contraseña del correo ni `.env`. El código de recuperación sale por SMTP (`MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`). Sin ese envío, la ruta responde que el código no se puede enviar. Las pruebas usan `MAIL_MODE=capture` y no abren una conexión de correo.
 
 Pruebas:
 
@@ -206,3 +206,4 @@ Contacto de Thayná: [thaynabdstec@gmail.com](mailto:thaynabdstec@gmail.com).
 - [LGPD, Ley n.º 13.709/2018](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm).
 - [Ktor, development mode](https://ktor.io/docs/server-development-mode.html).
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/), requisito de accesibilidad del proyecto. La cobertura de pruebas con lectores de pantalla no está terminada en este repositorio.
+- [OWASP Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html): código de un solo uso, la misma respuesta si el correo no existe y sesiones cerradas después del cambio.

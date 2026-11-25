@@ -48,6 +48,9 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Mesma versão do widget na web, no Android e no iOS
+        run: node scripts/verify-widget-platforms.mjs
+
       - name: Testes
         id: suite
         working-directory: medcall

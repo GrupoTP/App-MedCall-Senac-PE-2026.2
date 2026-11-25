@@ -18,12 +18,14 @@
     "react-native": "0.86.3",
     "react-native-safe-area-context": "~5.7.0",
     "react-native-svg": "15.15.4",
-    "react-native-web": "^0.21.2"
+    "react-native-web": "^0.21.2",
+    "react-native-webview": "13.16.1"
   },
   "scripts": {
     "build:kotlin": "cd .. && gradlew :client:app:buildClientBundle",
     "start": "expo start",
     "android": "expo run:android",
+    "ios": "expo run:ios",
     "web": "expo start --web",
     "export:web": "expo export --platform web"
   },

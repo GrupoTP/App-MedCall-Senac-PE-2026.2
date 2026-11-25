@@ -5,11 +5,15 @@ import grupotp.medcall.server.database.table.ClinicsTable
 import grupotp.medcall.server.database.DatabaseConnector
 import grupotp.medcall.server.database.DatabaseSettings
 import grupotp.medcall.server.database.LegacySchemaCheck
+import grupotp.medcall.server.database.table.PasswordResetsTable
 import grupotp.medcall.server.database.table.PreTriagesTable
 import grupotp.medcall.server.database.table.ProfessionalsTable
 import grupotp.medcall.server.database.table.SessionsTable
 import grupotp.medcall.server.database.table.SpecialtiesTable
 import grupotp.medcall.server.database.table.UsersTable
+import grupotp.medcall.server.mail.RecoveryMail
+import grupotp.medcall.server.mail.RecoveryMailFactory
+import grupotp.medcall.server.repository.PasswordResetRepository
 import grupotp.medcall.server.repository.PreTriageRepository
 import grupotp.medcall.server.repository.SchedulingRepository
 import grupotp.medcall.server.repository.SessionRepository
@@ -19,6 +23,7 @@ import grupotp.medcall.server.security.PasswordHasher
 import grupotp.medcall.server.security.SessionTokens
 import grupotp.medcall.server.service.AccountService
 import grupotp.medcall.server.service.AuthService
+import grupotp.medcall.server.service.PasswordRecoveryService
 import grupotp.medcall.server.service.PreTriageService
 import grupotp.medcall.server.service.SchedulingService
 import grupotp.medcall.server.service.SessionService
@@ -49,11 +54,14 @@ fun Application.configureDatabase() {
                 // UTC: each clinic has its own zone, and the services convert to it where it matters.
                 single { Clock.systemUTC() }
                 singleOf(::UserRepository)
+                singleOf(::PasswordResetRepository)
+                single<RecoveryMail> { RecoveryMailFactory.from(environment.config) }
                 singleOf(::SessionRepository)
                 singleOf(::SchedulingRepository)
                 singleOf(::PreTriageRepository)
                 singleOf(::SessionService)
                 singleOf(::AuthService)
+                singleOf(::PasswordRecoveryService)
                 singleOf(::AccountService)
                 singleOf(::SchedulingService)
                 singleOf(::PreTriageService)
@@ -70,7 +78,8 @@ fun Application.configureDatabase() {
             SpecialtiesTable,
             ProfessionalsTable,
             AppointmentsTable,
-            PreTriagesTable
+            PreTriagesTable,
+            PasswordResetsTable,
         )
     }
     getKoin().get<SchedulingRepository>().seedCatalogIfEmpty()

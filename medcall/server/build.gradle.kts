@@ -34,6 +34,7 @@ dependencies {
     implementation(libs.h2)
     // MySQL in production (DATABASE_DRIVER=com.mysql.cj.jdbc.Driver). H2 stays the default for development and tests.
     runtimeOnly(libs.mysql.connector.j)
+    implementation(libs.angus.mail)
 
     testImplementation(libs.ktor.server.test.host)
     testImplementation(libs.kotlin.test.junit5)
@@ -54,4 +55,5 @@ tasks.test {
     environment("DATABASE_JDBC_URL", "jdbc:h2:mem:route-tests;DB_CLOSE_DELAY=-1")
     // One production hash is hundreds of thousands of rounds and can exceed the 60s test limit.
     environment("PASSWORD_ITERATIONS", "10000")
+    environment("MAIL_MODE", "capture")
 }

@@ -45,12 +45,12 @@ O aplicativo não diz o nome de uma doença e não substitui o profissional de s
 ## Como usar
 
 1. Abra o [sistema no ar](https://medcall.grupotp.polyclub.com.br) no navegador, ou o aplicativo Android.
-2. Crie uma conta, ou entre com a conta que já existe.
+2. Crie uma conta, ou entre com a conta que já existe. Em Esqueci minha senha, o servidor manda um código por e-mail quando `MAIL_HOST` e `MAIL_FROM` estão definidos. O código vale 30 minutos, só serve uma vez, e a resposta é a mesma se o e-mail não existir.
 3. Na pré-triagem, descreva o que está sentindo. O rascunho pode ser retomado. Esse relato não é um diagnóstico.
 4. Toque em agendar. Escolha especialidade e profissional, depois data e horário, e confirme. O servidor confere a vaga de novo.
 5. Abra as consultas já marcadas. Sem internet, essa lista continua na tela. Marcar outra consulta só funciona com conexão.
 6. Na conta, atualize o perfil, o consentimento de notificações, a senha, ou peça a exclusão dos dados.
-7. Na versão web, o botão de acessibilidade (AccessAbility Widget 2.3.1) abre com clique ou Alt+A. Ele ajusta contraste, tamanho da letra e leitura. No Android esse botão não aparece, porque ele está no HTML da PWA.
+7. O botão de acessibilidade (AccessAbility Widget) abre com clique ou Alt+A na web, e pelo mesmo botão no Android e no iOS. A versão é a do arquivo `medcall/client/accessability-widget.version`. Trocar esse número sem atualizar a web, o Android e o iOS faz o teste do GitHub falhar. No Android e no iOS o contraste, a fonte e a leitura desse painel valem para o documento do widget. A interface em Kotlin segue o tema do aplicativo.
 
 ## Recursos da interface
 
@@ -114,7 +114,7 @@ O detalhe de módulos, offline, fuso da clínica e variáveis está em [medcall/
 
 ## O que o aplicativo faz hoje
 
-- Boas-vindas, cadastro e login.
+- Boas-vindas, cadastro, login e troca de senha com código de uso único.
 - Pré-triagem informativa, sem diagnóstico.
 - Agendamento em três etapas: especialidade e profissional, data e horário, confirmação.
 - Consultas já marcadas visíveis sem internet. Agendar exige conexão. O servidor confere a vaga de novo, e um índice único impede dois agendamentos no mesmo horário.
@@ -125,11 +125,11 @@ A pré-análise de risco por IA, no dashboard da clínica, está especificada e 
 
 ## API
 
-19 rotas em `/api/v1`. As de paciente exigem `Authorization: Bearer`. O token é um JWT HS256 (`JWT_SECRET`, no mínimo 32 bytes). O servidor guarda só o id da sessão e a revoga no logout.
+21 rotas em `/api/v1`. As de paciente exigem `Authorization: Bearer`. O token é um JWT HS256 (`JWT_SECRET`, no mínimo 32 bytes). O servidor guarda só o id da sessão e a revoga no logout. A troca por código também encerra as sessões da conta.
 
 | Área | Rotas |
 |---|---|
-| Auth | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `POST /auth/logout` |
+| Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/password-recovery`, `POST /auth/password-recovery/confirm`, `GET /auth/me`, `POST /auth/logout` |
 | Conta | `GET /account`, `PUT /account`, `PUT /account/consents`, `POST /account/password`, `POST /account/deletion-request` |
 | Pré-triagem | `GET /pre-triages/draft`, `GET /pre-triages/pending`, `POST /pre-triages` |
 | Agenda | `GET /specialties`, `GET /professionals`, `GET /clinics`, `GET /availability`, `GET /appointments`, `POST /appointments`, `POST /appointments/{id}/cancel` |
@@ -182,7 +182,7 @@ cd App-MedCall-Senac-PE-2026.2/medcall
 ./gradlew :client:expo:startWeb
 ```
 
-O cliente de desenvolvimento abre em `http://localhost:8081`. O servidor responde em `http://localhost:8080/healthz`. Não versione `JWT_SECRET`, senha de banco nem `.env`.
+O cliente de desenvolvimento abre em `http://localhost:8081`. O servidor responde em `http://localhost:8080/healthz`. Não versione `JWT_SECRET`, senha de banco, senha de e-mail nem `.env`. O código de recuperação sai por SMTP (`MAIL_HOST`, `MAIL_PORT`, `MAIL_USERNAME`, `MAIL_PASSWORD`, `MAIL_FROM`). Sem esse envio, a rota responde que o código não pode ser enviado. Os testes usam `MAIL_MODE=capture` e não abrem uma conexão de e-mail.
 
 Testes:
 
@@ -206,3 +206,4 @@ Contato de Thayná: [thaynabdstec@gmail.com](mailto:thaynabdstec@gmail.com).
 - [LGPD, Lei nº 13.709/2018](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm).
 - [Ktor, development mode](https://ktor.io/docs/server-development-mode.html).
 - [WCAG 2.2](https://www.w3.org/TR/WCAG22/), requisito de acessibilidade do projeto. A cobertura de testes com leitores de tela não está concluída neste repositório.
+- [OWASP Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html): código de uso único, resposta igual para e-mail desconhecido e sessões encerradas depois da troca.

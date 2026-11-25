@@ -1,10 +1,15 @@
 package grupotp.medcall.server.controller
 
 import grupotp.medcall.common.api.ErrorCode
+import grupotp.medcall.common.auth.Acknowledged
+import grupotp.medcall.common.auth.ConfirmPasswordRecoveryRequest
+import grupotp.medcall.common.auth.PasswordRecoveryRequest
 import grupotp.medcall.common.auth.RegisterAccountRequest
 import grupotp.medcall.common.auth.SignInRequest
 import grupotp.medcall.server.plugin.SESSION_AUTH
 import grupotp.medcall.server.service.AuthService
+import grupotp.medcall.server.service.PasswordRecoveryService
+import grupotp.medcall.server.service.result.RecoveryResult
 import grupotp.medcall.server.service.result.RegistrationResult
 import grupotp.medcall.server.service.SessionService
 import grupotp.medcall.server.service.result.SignInResult
@@ -20,8 +25,17 @@ import io.ktor.server.routing.routing
 import kotlinx.serialization.json.buildJsonObject
 import org.koin.ktor.ext.inject
 
+private suspend fun io.ktor.server.application.ApplicationCall.respondRecovery(result: RecoveryResult) {
+    when (result) {
+        RecoveryResult.Accepted -> respond(Acknowledged())
+        RecoveryResult.Unavailable -> respondError(HttpStatusCode.ServiceUnavailable, ErrorCode.MAIL_UNAVAILABLE)
+        is RecoveryResult.Rejected -> respondError(HttpStatusCode.BadRequest, result.error)
+    }
+}
+
 fun Application.configureAuthController() {
     val authService by inject<AuthService>()
+    val recovery by inject<PasswordRecoveryService>()
     val sessions by inject<SessionService>()
     routing {
         route("/api/v1/auth") {
@@ -38,6 +52,14 @@ fun Application.configureAuthController() {
                     is SignInResult.Authenticated -> call.respond(result.account)
                     SignInResult.Rejected -> call.respondError(HttpStatusCode.Unauthorized, ErrorCode.WRONG_CREDENTIALS)
                 }
+            }
+            post("/password-recovery") {
+                val request = call.receive<PasswordRecoveryRequest>()
+                call.respondRecovery(recovery.request(request.email))
+            }
+            post("/password-recovery/confirm") {
+                val request = call.receive<ConfirmPasswordRecoveryRequest>()
+                call.respondRecovery(recovery.confirm(request))
             }
             authenticate(SESSION_AUTH) {
                 get("/me") {
