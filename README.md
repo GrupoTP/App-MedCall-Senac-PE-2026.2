@@ -16,6 +16,8 @@ Aplicativo de pré-triagem informativa e agendamento de consultas. Projeto Integ
 
 Antes se chamava Recife Saudável. O nome do produto é MedCall.
 
+Todos os direitos reservados. O uso deste código é exclusivo de Polyana Fontes e Thayná Batista da Silva. O texto está em [LICENSE](LICENSE).
+
 ![Testes](https://img.shields.io/badge/testes-128%20passando-1E6B5E)
 
 > A MedCall não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU). O texto está no componente `ClinicalDisclaimer`.

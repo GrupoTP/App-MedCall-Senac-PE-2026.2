@@ -16,6 +16,8 @@ Informational pre-screening and appointment scheduling. Integrative Project, 3rd
 
 The product was previously called Recife Saudável. The name is MedCall.
 
+All rights reserved. Use of this code is limited to Polyana Fontes and Thayná Batista da Silva. The terms are in [LICENSE](LICENSE).
+
 ![Tests](https://img.shields.io/badge/tests-128%20passing-1E6B5E)
 
 > MedCall does not diagnose and does not replace professional care. In an emergency, call 192 (SAMU). That text lives in `ClinicalDisclaimer`.

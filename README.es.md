@@ -16,6 +16,8 @@ Aplicación de pretriaje informativo y de reserva de consultas. Proyecto integra
 
 Antes se llamaba Recife Saudável. El nombre del producto es MedCall.
 
+Todos los derechos reservados. El uso de este código queda limitado a Polyana Fontes y Thayná Batista da Silva. El texto está en [LICENSE](LICENSE).
+
 ![Pruebas](https://img.shields.io/badge/pruebas-128%20ok-1E6B5E)
 
 > MedCall no hace diagnóstico médico y no sustituye la atención profesional. En una emergencia, llama al 192 (SAMU). Ese texto está en el componente `ClinicalDisclaimer`.
