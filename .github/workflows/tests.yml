@@ -1,0 +1,92 @@
+# Roda a suíte e grava o resultado no README e em TESTES.md.
+# Um commit que só mexe nesses registros não dispara outra suíte.
+name: Tests
+
+on:
+  push:
+    branches: [main]
+    paths-ignore:
+      - "README.md"
+      - "README.en.md"
+      - "README.es.md"
+      - "TESTES.md"
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Submódulo por HTTPS
+        run: |
+          git -c url."https://github.com/".insteadOf="git@github.com:" \
+            -C medcall submodule update --init --depth 1 grupotp-kotlin-react-native
+
+      - name: Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "21"
+          cache: gradle
+          cache-dependency-path: |
+            medcall/**/*.gradle*
+            medcall/**/*.gradle.kts
+            medcall/gradle/libs.versions.toml
+
+      - name: Node 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Testes
+        id: suite
+        working-directory: medcall
+        continue-on-error: true
+        run: bash ./gradlew :common:allTests :server:test :client:app:jsNodeTest :client:worker:jsNodeTest --continue
+
+      - name: Guardar os relatórios
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-reports
+          if-no-files-found: ignore
+          path: |
+            medcall/common/build/test-results
+            medcall/server/build/test-results
+            medcall/client/app/build/test-results
+            medcall/client/worker/build/test-results
+
+      - name: Registrar o resultado
+        if: always() && github.ref == 'refs/heads/main'
+        env:
+          WRITE_TEST_RECORD: "1"
+        run: node scripts/record-test-results.mjs
+
+      - name: Publicar o registro
+        if: always() && github.ref == 'refs/heads/main'
+        run: |
+          git add README.md README.en.md README.es.md TESTES.md
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git -c user.name="Thayná Batista da Silva" -c user.email="228145459+thaynabds@users.noreply.github.com" \
+            commit -m "test: record the GitHub Actions run"
+          git push
+
+      - name: Resumo da execução
+        if: always() && github.ref != 'refs/heads/main'
+        run: node scripts/record-test-results.mjs
+
+      - name: Encerrar com o resultado da suíte
+        if: steps.suite.outcome == 'failure'
+        run: exit 1

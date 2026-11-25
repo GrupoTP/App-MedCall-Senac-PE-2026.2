@@ -18,7 +18,10 @@ Antes se chamava Recife Saudável. O nome do produto é MedCall.
 
 Todos os direitos reservados. O uso deste código é exclusivo de Polyana Fontes e Thayná Batista da Silva. O texto está em [LICENSE](LICENSE).
 
+![Suíte](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml/badge.svg)
+<!-- test-badge:start -->
 ![Testes](https://img.shields.io/badge/testes-128%20passando-1E6B5E)
+<!-- test-badge:end -->
 
 > A MedCall não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU). O texto está no componente `ClinicalDisclaimer`.
 
@@ -88,7 +91,8 @@ Não há prazo separado no aparelho. O servidor encerra a sessão depois de `SES
 
 ## Testes executados
 
-Última execução local em 24 de novembro de 2026, com o comando da seção [Como executar](#como-executar).
+<!-- test-results:start -->
+Última execução em 25 de novembro de 2026, com o comando da seção [Como executar](#como-executar).
 
 | Resultado | Quantidade |
 |---|---|
@@ -97,7 +101,8 @@ Não há prazo separado no aparelho. O servidor encerra a sessão depois de `SES
 | Erros | 0 |
 | Ignorados | 0 |
 
-Os números saíram dos relatórios XML do Gradle, nas pastas de `common`, `server`, `client/app` e `client/worker`. Os testes de `common` entram duas vezes quando rodam na JVM e no JavaScript. A tabela registra essa execução. Ela não muda sozinha a cada commit.
+Os números saem dos relatórios XML do Gradle, nas pastas de `common`, `server`, `client/app` e `client/worker`. Os testes de `common` entram duas vezes quando rodam na JVM e no JavaScript. O workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) grava esta tabela e uma linha em [TESTES.md](TESTES.md) depois de cada execução na main, com ou sem falha.
+<!-- test-results:end -->
 
 ## O que está neste repositório
 
