@@ -1,0 +1,157 @@
+<div align="center">
+
+## Idioma
+
+[Português](README.md) · [English](README.en.md) · [Español](README.es.md)
+
+<img src="medcall/client/expo/assets/brand/medcall-logo.svg" width="360" alt="MedCall" />
+
+<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="100" alt="Logo Senac" />
+
+# MedCall
+
+**Tu salud en la palma de la mano.**
+
+Aplicación de pretriaje informativo y de reserva de consultas. Proyecto integrador del 3.er período de Análisis y Desarrollo de Sistemas de la Faculdade Senac Pernambuco.
+
+Antes se llamaba Recife Saudável. El nombre del producto es MedCall.
+
+![Pruebas](https://img.shields.io/badge/pruebas-128%20ok-1E6B5E)
+
+> MedCall no hace diagnóstico médico y no sustituye la atención profesional. En una emergencia, llama al 192 (SAMU). Ese texto está en el componente `ClinicalDisclaimer`.
+
+[Sistema en línea](https://medcall.grupotp.polyclub.com.br) · [Requisitos V8](https://grupotp.youtrack.cloud/articles/SPM-A-141) · [Prototipo en Figma](https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6) · [Pitch](https://www.canva.com/design/DAHb31ads88/bK-cDvsyY1i6zaBu8-vvZA/edit)
+
+</div>
+
+## Para qué sirve
+
+MedCall es la aplicación del paciente. Sirve para que la persona cuente, antes de la consulta, lo que siente y para reservar un horario con un profesional. El relato queda en la cuenta. La consulta reservada también.
+
+La aplicación no dice el nombre de una enfermedad y no sustituye al profesional de salud. En una emergencia, el aviso de la pantalla pide llamar al 192 (SAMU).
+
+## Cómo usarla
+
+1. Abre el [sistema en línea](https://medcall.grupotp.polyclub.com.br) en el navegador, o la aplicación Android.
+2. Crea una cuenta, o entra con la cuenta que ya existe.
+3. En el pretriaje, describe lo que sientes. El borrador se puede retomar. Ese relato no es un diagnóstico.
+4. Toca reservar. Elige especialidad y profesional, después fecha y horario, y confirma. El servidor vuelve a comprobar el cupo.
+5. Abre las consultas ya reservadas. Sin internet, esa lista sigue en la pantalla. Reservar otra consulta solo funciona con conexión.
+6. En la cuenta, actualiza el perfil, el consentimiento de notificaciones, la contraseña, o pide la eliminación de los datos.
+7. En la versión web, el botón de accesibilidad (AccessAbility Widget 2.3.1) se abre con un clic o con Alt+A. Ajusta contraste, tamaño de letra y lectura. En Android ese botón no aparece, porque está en el HTML de la PWA.
+
+## Pruebas ejecutadas
+
+Última ejecución local el 24 de noviembre de 2026, con el comando de la sección [Cómo ejecutarlo](#cómo-ejecutarlo).
+
+| Resultado | Cantidad |
+|---|---|
+| Pruebas ejecutadas | 128 |
+| Fallos | 0 |
+| Errores | 0 |
+| Omitidas | 0 |
+
+Los números salieron de los informes XML de Gradle, en las carpetas de `common`, `server`, `client/app` y `client/worker`. Las pruebas de `common` entran dos veces cuando corren en la JVM y en JavaScript. La tabla registra esa ejecución. No cambia sola en cada commit.
+
+## Qué hay en este repositorio
+
+La interfaz es Kotlin con React Native. El mismo código corre como PWA en el navegador y como app Android. El shell Expo en `medcall/client/expo` solo registra el componente Kotlin. En el navegador, Metro cambia `react-native` por `react-native-web`.
+
+El servidor es Kotlin/JVM 21, con Ktor, Koin y Exposed. En desarrollo y en las pruebas la base es H2. En producción es MySQL. La publicación es GitOps: imágenes en ghcr.io, Kubernetes en el namespace `medcall`, ArgoCD y Traefik.
+
+El detalle de módulos, modo sin conexión, zona horaria de la clínica y variables está en [medcall/README.md](medcall/README.md). Este archivo es la portada del repositorio.
+
+## Qué hace la aplicación hoy
+
+- Bienvenida, registro e inicio de sesión.
+- Pretriaje informativo, sin diagnóstico.
+- Reserva en tres pasos: especialidad y profesional, fecha y horario, confirmación.
+- Consultas ya reservadas visibles sin internet. Reservar exige conexión. El servidor vuelve a comprobar el cupo, y un índice único impide dos reservas en el mismo horario.
+- Cuenta: perfil, consentimiento de notificaciones, cambio de contraseña y pedido de eliminación.
+- Pantalla de política de privacidad.
+
+El preanálisis de riesgo del panel de la clínica está especificado y todavía no está en este código. Solo la clínica y el profesional deben ver el nivel. El paciente no. La decisión es del profesional. Fuente de la especificación: [SPM-A-139](https://grupotp.youtrack.cloud/articles/SPM-A-139/Pre-analise-de-risco-Feita-por-AI). Las normas del Ministerio de Salud y del CFM exigen acogida con clasificación de riesgo y no imponen un protocolo único. Manchester entra como referencia. [Publicación del Ministerio de Salud](https://bvsms.saude.gov.br/bvs/publicacoes/acolhimento_classificaao_risco_servico_urgencia.pdf).
+
+## API
+
+19 rutas en `/api/v1`. Las del paciente exigen `Authorization: Bearer`. El token es un JWT HS256 (`JWT_SECRET`, como mínimo 32 bytes). El servidor guarda solo el id de la sesión y lo revoca al cerrar sesión.
+
+| Área | Rutas |
+|---|---|
+| Auth | `POST /auth/register`, `POST /auth/login`, `GET /auth/me`, `POST /auth/logout` |
+| Cuenta | `GET /account`, `PUT /account`, `PUT /account/consents`, `POST /account/password`, `POST /account/deletion-request` |
+| Pretriaje | `GET /pre-triages/draft`, `GET /pre-triages/pending`, `POST /pre-triages` |
+| Agenda | `GET /specialties`, `GET /professionals`, `GET /clinics`, `GET /availability`, `GET /appointments`, `POST /appointments`, `POST /appointments/{id}/cancel` |
+
+Fuera de la API: `GET /healthz` (proceso en línea, sin consultar la base) y `GET /readyz` (la base responde).
+
+Contraseña con PBKDF2-HMAC-SHA256, 600.000 iteraciones. Fuente del formato: [medcall/README.md](medcall/README.md).
+
+## Arquitectura
+
+```text
+Cliente Kotlin/JS + React Native (PWA y Android)
+        |
+        | REST /api/v1
+        v
+Servidor Ktor
+  controller  ->  service  ->  repository (Exposed)
+        |
+        v
+H2 en desarrollo, MySQL en producción
+```
+
+La regla de negocio queda en el service. El controller recibe la petición y devuelve la respuesta.
+
+## Dónde está el código
+
+```text
+medcall/
+  common/          compartido, JVM y JavaScript
+  server/          Ktor, puerto 8080
+  client/app/      interfaz y casos de uso
+  client/worker/   service worker
+  client/expo/     shell Expo
+  docker/          imágenes
+k8s/               namespace medcall, ingress, MySQL
+argocd/            Application de GitOps
+.github/workflows/ publicación de las imágenes en ghcr.io
+```
+
+Producción: [https://medcall.grupotp.polyclub.com.br](https://medcall.grupotp.polyclub.com.br). El host antiguo `recifesaudavel.grupotp.polyclub.com.br` sigue sirviendo la API. Los demás caminos redirigen al host nuevo. Ver `k8s/ingress.yaml`.
+
+## Cómo ejecutarlo
+
+Requisitos, según [medcall/README.md](medcall/README.md): JDK 21 y Node.js 24. El primer `./gradlew` inicializa el submódulo.
+
+```bash
+git clone --recurse-submodules https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
+cd App-MedCall-Senac-PE-2026.2/medcall
+./gradlew :server:run
+./gradlew :client:expo:startWeb
+```
+
+El cliente de desarrollo abre en `http://localhost:8081`. El servidor responde en `http://localhost:8080/healthz`. No versiones `JWT_SECRET`, la contraseña de la base ni `.env`.
+
+Pruebas:
+
+```bash
+./gradlew :common:allTests :server:test :client:app:jsNodeTest :client:worker:jsNodeTest
+```
+
+## Equipo
+
+Faculdade Senac Pernambuco, Recife-PE. Curso de Análisis y Desarrollo de Sistemas. Proyecto integrador, agosto a diciembre de 2026. Profesor responsable: Ícaro Santos Ferreira.
+
+- Thayná Batista da Silva: Scrum Master, requisitos, prototipado y desarrollo.
+- Polyana Fontes: modelado de base de datos, documentación y desarrollo.
+
+Contacto de Thayná: [thaynabdstec@gmail.com](mailto:thaynabdstec@gmail.com).
+
+## Fuentes
+
+- Código y comandos: [medcall/README.md](medcall/README.md), controllers en `medcall/server/src/main/kotlin/grupotp/medcall/server/controller/`.
+- Requisitos vigentes: [SPM-A-141](https://grupotp.youtrack.cloud/articles/SPM-A-141). La V7 está marcada como superada en [SPM-A-133](https://grupotp.youtrack.cloud/articles/SPM-A-133).
+- [LGPD, Ley n.º 13.709/2018](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm).
+- [Ktor, development mode](https://ktor.io/docs/server-development-mode.html).
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/), requisito de accesibilidad del proyecto. La cobertura de pruebas con lectores de pantalla no está terminada en este repositorio.

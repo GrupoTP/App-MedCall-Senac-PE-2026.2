@@ -2,7 +2,7 @@
 
 ## Language
 
-[Português](README.md) · [English](README.en.md)
+[Português](README.md) · [English](README.en.md) · [Español](README.es.md)
 
 <img src="medcall/client/expo/assets/brand/medcall-logo.svg" width="360" alt="MedCall" />
 
@@ -24,13 +24,21 @@ The product was previously called Recife Saudável. The name is MedCall.
 
 </div>
 
-## The project, in short
+## What it is for
 
-A person opens MedCall on a phone or in a browser. They create an account, describe how they feel, and pick a specialty, a professional, and a time. The appointment is saved. If the connection drops, appointments already booked stay on the screen. Booking another one needs the internet.
+MedCall is the patient app. It lets a person describe how they feel before the appointment and book a time with a professional. The report stays on the account. The booked appointment does too.
 
-The app does not name a health condition and does not replace a professional. In an emergency, the on-screen notice says to call 192.
+The app does not name a disease and does not replace a health professional. In an emergency, the on-screen notice says to call 192 (SAMU).
 
-On the web, an accessibility button (AccessAbility Widget 2.3.1) changes contrast, text size, and reading. The Android app uses the same interface without that button, because the button lives in the PWA HTML.
+## How to use it
+
+1. Open the [live app](https://medcall.grupotp.polyclub.com.br) in a browser, or open the Android app.
+2. Create an account, or sign in with an existing one.
+3. In pre-screening, describe how you feel. A draft can be resumed. That report is not a diagnosis.
+4. Tap schedule. Choose a specialty and a professional, then a date and a time, and confirm. The server checks the slot again.
+5. Open the appointments already booked. Without internet, that list stays on the screen. Booking another appointment needs a connection.
+6. In the account, update the profile, notification consent, or password, or request data deletion.
+7. On the web, the accessibility button (AccessAbility Widget 2.3.1) opens with a click or Alt+A. It changes contrast, text size, and reading. On Android that button does not appear, because it lives in the PWA HTML.
 
 ## Tests run
 
