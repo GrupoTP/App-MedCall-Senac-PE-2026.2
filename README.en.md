@@ -162,6 +162,14 @@ On 26 November 2026, `POST /api/v1/staff/auth/login` on that host accepted the t
 
 The command to run the portals on this machine is in [medcall/README.md](medcall/README.md).
 
+## Public API
+
+The published page is https://medcall.grupotp.polyclub.com.br/api/public/docs . On 26 November 2026 it returned 200 and loaded `openapi.yaml` (OpenAPI 3.0.3, version 1.0, base `/api/public/v1`).
+
+This API is for the clinic's own system, so it can answer appointments made in the app. The key is created under Integrations in the clinic portal and applies only to that clinic. POST actions accept `Idempotency-Key`. The limit is 60 calls per minute. Above that the response is 429.
+
+Published operations: `GET /appointments` lists appointments. `POST /appointments/{id}/confirm` confirms one. `POST /appointments/{id}/decline` declines or cancels. `POST /appointments/{id}/reschedule` moves it and leaves it confirmed. `POST /appointments/{id}/attendance` records attendance or a no-show. Screenshots of that page are in the V8 requirements document.
+
 ## Architecture
 
 ```text
