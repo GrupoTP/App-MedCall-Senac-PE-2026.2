@@ -1,8 +1,9 @@
 # MedCall — GitOps em medcall.grupotp.polyclub.com.br (node a, a-ca).
 # Gerenciado pelo ArgoCD (Application em ../argocd/application.yaml, aplicada à mão no a-ca).
-# Este diretório é PÚBLICO: nenhum segredo em texto puro aqui. O JWT_SECRET (sealedsecret.yaml)
-# e a senha do MySQL (sealedsecret-medcall-mysql-credenciais.yaml) só como SealedSecret,
-# que só o controller sealed-secrets do cluster consegue abrir.
+# Este diretório é PÚBLICO: nenhum segredo em texto puro aqui. O JWT_SECRET (sealedsecret.yaml),
+# a senha do MySQL (sealedsecret-medcall-mysql-credenciais.yaml) e o primeiro administrador do
+# Painel MedCall (sealedsecret-medcall-admin.yaml) só como SealedSecret, que só o controller
+# sealed-secrets do cluster consegue abrir.
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
@@ -18,6 +19,7 @@ resources:
   - configmap.yaml
   - sealedsecret.yaml
   - sealedsecret-medcall-mysql-credenciais.yaml
+  - sealedsecret-medcall-admin.yaml
   - server.yaml
   - web.yaml
   - ingress.yaml
