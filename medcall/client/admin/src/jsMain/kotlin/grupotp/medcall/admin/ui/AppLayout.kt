@@ -10,6 +10,7 @@ import grupotp.medcall.admin.pages.clinic.ClinicDashboardPage
 import grupotp.medcall.admin.pages.clinic.ClinicIntegrationsPage
 import grupotp.medcall.admin.pages.ClinicTeamPage
 import grupotp.medcall.admin.pages.medcall.MedcallClinicsPage
+import grupotp.medcall.admin.pages.medcall.MedcallIntegrationsPage
 import grupotp.medcall.admin.pages.medcall.MedcallOverviewPage
 import grupotp.medcall.admin.pages.medcall.MedcallProfessionalsPage
 import grupotp.medcall.admin.pages.medcall.MedcallUsersPage
@@ -190,6 +191,7 @@ val AppLayout = FC<AppLayoutProps> { props ->
                         Page.MedcallClinics -> MedcallClinicsPage { clinicId = props.route.argument?.toIntOrNull() }
                         Page.MedcallProfessionals -> MedcallProfessionalsPage()
                         Page.MedcallUsers -> MedcallUsersPage()
+                        Page.MedcallIntegrations -> MedcallIntegrationsPage()
                     }
                 }
             }

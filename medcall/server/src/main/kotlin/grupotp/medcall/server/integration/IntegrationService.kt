@@ -109,6 +109,15 @@ class IntegrationService(
 
     fun webhooks(clinicId: Int): List<Webhook> = repository.webhooks(clinicId).map { it.webhook }
 
+    /** Painel MedCall: webhooks of one clinic, or of every clinic when [clinicId] is null. */
+    fun webhooksForMedcall(clinicId: Int?): List<Webhook> =
+        if (clinicId != null) webhooks(clinicId) else repository.allWebhooks().map { it.webhook }
+
+    /** The clinic of a webhook, so MedCall staff can act on it through the clinic's own rules. */
+    fun clinicOfWebhook(id: Int): Int? = repository.webhook(id)?.clinicId
+
+    fun clinicOfDelivery(id: Int): Int? = repository.delivery(id)?.delivery?.webhookId?.let(::clinicOfWebhook)
+
     fun createWebhook(actor: StaffPrincipal, clinicId: Int, request: SaveWebhookRequest): StaffResult<WebhookWithSecret> {
         validate(request)?.let { return StaffResult.Rejected(it) }
         val secret = "whsec_" + token(32)
@@ -157,7 +166,8 @@ class IntegrationService(
         return StaffResult.Done(WebhookTestResult(result.statusCode, result.durationMs, result.error))
     }
 
-    fun deliveries(clinicId: Int, webhookId: Int?): List<WebhookDelivery> = repository.deliveries(clinicId, webhookId, limit = 100)
+    /** Deliveries of a clinic, or of every clinic when [clinicId] is null (Painel MedCall). */
+    fun deliveries(clinicId: Int?, webhookId: Int?): List<WebhookDelivery> = repository.deliveries(clinicId, webhookId, limit = 100)
 
     fun redeliver(clinicId: Int, id: Int): StaffResult<WebhookDelivery> {
         if (!repository.requeue(clinicId, id, now())) return StaffResult.NotFound

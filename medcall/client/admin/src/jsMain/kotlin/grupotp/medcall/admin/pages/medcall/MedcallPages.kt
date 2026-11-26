@@ -7,6 +7,8 @@ import grupotp.medcall.admin.api.PeriodChoice
 import grupotp.medcall.admin.appScope
 import grupotp.medcall.admin.pages.NewUserDialog
 import grupotp.medcall.admin.pages.StaffTable
+import grupotp.medcall.admin.pages.clinic.WebhookAccess
+import grupotp.medcall.admin.pages.clinic.WebhooksSection
 import grupotp.medcall.admin.pages.clinic.clinicDashboardBody
 import grupotp.medcall.admin.pages.field
 import grupotp.medcall.admin.pages.resetResult
@@ -871,6 +873,44 @@ val MedcallUsersPage = FC {
     }
     resetResult(reset, { navigator.clipboard.writeTextAsync(it); session.notify("Senha copiada.", false) }) { reset = null }
     p { className = ClassName("small text-secondary"); +"O cadastro de um novo acesso fica na página da clínica (Clínicas › nome da clínica)." }
+}
+
+// ---------------------------------------------------------------------------------------------
+// Integrações das clínicas: webhooks set up by MedCall for clinics without their own IT
+// ---------------------------------------------------------------------------------------------
+
+val MedcallIntegrationsPage = FC {
+    val session = useSession()
+    var clinics by useState<List<ManagedClinic>?>(null)
+    var clinicFilter by useState<Int?>(null)
+    useEffectOnce {
+        clinics = runCatching { session.api.clinics() }.getOrDefault(emptyList())
+    }
+
+    div {
+        className = ClassName("alert alert-light border d-flex gap-3 align-items-start mb-4")
+        i { className = ClassName("bi bi-info-circle fs-4 text-primary") }
+        div {
+            className = ClassName("small")
+            +"Para clínicas e consultórios sem equipe de TI, a equipe MedCall pode cadastrar e testar o webhook por aqui. "
+            +"Cada ação fica no Registro de ações da clínica, com o seu nome. As chaves de API continuam com a própria clínica, "
+            +"e as entregas mostram só o tipo de evento e a resposta HTTP, nunca dados de pacientes."
+        }
+    }
+    val list = clinics
+    if (list == null) {
+        loading()
+        return@FC
+    }
+    div {
+        className = ClassName("row mb-3")
+        idFilter("integrations-clinic", "Clínica", "Todas as clínicas", list.map { it.id to it.name }, clinicFilter) { clinicFilter = it }
+    }
+    WebhooksSection {
+        access = WebhookAccess.medcall(session.api, clinicFilter)
+        this.clinics = list.map { it.id to it.name }
+        this.clinicFilter = clinicFilter
+    }
 }
 
 /** "sem. 12/out", with a star when the period cuts the week. */

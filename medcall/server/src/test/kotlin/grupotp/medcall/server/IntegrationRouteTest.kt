@@ -10,7 +10,9 @@ import grupotp.medcall.common.integration.ApiKeyWithSecret
 import grupotp.medcall.common.integration.CreateApiKeyRequest
 import grupotp.medcall.common.integration.PublicAppointment
 import grupotp.medcall.common.integration.SaveWebhookRequest
+import grupotp.medcall.common.integration.Webhook
 import grupotp.medcall.common.integration.WebhookEvent
+import grupotp.medcall.common.integration.WebhookWithSecret
 import grupotp.medcall.common.scheduling.Appointment
 import grupotp.medcall.common.scheduling.AppointmentStatus
 import grupotp.medcall.common.scheduling.ClinicAvailability
@@ -28,6 +30,7 @@ import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.get
 import io.ktor.client.request.header
 import io.ktor.client.request.post
+import io.ktor.client.request.put
 import io.ktor.client.request.setBody
 import io.ktor.client.statement.bodyAsText
 import io.ktor.http.ContentType
@@ -112,6 +115,43 @@ class IntegrationRouteTest {
             assertEquals(HttpStatusCode.BadRequest, it.status)
             assertEquals(ErrorCode.WEBHOOK_URL_INVALID, json.decodeFromString<ApiError>(it.bodyAsText()).code)
         }
+    }
+
+    @Test
+    fun medcallStaffSetsUpAClinicsWebhookAndTheClinicSeesIt() = testApplication {
+        environment { config = ApplicationConfig("application.yaml") }
+        // Arrange: an IP literal is public and needs no DNS in the test.
+        val medcall = signIn("admin@medcall.test", "medcall-test-admin")
+        val clinics = json.decodeFromString<List<ManagedClinic>>(client.get("/api/v1/admin/clinics") { bearerAuth(medcall) }.bodyAsText())
+        val boaVista = clinics.first { it.name == "Clínica Boa Vista" }
+        val other = clinics.first { it.id != boaVista.id }
+        val clinicAdmin = boaVistaAdmin()
+        val request = SaveWebhookRequest("https://93.184.215.14/medcall", "Configurado pela MedCall", listOf(WebhookEvent.AppointmentCreated))
+
+        // Act
+        val created = client.post("/api/v1/admin/webhooks?clinicId=${boaVista.id}") { bearerAuth(medcall); jsonBody(request) }
+        val hook = json.decodeFromString<WebhookWithSecret>(created.bodyAsText()).webhook
+        val all = json.decodeFromString<List<Webhook>>(client.get("/api/v1/admin/webhooks") { bearerAuth(medcall) }.bodyAsText())
+        val ofOther = json.decodeFromString<List<Webhook>>(client.get("/api/v1/admin/webhooks?clinicId=${other.id}") { bearerAuth(medcall) }.bodyAsText())
+        val updated = client.put("/api/v1/admin/webhooks/${hook.id}") { bearerAuth(medcall); jsonBody(request.copy(active = false)) }
+        val seenByClinic = json.decodeFromString<List<Webhook>>(client.get("/api/v1/clinic/webhooks") { bearerAuth(clinicAdmin) }.bodyAsText())
+        val deliveries = client.get("/api/v1/admin/webhook-deliveries?clinicId=${boaVista.id}") { bearerAuth(medcall) }
+        val unknownClinic = client.post("/api/v1/admin/webhooks?clinicId=999999") { bearerAuth(medcall); jsonBody(request) }
+        val unknownHook = client.put("/api/v1/admin/webhooks/999999") { bearerAuth(medcall); jsonBody(request) }
+        val byClinicAdmin = client.get("/api/v1/admin/webhooks") { bearerAuth(clinicAdmin) }
+
+        // Assert
+        assertEquals(HttpStatusCode.Created, created.status)
+        assertEquals(boaVista.id, hook.clinicId)
+        assertTrue(all.any { it.id == hook.id })
+        assertTrue(ofOther.none { it.id == hook.id })
+        assertEquals(HttpStatusCode.OK, updated.status)
+        assertEquals(false, seenByClinic.single { it.id == hook.id }.active)
+        assertEquals(HttpStatusCode.OK, deliveries.status)
+        assertEquals(HttpStatusCode.NotFound, unknownClinic.status)
+        assertEquals(ErrorCode.CLINIC_NOT_FOUND, json.decodeFromString<ApiError>(unknownClinic.bodyAsText()).code)
+        assertEquals(HttpStatusCode.NotFound, unknownHook.status)
+        assertEquals(HttpStatusCode.Forbidden, byClinicAdmin.status)
     }
 
     // --- helpers ---

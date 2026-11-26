@@ -51,6 +51,11 @@ enum class Page(
         "/medcall/usuarios", "Usuários das clínicas", "Contas do Portal da Clínica de todas as clínicas.",
         "bi-person-gear", setOf(StaffRole.MedcallAdmin), "Painel MedCall",
     ),
+    MedcallIntegrations(
+        "/medcall/integracoes", "Integrações das clínicas",
+        "Webhooks de todas as clínicas: configure para quem não tem equipe de TI e acompanhe as entregas.",
+        "bi-plug", setOf(StaffRole.MedcallAdmin), "Painel MedCall", "Integrações",
+    ),
     MedcallAudit(
         "/medcall/auditoria", "Registro de ações", "Ações administrativas em toda a plataforma.",
         "bi-journal-text", setOf(StaffRole.MedcallAdmin), "Painel MedCall",

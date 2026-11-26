@@ -203,6 +203,22 @@ class AdminApi(
 
     suspend fun clinics(): List<ManagedClinic> = get("/api/v1/admin/clinics")
 
+    /** Webhooks of every clinic, or of one when [clinicId] is set. */
+    suspend fun medcallWebhooks(clinicId: Int?): List<Webhook> = get("/api/v1/admin/webhooks", "clinicId" to clinicId)
+
+    suspend fun medcallCreateWebhook(clinicId: Int, request: SaveWebhookRequest): WebhookWithSecret =
+        post("/api/v1/admin/webhooks?clinicId=$clinicId", request)
+
+    suspend fun medcallUpdateWebhook(id: Int, request: SaveWebhookRequest): Webhook = put("/api/v1/admin/webhooks/$id", request)
+
+    suspend fun medcallRotateWebhookSecret(id: Int): WebhookWithSecret = postNoBody("/api/v1/admin/webhooks/$id/rotate-secret")
+
+    suspend fun medcallTestWebhook(id: Int): WebhookTestResult = postNoBody("/api/v1/admin/webhooks/$id/test")
+
+    suspend fun medcallDeliveries(clinicId: Int?): List<WebhookDelivery> = get("/api/v1/admin/webhook-deliveries", "clinicId" to clinicId)
+
+    suspend fun medcallRedeliver(id: Int): WebhookDelivery = postNoBody("/api/v1/admin/webhook-deliveries/$id/redeliver")
+
     suspend fun createClinic(request: SaveClinicRequest): ManagedClinic = post("/api/v1/admin/clinics", request)
 
     suspend fun updateClinic(id: Int, request: SaveClinicRequest): ManagedClinic = put("/api/v1/admin/clinics/$id", request)

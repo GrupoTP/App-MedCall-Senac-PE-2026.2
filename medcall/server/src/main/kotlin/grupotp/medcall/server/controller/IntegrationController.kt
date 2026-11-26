@@ -19,6 +19,8 @@ import grupotp.medcall.server.integration.IntegrationRepository
 import grupotp.medcall.server.integration.IntegrationService
 import grupotp.medcall.server.plugin.API_KEY_AUTH
 import grupotp.medcall.server.plugin.CLINIC_ADMIN
+import grupotp.medcall.server.plugin.MEDCALL_ADMIN
+import grupotp.medcall.server.service.AdminService
 import grupotp.medcall.server.plugin.staffRoute
 import grupotp.medcall.server.service.AgendaResult
 import grupotp.medcall.server.service.ClinicAgendaService
@@ -54,8 +56,11 @@ fun Application.configureIntegrationController() {
     val agenda by inject<ClinicAgendaService>()
     val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
 
+    val admin by inject<AdminService>()
+
     routing {
         clinicIntegrationRoutes(integration)
+        medcallWebhookRoutes(integration, admin)
         publicApiRoutes(integration, repository, agenda, json)
         get("/api/public/docs") {
             call.respondText(DOCS_HTML, ContentType.Text.Html)
@@ -103,6 +108,51 @@ private fun Route.clinicIntegrationRoutes(integration: IntegrationService) {
         post("/{id}/revoke") {
             val id = call.idParameter() ?: return@post call.respondError(HttpStatusCode.NotFound, ErrorCode.API_KEY_NOT_FOUND)
             call.respondResult(integration.revokeApiKey(call.staff, call.staffClinicId, id), ErrorCode.API_KEY_NOT_FOUND)
+        }
+    }
+}
+
+/**
+ * Painel MedCall: the same webhook actions for any clinic, so MedCall staff can set up the
+ * integration for small clinics without their own IT. Each action runs with the webhook's own
+ * clinic and is recorded in that clinic's audit log. No route here returns appointment data:
+ * deliveries carry only the event type, status and HTTP answer, never the payload.
+ */
+private fun Route.medcallWebhookRoutes(integration: IntegrationService, admin: AdminService) {
+    staffRoute("/api/v1/admin/webhooks", MEDCALL_ADMIN) {
+        get {
+            call.respond(integration.webhooksForMedcall(call.intQuery("clinicId")))
+        }
+        post {
+            val clinicId = call.intQuery("clinicId")?.takeIf { admin.clinic(it) != null }
+                ?: return@post call.respondError(HttpStatusCode.NotFound, ErrorCode.CLINIC_NOT_FOUND)
+            val request = call.receiveJson<SaveWebhookRequest>()
+            call.respondResult(integration.createWebhook(call.staff, clinicId, request), ErrorCode.WEBHOOK_NOT_FOUND, created = true)
+        }
+        put("/{id}") {
+            val id = call.idParameter() ?: return@put call.respondError(HttpStatusCode.NotFound, ErrorCode.WEBHOOK_NOT_FOUND)
+            val clinicId = integration.clinicOfWebhook(id) ?: return@put call.respondError(HttpStatusCode.NotFound, ErrorCode.WEBHOOK_NOT_FOUND)
+            call.respondResult(integration.updateWebhook(call.staff, clinicId, id, call.receiveJson()), ErrorCode.WEBHOOK_NOT_FOUND)
+        }
+        post("/{id}/rotate-secret") {
+            val id = call.idParameter() ?: return@post call.respondError(HttpStatusCode.NotFound, ErrorCode.WEBHOOK_NOT_FOUND)
+            val clinicId = integration.clinicOfWebhook(id) ?: return@post call.respondError(HttpStatusCode.NotFound, ErrorCode.WEBHOOK_NOT_FOUND)
+            call.respondResult(integration.rotateSecret(call.staff, clinicId, id), ErrorCode.WEBHOOK_NOT_FOUND)
+        }
+        post("/{id}/test") {
+            val id = call.idParameter() ?: return@post call.respondError(HttpStatusCode.NotFound, ErrorCode.WEBHOOK_NOT_FOUND)
+            val clinicId = integration.clinicOfWebhook(id) ?: return@post call.respondError(HttpStatusCode.NotFound, ErrorCode.WEBHOOK_NOT_FOUND)
+            call.respondResult(integration.test(clinicId, id), ErrorCode.WEBHOOK_NOT_FOUND)
+        }
+    }
+    staffRoute("/api/v1/admin/webhook-deliveries", MEDCALL_ADMIN) {
+        get {
+            call.respond(integration.deliveries(call.intQuery("clinicId"), call.intQuery("webhookId")))
+        }
+        post("/{id}/redeliver") {
+            val id = call.idParameter() ?: return@post call.respondError(HttpStatusCode.NotFound, ErrorCode.WEBHOOK_NOT_FOUND)
+            val clinicId = integration.clinicOfDelivery(id) ?: return@post call.respondError(HttpStatusCode.NotFound, ErrorCode.WEBHOOK_NOT_FOUND)
+            call.respondResult(integration.redeliver(clinicId, id), ErrorCode.WEBHOOK_NOT_FOUND)
         }
     }
 }

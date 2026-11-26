@@ -166,6 +166,11 @@ class IntegrationRepository(
         WebhooksTable.selectAll().where { WebhooksTable.clinic eq clinicId }.orderBy(WebhooksTable.id to SortOrder.ASC).map { it.toWebhook() }
     }
 
+    /** Webhooks of every clinic (Painel MedCall), by clinic then id. */
+    fun allWebhooks(): List<StoredWebhook> = transaction(database) {
+        WebhooksTable.selectAll().orderBy(WebhooksTable.clinic to SortOrder.ASC, WebhooksTable.id to SortOrder.ASC).map { it.toWebhook() }
+    }
+
     fun webhook(id: Int): StoredWebhook? = transaction(database) {
         WebhooksTable.selectAll().where { WebhooksTable.id eq id }.singleOrNull()?.toWebhook()
     }
@@ -193,6 +198,7 @@ class IntegrationRepository(
             createdAt = this[WebhooksTable.createdAt],
             disabledReason = this[WebhooksTable.disabledReason],
             secretRotatedAt = this[WebhooksTable.secretRotatedAt],
+            clinicId = this[WebhooksTable.clinic].value,
         ),
         clinicId = this[WebhooksTable.clinic].value,
         secret = this[WebhooksTable.secret],
@@ -226,9 +232,10 @@ class IntegrationRepository(
         WebhookDeliveriesTable.selectAll().where { WebhookDeliveriesTable.id eq id }.singleOrNull()?.toDelivery()
     }
 
-    /** Deliveries of the clinic's webhooks, newest first. */
-    fun deliveries(clinicId: Int, webhookId: Int?, limit: Int): List<WebhookDelivery> = transaction(database) {
-        val ids = WebhooksTable.selectAll().where { WebhooksTable.clinic eq clinicId }.map { it[WebhooksTable.id].value }
+    /** Deliveries of the clinic's webhooks (of every clinic when [clinicId] is null), newest first. */
+    fun deliveries(clinicId: Int?, webhookId: Int?, limit: Int): List<WebhookDelivery> = transaction(database) {
+        val hooks = if (clinicId == null) WebhooksTable.selectAll() else WebhooksTable.selectAll().where { WebhooksTable.clinic eq clinicId }
+        val ids = hooks.map { it[WebhooksTable.id].value }
             .filter { webhookId == null || it == webhookId }
         if (ids.isEmpty()) return@transaction emptyList()
         WebhookDeliveriesTable.selectAll().where { WebhookDeliveriesTable.webhook inList ids }

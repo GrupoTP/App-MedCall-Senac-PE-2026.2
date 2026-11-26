@@ -36,6 +36,8 @@ data class Webhook(
     /** Set when the server switched it off after failing for 24 hours. */
     val disabledReason: String = "",
     val secretRotatedAt: Instant? = null,
+    /** The clinic it belongs to; the Painel MedCall lists webhooks of every clinic. */
+    val clinicId: Int = 0,
 )
 
 @Serializable
