@@ -50,7 +50,7 @@ La aplicación no dice el nombre de una enfermedad y no sustituye al profesional
 4. Toca reservar. Elige especialidad y profesional, después fecha y horario, y confirma. El servidor vuelve a comprobar el cupo.
 5. Abre las consultas ya reservadas. Sin internet, esa lista sigue en la pantalla. Reservar otra consulta solo funciona con conexión.
 6. En la cuenta, actualiza el perfil, el consentimiento de notificaciones, la contraseña, o pide la eliminación de los datos.
-7. El botón de accesibilidad (AccessAbility Widget) se abre con un clic o con Alt+A en la web, y con el mismo botón en Android y en iOS. La versión es la del archivo `medcall/client/accessability-widget.version`. Cambiar ese número sin actualizar la web, Android e iOS hace fallar la prueba de GitHub. En Android y en iOS, el contraste, la fuente y la lectura de ese panel valen para el documento del widget. La interfaz en Kotlin sigue el tema de la aplicación.
+7. El botón de accesibilidad (AccessAbility Widget) se abre con un clic o con Alt+A en la web del paciente, en `/admin/` y con el mismo botón en Android y en iOS. La versión es la del archivo `medcall/client/accessability-widget.version`. Cambiar ese número sin actualizar la web, los portales, Android e iOS hace fallar la prueba de GitHub. En Android y en iOS, el contraste, la fuente y la lectura de ese panel valen para el documento del widget. En los portales, que son HTML, esos recursos valen para la página. La interfaz en Kotlin de la aplicación del paciente sigue el tema de la aplicación.
 
 ## Recursos de la interfaz
 
@@ -137,6 +137,15 @@ El preanálisis de riesgo del panel de la clínica está especificado y todavía
 Fuera de la API: `GET /healthz` (proceso en línea, sin consultar la base) y `GET /readyz` (la base responde).
 
 Contraseña con PBKDF2-HMAC-SHA256, 600.000 iteraciones. Fuente del formato: [medcall/README.md](medcall/README.md).
+
+## Portales del equipo
+
+`/admin/` en el mismo host no es la aplicación del paciente. Hay dos portales en `medcall/client/admin`, publicados en la imagen web:
+
+- Portal de la clínica: el administrador ve indicadores, equipo, integraciones y el registro de acciones. La recepcionista confirma, rechaza, reprograma y registra la asistencia en la agenda.
+- Panel de control MedCall: indicadores de la plataforma y de cada clínica, y el registro de clínicas, profesionales, usuarios de la clínica, integraciones y registro de acciones. Esas rutas no devuelven un dato individual de paciente.
+
+Los dos cargan el mismo AccessAbility Widget del archivo `medcall/client/accessability-widget.version`. Las cuentas de demostración y el comando local están en [medcall/README.md](medcall/README.md).
 
 ## Arquitectura
 

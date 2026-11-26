@@ -8,6 +8,7 @@ const read = (relative) => readFileSync(join(root, relative), "utf8");
 const version = read("medcall/client/accessability-widget.version").trim();
 const pin = `accessability-widget@${version}/src/accessability-widget.js`;
 const html = read("medcall/client/expo/public/index.html");
+const adminHtml = read("medcall/client/admin/src/jsMain/resources/index.html");
 const config = read("medcall/client/expo/app.config.js");
 const index = read("medcall/client/expo/index.js");
 const nativeHost = read("medcall/client/expo/accessability-host.native.js");
@@ -29,6 +30,15 @@ if (!/^\d+\.\d+\.\d+$/.test(version)) {
 }
 if (html.split(pin).length !== 2) {
   console.error("web index.html does not pin this version once");
+  process.exit(1);
+}
+if (adminHtml.split(pin).length !== 2) {
+  console.error("admin index.html does not pin this version once");
+  process.exit(1);
+}
+const driftedAdmin = adminHtml.replaceAll(pin, "accessability-widget@9.9.9/src/accessability-widget.js");
+if (webPinCount(driftedAdmin, version) === 1) {
+  console.error("admin negative control failed");
   process.exit(1);
 }
 if (!config.includes("accessability-widget.version") || !config.includes("ios:") || !config.includes("android:")) {
