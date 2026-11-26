@@ -145,7 +145,18 @@ Senha com PBKDF2-HMAC-SHA256, 600.000 iterações. Fonte do formato: [medcall/RE
 - Portal da Clínica: o administrador vê indicadores, equipe, integrações e o registro de ações. A recepcionista confirma, recusa, remarca e registra comparecimento na agenda.
 - Painel de Controle MedCall: indicadores da plataforma e de cada clínica, cadastro de clínicas, profissionais, usuários da clínica, integrações e registro de ações. As rotas desse painel não devolvem dado individual de paciente.
 
-Os dois carregam o mesmo AccessAbility Widget do arquivo `medcall/client/accessability-widget.version`. Contas de demonstração e o comando local estão em [medcall/README.md](medcall/README.md).
+Os dois carregam o mesmo AccessAbility Widget do arquivo `medcall/client/accessability-widget.version`.
+
+A demonstração publicada abre em https://medcall.grupotp.polyclub.com.br/admin/ . Estas contas entram no Painel de Controle MedCall e no Portal da Clínica:
+
+| Papel | Usuário | Senha |
+|---|---|---|
+| Equipe MedCall, Painel de Controle | `admin@medcall.dev` | `medcall-dev-admin` |
+| Equipe MedCall, Painel de Controle | `medcall@demo.medcall.dev` | `medcall-demo` |
+| Admin da Clínica Boa Vista, Portal da Clínica | `admin.boavista@demo.medcall.dev` | `medcall-demo` |
+| Recepção da Boa Vista, Portal da Clínica | `recepcao.boavista@demo.medcall.dev` | `medcall-demo` |
+
+O comando para subir os portais nesta máquina está em [medcall/README.md](medcall/README.md).
 
 ## Arquitetura
 
