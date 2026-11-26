@@ -10,10 +10,15 @@ import react.useRef
 import web.cssom.ClassName
 import web.html.HTMLCanvasElement
 
-/** Creates a Chart.js chart on [canvas]. */
+/**
+ * Creates a Chart.js chart on [canvas]. The previous effect destroys its chart in a coroutine
+ * `finally`, which may run only after this effect starts, so a chart still bound to the canvas is
+ * destroyed here first; otherwise Chart.js throws "Canvas is already in use" on a filter change.
+ */
 private fun newChart(canvas: HTMLCanvasElement, config: dynamic): dynamic {
     Charts.ensureDefaults()
     val Chart = chartClass
+    js("var previous = Chart.getChart(canvas); if (previous) previous.destroy();")
     return js("new Chart(canvas, config)")
 }
 
