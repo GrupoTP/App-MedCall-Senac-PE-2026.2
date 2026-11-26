@@ -147,14 +147,16 @@ Passwords use PBKDF2-HMAC-SHA256, 600,000 iterations. Format source: [medcall/RE
 
 Both load the same AccessAbility Widget named in `medcall/client/accessability-widget.version`.
 
-The published demo opens at https://medcall.grupotp.polyclub.com.br/admin/ . These accounts sign in to the MedCall control panel and the clinic portal:
+The published demo opens at https://medcall.grupotp.polyclub.com.br/admin/ .
 
 | Role | User | Password |
 |---|---|---|
-| MedCall team, control panel | `admin@medcall.dev` | `medcall-dev-admin` |
+| MedCall team, local tasks | `admin@medcall.dev` | `medcall-dev-admin` |
 | MedCall team, control panel | `medcall@demo.medcall.dev` | `medcall-demo` |
 | Boa Vista clinic admin, clinic portal | `admin.boavista@demo.medcall.dev` | `medcall-demo` |
 | Boa Vista reception, clinic portal | `recepcao.boavista@demo.medcall.dev` | `medcall-demo` |
+
+On 26 November 2026, `POST /api/v1/staff/auth/login` on that host accepted the three accounts with password `medcall-demo`. `medcall@demo.medcall.dev` signed in as the MedCall team, `admin.boavista@demo.medcall.dev` as the Boa Vista clinic administrator, and `recepcao.boavista@demo.medcall.dev` as reception. `admin@medcall.dev` with `medcall-dev-admin` is the local-task account (`MEDCALL_ADMIN_*`). That day the published server answered `WRONG_CREDENTIALS` for that password.
 
 The command to run the portals on this machine is in [medcall/README.md](medcall/README.md).
 

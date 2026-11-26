@@ -147,14 +147,16 @@ Senha com PBKDF2-HMAC-SHA256, 600.000 iterações. Fonte do formato: [medcall/RE
 
 Os dois carregam o mesmo AccessAbility Widget do arquivo `medcall/client/accessability-widget.version`.
 
-A demonstração publicada abre em https://medcall.grupotp.polyclub.com.br/admin/ . Estas contas entram no Painel de Controle MedCall e no Portal da Clínica:
+A demonstração publicada abre em https://medcall.grupotp.polyclub.com.br/admin/ .
 
 | Papel | Usuário | Senha |
 |---|---|---|
-| Equipe MedCall, Painel de Controle | `admin@medcall.dev` | `medcall-dev-admin` |
+| Equipe MedCall, tasks locais | `admin@medcall.dev` | `medcall-dev-admin` |
 | Equipe MedCall, Painel de Controle | `medcall@demo.medcall.dev` | `medcall-demo` |
 | Admin da Clínica Boa Vista, Portal da Clínica | `admin.boavista@demo.medcall.dev` | `medcall-demo` |
 | Recepção da Boa Vista, Portal da Clínica | `recepcao.boavista@demo.medcall.dev` | `medcall-demo` |
+
+Em 26 de novembro de 2026, `POST /api/v1/staff/auth/login` nesse host aceitou as três contas com senha `medcall-demo`. `medcall@demo.medcall.dev` entrou como equipe MedCall, `admin.boavista@demo.medcall.dev` como administrador da Clínica Boa Vista e `recepcao.boavista@demo.medcall.dev` como recepção. `admin@medcall.dev` com `medcall-dev-admin` é a conta das tasks locais (`MEDCALL_ADMIN_*`). Nesse dia o servidor publicado respondeu `WRONG_CREDENTIALS` para essa senha.
 
 O comando para subir os portais nesta máquina está em [medcall/README.md](medcall/README.md).
 
