@@ -31,6 +31,6 @@ images:
   # Não usar latest. O job "deploy" do publish-images.yml troca as tags abaixo sozinho
   # depois de cada build da main; para voltar uma versão, reverta o commit dele.
   - name: ghcr.io/grupotp/medcall-server
-    newTag: sha-c6d180b
+    newTag: sha-2426c5c
   - name: ghcr.io/grupotp/medcall-web
-    newTag: sha-c6d180b
+    newTag: sha-2426c5c
