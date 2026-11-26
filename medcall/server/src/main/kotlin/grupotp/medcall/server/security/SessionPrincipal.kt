@@ -5,3 +5,4 @@ data class SessionPrincipal(
     val userId: Int,
     val sessionId: Int,
 )
+

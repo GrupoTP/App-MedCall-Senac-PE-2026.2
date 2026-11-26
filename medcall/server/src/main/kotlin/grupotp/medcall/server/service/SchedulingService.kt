@@ -2,7 +2,6 @@ package grupotp.medcall.server.service
 
 import grupotp.medcall.common.api.ErrorCode
 import grupotp.medcall.common.scheduling.Appointment
-import grupotp.medcall.common.scheduling.AppointmentStatus
 import grupotp.medcall.common.scheduling.AvailableDay
 import grupotp.medcall.common.scheduling.Clinic
 import grupotp.medcall.common.scheduling.ClinicAvailability
@@ -125,7 +124,7 @@ class SchedulingService(
         val preTriage = preTriages.find(patientId, preTriageId)
             ?: return ServiceError(ErrorCode.PRE_TRIAGE_NOT_FOUND)
         val current = preTriage.appointmentId?.let { repository.findAppointment(it) }
-        return if (current != null && current.status != AppointmentStatus.Cancelled) {
+        return if (current != null && current.status.holdsSlot) {
             ServiceError(ErrorCode.PRE_TRIAGE_ALREADY_ATTACHED)
         } else {
             null
@@ -137,7 +136,7 @@ class SchedulingService(
     /** Cancels the patient's own appointment when [isCancellableAt] allows it. */
     fun cancel(patientId: Int, appointmentId: Int): CancelResult {
         val current = repository.findAppointmentOf(patientId, appointmentId) ?: return CancelResult.NotFound
-        if (!current.isCancellableAt(nowAt(current.clinic)) || !repository.cancel(patientId, appointmentId, current.status)) {
+        if (!current.isCancellableAt(nowAt(current.clinic)) || !repository.cancel(patientId, appointmentId, current.status, clock.instant().toKotlinInstant())) {
             return CancelResult.NotCancellable
         }
         return CancelResult.Cancelled(repository.findAppointment(appointmentId)!!)

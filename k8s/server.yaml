@@ -44,6 +44,14 @@ spec:
             - name: JWT_SECRET
               valueFrom:
                 secretKeyRef: { name: medcall-secrets, key: JWT_SECRET }
+            # Primeiro administrador do Painel MedCall: o servidor só cria a conta quando ainda não há
+            # nenhuma de equipe (staff_users vazia); depois disso estes valores não fazem nada.
+            - name: MEDCALL_ADMIN_EMAIL
+              valueFrom:
+                secretKeyRef: { name: medcall-admin-bootstrap, key: MEDCALL_ADMIN_EMAIL }
+            - name: MEDCALL_ADMIN_PASSWORD
+              valueFrom:
+                secretKeyRef: { name: medcall-admin-bootstrap, key: MEDCALL_ADMIN_PASSWORD }
             - name: JAVA_OPTS
               value: "-XX:MaxRAMPercentage=70 -XX:+ExitOnOutOfMemoryError"
           resources:

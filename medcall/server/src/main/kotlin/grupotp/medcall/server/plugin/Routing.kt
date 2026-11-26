@@ -1,5 +1,6 @@
 package grupotp.medcall.server.plugin
 
+import grupotp.medcall.common.staff.StaffRole
 import io.ktor.server.auth.authenticate
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.route
@@ -13,3 +14,16 @@ fun Route.authenticatedRoute(path: String, vararg configurations: String? = arra
         route(path, build)
     }
 }
+
+
+val CLINIC_ROLES: Set<StaffRole> = setOf(StaffRole.ClinicAdmin, StaffRole.Receptionist)
+
+
+val CLINIC_ADMIN: Set<StaffRole> = setOf(StaffRole.ClinicAdmin)
+
+
+val MEDCALL_ADMIN: Set<StaffRole> = setOf(StaffRole.MedcallAdmin)
+
+
+val ALL_STAFF: Set<StaffRole> = StaffRole.entries.toSet()
+

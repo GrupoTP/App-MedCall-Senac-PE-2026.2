@@ -4,6 +4,7 @@ import grupotp.medcall.app.di.useInject
 import grupotp.medcall.app.domain.scheduling.AppointmentTimeline
 import grupotp.medcall.app.domain.scheduling.AppointmentsSnapshot
 import grupotp.medcall.app.ui.component.alert.clinicalDisclaimer
+import grupotp.medcall.app.ui.format.statusLabel
 import grupotp.medcall.app.ui.component.alert.errorAlert
 import grupotp.medcall.app.ui.component.alert.infoAlert
 import grupotp.medcall.app.ui.component.alert.sessionExpiredAlert
@@ -263,7 +264,7 @@ private fun ChildrenBuilder.upcomingRow(appointment: Appointment) {
                 +"${appointment.specialtyName} · ${formatClinicTime(appointment.date, appointment.time, appointment.clinic)}"
             }
         }
-        statusPill(appointment.status)
+        statusPill(appointment.status, appointment.statusLabel())
     }
 }
 
