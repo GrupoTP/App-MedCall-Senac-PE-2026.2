@@ -162,6 +162,14 @@ El 26 de noviembre de 2026, `POST /api/v1/staff/auth/login` en ese host aceptó 
 
 El comando para levantar los portales en esta máquina está en [medcall/README.md](medcall/README.md).
 
+## API pública
+
+La página publicada es https://medcall.grupotp.polyclub.com.br/api/public/docs . El 26 de noviembre de 2026 respondió 200 y cargó `openapi.yaml` (OpenAPI 3.0.3, versión 1.0, base `/api/public/v1`).
+
+Esa API es del sistema de la clínica, para responder a las citas hechas en la aplicación. La clave se genera en Integraciones del portal de la clínica y vale solo para esa clínica. Los POST aceptan `Idempotency-Key`. El límite es 60 llamadas por minuto. Por encima de eso la respuesta es 429.
+
+Operaciones publicadas: `GET /appointments` lista las citas. `POST /appointments/{id}/confirm` confirma. `POST /appointments/{id}/decline` rechaza o cancela. `POST /appointments/{id}/reschedule` reprograma y deja la cita confirmada. `POST /appointments/{id}/attendance` registra asistencia o falta. Las capturas de esa página están en la documentación de requisitos V8.
+
 ## Arquitectura
 
 ```text
