@@ -101,7 +101,7 @@ Não há prazo separado no aparelho. O servidor encerra a sessão depois de `SES
 | Erros | 0 |
 | Ignorados | 0 |
 
-Os números saem dos relatórios XML do Gradle, nas pastas de `common`, `server`, `client/app` e `client/worker`. Os testes de `common` entram duas vezes quando rodam na JVM e no JavaScript. O workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) grava esta tabela e uma linha em [TESTES.md](TESTES.md) depois de cada execução na main, com ou sem falha. Registro: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45882583467. Commit: `2426c5c06e7496e85fc2f11463c3d0d0599430b3`. Quando há falha, o nome do teste fica em TESTES.md.
+Os números saem dos relatórios XML do Gradle, nas pastas de `common`, `server`, `client/app` e `client/worker`. Os testes de `common` entram duas vezes quando rodam na JVM e no JavaScript. O workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) grava esta tabela e uma linha em [TESTES.md](TESTES.md) depois de cada execução na main, com ou sem falha. Registro: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45889295798. Commit: `a3a1bc46241d2854768a2a440a037d07258f7b85`. Quando há falha, o nome do teste fica em TESTES.md.
 <!-- test-results:end -->
 
 ## O que está neste repositório

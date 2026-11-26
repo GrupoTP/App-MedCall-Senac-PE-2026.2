@@ -15,6 +15,7 @@ O comando da suíte é `bash ./gradlew :common:allTests :server:test :client:app
 | 25 de novembro de 2026 | https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45721384720 | `36a6e6a77cf1d0ce3af9c1694274097c0402a34e` | 132 | 0 | 0 | 0 |
 | 25 de novembro de 2026 | https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45724975177 | `4fb00c24de9016432786a88b2b91a8cbe84e2d9d` | 132 | 0 | 0 | 0 |
 | 26 de novembro de 2026 | https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45882583467 | `2426c5c06e7496e85fc2f11463c3d0d0599430b3` | 143 | 0 | 0 | 0 |
+| 26 de novembro de 2026 | https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45889295798 | `a3a1bc46241d2854768a2a440a037d07258f7b85` | 143 | 0 | 0 | 0 |
 <!-- rows:end -->
 
 ## Falhas nomeadas

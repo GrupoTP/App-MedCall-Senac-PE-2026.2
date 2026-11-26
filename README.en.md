@@ -101,7 +101,7 @@ Last run on 26 November 2026, with the command in [Run](#run).
 | Errors | 0 |
 | Skipped | 0 |
 
-The numbers come from the Gradle XML reports under `common`, `server`, `client/app`, and `client/worker`. `common` tests are counted twice when they run on the JVM and on JavaScript. The [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) workflow writes this table and a row in [TESTES.md](TESTES.md) after every run on main, whether it passes or fails. Record: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45882583467. Commit: `2426c5c06e7496e85fc2f11463c3d0d0599430b3`. A failed test is named in TESTES.md.
+The numbers come from the Gradle XML reports under `common`, `server`, `client/app`, and `client/worker`. `common` tests are counted twice when they run on the JVM and on JavaScript. The [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) workflow writes this table and a row in [TESTES.md](TESTES.md) after every run on main, whether it passes or fails. Record: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45889295798. Commit: `a3a1bc46241d2854768a2a440a037d07258f7b85`. A failed test is named in TESTES.md.
 <!-- test-results:end -->
 
 ## What this repository contains
