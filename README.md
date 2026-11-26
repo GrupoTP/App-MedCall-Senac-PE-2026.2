@@ -14,6 +14,8 @@
 
 Aplicativo de pré-triagem informativa e agendamento de consultas. Projeto Integrador do 3º período de Análise e Desenvolvimento de Sistemas da Faculdade Senac Pernambuco.
 
+Link do Painel de ADM do Sistema e do Painel do ADM da Clínica: https://medcall.grupotp.polyclub.com.br/admin/
+
 Antes se chamava Recife Saudável. O nome do produto é MedCall.
 
 Todos os direitos reservados. O uso deste código é exclusivo de Polyana Fontes e Thayná Batista da Silva. O texto está em [LICENSE](LICENSE).
@@ -147,7 +149,7 @@ Senha com PBKDF2-HMAC-SHA256, 600.000 iterações. Fonte do formato: [medcall/RE
 
 Os dois carregam o mesmo AccessAbility Widget do arquivo `medcall/client/accessability-widget.version`.
 
-A demonstração publicada abre em https://medcall.grupotp.polyclub.com.br/admin/ .
+Link do Painel de ADM do Sistema e do Painel do ADM da Clínica: https://medcall.grupotp.polyclub.com.br/admin/ . Os dois painéis usam esse endereço.
 
 | Papel | Usuário | Senha |
 |---|---|---|
