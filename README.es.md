@@ -14,6 +14,8 @@
 
 Aplicación de pretriaje informativo y de reserva de consultas. Proyecto integrador del 3.er período de Análisis y Desarrollo de Sistemas de la Faculdade Senac Pernambuco.
 
+Enlace del panel de administración del sistema y del panel de administración de la clínica: https://medcall.grupotp.polyclub.com.br/admin/
+
 Antes se llamaba Recife Saudável. El nombre del producto es MedCall.
 
 Todos los derechos reservados. El uso de este código queda limitado a Polyana Fontes y Thayná Batista da Silva. El texto está en [LICENSE](LICENSE).
@@ -147,7 +149,7 @@ Contraseña con PBKDF2-HMAC-SHA256, 600.000 iteraciones. Fuente del formato: [me
 
 Los dos cargan el mismo AccessAbility Widget del archivo `medcall/client/accessability-widget.version`.
 
-La demostración publicada abre en https://medcall.grupotp.polyclub.com.br/admin/ .
+Enlace del panel de administración del sistema y del panel de administración de la clínica: https://medcall.grupotp.polyclub.com.br/admin/ . Los dos paneles usan esa dirección.
 
 | Papel | Usuario | Contraseña |
 |---|---|---|

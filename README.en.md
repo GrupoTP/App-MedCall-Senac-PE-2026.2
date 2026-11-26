@@ -14,6 +14,8 @@
 
 Informational pre-screening and appointment scheduling. Integrative Project, 3rd semester, Systems Analysis and Development, Faculdade Senac Pernambuco.
 
+Link for the system admin panel and the clinic admin panel: https://medcall.grupotp.polyclub.com.br/admin/
+
 The product was previously called Recife Saudável. The name is MedCall.
 
 All rights reserved. Use of this code is limited to Polyana Fontes and Thayná Batista da Silva. The terms are in [LICENSE](LICENSE).
@@ -147,7 +149,7 @@ Passwords use PBKDF2-HMAC-SHA256, 600,000 iterations. Format source: [medcall/RE
 
 Both load the same AccessAbility Widget named in `medcall/client/accessability-widget.version`.
 
-The published demo opens at https://medcall.grupotp.polyclub.com.br/admin/ .
+Link for the system admin panel and the clinic admin panel: https://medcall.grupotp.polyclub.com.br/admin/ . Both panels use this address.
 
 | Role | User | Password |
 |---|---|---|
