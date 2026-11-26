@@ -237,6 +237,7 @@ private fun ChildrenBuilder.occupancyHeatmap(data: ClinicDashboard) {
     val names = data.specialties.associate { it.specialtyId to it.name }
     val dates = data.occupancyBySpecialtyDay.map { it.date }.distinct().sorted()
     val cells = data.occupancyBySpecialtyDay.associateBy { it.specialtyId to it.date }
+    val scale = HeatScale(data.occupancyBySpecialtyDay.filter { it.offered > 0 }.map { (it.taken.toDouble() / it.offered * 100).toInt() })
     div {
         className = ClassName("table-responsive")
         table {
@@ -269,8 +270,9 @@ private fun ChildrenBuilder.occupancyHeatmap(data: ClinicDashboard) {
                                 title = "${specialty.name}, ${Format.weekdayDate(date)}: " +
                                     (if (cell == null) "sem oferta" else "${cell.taken} de ${cell.offered} horários (${Format.percent(share)})")
                                 style = js("({})").unsafeCast<react.CSSProperties>().also {
-                                    it.asDynamic().background = heatColor(share)
-                                    it.asDynamic().color = if ((share ?: 0.0) > 0.62) "#fff" else Brand.INK
+                                    val percent = share?.let { (it * 100).toInt() }
+                                    it.asDynamic().background = scale.color(percent)
+                                    it.asDynamic().color = scale.ink(percent)
                                 }
                                 +(share?.let { (it * 100).toInt().toString() } ?: "")
                             }
@@ -280,24 +282,55 @@ private fun ChildrenBuilder.occupancyHeatmap(data: ClinicDashboard) {
             }
         }
     }
-    div {
-        className = ClassName("d-flex align-items-center gap-2 small text-secondary mt-2")
-        +"Ocupação:"
-        listOf(0.1, 0.4, 0.7, 0.95).forEach { v ->
-            span {
-                className = ClassName("d-inline-block rounded")
-                style = js("({ width: '22px', height: '12px' })").unsafeCast<react.CSSProperties>().also { it.asDynamic().background = heatColor(v) }
-            }
-            +"${(v * 100).toInt()}%"
-        }
-        span { className = ClassName("ms-2"); +"Números = % ocupado. Passe o mouse para ver os horários." }
+    heatLegend(scale, "Ocupação:", "Números = % ocupado. Passe o mouse para ver os horários.", unit = "%")
+}
+
+/**
+ * Five steps of one blue ramp, light to dark, spread over the data's own min..max. A linear
+ * alpha over 0..100% left real data (which sits in a narrow band) in near-identical tones.
+ */
+private class HeatScale(values: List<Int>) {
+    private val min = values.minOrNull() ?: 0
+    private val max = values.maxOrNull() ?: 0
+
+    /** Works on the whole numbers shown in the cells, so each legend range is exact. */
+    fun step(value: Int): Int =
+        if (max <= min) STEPS.size / 2 else ((value - min) * STEPS.size / (max - min + 1)).coerceIn(0, STEPS.lastIndex)
+
+    fun color(value: Int?): String = value?.let { STEPS[step(it)] } ?: EMPTY
+
+    /** White text from the middle step on; ink on the two light ones. */
+    fun ink(value: Int?): String = if (value != null && step(value) >= 2) "#fff" else Brand.INK
+
+    /** (step, first value, last value) of each step that holds values, for the legend. */
+    fun ranges(): List<Triple<Int, Int, Int>> =
+        (min..max).groupBy(::step).map { (step, values) -> Triple(step, values.first(), values.last()) }
+
+    companion object {
+        val STEPS = listOf("#cde2fb", "#86b6ef", "#3987e5", "#1c5cab", "#0d366b")
+        const val EMPTY = "#f1f5f9"
     }
 }
 
-private fun heatColor(share: Double?): String {
-    if (share == null) return "#f1f5f9"
-    val alpha = 0.08 + 0.87 * share.coerceIn(0.0, 1.0)
-    return "rgba(27, 94, 168, $alpha)"
+/** Legend: a swatch per step with the range of values it covers. */
+private fun ChildrenBuilder.heatLegend(scale: HeatScale, title: String, note: String, unit: String = "") {
+    div {
+        className = ClassName("d-flex flex-wrap align-items-center gap-2 small text-secondary mt-2")
+        +title
+        scale.ranges().forEach { (step, from, to) ->
+            span {
+                key = Key(step.toString())
+                className = ClassName("d-inline-flex align-items-center gap-1 me-1")
+                span {
+                    className = ClassName("d-inline-block rounded")
+                    style = js("({ width: '22px', height: '12px' })").unsafeCast<react.CSSProperties>()
+                        .also { it.asDynamic().background = HeatScale.STEPS[step] }
+                }
+                +(if (from == to) "$from$unit" else "$from–$to$unit")
+            }
+        }
+        if (note.isNotEmpty()) span { className = ClassName("ms-1"); +note }
+    }
 }
 
 private fun ChildrenBuilder.professionalsTable(data: ClinicDashboard) {
@@ -347,8 +380,8 @@ private fun ChildrenBuilder.peakTable(data: ClinicDashboard) {
         return
     }
     val times = data.peak.map { it.time }.distinct().sorted()
-    val max = data.peak.maxOf { it.count }.coerceAtLeast(1)
     val counts = data.peak.associate { (it.dayOfWeek to it.time) to it.count }
+    val scale = HeatScale(times.flatMap { time -> (1..5).map { day -> counts[day to time] ?: 0 } })
     div {
         className = ClassName("table-responsive")
         table {
@@ -370,8 +403,8 @@ private fun ChildrenBuilder.peakTable(data: ClinicDashboard) {
                                 key = Key(day.toString())
                                 title = "${Format.weekday(DayOfWeek(day))} ${Format.time(time)}: $count consultas"
                                 style = js("({})").unsafeCast<react.CSSProperties>().also {
-                                    it.asDynamic().background = heatColor(count.toDouble() / max)
-                                    it.asDynamic().color = if (count.toDouble() / max > 0.62) "#fff" else Brand.INK
+                                    it.asDynamic().background = scale.color(count)
+                                    it.asDynamic().color = scale.ink(count)
                                 }
                                 +count.toString()
                             }
@@ -381,6 +414,7 @@ private fun ChildrenBuilder.peakTable(data: ClinicDashboard) {
             }
         }
     }
+    heatLegend(scale, "Consultas:", "")
 }
 
 private fun ChildrenBuilder.limitsBox(demoNote: Boolean) {
