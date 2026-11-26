@@ -20,7 +20,7 @@ Todos os direitos reservados. O uso deste código é exclusivo de Polyana Fontes
 
 ![Suíte](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml/badge.svg)
 <!-- test-badge:start -->
-![Testes](https://img.shields.io/badge/testes-132%20passando-1E6B5E)
+![Testes](https://img.shields.io/badge/testes-143%20passando-1E6B5E)
 <!-- test-badge:end -->
 
 > A MedCall não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU). O texto está no componente `ClinicalDisclaimer`.
@@ -92,16 +92,16 @@ Não há prazo separado no aparelho. O servidor encerra a sessão depois de `SES
 ## Testes executados
 
 <!-- test-results:start -->
-Última execução em 25 de novembro de 2026, com o comando da seção [Como executar](#como-executar).
+Última execução em 26 de novembro de 2026, com o comando da seção [Como executar](#como-executar).
 
 | Resultado | Quantidade |
 |---|---|
-| Testes executados | 132 |
+| Testes executados | 143 |
 | Falhas | 0 |
 | Erros | 0 |
 | Ignorados | 0 |
 
-Os números saem dos relatórios XML do Gradle, nas pastas de `common`, `server`, `client/app` e `client/worker`. Os testes de `common` entram duas vezes quando rodam na JVM e no JavaScript. O workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) grava esta tabela e uma linha em [TESTES.md](TESTES.md) depois de cada execução na main, com ou sem falha. Registro: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45724975177. Commit: `4fb00c24de9016432786a88b2b91a8cbe84e2d9d`. Quando há falha, o nome do teste fica em TESTES.md.
+Os números saem dos relatórios XML do Gradle, nas pastas de `common`, `server`, `client/app` e `client/worker`. Os testes de `common` entram duas vezes quando rodam na JVM e no JavaScript. O workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) grava esta tabela e uma linha em [TESTES.md](TESTES.md) depois de cada execução na main, com ou sem falha. Registro: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45882583467. Commit: `2426c5c06e7496e85fc2f11463c3d0d0599430b3`. Quando há falha, o nome do teste fica em TESTES.md.
 <!-- test-results:end -->
 
 ## O que está neste repositório
