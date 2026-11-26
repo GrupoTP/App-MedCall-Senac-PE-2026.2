@@ -23,19 +23,6 @@ import java.time.Clock
 import kotlin.time.Instant
 import kotlin.time.toKotlinInstant
 
-sealed interface StaffResult<out T> {
-    data class Done<T>(val value: T) : StaffResult<T>
-    data class Rejected(val error: ServiceError) : StaffResult<Nothing>
-    data object NotFound : StaffResult<Nothing>
-}
-
-/** Staff sessions with their own [SessionService], over the staff session table. */
-class StaffSessionService(
-    store: grupotp.medcall.server.repository.StaffSessionRepository,
-    clock: Clock,
-    settings: grupotp.medcall.server.security.SessionSettings,
-) : SessionService(store, clock, settings)
-
 /**
  * Accounts of the clinic portal and the MedCall panel: sign-in, temporary passwords and the
  * management of a clinic's team. Every check is here, whatever the screen hides.
@@ -226,3 +213,4 @@ class StaffService(
             SecretString(String(CharArray(TEMPORARY_LENGTH) { ALPHABET[random.nextInt(ALPHABET.length)] }))
     }
 }
+

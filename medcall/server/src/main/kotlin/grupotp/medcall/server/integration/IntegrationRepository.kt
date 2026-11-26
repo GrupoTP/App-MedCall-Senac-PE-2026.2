@@ -40,33 +40,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import kotlin.time.Instant
 
-/** An outbox row waiting for the broker. */
-data class OutboxMessage(
-    val id: Int,
-    val eventId: String,
-    val clinicId: Int,
-    val appointmentId: Int,
-    val eventType: AppointmentEventType,
-    val occurredAt: Instant,
-)
-
-/** A webhook with what only the server reads. */
-data class StoredWebhook(
-    val webhook: Webhook,
-    val clinicId: Int,
-    val secret: String,
-    val previousSecret: String?,
-    val previousSecretUntil: Instant?,
-    val failingSince: Instant?,
-)
-
-data class StoredDelivery(
-    val delivery: WebhookDelivery,
-    val payload: String,
-)
-
-data class StoredIdempotency(val requestHash: String, val statusCode: Int, val body: String)
-
 /** Tables of the clinic integration: API keys, webhooks, their deliveries and the outbox. */
 class IntegrationRepository(
     private val database: Database,
@@ -394,3 +367,4 @@ class IntegrationRepository(
         const val MAX_LIST = 500
     }
 }
+

@@ -1,7 +1,5 @@
 package grupotp.medcall.server.repository
 
-import grupotp.medcall.common.clinic.AppointmentEventType
-import grupotp.medcall.common.clinic.EventOrigin
 import grupotp.medcall.common.integration.DeliveryStatus
 import grupotp.medcall.common.kpi.ClinicStatus
 import grupotp.medcall.common.scheduling.AppointmentStatus
@@ -19,14 +17,12 @@ import grupotp.medcall.server.database.table.WebhooksTable
 import grupotp.medcall.server.database.wireName
 import grupotp.medcall.server.database.wireValue
 import kotlinx.datetime.LocalDate
-import kotlinx.datetime.LocalTime
 import org.jetbrains.exposed.v1.core.Op
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.between
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.inList
-import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.max
 import org.jetbrains.exposed.v1.core.or
@@ -35,54 +31,6 @@ import org.jetbrains.exposed.v1.jdbc.select
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.time.Instant
-
-/** One appointment, reduced to what the KPIs read. No patient data besides an opaque id. */
-data class AppointmentFact(
-    val id: Int,
-    val clinicId: Int,
-    val professionalId: Int,
-    val specialtyId: Int,
-    val patientId: Int,
-    val date: LocalDate,
-    val time: LocalTime,
-    val status: AppointmentStatus,
-    val createdAt: Instant,
-    val hasPreTriage: Boolean,
-)
-
-data class EventFact(
-    val appointmentId: Int,
-    val type: AppointmentEventType,
-    val occurredAt: Instant,
-    val origin: EventOrigin,
-)
-
-data class ProfessionalFact(
-    val id: Int,
-    val name: String,
-    val clinicId: Int,
-    val specialtyId: Int,
-    val specialtyName: String,
-    val active: Boolean,
-)
-
-data class ClinicFact(
-    val id: Int,
-    val name: String,
-    val city: String,
-    val timeZoneId: String,
-    val status: ClinicStatus,
-    val hasActiveWebhook: Boolean,
-)
-
-/** Everything a dashboard needs, read once per request. */
-data class KpiFacts(
-    val clinics: List<ClinicFact>,
-    val professionals: List<ProfessionalFact>,
-    val appointments: List<AppointmentFact>,
-    /** Events of [appointments], oldest first. */
-    val events: Map<Int, List<EventFact>>,
-)
 
 /**
  * Reads the raw facts of the KPIs. The arithmetic stays in Kotlin
@@ -219,3 +167,4 @@ class KpiRepository(
             }
     }
 }
+

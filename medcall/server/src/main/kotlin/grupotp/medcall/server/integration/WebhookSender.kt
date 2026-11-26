@@ -10,11 +10,6 @@ import java.time.Duration
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
 
-/** Result of one POST. [statusCode] is null when the request never got an answer. */
-data class SendResult(val statusCode: Int?, val durationMs: Long, val error: String = "") {
-    val delivered: Boolean get() = statusCode != null && statusCode in 200..299
-}
-
 /**
  * Posts webhook bodies to clinics' systems.
  *
@@ -85,3 +80,4 @@ class WebhookSender(
                 address.hostAddress.startsWith("100.64.") // carrier-grade NAT
     }
 }
+

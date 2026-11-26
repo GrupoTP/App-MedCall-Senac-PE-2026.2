@@ -31,16 +31,6 @@ import java.time.Clock
 import kotlin.time.Instant
 import kotlin.time.toKotlinInstant
 
-/** Answer of an agenda action. */
-sealed interface AgendaResult {
-    data class Done(val appointment: ClinicAppointment) : AgendaResult
-    data object NotFound : AgendaResult
-    data class Rejected(val error: ServiceError) : AgendaResult
-    /** Someone changed the appointment since it was read: the screen should reload it. */
-    data object Changed : AgendaResult
-    data object SlotTaken : AgendaResult
-}
-
 /**
  * The clinic's side of an appointment: confirm, decline, reschedule and attendance. Used by the
  * clinic portal and by the public API, so both follow the same rules (see AppointmentStatus).
@@ -200,3 +190,4 @@ class ClinicAgendaService(
         const val MAX_NOTE = 280
     }
 }
+

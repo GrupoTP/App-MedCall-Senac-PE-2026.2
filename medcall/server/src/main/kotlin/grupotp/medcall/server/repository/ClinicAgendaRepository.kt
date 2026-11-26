@@ -11,7 +11,6 @@ import grupotp.medcall.common.scheduling.AppointmentStatus
 import grupotp.medcall.common.scheduling.Clinic
 import grupotp.medcall.common.scheduling.Professional
 import grupotp.medcall.common.scheduling.Specialty
-import grupotp.medcall.server.database.Actor
 import grupotp.medcall.server.database.recordAppointmentEvent
 import grupotp.medcall.server.database.table.ApiKeysTable
 import grupotp.medcall.server.database.table.AppointmentEventsTable
@@ -44,47 +43,6 @@ import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import kotlin.time.Duration.Companion.hours
 import kotlin.time.Instant
-
-/** What the agenda list can be narrowed to. */
-data class AgendaFilter(
-    val from: LocalDate,
-    val to: LocalDate,
-    val statuses: Set<AppointmentStatus> = emptySet(),
-    val professionalId: Int? = null,
-    val specialtyId: Int? = null,
-    /** Confirmed appointments already past with no attendance mark. */
-    val attendanceMissing: Boolean = false,
-)
-
-/** What an action needs to know about an appointment before deciding. */
-data class AgendaRow(
-    val id: Int,
-    val clinic: Clinic,
-    val professionalId: Int,
-    val slot: Slot,
-    val status: AppointmentStatus,
-    /** When the current attended/no-show mark was made. */
-    val markedAt: Instant?,
-)
-
-/** One status change, applied only if the appointment is still as the caller read it. */
-data class AgendaChange(
-    val status: AppointmentStatus,
-    val event: AppointmentEventType,
-    val actor: Actor,
-    val at: Instant,
-    val detail: String = "",
-    /** Where to move it; null keeps the slot. */
-    val moveTo: Slot? = null,
-)
-
-sealed interface ChangeOutcome {
-    data object Applied : ChangeOutcome
-    /** Someone changed it since it was read. */
-    data object Changed : ChangeOutcome
-    /** The new slot of a reschedule was taken. */
-    data object SlotTaken : ChangeOutcome
-}
 
 /** The agenda of one clinic. Every query takes the clinic id, so one clinic never reads another's rows. */
 class ClinicAgendaRepository(
@@ -321,3 +279,4 @@ class ClinicAgendaRepository(
         val UNDO_WINDOW = 24.hours
     }
 }
+

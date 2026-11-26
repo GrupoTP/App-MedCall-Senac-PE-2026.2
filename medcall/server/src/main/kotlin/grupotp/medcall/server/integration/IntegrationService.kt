@@ -39,9 +39,6 @@ import kotlin.time.Duration.Companion.minutes
 import kotlin.time.Instant
 import kotlin.time.toKotlinInstant
 
-/** A clinic system authenticated by an API key. */
-data class ApiPrincipal(val apiKeyId: Int, val clinicId: Int)
-
 /**
  * The clinic integration (SPM-97 to SPM-100): API keys, webhooks, and the pipeline
  * outbox → [EventBus] → deliveries → HTTP with retries and dead letters.
@@ -318,3 +315,4 @@ class IntegrationService(
         }
     }
 }
+

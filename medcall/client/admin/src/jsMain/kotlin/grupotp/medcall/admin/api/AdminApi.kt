@@ -8,7 +8,6 @@ import grupotp.medcall.common.admin.SaveClinicRequest
 import grupotp.medcall.common.admin.SaveProfessionalRequest
 import grupotp.medcall.common.admin.SaveSpecialtyRequest
 import grupotp.medcall.common.api.ApiError
-import grupotp.medcall.common.api.ErrorCode
 import grupotp.medcall.common.clinic.AttendanceRequest
 import grupotp.medcall.common.clinic.ClinicAppointment
 import grupotp.medcall.common.clinic.ClinicAppointmentDetail
@@ -53,24 +52,11 @@ import io.ktor.http.contentType
 import io.ktor.http.isSuccess
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.datetime.LocalDate
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
 import web.location.location
-
-/** A refusal of the server, with the text it sent for the person. */
-class ApiException(val status: Int, val code: ErrorCode?, override val message: String) : Exception(message)
-
-@Serializable
-private data class ActiveRequest(val active: Boolean)
-
-/** A dashboard period: the last [days] days in the clinic's calendar, or [from]..[to]. */
-data class PeriodChoice(val days: Int? = 30, val from: LocalDate? = null, val to: LocalDate? = null) {
-    fun query(): Array<Pair<String, Any?>> =
-        if (from != null && to != null) arrayOf("from" to from, "to" to to) else arrayOf("days" to (days ?: 30))
-}
 
 /**
  * The portals' calls to the MedCall server. Every method throws [ApiException] on a refusal; a
@@ -320,3 +306,4 @@ class AdminApi(
             if (location.port == "8082") "${location.protocol}//${location.hostname}:8080" else ""
     }
 }
+

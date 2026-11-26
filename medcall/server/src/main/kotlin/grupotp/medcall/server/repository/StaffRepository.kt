@@ -1,47 +1,25 @@
 package grupotp.medcall.server.repository
 
-import grupotp.medcall.common.admin.AuditEntry
 import grupotp.medcall.common.staff.StaffRole
 import grupotp.medcall.common.staff.StaffUser
-import grupotp.medcall.server.database.table.ApiKeysTable
-import grupotp.medcall.server.database.table.AuditLogTable
 import grupotp.medcall.server.database.table.ClinicsTable
-import grupotp.medcall.server.database.table.StaffSessionsTable
 import grupotp.medcall.server.database.table.StaffUsersTable
 import grupotp.medcall.server.database.wireName
 import grupotp.medcall.server.database.wireValue
-import grupotp.medcall.server.domain.StoredSession
 import org.jetbrains.exposed.v1.core.JoinType
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
 import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNotNull
-import org.jetbrains.exposed.v1.core.less
-import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.insert
 import org.jetbrains.exposed.v1.jdbc.insertAndGetId
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.jetbrains.exposed.v1.jdbc.update
 import kotlin.time.Instant
-
-/** A staff account with what only the server reads. */
-data class StoredStaff(
-    val user: StaffUser,
-    val passwordHash: String,
-    val clinicName: String?,
-)
-
-/** Changes to a clinic user, checked together in one transaction. */
-sealed interface StaffUpdateOutcome {
-    data class Updated(val user: StaffUser) : StaffUpdateOutcome
-    data object NotFound : StaffUpdateOutcome
-    data object LastAdmin : StaffUpdateOutcome
-}
 
 class StaffRepository(
     private val database: Database,
@@ -175,95 +153,3 @@ class StaffRepository(
     )
 }
 
-/** [SessionStore] of the staff portals. */
-class StaffSessionRepository(
-    private val database: Database,
-) : SessionStore {
-    override fun insert(userId: Int, createdAt: Instant): Int = transaction(database) {
-        StaffSessionsTable.insertAndGetId {
-            it[staffUser] = userId
-            it[this.createdAt] = createdAt
-            it[lastUsedAt] = createdAt
-        }.value
-    }
-
-    override fun find(id: Int): StoredSession? = transaction(database) {
-        StaffSessionsTable.selectAll().where { StaffSessionsTable.id eq id }.singleOrNull()?.let {
-            StoredSession(
-                userId = it[StaffSessionsTable.staffUser].value,
-                createdAt = it[StaffSessionsTable.createdAt],
-                lastUsedAt = it[StaffSessionsTable.lastUsedAt],
-            )
-        }
-    }
-
-    override fun touch(id: Int, at: Instant) {
-        transaction(database) {
-            StaffSessionsTable.update({ StaffSessionsTable.id eq id }) { it[lastUsedAt] = at }
-        }
-    }
-
-    override fun delete(id: Int) {
-        transaction(database) {
-            StaffSessionsTable.deleteWhere { StaffSessionsTable.id eq id }
-        }
-    }
-
-    override fun deleteAllOf(userId: Int, keepId: Int?) {
-        transaction(database) {
-            StaffSessionsTable.deleteWhere {
-                if (keepId == null) {
-                    StaffSessionsTable.staffUser eq userId
-                } else {
-                    (StaffSessionsTable.staffUser eq userId) and (StaffSessionsTable.id neq keepId)
-                }
-            }
-        }
-    }
-
-    override fun deleteUnusedSince(cutoff: Instant) {
-        transaction(database) {
-            StaffSessionsTable.deleteWhere { StaffSessionsTable.lastUsedAt less cutoff }
-        }
-    }
-}
-
-/** Who did what in the portals. */
-class AuditRepository(
-    private val database: Database,
-) {
-    fun record(at: Instant, action: String, target: String, clinicId: Int?, staffUserId: Int? = null, apiKeyId: Int? = null) {
-        transaction(database) {
-            AuditLogTable.insert {
-                it[occurredAt] = at
-                it[this.action] = action
-                it[this.target] = target.take(200)
-                it[clinic] = clinicId
-                it[staffUser] = staffUserId
-                it[apiKey] = apiKeyId
-            }
-        }
-    }
-
-    /** Newest first. */
-    fun list(clinicId: Int?, limit: Int): List<AuditEntry> = transaction(database) {
-        AuditLogTable
-            .join(StaffUsersTable, JoinType.LEFT, AuditLogTable.staffUser, StaffUsersTable.id)
-            .join(ApiKeysTable, JoinType.LEFT, AuditLogTable.apiKey, ApiKeysTable.id)
-            .selectAll()
-            .apply { if (clinicId != null) where { AuditLogTable.clinic eq clinicId } }
-            .orderBy(AuditLogTable.id to SortOrder.DESC)
-            .limit(limit)
-            .map {
-                AuditEntry(
-                    occurredAt = it[AuditLogTable.occurredAt],
-                    actorName = it.getOrNull(StaffUsersTable.fullName)
-                        ?: it.getOrNull(ApiKeysTable.name)?.let { name -> "Chave de API \"$name\"" }
-                        ?: "Sistema",
-                    action = it[AuditLogTable.action],
-                    target = it[AuditLogTable.target],
-                    clinicId = it[AuditLogTable.clinic]?.value,
-                )
-            }
-    }
-}
