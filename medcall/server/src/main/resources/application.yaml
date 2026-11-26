@@ -19,9 +19,22 @@ cors:
   # (patient PWA) and the webpack dev server of the portals (client/admin).
   allowedOrigins: "$CORS_ALLOWED_ORIGINS:http://localhost:8081,http://localhost:8082"
 
+password:
+  # PBKDF2-HMAC-SHA256 rounds. 600000 follows the OWASP recommendation. Tests set PASSWORD_ITERATIONS lower.
+  iterations: "$PASSWORD_ITERATIONS:600000"
+
 sessions:
   # Days a session survives without any request; each request starts the count again. 0 = never expires.
   idleDays: "$SESSION_IDLE_DAYS:180"
+
+mail:
+  # smtp sends the recovery code. capture keeps it in memory for the test task only.
+  mode: "$MAIL_MODE:smtp"
+  host: "$MAIL_HOST:"
+  port: "$MAIL_PORT:587"
+  username: "$MAIL_USERNAME:"
+  password: "$MAIL_PASSWORD:"
+  from: "$MAIL_FROM:"
 
 jwt:
   # HS256 key of the session tokens, at least 32 bytes; generate one with `openssl rand -base64 48`.

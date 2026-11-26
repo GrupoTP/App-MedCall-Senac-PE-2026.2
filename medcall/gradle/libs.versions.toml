@@ -8,6 +8,7 @@ koin = "4.2.2"
 exposed = "1.5.0"
 h2 = "2.3.232"
 mysql-connector-j = "26.7.0"
+angus-mail = "2.0.4"
 coroutines = "1.11.0"
 kotlinx-datetime = "0.8.0"
 amqp-client = "5.25.0"
@@ -39,6 +40,7 @@ exposed-kotlin-datetime = { module = "org.jetbrains.exposed:exposed-kotlin-datet
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 amqp-client = { module = "com.rabbitmq:amqp-client", version.ref = "amqp-client" }
 mysql-connector-j = { module = "com.mysql:mysql-connector-j", version.ref = "mysql-connector-j" }
+angus-mail = { module = "org.eclipse.angus:angus-mail", version.ref = "angus-mail" }
 ktor-server-cors = { module = "io.ktor:ktor-server-cors", version.ref = "ktor" }
 ktor-server-auth = { module = "io.ktor:ktor-server-auth", version.ref = "ktor" }
 ktor-server-auth-jwt = { module = "io.ktor:ktor-server-auth-jwt", version.ref = "ktor" }

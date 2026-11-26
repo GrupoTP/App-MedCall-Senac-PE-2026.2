@@ -1,682 +1,209 @@
 <div align="center">
 
-## 🌐 LANGUAGE / IDIOMA
+## Language
 
-### 🇧🇷 **[ PORTUGUÊS ](README.md)** &nbsp;&nbsp;&nbsp; 🇺🇸 **[ ENGLISH ](README_EN.md)**
+[Português](README.md) · [English](README.en.md) · [Español](README.es.md)
 
-</div>
-<div align="center">
+<img src="medcall/client/expo/assets/brand/medcall-logo.svg" width="360" alt="MedCall" />
 
-<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="140" alt="Logo Senac" />
+<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="100" alt="Senac logo" />
 
 # MedCall
 
 **Your health in the palm of your hand.**
 
-A healthcare support application for pre-screening and medical appointment scheduling, developed as the Integrative Project for the 3rd semester of the Systems Analysis and Development program at Faculdade Senac Pernambuco.
+Informational pre-screening and appointment scheduling. Integrative Project, 3rd semester, Systems Analysis and Development, Faculdade Senac Pernambuco.
 
-> **Clinical disclaimer:** MedCall does not provide medical diagnosis and does not replace professional medical care. Information provided during pre-screening is intended to support the organization and preparation of care. In an emergency, seek urgent medical attention immediately.
+The product was previously called Recife Saudável. The name is MedCall.
 
-<div align="center">
+All rights reserved. Use of this code is limited to Polyana Fontes and Thayná Batista da Silva. The terms are in [LICENSE](LICENSE).
 
-![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
-![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
-![Hibernate](https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![REST API](https://img.shields.io/badge/REST_API-005571?style=for-the-badge&logo=swagger&logoColor=white)
-![Figma](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)
-![LGPD](https://img.shields.io/badge/LGPD-Compliant-2E7D32?style=for-the-badge)
-![License](https://img.shields.io/badge/License-Academic-lightgrey?style=for-the-badge)
+![Suite](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml/badge.svg)
+<!-- test-badge:start -->
+![Tests](https://img.shields.io/badge/tests-132%20passing-1E6B5E)
+<!-- test-badge:end -->
+
+> MedCall does not diagnose and does not replace professional care. In an emergency, call 192 (SAMU). That text lives in `ClinicalDisclaimer`.
+
+[Live app](https://medcall.grupotp.polyclub.com.br) · [Requirements V8](https://grupotp.youtrack.cloud/articles/SPM-A-141) · [Figma prototype](https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6) · [Pitch](https://www.canva.com/design/DAHb31ads88/bK-cDvsyY1i6zaBu8-vvZA/edit)
 
 </div>
 
-<details open>
-<summary><h2>📑 Table of Contents</h2></summary>
-
-- [About the project](#about-the-project)
-- [Features](#features)
-  - [Welcome screen](#welcome-screen)
-  - [Registration and account](#registration-and-account)
-  - [Profile selection](#profile-selection)
-  - [Pre-screening](#pre-screening)
-  - [Appointment scheduling](#appointment-scheduling)
-  - [Dashboard](#dashboard)
-  - [Settings](#settings)
-  - [Privacy](#privacy)
-  - [Administration](#administration)
-- [Required footer](#required-footer)
-- [Healthcare and security components](#healthcare-and-security-components)
-  - [`ClinicalDisclaimer`](#clinicaldisclaimer)
-  - [Privacy and LGPD](#privacy-and-lgpd)
-  - [Access control](#access-control)
-  - [Audit](#audit)
-- [Accessibility](#accessibility)
-- [Architecture](#architecture)
-- [Technologies](#technologies)
-  - [Frontend](#frontend)
-  - [Backend](#backend)
-  - [Database](#database)
-  - [API](#api)
-  - [Security](#security)
-  - [Quality](#quality)
-- [Project structure](#project-structure)
-- [Important rules](#important-rules)
-- [Main MVP criteria](#main-mvp-criteria)
-  - [Registration](#registration)
-  - [Pre-screening](#pre-screening-1)
-  - [Appointment scheduling](#appointment-scheduling-1)
-  - [Settings](#settings-1)
-  - [Administration](#administration-1)
-  - [Interface](#interface)
-- [Academic project](#academic-project)
-- [Sources and references](#sources-and-references)
-- [🎯 Problem](#-problem)
-- [✅ Solution](#-solution)
-- [🖼️ Prototypes](#️-prototypes)
-- [🌍 ESG Impact](#-esg-impact)
-- [📈 Market](#-market)
-- [💼 Business Model](#-business-model)
-- [🧾 Cost and Feasibility Analysis](#-cost-and-feasibility-analysis)
-- [🎯 Target Audience](#-target-audience)
-- [🛠️ Technologies Used](#️-technologies-used)
-- [🚀 How to Run Locally](#-how-to-run-locally)
-  - [Prerequisites](#prerequisites)
-  - [Clone](#clone)
-  - [Backend](#backend-1)
-  - [Frontend](#frontend-1)
-- [👥 Team](#-team)
-  - [Polyana Fontes](#polyana-fontes)
-  - [Thayná Batista da Silva](#thayná-batista-da-silva)
-- [📋 Technical Documentation](#-technical-documentation)
-  - [1. Problem Definition](#1-problem-definition)
-  - [2. Backlog and Requirements Engineering](#2-backlog-and-requirements-engineering)
-  - [3. UX/UI for Intelligent Interfaces](#3-uxui-for-intelligent-interfaces)
-  - [4. Software Architecture and Development Stack](#4-software-architecture-and-development-stack)
-  - [5. Process Report and Prompt Engineering](#5-process-report-and-prompt-engineering)
-  - [6. Cost and Feasibility Analysis](#6-cost-and-feasibility-analysis)
-  - [7. Future Developments](#7-future-developments)
-- [📽️ Demonstrations](#️-demonstrations)
-- [📄 License](#-license)
-- [📞 Contact](#-contact)
-  - [Polyana Fontes](#polyana-fontes-1)
-  - [Thayná Batista da Silva](#thayná-batista-da-silva-1)
-- [🎓 Academic Information](#-academic-information)
-
-</details>
-
-## About the project
-
-MedCall was designed around a simple, accessible, and secure digital journey for patients, with particular consideration for older users.
-
-The system follows a client-server architecture and is designed for future evolution, with a React Native frontend, PWA compatibility, REST API, and Java backend using Spring Boot.
-
-**Main objective:** provide user registration, informational pre-screening, specialty and professional search, and medical appointment scheduling.
-
-## Features
-
-### Welcome screen
-
-- MedCall logo and visual identity.
-- Tagline: **"Your health in the palm of your hand."**
-- Presentation of the main features.
-- **Get Started** and **Access my account** buttons.
-
-### Registration and account
-
-- User registration.
-- Full name and social name.
-- Up to two phone numbers.
-- Individual WhatsApp identification for each phone.
-- Three independent consents:
-  - Privacy Policy.
-  - Processing required for appointment scheduling.
-  - Optional communications.
+## Test account
 
-### Profile selection
+This account exists on the [live app](https://medcall.grupotp.polyclub.com.br). It does not hold real patient data.
 
-The application displays the available profiles, but effective authorization is performed by the server. The interface does not grant privileges by itself.
+- E-mail: `teste@medcall.grupotp.polyclub.com.br`
+- Password: `MedCall2026`
 
-Available profiles:
+## What it is for
 
-- Patient.
-- Doctor.
-- Nurse.
-- Administrator.
+MedCall is the patient app. It lets a person describe how they feel before the appointment and book a time with a professional. The report stays on the account. The booked appointment does too.
 
-### Pre-screening
+The app does not name a disease and does not replace a health professional. In an emergency, the on-screen notice says to call 192 (SAMU).
 
-The pre-screening process is informational and does not perform diagnosis.
+## How to use it
 
-**Step 1, personal information**
+1. Open the [live app](https://medcall.grupotp.polyclub.com.br) in a browser, or open the Android app.
+2. Create an account, or sign in with an existing one. Forgot password sends a code to the in-cluster Mailpit (`MAIL_HOST=mailpit`, port 1025, no user and no password). The from-address is `medcall@medcall.grupotp.polyclub.com.br`. That mailbox is not on the public internet. The code lasts 30 minutes, works once, and the answer is the same when the e-mail is unknown.
+3. In pre-screening, describe how you feel. A draft can be resumed. That report is not a diagnosis.
+4. Tap schedule. Choose a specialty and a professional, then a date and a time, and confirm. The server checks the slot again.
+5. Open the appointments already booked. Without internet, that list stays on the screen. Booking another appointment needs a connection.
+6. In the account, update the profile, notification consent, or password, or request data deletion.
+7. The accessibility button (AccessAbility Widget) opens with a click or Alt+A on the web, and with the same button on Android and iOS. The version is the one in `medcall/client/accessability-widget.version`. Changing that number without updating web, Android, and iOS makes the GitHub test fail. On Android and iOS, contrast, type size, and reading from that panel apply to the widget document. The Kotlin interface keeps the app theme.
 
-- Full name.
-- Social name.
-- Date of birth.
-- Primary phone.
-- Secondary phone.
-- WhatsApp indicator for each phone.
-- Emergency contact name.
-- Emergency contact phone.
+## Interface resources
 
-**Step 2, main complaint**
+The interface is Kotlin using React Native components. The Expo shell in `medcall/client/expo` only registers that component. It is not the old site inside a WebView.
 
-- Reason for appointment.
-- Current symptoms.
-- When symptoms started.
-- Duration.
-- Optional intensity from 1 to 10.
-- Additional notes.
+| Resource | Where | Role |
+|---|---|---|
+| Screen navigation | `AppScreen` in `App.kt` | Welcome, register, login, home, pre-screening, schedule, appointments, account, and privacy. State is `useState`. |
+| Menu | `FloatingMenu.kt` | Opens over a signed-in screen and goes to home, pre-screening, schedule, appointments, and account. |
+| ScrollView | Register, schedule, appointments, account, and privacy | Scrolls the content. |
+| TextInput | `TextField.kt` | Register, login, and schedule fields. |
+| Pressable | Buttons and links | Taps. |
+| Modal | `ConfirmDialog.kt` | Confirms account actions. |
+| Icons | `ui/icon/Icons.kt` | Menu, appointments, account, and sign-out. |
 
-The project specification also includes stages for medical history and medications.
+## With and without internet
 
-### Appointment scheduling
+On the PWA, the interface opens again offline after the first visit that installed the service worker. Sending new data needs the server.
 
-The flow was reorganized as:
+| Screen | Offline |
+|---|---|
+| Welcome, login, and register | The screen opens. Signing in or creating an account needs the server. |
+| Home and appointments | The list already received stays. |
+| Schedule and pre-screening | They need the network. The app says so and does not confirm what the server did not store. |
+| Account | A saved profile can be read. Saving the profile, the password, or a deletion needs the network. |
 
-**Specialty + Professional → Date/Time → Patient Information → Confirmation**
+## Data on the device
 
-Availability must be determined by the server, preventing scheduling conflicts and appointments outside configured availability.
+On the web, IndexedDB is named `medcall`, version 2, with stores `accounts` and `appointments`. On Android the same data is in SQLite. The password is not stored on the device. Source: `LocalAccountDatabase.kt`.
 
-### Dashboard
+| Data | Where | When it leaves |
+|---|---|---|
+| Signed-in profile | key `signed-in` | Sign-out, or when the server refuses the session. |
+| Appointments of the last account | store `appointments`, keyed by account id | A new list replaces the old one. Sign-out clears the store. |
+| Offline sign-out queue | key `pending-sign-outs` | It survives the wipe and is sent when the network returns. |
 
-The dashboard displays information and actions according to the authorized profile.
+The device has no separate expiry. The server ends the session after `SESSION_IDLE_DAYS` without a request. The default is 180 days.
 
-For patients, it includes:
+## Tests run
 
-- Pre-screening.
-- Appointment scheduling.
-- Next appointment.
-- My appointments.
-- Settings.
+<!-- test-results:start -->
+Last run on 25 November 2026, with the command in [Run](#run).
 
-The clinical disclaimer is also displayed on the dashboard in the appropriate format.
+| Result | Count |
+|---|---|
+| Tests run | 132 |
+| Failures | 0 |
+| Errors | 0 |
+| Skipped | 0 |
 
-### Settings
+The numbers come from the Gradle XML reports under `common`, `server`, `client/app`, and `client/worker`. `common` tests are counted twice when they run on the JVM and on JavaScript. The [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) workflow writes this table and a row in [TESTES.md](TESTES.md) after every run on main, whether it passes or fails. Record: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45724975177. Commit: `4fb00c24de9016432786a88b2b91a8cbe84e2d9d`. A failed test is named in TESTES.md.
+<!-- test-results:end -->
 
-The Settings screen contains three tabs:
+## What this repository contains
 
-**Account**
-- Personal information.
-- Social name.
-- Phone numbers.
-- Account information.
+The interface is Kotlin with React Native. The same code runs as a PWA and as an Android app. The Expo shell in `medcall/client/expo` only registers the Kotlin component. In the browser, Metro swaps `react-native` for `react-native-web`.
 
-**Security**
-- Change password.
-- Logout.
-- Request account deletion.
+The server is Kotlin/JVM 21, with Ktor, Koin, and Exposed. Development and tests use H2. Production uses MySQL. Delivery is GitOps: images on ghcr.io, Kubernetes namespace `medcall`, ArgoCD, and Traefik.
 
-**Privacy**
-- Consent management.
-- Privacy Policy access.
+Modules, offline behavior, clinic time zones, and environment variables are in [medcall/README.md](medcall/README.md). This file is the repository front page.
 
-### Privacy
+## What the app does now
 
-A dedicated **Privacy and Data Protection** screen was added, containing 9 sections of the data policy, focused on transparency and LGPD compliance.
+- Welcome, registration, login, and a one-time code to set a new password.
+- Informational pre-screening. No diagnosis.
+- Scheduling in three steps: specialty and professional, date and time, confirmation.
+- Booked appointments stay visible offline. Booking needs a connection. The server checks the slot again, and a unique index blocks two bookings of the same slot.
+- Account: profile, notification consent, password change, and a deletion request.
+- Privacy policy screen.
 
-### Administration
+The clinic dashboard with AI risk pre-analysis is specified and is not in this code. Only the clinic and the professional should see the level. The patient should not. The professional decides. Spec: [SPM-A-139](https://grupotp.youtrack.cloud/articles/SPM-A-139/Pre-analise-de-risco-Feita-por-AI). Brazilian Ministry of Health and CFM rules require risk classification at reception and do not mandate one protocol. Manchester is the reference. [Ministry publication](https://bvsms.saude.gov.br/bvs/publicacoes/acolhimento_classificaao_risco_servico_urgencia.pdf).
 
-The administration area contains three tabs:
+## API
 
-**Administrators**
-- Administrator management.
-- Minimum of two active administrators.
+21 routes under `/api/v1`. Patient routes require `Authorization: Bearer`. The token is an HS256 JWT (`JWT_SECRET`, at least 32 bytes). The server stores only the session id and revokes it on logout. A reset with the code also ends that account's sessions.
 
-**Audit**
-- Log of relevant administrative operations.
-- Traceability of critical actions.
+| Area | Routes |
+|---|---|
+| Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/password-recovery`, `POST /auth/password-recovery/confirm`, `GET /auth/me`, `POST /auth/logout` |
+| Account | `GET /account`, `PUT /account`, `PUT /account/consents`, `POST /account/password`, `POST /account/deletion-request` |
+| Pre-screening | `GET /pre-triages/draft`, `GET /pre-triages/pending`, `POST /pre-triages` |
+| Scheduling | `GET /specialties`, `GET /professionals`, `GET /clinics`, `GET /availability`, `GET /appointments`, `POST /appointments`, `POST /appointments/{id}/cancel` |
 
-**Recovery**
-- Administrative recovery code.
-- Security context and guidance.
-- The master code must not be exposed in the frontend.
+Outside the API: `GET /healthz` (process up, database not queried) and `GET /readyz` (database answers).
 
-## Required footer
-
-All screens use the `Footer` component with the text defined in the specification:
-
-> Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; App MedCall, Senac PE. All rights reserved.
-
-## Healthcare and security components
-
-### `ClinicalDisclaimer`
-
-Reusable component with two modes:
-
-- `compact`
-- `inline`
-
-Used in the pre-screening flow and dashboard.
-
-### Privacy and LGPD
-
-The system considers:
-
-- Purpose limitation.
-- Necessity.
-- Transparency.
-- Security.
-- Prevention.
-- Non-discrimination.
-- Accountability.
-- Access control.
-- Data minimization.
-
-Health-related information is treated as sensitive personal data under the Brazilian LGPD.
-
-### Access control
-
-The architecture uses RBAC, separating the user's role from their permissions.
-
-Example:
-
-```text
-ROLE_PATIENT
-ROLE_DOCTOR
-ROLE_NURSE
-ROLE_ADMIN
-```
-
-Critical rules must be enforced by the backend.
-
-### Audit
-
-Relevant operations should be recorded, including administrative actions, authentication events, permission changes, and access to sensitive information when applicable.
-
-Passwords, tokens, and unnecessary sensitive information must not be stored in logs.
-
-## Accessibility
-
-The project targets **WCAG 2.2 Level AA** and React Native accessibility features.
-
-Main considerations:
-
-- Adequate contrast.
-- Readable text.
-- Appropriate touch targets.
-- Accessible labels.
-- Clear error messages.
-- Logical navigation.
-- TalkBack and VoiceOver compatibility.
-- Keyboard navigation in the PWA.
-- Information must not be conveyed through color alone.
+Passwords use PBKDF2-HMAC-SHA256, 600,000 iterations. Format source: [medcall/README.md](medcall/README.md).
 
 ## Architecture
 
 ```text
-React Native
-      ↓
-React Native Web / PWA
-      ↓
-REST API
-      ↓
-Spring Boot
-      ↓
-Spring Security
-      ↓
-JPA / Hibernate
-      ↓
-PostgreSQL
+Kotlin/JS + React Native client (PWA and Android)
+        |
+        | REST /api/v1
+        v
+Ktor server
+  controller  ->  service  ->  repository (Exposed)
+        |
+        v
+H2 in development, MySQL in production
 ```
 
-## Technologies
+Business rules stay in the service. The controller receives the request and returns the response.
 
-### Frontend
-
-- React Native.
-- JavaScript / TypeScript.
-- React Native Web.
-- PWA.
-- HTML.
-- CSS.
-
-### Backend
-
-- Java.
-- Spring Boot.
-- Spring Security.
-- Spring Data JPA.
-- Hibernate.
-- Bean Validation.
-- OpenAPI / Swagger.
-
-### Database
-
-- PostgreSQL.
-
-### API
-
-- REST.
-- JSON.
-- HTTPS.
-- Planned versioning through `/api/v1/`.
-
-### Security
-
-- Authentication.
-- Role-based authorization.
-- Password hashing.
-- Session management.
-- Auditing.
-- Input validation.
-- Rate limiting.
-- Secret protection.
-
-### Quality
-
-- JUnit.
-- Mockito.
-- Integration tests.
-- API tests.
-- Accessibility tests.
-
-## Project structure
+## Layout
 
 ```text
 medcall/
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── screens/
-│   │   ├── navigation/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   ├── contexts/
-│   │   ├── validators/
-│   │   └── utils/
-│   ├── public/
-│   │   ├── manifest.json
-│   │   └── icons/
-│   └── service-worker
-│
-├── backend/
-│   └── src/
-│       ├── controller/
-│       ├── service/
-│       ├── repository/
-│       ├── entity/
-│       ├── dto/
-│       ├── security/
-│       ├── validation/
-│       ├── audit/
-│       └── config/
-│
-├── database/
-│   └── migrations/
-│
-├── docs/
-│   ├── requisitos/
-│   ├── uml/
-│   ├── arquitetura/
-│   ├── lgpd/
-│   ├── seguranca/
-│   ├── acessibilidade/
-│   ├── governanca/
-│   └── api/
-│
-├── .env.example
-├── .gitignore
-├── README.md
-├── README_EN.md
-└── LICENSE
+  common/          shared, JVM and JavaScript
+  server/          Ktor, port 8080
+  client/app/      interface and use cases
+  client/worker/   service worker
+  client/expo/     Expo shell
+  docker/          images
+k8s/               medcall namespace, ingress, MySQL
+argocd/            GitOps Application
+.github/workflows/ image publish to ghcr.io
 ```
 
-## Important rules
+Production: [https://medcall.grupotp.polyclub.com.br](https://medcall.grupotp.polyclub.com.br). The legacy host `recifesaudavel.grupotp.polyclub.com.br` still serves the API. Other paths redirect to the new host. See `k8s/ingress.yaml`.
 
-- Pre-screening must not diagnose the patient.
-- Authorization for privileged profiles comes from the backend.
-- Appointment availability comes from the server.
-- Critical business rules are validated by the backend.
-- At least two active administrators must exist.
-- Administrative operations must not reduce the number of administrators below the defined minimum.
-- The master recovery code must not be exposed in the frontend.
-- Passwords, tokens, keys, and credentials must never be committed to GitHub.
-- The academic environment must use fictitious data.
-- Clinical data must not be indiscriminately stored in the public Service Worker cache.
-- The project must not be used to store real patient records or health data without the appropriate legal basis, controls, and institutional authorization.
+## Run
 
-## Main MVP criteria
-
-### Registration
-- [x] Social name.
-- [x] Two phone numbers.
-- [x] WhatsApp indicator per phone.
-- [x] Independent consents.
-
-### Pre-screening
-- [x] Personal information.
-- [x] Emergency contact.
-- [x] Reason for appointment.
-- [x] Symptoms.
-- [x] Start date and duration.
-- [x] Optional intensity.
-- [x] Additional notes.
-
-### Appointment scheduling
-- [x] Specialty.
-- [x] Professional.
-- [x] Date and time.
-- [x] Patient information.
-- [x] Confirmation.
-
-### Settings
-- [x] Account.
-- [x] Security.
-- [x] Privacy.
-
-### Administration
-- [x] Administrators.
-- [x] Audit.
-- [x] Recovery.
-
-### Interface
-- [x] Footer on all screens.
-- [x] Clinical disclaimer.
-- [x] Updated welcome screen.
-- [x] Dedicated privacy screen.
-- [x] Profile selection with server-controlled authorization.
-
-## Academic project
-
-**Institution:** Faculdade Senac Pernambuco, Recife, PE  
-**Program:** Systems Analysis and Development  
-**Project:** Integrative Project, 3rd semester  
-**Period:** August to December 2026  
-**Faculty advisor:** Prof. Ícaro Santos Ferreira  
-**Students:** Thayná Batista da Silva and Poliana Fontes
-
-## Sources and references
-
-- [LGPD, Law No. 13,709/2018, Brazilian Federal Government](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm)
-- [ANPD, Data Subject Rights](https://www.gov.br/anpd/pt-br/assuntos/titular-de-dados-1/direito-dos-titulares)
-- [ANPD, Data Protection Impact Report, RIPD](https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/relatorio-de-impacto-a-protecao-de-dados-pessoais-ripd)
-- [ANVISA, Software as a Medical Device](https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/software-como-dispositivo-medico-perguntas-e-respostas)
-- [W3C, WCAG 2.2](https://www.w3.org/TR/WCAG22/)
-- [React Native, Accessibility](https://reactnative.dev/docs/accessibility)
-- [Spring Security, Method Security](https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html)
-- [MDN, Progressive Web Apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Reference)
-- [Brazilian Ministry of Health, Patient Safety](https://www.gov.br/saude/pt-br/composicao/saes/seguranca-do-paciente)
-
----
-
-**MedCall**, an academic digital health MVP focused on UX, Mobile, client-server architecture, accessibility, security, privacy, and governance.
-
-## 🎯 Problem
-
-The project aims to improve the patient's digital journey by centralizing information for informational pre-screening and appointment scheduling in a simple, accessible, and secure experience.
-
-## ✅ Solution
-
-The **MedCall App** is an academic, patient-centered MVP featuring registration, authentication, informational pre-screening, appointment scheduling, appointment management, privacy, security, and PWA support.
-
-The application does not provide diagnosis, prescriptions, or automated clinical decisions.
-
-## 🖼️ Prototypes
-
-<div align="center">
-
-<a href="https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6"><img src="https://img.shields.io/badge/View%20Figma%20Prototype-F24E1E?style=for-the-badge&logo=figma&logoColor=white" alt="View Figma Prototype"></a>
-
-<a href="https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2"><img src="https://img.shields.io/badge/View%20GitHub%20Repository-181717?style=for-the-badge&logo=github&logoColor=white" alt="View GitHub Repository"></a>
-
-</div>
-
-## 🌍 ESG Impact
-
-- **Social:** a simpler and more accessible digital journey for patients.
-- **Governance:** privacy, security, auditing, access control, and LGPD.
-- **Environmental:** digitization of administrative processes and reduced dependence on physical documents.
-
-## 📈 Market
-
-The proposal is positioned within healthcare service digitalization, focusing on patient journey organization, scheduling, and structured information collection before care.
-
-This is an academic project and does not represent commercial or clinical product validation.
-
-## 💼 Business Model
-
-As a product concept, the solution could be adapted for clinics and healthcare institutions interested in digital appointment management, informational pre-screening, data organization, communications, and governance.
-
-Commercial deployment would require legal, regulatory, technical, security, and market validation.
-
-## 🧾 Cost and Feasibility Analysis
-
-The MVP uses widely adopted open-source technologies, reducing initial development costs. Potential production costs include infrastructure, database, observability, security, domain, certificates, maintenance, support, compliance, and external services.
-
-## 🎯 Target Audience
-
-**Primary audience:** patients who need to organize information and schedule appointments digitally.
-
-**Institutional audience:** clinics, healthcare institutions, and administrative teams.
-
-## 🛠️ Technologies Used
-
-| Layer | Technologies |
-|---|---|
-| Frontend | React Native, TypeScript/JavaScript, React Native Web |
-| PWA | Web App Manifest, Service Worker, HTTPS |
-| Backend | Java, Spring Boot, Spring Security |
-| Persistence | Spring Data JPA, Hibernate |
-| Database | PostgreSQL |
-| API | REST, JSON, OpenAPI/Swagger |
-| Testing | JUnit, Mockito, integration and accessibility testing |
-| Design | Figma |
-| Governance | LGPD, RBAC, auditing, and security |
-
-## 🚀 How to Run Locally
-
-### Prerequisites
-
-- Node.js and npm.
-- Java JDK compatible with the backend.
-- PostgreSQL.
-- Git.
-
-### Clone
+Prerequisites, from [medcall/README.md](medcall/README.md): JDK 21 and Node.js 24. The first `./gradlew` initializes the submodule.
 
 ```bash
-git clone https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
-cd App-MedCall-Senac-PE-2026.2
+git clone --recurse-submodules https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
+cd App-MedCall-Senac-PE-2026.2/medcall
+./gradlew :server:run
+./gradlew :client:expo:startWeb
 ```
 
-### Backend
+The development client opens at `http://localhost:8081`. The server answers at `http://localhost:8080/healthz`. Do not commit `JWT_SECRET`, database passwords, or `.env` files. In production the recovery code is sent by SMTP to the in-cluster Mailpit, with an empty `MAIL_PASSWORD`. Port 587 turns STARTTLS on. Port 1025, used by Mailpit, stays without STARTTLS. Without `MAIL_HOST` and `MAIL_FROM`, the route says the code cannot be sent. Tests set `MAIL_MODE=capture` and do not open a mail connection.
+
+Tests:
 
 ```bash
-cd backend
-./mvnw spring-boot:run
+./gradlew :common:allTests :server:test :client:app:jsNodeTest :client:worker:jsNodeTest
 ```
 
-On Windows:
+## Team
 
-```powershell
-mvnw.cmd spring-boot:run
-```
+Faculdade Senac Pernambuco, Recife-PE, Brazil. Systems Analysis and Development. Integrative Project, August to December 2026. Faculty advisor: Ícaro Santos Ferreira.
 
-### Frontend
+- Thayná Batista da Silva: Scrum Master, requirements, prototyping, and development.
+- Polyana Fontes: database modeling, documentation, and development.
 
-```bash
-cd frontend
-npm install
-npm start
-```
+Thayná: [thaynabdstec@gmail.com](mailto:thaynabdstec@gmail.com).
 
-Use `.env.example` as a reference and never commit real credentials. Commands may vary according to the final project configuration.
+## Sources
 
-## 👥 Team
-
-### Polyana Fontes
-
-**Full Stack Developer · Database Modeling · Technical Documentation**
-
-Systems Analysis and Development student  
-Faculdade Senac Pernambuco, Recife-PE, Brazil
-
-### Thayná Batista da Silva
-
-**Manager / Requirements Analyst · Scrum Master**  
-**Product Designer · High-Fidelity Prototyping (Figma)**
-
-Systems Analysis and Development student  
-Faculdade Senac Pernambuco, Recife-PE, Brazil  
-Class of 2025 · Expected graduation: 2027
-
-## 📋 Technical Documentation
-
-### 1. Problem Definition
-Project context, problem, objectives, scope, and constraints.
-
-### 2. Backlog and Requirements Engineering
-Functional and non-functional requirements, business rules, acceptance criteria, use cases, and backlog.
-
-### 3. UX/UI for Intelligent Interfaces
-Information architecture, flows, prototyping, accessibility, responsiveness, and patient experience.
-
-### 4. Software Architecture and Development Stack
-Client-server architecture, REST API, Spring Boot, PostgreSQL, security, PWA, and code organization.
-
-### 5. Process Report and Prompt Engineering
-Development process, technical decisions, and responsible use of AI tools.
-
-### 6. Cost and Feasibility Analysis
-Estimates, assumptions, infrastructure, and technical and economic feasibility.
-
-### 7. Future Developments
-Potential developments include institutional integrations, advanced notifications, observability, expanded accessibility, and healthcare system integrations after technical and regulatory validation.
-
-## 📽️ Demonstrations
-
-- [🎨 View Figma Prototype](https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6)
-- [💻 View GitHub Repository](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2)
-
-## 📄 License
-
-This project was developed for academic purposes. The final license must be defined in the repository's `LICENSE` file.
-
-## 📞 Contact
-
-### Polyana Fontes
-
-Full Stack Developer, Database Modeling, and Technical Documentation.
-
-### Thayná Batista da Silva
-
-**Scrum Master · Product Designer · Requirements Analyst**  
-Senac Recife-PE, Systems Analysis and Development.
-
-📧 **Email:** [thaynabdstec@gmail.com](mailto:thaynabdstec@gmail.com)  
-📱 **Phone:** +55 (81) 97912-6121
-
-## 🎓 Academic Information
-
-**App Name:** 🏫 MedCall App  
-**Project started:** August 2026  
-**Institution:** Faculdade Senac Pernambuco, Recife-PE, Brazil  
-**Program:** Systems Analysis and Development  
-**Project:** Integrative Project, 3rd semester  
-**Integrative Project faculty advisor:** Prof. Ícaro Santos Ferreira  
-**Students:** Thayná Batista da Silva and Polyana Fontes
+- Code and commands: [medcall/README.md](medcall/README.md) and `medcall/server/src/main/kotlin/grupotp/medcall/server/controller/`.
+- Current requirements: [SPM-A-141](https://grupotp.youtrack.cloud/articles/SPM-A-141). V7 is marked superseded at [SPM-A-133](https://grupotp.youtrack.cloud/articles/SPM-A-133).
+- [LGPD, Law No. 13,709/2018](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm).
+- [Ktor development mode](https://ktor.io/docs/server-development-mode.html).
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/), the project's accessibility requirement. Screen-reader test coverage is not finished in this repository.
+- [OWASP Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html): one-time code, the same answer for an unknown e-mail, and sessions ended after the reset.

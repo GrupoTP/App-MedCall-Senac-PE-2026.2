@@ -34,6 +34,8 @@ enum class ErrorCode {
     PRE_TRIAGE_ALREADY_ATTACHED,
     APPOINTMENT_NOT_FOUND,
     APPOINTMENT_NOT_CANCELLABLE,
+    RECOVERY_CODE_INVALID,
+    MAIL_UNAVAILABLE,
 
     // Staff portals (clinic portal and MedCall panel)
     FORBIDDEN,

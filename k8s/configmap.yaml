@@ -14,3 +14,11 @@ data:
   # O PWA e a API ficam no mesmo host.
   CORS_ALLOWED_ORIGINS: https://medcall.grupotp.polyclub.com.br
   SESSION_IDLE_DAYS: "180"
+  # Caixa Mailpit no proprio cluster. Sem usuario e sem senha.
+  # O endereco de origem e inventado. Nao e uma caixa de e-mail real.
+  MAIL_MODE: smtp
+  MAIL_HOST: mailpit
+  MAIL_PORT: "1025"
+  MAIL_USERNAME: ""
+  MAIL_PASSWORD: ""
+  MAIL_FROM: medcall@medcall.grupotp.polyclub.com.br

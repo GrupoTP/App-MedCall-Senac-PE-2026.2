@@ -8,6 +8,7 @@ import grupotp.medcall.server.database.table.ClinicProfilesTable
 import grupotp.medcall.server.database.table.ClinicsTable
 import grupotp.medcall.server.database.table.IdempotencyKeysTable
 import grupotp.medcall.server.database.table.OutboxTable
+import grupotp.medcall.server.database.table.PasswordResetsTable
 import grupotp.medcall.server.database.table.PreTriagesTable
 import grupotp.medcall.server.database.table.ProfessionalProfilesTable
 import grupotp.medcall.server.database.table.ProfessionalsTable
@@ -30,6 +31,7 @@ object MedcallSchema {
         ProfessionalsTable,
         AppointmentsTable,
         PreTriagesTable,
+        PasswordResetsTable,
         StaffUsersTable,
         StaffSessionsTable,
         ApiKeysTable,

@@ -24,6 +24,9 @@ import grupotp.medcall.common.security.SecretString
 import grupotp.medcall.server.database.DatabaseConnector
 import grupotp.medcall.server.database.DatabaseSettings
 import grupotp.medcall.server.database.LegacySchemaCheck
+import grupotp.medcall.server.mail.RecoveryMail
+import grupotp.medcall.server.mail.RecoveryMailFactory
+import grupotp.medcall.server.repository.PasswordResetRepository
 import grupotp.medcall.server.repository.PreTriageRepository
 import grupotp.medcall.server.repository.SchedulingRepository
 import grupotp.medcall.server.repository.SessionRepository
@@ -33,6 +36,7 @@ import grupotp.medcall.server.security.PasswordHasher
 import grupotp.medcall.server.security.SessionTokens
 import grupotp.medcall.server.service.AccountService
 import grupotp.medcall.server.service.AuthService
+import grupotp.medcall.server.service.PasswordRecoveryService
 import grupotp.medcall.server.service.PreTriageService
 import grupotp.medcall.server.service.SchedulingService
 import grupotp.medcall.server.service.SessionService
@@ -62,10 +66,12 @@ fun Application.configureDatabase() {
                 single { SessionTokens(get()) }
                 single { StaffTokens(get()) }
                 single { DatabaseConnector().connect(get()) }
-                singleOf(::PasswordHasher)
+                single { PasswordHasher.from(environment.config) }
                 // UTC: each clinic has its own zone, and the services convert to it where it matters.
                 single { Clock.systemUTC() }
                 singleOf(::UserRepository)
+                singleOf(::PasswordResetRepository)
+                single<RecoveryMail> { RecoveryMailFactory.from(environment.config) }
                 singleOf(::SessionRepository)
                 singleOf(::SchedulingRepository)
                 singleOf(::PreTriageRepository)
@@ -87,6 +93,7 @@ fun Application.configureDatabase() {
                 single<EventBus> { if (rabbitUrl.isBlank()) InMemoryEventBus() else RabbitMqEventBus(rabbitUrl) }
                 singleOf(::IntegrationService)
                 singleOf(::AuthService)
+                singleOf(::PasswordRecoveryService)
                 singleOf(::AccountService)
                 singleOf(::SchedulingService)
                 singleOf(::PreTriageService)

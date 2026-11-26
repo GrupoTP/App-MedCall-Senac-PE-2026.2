@@ -4,6 +4,8 @@ App Kotlin Multiplatform da MedCall. A interface é escrita só em Kotlin, com R
 
 Na web, o `sw.js` inicia o bundle Kotlin do worker, que guarda a interface em cache e, no IndexedDB, o cadastro autenticado e as consultas dele. No Android não existe service worker: os mesmos dados ficam em SQLite (expo-sqlite), pelo mesmo gateway Kotlin.
 
+A web, o Android e o iOS usam a mesma versão do [AccessAbility Widget](https://github.com/thaynabds/accessability-widget). O número fica só em `client/accessability-widget.version`. A web carrega esse script em `client/expo/public/index.html`. O Android e o iOS recebem o mesmo endereço em `extra.accessabilityWidgetUrl`, lido por `app.config.js`, e abrem o widget por cima da interface. O teste `scripts/verify-widget-platforms.mjs` recusa uma versão diferente entre os três. O pacote publicado é `@thaynabds/accessability-widget`. O painel tem 30 recursos, alinhados à WCAG 2.2 e à Lei Brasileira de Inclusão (Lei nº 13.146/2015). Na web o botão abre com clique ou Alt+A. No Android e no iOS o contraste, a fonte e a leitura desse painel valem para o documento do widget. A interface em Kotlin segue o tema do aplicativo. As preferências da web ficam no navegador. Sem rede, o script do CDN não carrega.
+
 ## Agendamento e modo offline
 
 O botão Agendar abre o fluxo do protótipo em três etapas (especialidade e profissional, data e horário, confirmação). Especialidades, profissionais e horários livres vêm sempre do servidor, que confere tudo de novo ao confirmar; um índice único por profissional, data e horário impede que a mesma vaga seja marcada duas vezes. Os horários são os dias úteis dos próximos 14 dias.
@@ -135,7 +137,7 @@ Sobe o Metro com recarga automática (`expo start --web`). O cliente abre em `ht
 ./gradlew :client:expo:serveWeb
 ```
 
-Gera a versão de produção em `client/expo/dist` (`expo export --platform web`) e a serve em `http://localhost:8081` (`expo serve`). Não tem recarga automática: depois de mudar o código, rode a task de novo. Para testar offline, abra a página (ou a PWA instalada) uma vez com a task rodando, para o service worker guardar a interface, e então pare a task. Para ver as consultas offline, entre na conta e abra a tela inicial com o `:server:run` rodando, para o app guardar a lista; depois pare o servidor também. O painel de navegador embutido do app Claude não registra service workers: teste no Chrome ou no Edge.
+Gera a versão de produção em `client/expo/dist` (`expo export --platform web`) e a serve em `http://localhost:8081` (`expo serve`). Não tem recarga automática: depois de mudar o código, rode a task de novo. Para testar offline, abra a página (ou a PWA instalada) uma vez com a task rodando, para o service worker guardar a interface, e então pare a task. Para ver as consultas offline, entre na conta e abra a tela inicial com o `:server:run` rodando, para o app guardar a lista; depois pare o servidor também. Teste o modo offline no Chrome ou no Edge.
 
 #### Celular na mesma rede Wi‑Fi (Expo Go)
 

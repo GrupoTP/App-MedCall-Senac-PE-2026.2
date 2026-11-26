@@ -1,14 +1,18 @@
 package grupotp.medcall.app.gateway.auth
 
-import grupotp.medcall.app.domain.RemoteError
-import grupotp.medcall.app.domain.RemoteResult
 import grupotp.medcall.app.domain.auth.AuthError
 import grupotp.medcall.app.domain.auth.AuthResult
+import grupotp.medcall.app.domain.auth.RecoveryResult
 import grupotp.medcall.app.gateway.http.callApi
+import grupotp.medcall.common.auth.Acknowledged
 import grupotp.medcall.common.auth.AuthenticatedAccount
+import grupotp.medcall.common.auth.ConfirmPasswordRecoveryRequest
+import grupotp.medcall.common.auth.PasswordRecoveryRequest
 import grupotp.medcall.common.auth.RegisterAccountRequest
 import grupotp.medcall.common.auth.SignInRequest
 import grupotp.medcall.common.security.SecretString
+import grupotp.medcall.app.domain.RemoteError
+import grupotp.medcall.app.domain.RemoteResult
 import io.ktor.client.HttpClient
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.setBody
@@ -24,13 +28,28 @@ class RestAuthGateway(
     override suspend fun register(request: RegisterAccountRequest): AuthResult =
         post("/api/v1/auth/register", request)
 
-    override suspend fun requestPasswordRecovery(email: String): AuthResult =
-        AuthResult.Failed(AuthError.NotImplemented)
+    override suspend fun requestPasswordRecovery(email: String): RecoveryResult =
+        acknowledge("/api/v1/auth/password-recovery", PasswordRecoveryRequest(email))
+
+    override suspend fun confirmPasswordRecovery(request: ConfirmPasswordRecoveryRequest): RecoveryResult =
+        acknowledge("/api/v1/auth/password-recovery/confirm", request)
 
     override suspend fun profile(token: SecretString): AuthResult = send(HttpMethod.Get, "/api/v1/auth/me", token)
 
     private suspend inline fun <reified T> post(path: String, body: T): AuthResult =
         send(HttpMethod.Post, path, token = null) { setBody(body) }
+
+    private suspend inline fun <reified T> acknowledge(path: String, body: T): RecoveryResult =
+        when (val result = http.callApi<Acknowledged>(HttpMethod.Post, "$baseUrl$path", token = null) { setBody(body) }) {
+            is RemoteResult.Success -> RecoveryResult.Accepted
+            is RemoteResult.Failed -> RecoveryResult.Failed(
+                when (val error = result.error) {
+                    RemoteError.Offline -> AuthError.Offline
+                    RemoteError.SessionExpired -> AuthError.SessionExpired
+                    is RemoteError.Rejected -> AuthError.Rejected(error.message)
+                },
+            )
+        }
 
     private suspend fun send(
         method: HttpMethod,

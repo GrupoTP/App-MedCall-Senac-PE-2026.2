@@ -1,683 +1,209 @@
 <div align="center">
 
-## 🌐 IDIOMA / LANGUAGE
+## Idioma
 
-### 🇧🇷 **[ PORTUGUÊS ](README.md)** &nbsp;&nbsp;&nbsp; 🇺🇸 **[ ENGLISH ](README_EN.md)**
+[Português](README.md) · [English](README.en.md) · [Español](README.es.md)
 
-</div>
+<img src="medcall/client/expo/assets/brand/medcall-logo.svg" width="360" alt="MedCall" />
 
-<div align="center">
-
-<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="140" alt="Logo Senac" />
+<img src="https://github.com/GrupoTP/Sistema-de-Envio-e-Armazenamento-dos-Projetos-ADS/blob/main/Senac_logo.svg.png" width="100" alt="Logo Senac" />
 
 # MedCall
 
 **Sua saúde na palma da mão.**
 
-Aplicativo de apoio à pré-triagem e ao agendamento de consultas, desenvolvido como Projeto Integrador do 3º período do curso de Análise e Desenvolvimento de Sistemas da Faculdade Senac Pernambuco.
+Aplicativo de pré-triagem informativa e agendamento de consultas. Projeto Integrador do 3º período de Análise e Desenvolvimento de Sistemas da Faculdade Senac Pernambuco.
 
-> **Aviso clínico:** A MedCall não realiza diagnóstico médico e não substitui atendimento profissional. As informações fornecidas na pré-triagem servem para auxiliar a organização e preparação do atendimento. Em caso de emergência, procure imediatamente um serviço de atendimento de urgência.
+Antes se chamava Recife Saudável. O nome do produto é MedCall.
 
-<div align="center">
+Todos os direitos reservados. O uso deste código é exclusivo de Polyana Fontes e Thayná Batista da Silva. O texto está em [LICENSE](LICENSE).
 
-![React Native](https://img.shields.io/badge/React_Native-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![PWA](https://img.shields.io/badge/PWA-5A0FC8?style=for-the-badge&logo=pwa&logoColor=white)
-![Java](https://img.shields.io/badge/Java-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![Spring Boot](https://img.shields.io/badge/Spring_Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)
-![Spring Security](https://img.shields.io/badge/Spring_Security-6DB33F?style=for-the-badge&logo=springsecurity&logoColor=white)
-![Hibernate](https://img.shields.io/badge/Hibernate-59666C?style=for-the-badge&logo=hibernate&logoColor=white)
-![PostgreSQL](https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white)
-![REST API](https://img.shields.io/badge/REST_API-005571?style=for-the-badge&logo=swagger&logoColor=white)
-![Figma](https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white)
-![LGPD](https://img.shields.io/badge/LGPD-Compliant-2E7D32?style=for-the-badge)
-![License](https://img.shields.io/badge/Licença-Acadêmica-lightgrey?style=for-the-badge)
+![Suíte](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml/badge.svg)
+<!-- test-badge:start -->
+![Testes](https://img.shields.io/badge/testes-132%20passando-1E6B5E)
+<!-- test-badge:end -->
+
+> A MedCall não realiza diagnóstico médico e não substitui atendimento profissional. Em emergência, ligue 192 (SAMU). O texto está no componente `ClinicalDisclaimer`.
+
+[Sistema no ar](https://medcall.grupotp.polyclub.com.br) · [Requisitos V8](https://grupotp.youtrack.cloud/articles/SPM-A-141) · [Protótipo no Figma](https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6) · [Pitch](https://www.canva.com/design/DAHb31ads88/bK-cDvsyY1i6zaBu8-vvZA/edit)
 
 </div>
 
-<details open>
-<summary><h2>📑 Índice</h2></summary>
-
-- [Sobre o projeto](#sobre-o-projeto)
-- [Funcionalidades](#funcionalidades)
-  - [Tela de boas-vindas](#tela-de-boas-vindas)
-  - [Cadastro e conta](#cadastro-e-conta)
-  - [Seleção de perfil](#seleção-de-perfil)
-  - [Pré-triagem](#pré-triagem)
-  - [Agendamento](#agendamento)
-  - [Dashboard](#dashboard)
-  - [Configurações](#configurações)
-  - [Privacidade](#privacidade)
-  - [Administração](#administração)
-- [Rodapé obrigatório](#rodapé-obrigatório)
-- [Componentes de segurança e saúde](#componentes-de-segurança-e-saúde)
-  - [`ClinicalDisclaimer`](#clinicaldisclaimer)
-  - [Privacidade e LGPD](#privacidade-e-lgpd)
-  - [Controle de acesso](#controle-de-acesso)
-  - [Auditoria](#auditoria)
-- [Acessibilidade](#acessibilidade)
-- [Arquitetura](#arquitetura)
-- [Tecnologias](#tecnologias)
-  - [Frontend](#frontend)
-  - [Backend](#backend)
-  - [Banco de dados](#banco-de-dados)
-  - [API](#api)
-  - [Segurança](#segurança)
-  - [Qualidade](#qualidade)
-- [Estrutura do projeto](#estrutura-do-projeto)
-- [Regras importantes](#regras-importantes)
-- [Critérios principais do MVP](#critérios-principais-do-mvp)
-  - [Cadastro](#cadastro)
-  - [Pré-triagem](#pré-triagem-1)
-  - [Agendamento](#agendamento-1)
-  - [Configurações](#configurações-1)
-  - [Administração](#administração-1)
-  - [Interface](#interface)
-- [Projeto acadêmico](#projeto-acadêmico)
-- [Fontes e referências](#fontes-e-referências)
-- [🎯 Problema](#-problema)
-- [✅ A Solução](#-a-solução)
-- [🖼️ Protótipos](#️-protótipos)
-- [🌍 Impacto ESG](#-impacto-esg)
-- [📈 Mercado](#-mercado)
-- [💼 Modelo de Negócio](#-modelo-de-negócio)
-- [🧾 Análise de Custo e Viabilidade](#-análise-de-custo-e-viabilidade)
-- [🎯 Público-Alvo](#-público-alvo)
-- [🛠️ Tecnologias Utilizadas](#️-tecnologias-utilizadas)
-- [🚀 Como Executar Localmente](#-como-executar-localmente)
-  - [Pré-requisitos](#pré-requisitos)
-  - [Clonar](#clonar)
-  - [Backend](#backend-1)
-  - [Frontend](#frontend-1)
-- [👥 Equipe](#-equipe)
-  - [Polyana Fontes](#polyana-fontes)
-  - [Thayná Batista da Silva](#thayná-batista-da-silva)
-- [📋 Documentação Técnica](#-documentação-técnica)
-  - [1. Definição do Problema](#1-definição-do-problema)
-  - [2. Backlog e Engenharia de Requisitos](#2-backlog-e-engenharia-de-requisitos)
-  - [3. UX/UI para Interfaces Inteligentes](#3-uxui-para-interfaces-inteligentes)
-  - [4. Arquitetura de Software e Stack de Desenvolvimento](#4-arquitetura-de-software-e-stack-de-desenvolvimento)
-  - [5. Relato do Processo e Engenharia de Prompt](#5-relato-do-processo-e-engenharia-de-prompt)
-  - [6. Análise de Custos e Viabilidade](#6-análise-de-custos-e-viabilidade)
-  - [7. Evoluções Futuras](#7-evoluções-futuras)
-- [📽️ Demonstrações](#️-demonstrações)
-- [📄 Licença](#-licença)
-- [📞 Contato](#-contato)
-  - [Polyana Fontes](#polyana-fontes-1)
-  - [Thayná Batista da Silva](#thayná-batista-da-silva-1)
-- [🎓 Informações Acadêmicas](#-informações-acadêmicas)
-
-</details>
-
-## Sobre o projeto
-
-A MedCall foi desenvolvida com foco em uma jornada digital simples, acessível e segura para pacientes, especialmente considerando usuários idosos.
-
-O sistema foi estruturado segundo uma arquitetura cliente servidor e preparado para evolução futura, com frontend em React Native, compatibilidade com PWA, API REST e backend Java com Spring Boot.
-
-**Objetivo principal:** permitir cadastro, pré-triagem informativa, consulta de especialidades e profissionais e agendamento de consultas.
-
-## Funcionalidades
-
-### Tela de boas-vindas
-
-- Logo e identidade da MedCall.
-- Tagline: **"Sua saúde na palma da mão."**
-- Apresentação das principais funcionalidades.
-- Botões **Começar** e **Acessar minha conta**.
-
-### Cadastro e conta
-
-- Cadastro de usuário.
-- Nome completo e nome social.
-- Até dois telefones.
-- Identificação individual de WhatsApp por telefone.
-- Três consentimentos independentes:
-  - Política de Privacidade.
-  - Tratamento necessário para agendamento.
-  - Comunicações opcionais.
+## Conta para teste
 
-### Seleção de perfil
+Esta conta existe no [sistema no ar](https://medcall.grupotp.polyclub.com.br). Ela não guarda dados reais de paciente.
 
-O aplicativo apresenta os perfis disponíveis, mas a autorização efetiva é realizada pelo servidor. A interface não concede privilégios por conta própria.
+- E-mail: `teste@medcall.grupotp.polyclub.com.br`
+- Senha: `MedCall2026`
 
-Perfis previstos:
+## Para que serve
 
-- Paciente.
-- Médico(a).
-- Enfermeiro(a).
-- Administrador(a).
+O MedCall é o aplicativo do paciente. Serve para a pessoa contar, antes da consulta, o que está sentindo e para marcar um horário com um profissional. O relato fica na conta. A consulta marcada também.
 
-### Pré-triagem
+O aplicativo não diz o nome de uma doença e não substitui o profissional de saúde. Em emergência, o aviso da tela pede para ligar 192 (SAMU).
 
-A pré-triagem é informativa e não realiza diagnóstico.
+## Como usar
 
-**Etapa 1, dados pessoais**
+1. Abra o [sistema no ar](https://medcall.grupotp.polyclub.com.br) no navegador, ou o aplicativo Android.
+2. Crie uma conta, ou entre com a conta que já existe. Em Esqueci minha senha, o servidor manda um código para a caixa Mailpit do cluster (`MAIL_HOST=mailpit`, porta 1025, sem usuário e sem senha). O endereço de origem é `medcall@medcall.grupotp.polyclub.com.br`. Essa caixa não fica na internet. O código vale 30 minutos, só serve uma vez, e a resposta é a mesma se o e-mail não existir.
+3. Na pré-triagem, descreva o que está sentindo. O rascunho pode ser retomado. Esse relato não é um diagnóstico.
+4. Toque em agendar. Escolha especialidade e profissional, depois data e horário, e confirme. O servidor confere a vaga de novo.
+5. Abra as consultas já marcadas. Sem internet, essa lista continua na tela. Marcar outra consulta só funciona com conexão.
+6. Na conta, atualize o perfil, o consentimento de notificações, a senha, ou peça a exclusão dos dados.
+7. O botão de acessibilidade (AccessAbility Widget) abre com clique ou Alt+A na web, e pelo mesmo botão no Android e no iOS. A versão é a do arquivo `medcall/client/accessability-widget.version`. Trocar esse número sem atualizar a web, o Android e o iOS faz o teste do GitHub falhar. No Android e no iOS o contraste, a fonte e a leitura desse painel valem para o documento do widget. A interface em Kotlin segue o tema do aplicativo.
 
-- Nome completo.
-- Nome social.
-- Data de nascimento.
-- Telefone principal.
-- Telefone secundário.
-- Indicador de WhatsApp para cada telefone.
-- Nome do contato de emergência.
-- Telefone do contato de emergência.
+## Recursos da interface
 
-**Etapa 2, queixa principal**
+A interface é Kotlin com componentes React Native. O shell Expo em `medcall/client/expo` só registra esse componente. Não é o site antigo aberto dentro de uma WebView.
 
-- Motivo da consulta.
-- Sintomas atuais.
-- Quando começaram.
-- Duração.
-- Intensidade de 1 a 10, opcional.
-- Observações adicionais.
+| Recurso | Onde está | Função |
+|---|---|---|
+| Navegação entre telas | `AppScreen` em `medcall/client/app/src/jsMain/kotlin/grupotp/medcall/app/App.kt` | Troca boas-vindas, cadastro, login, início, pré-triagem, agenda, consultas, conta e política. O estado fica em `useState`. |
+| Menu | `FloatingMenu.kt` | Abre por cima da tela logada e leva a início, pré-triagem, agenda, consultas e conta. |
+| ScrollView | Cadastro, agenda, consultas, conta e política | Rolagem do conteúdo. |
+| TextInput | `TextField.kt` | Campos de cadastro, login e agenda. |
+| Pressable | Botões e links das telas | Toque nos botões. |
+| Modal | `ConfirmDialog.kt` | Confirmação antes de ações da conta. |
+| Ícones | `ui/icon/Icons.kt` | Menu, consultas, conta e saída. |
 
-O projeto também prevê etapas para histórico médico e medicamentos, conforme a especificação funcional.
+## Com e sem internet
 
-### Agendamento
+Na PWA, a interface abre de novo sem rede depois da primeira visita com o service worker. Enviar dados novos exige o servidor.
 
-O fluxo foi reorganizado para:
+| Tela | Sem rede |
+|---|---|
+| Boas-vindas, login e cadastro | A tela abre. Entrar ou criar conta exige o servidor. |
+| Início e minhas consultas | A lista já recebida continua. |
+| Agendar e pré-triagem | Exigem rede. O app avisa e não confirma o que o servidor não gravou. |
+| Conta | O perfil já salvo pode ser lido. Gravar perfil, senha ou exclusão exige rede. |
 
-**Especialidade + Profissional → Data/Horário → Dados do paciente → Confirmação**
+## Dados no aparelho
 
-A disponibilidade deve ser determinada pelo servidor, evitando conflitos de horários e agendamentos em períodos indisponíveis.
+Na web, o IndexedDB se chama `medcall`, versão 2, com as stores `accounts` e `appointments`. No Android, os mesmos dados ficam em SQLite. A senha não é gravada no aparelho. Fonte: `LocalAccountDatabase.kt`.
 
-### Dashboard
+| Dado | Onde fica | Quando sai |
+|---|---|---|
+| Perfil da conta logada | chave `signed-in` | Saída, ou quando o servidor recusa a sessão. |
+| Consultas da última conta | store `appointments`, chave do id da conta | A lista nova substitui a anterior. A saída apaga a store. |
+| Fila de saída feita offline | chave `pending-sign-outs` | Continua depois da limpeza e é enviada quando a rede volta. |
 
-O dashboard apresenta informações e ações de acordo com o perfil autorizado.
+Não há prazo separado no aparelho. O servidor encerra a sessão depois de `SESSION_IDLE_DAYS` sem requisição. O padrão é 180 dias.
 
-Para pacientes, inclui:
+## Testes executados
 
-- Pré-triagem.
-- Agendamento.
-- Próxima consulta.
-- Minhas consultas.
-- Configurações.
+<!-- test-results:start -->
+Última execução em 25 de novembro de 2026, com o comando da seção [Como executar](#como-executar).
 
-O dashboard também apresenta o aviso clínico em formato apropriado.
+| Resultado | Quantidade |
+|---|---|
+| Testes executados | 132 |
+| Falhas | 0 |
+| Erros | 0 |
+| Ignorados | 0 |
 
-### Configurações
+Os números saem dos relatórios XML do Gradle, nas pastas de `common`, `server`, `client/app` e `client/worker`. Os testes de `common` entram duas vezes quando rodam na JVM e no JavaScript. O workflow [Tests](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/workflows/tests.yml) grava esta tabela e uma linha em [TESTES.md](TESTES.md) depois de cada execução na main, com ou sem falha. Registro: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/actions/runs/45724975177. Commit: `4fb00c24de9016432786a88b2b91a8cbe84e2d9d`. Quando há falha, o nome do teste fica em TESTES.md.
+<!-- test-results:end -->
 
-A tela de Settings possui três abas:
+## O que está neste repositório
 
-**Conta**
-- Dados pessoais.
-- Nome social.
-- Telefones.
-- Informações da conta.
+A interface é Kotlin com React Native. O mesmo código roda como PWA no navegador e como app Android. O shell Expo em `medcall/client/expo` só registra o componente Kotlin. No navegador, o Metro troca `react-native` por `react-native-web`.
 
-**Segurança**
-- Alteração de senha.
-- Logout.
-- Solicitação de exclusão.
+O servidor é Kotlin/JVM 21, com Ktor, Koin e Exposed. Em desenvolvimento e nos testes o banco é H2. Em produção é MySQL. A publicação é GitOps: imagens no ghcr.io, Kubernetes no namespace `medcall`, ArgoCD e Traefik.
 
-**Privacidade**
-- Gerenciamento de consentimentos.
-- Acesso à Política de Privacidade.
+O detalhe de módulos, offline, fuso da clínica e variáveis está em [medcall/README.md](medcall/README.md). Este arquivo é a capa do repositório.
 
-### Privacidade
+## O que o aplicativo faz hoje
 
-Foi criada uma tela dedicada de **Privacidade e Proteção de Dados**, contendo 9 seções da política de dados, com foco em transparência e conformidade com a LGPD.
+- Boas-vindas, cadastro, login e troca de senha com código de uso único.
+- Pré-triagem informativa, sem diagnóstico.
+- Agendamento em três etapas: especialidade e profissional, data e horário, confirmação.
+- Consultas já marcadas visíveis sem internet. Agendar exige conexão. O servidor confere a vaga de novo, e um índice único impede dois agendamentos no mesmo horário.
+- Conta: perfil, consentimento de notificações, troca de senha e pedido de exclusão.
+- Tela de política de privacidade.
 
-### Administração
+A pré-análise de risco por IA, no dashboard da clínica, está especificada e ainda não está neste código. Só clínica e profissional devem ver o nível. O paciente não. A decisão é do profissional. Fonte da especificação: [SPM-A-139](https://grupotp.youtrack.cloud/articles/SPM-A-139/Pre-analise-de-risco-Feita-por-AI). As normas do Ministério da Saúde e do CFM exigem acolhimento com classificação de risco e não impõem um protocolo único. Manchester entra como referência. [Publicação do Ministério da Saúde](https://bvsms.saude.gov.br/bvs/publicacoes/acolhimento_classificaao_risco_servico_urgencia.pdf).
 
-O ambiente administrativo possui três abas:
+## API
 
-**Administradores**
-- Gerenciamento de administradores.
-- Regra de mínimo de dois administradores ativos.
+21 rotas em `/api/v1`. As de paciente exigem `Authorization: Bearer`. O token é um JWT HS256 (`JWT_SECRET`, no mínimo 32 bytes). O servidor guarda só o id da sessão e a revoga no logout. A troca por código também encerra as sessões da conta.
 
-**Auditoria**
-- Registro de operações administrativas relevantes.
-- Rastreabilidade de ações críticas.
+| Área | Rotas |
+|---|---|
+| Auth | `POST /auth/register`, `POST /auth/login`, `POST /auth/password-recovery`, `POST /auth/password-recovery/confirm`, `GET /auth/me`, `POST /auth/logout` |
+| Conta | `GET /account`, `PUT /account`, `PUT /account/consents`, `POST /account/password`, `POST /account/deletion-request` |
+| Pré-triagem | `GET /pre-triages/draft`, `GET /pre-triages/pending`, `POST /pre-triages` |
+| Agenda | `GET /specialties`, `GET /professionals`, `GET /clinics`, `GET /availability`, `GET /appointments`, `POST /appointments`, `POST /appointments/{id}/cancel` |
 
-**Recuperação**
-- Código de recuperação administrativa.
-- Contexto e orientações de segurança.
-- O código mestre não deve ficar exposto no frontend.
+Fora da API: `GET /healthz` (processo no ar, sem consultar o banco) e `GET /readyz` (banco respondendo).
 
-## Rodapé obrigatório
-
-Todas as telas utilizam o componente `Footer` com o texto definido na especificação:
-
-> Copyright © 2026, Polyana Fontes; Thayná Batista da Silva; App MedCall, Senac PE. Todos os direitos reservados.
-
-## Componentes de segurança e saúde
-
-### `ClinicalDisclaimer`
-
-Componente reutilizável com dois modos:
-
-- `compact`
-- `inline`
-
-Utilizado na pré-triagem e no dashboard.
-
-### Privacidade e LGPD
-
-O sistema considera:
-
-- Finalidade.
-- Necessidade.
-- Transparência.
-- Segurança.
-- Prevenção.
-- Não discriminação.
-- Responsabilização.
-- Controle de acesso.
-- Minimização de dados.
-
-Dados referentes à saúde são tratados como dados pessoais sensíveis segundo a LGPD.
-
-### Controle de acesso
-
-A arquitetura prevê RBAC, com separação entre perfil do usuário e permissões.
-
-Exemplo:
-
-```text
-ROLE_PATIENT
-ROLE_DOCTOR
-ROLE_NURSE
-ROLE_ADMIN
-```
-
-As regras críticas devem ser verificadas no backend.
-
-### Auditoria
-
-Operações relevantes devem ser registradas, incluindo ações administrativas, autenticação, alterações de permissões e acesso a informações sensíveis quando aplicável.
-
-Senhas, tokens e dados sensíveis desnecessários não devem ser armazenados nos logs.
-
-## Acessibilidade
-
-O projeto considera **WCAG 2.2 nível AA** e recursos de acessibilidade do React Native.
-
-Principais cuidados:
-
-- Contraste adequado.
-- Textos legíveis.
-- Botões com áreas de toque apropriadas.
-- Labels acessíveis.
-- Mensagens de erro claras.
-- Navegação lógica.
-- Compatibilidade com TalkBack e VoiceOver.
-- Navegação por teclado no PWA.
-- Não utilizar apenas cores para transmitir informações.
+Senha com PBKDF2-HMAC-SHA256, 600.000 iterações. Fonte do formato: [medcall/README.md](medcall/README.md).
 
 ## Arquitetura
 
 ```text
-React Native
-      ↓
-React Native Web / PWA
-      ↓
-REST API
-      ↓
-Spring Boot
-      ↓
-Spring Security
-      ↓
-JPA / Hibernate
-      ↓
-PostgreSQL
+Cliente Kotlin/JS + React Native (PWA e Android)
+        |
+        | REST /api/v1
+        v
+Servidor Ktor
+  controller  ->  service  ->  repository (Exposed)
+        |
+        v
+H2 no desenvolvimento, MySQL na produção
 ```
 
-## Tecnologias
+A regra de negócio fica no service. O controller recebe a requisição e devolve a resposta.
 
-### Frontend
-
-- React Native.
-- JavaScript / TypeScript.
-- React Native Web.
-- PWA.
-- HTML.
-- CSS.
-
-### Backend
-
-- Java.
-- Spring Boot.
-- Spring Security.
-- Spring Data JPA.
-- Hibernate.
-- Bean Validation.
-- OpenAPI / Swagger.
-
-### Banco de dados
-
-- PostgreSQL.
-
-### API
-
-- REST.
-- JSON.
-- HTTPS.
-- Versionamento previsto em `/api/v1/`.
-
-### Segurança
-
-- Autenticação.
-- Autorização baseada em papéis.
-- Hash de senha.
-- Controle de sessão.
-- Auditoria.
-- Validação de entrada.
-- Rate limiting.
-- Proteção de segredos.
-
-### Qualidade
-
-- JUnit.
-- Mockito.
-- Testes de integração.
-- Testes de API.
-- Testes de acessibilidade.
-
-## Estrutura do projeto
+## Onde está o código
 
 ```text
 medcall/
-│
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   ├── screens/
-│   │   ├── navigation/
-│   │   ├── services/
-│   │   ├── hooks/
-│   │   ├── contexts/
-│   │   ├── validators/
-│   │   └── utils/
-│   ├── public/
-│   │   ├── manifest.json
-│   │   └── icons/
-│   └── service-worker
-│
-├── backend/
-│   └── src/
-│       ├── controller/
-│       ├── service/
-│       ├── repository/
-│       ├── entity/
-│       ├── dto/
-│       ├── security/
-│       ├── validation/
-│       ├── audit/
-│       └── config/
-│
-├── database/
-│   └── migrations/
-│
-├── docs/
-│   ├── requisitos/
-│   ├── uml/
-│   ├── arquitetura/
-│   ├── lgpd/
-│   ├── seguranca/
-│   ├── acessibilidade/
-│   ├── governanca/
-│   └── api/
-│
-├── .env.example
-├── .gitignore
-├── README.md
-├── README_EN.md
-└── LICENSE
+  common/          compartilhado, JVM e JavaScript
+  server/          Ktor, porta 8080
+  client/app/      interface e casos de uso
+  client/worker/   service worker
+  client/expo/     shell Expo
+  docker/          imagens
+k8s/               namespace medcall, ingress, MySQL
+argocd/            Application do GitOps
+.github/workflows/ publicação das imagens no ghcr.io
 ```
 
-## Regras importantes
+Produção: [https://medcall.grupotp.polyclub.com.br](https://medcall.grupotp.polyclub.com.br). O host antigo `recifesaudavel.grupotp.polyclub.com.br` continua servindo a API. Os outros caminhos redirecionam para o host novo. Ver `k8s/ingress.yaml`.
 
-- A pré-triagem não diagnostica.
-- A autorização de perfis privilegiados vem do backend.
-- A disponibilidade de horários vem do servidor.
-- O backend valida regras críticas de negócio.
-- Deve existir no mínimo dois administradores ativos.
-- O sistema não deve permitir que a operação administrativa reduza o número de administradores abaixo do mínimo definido.
-- O código mestre de recuperação não deve ser exposto no frontend.
-- Senhas, tokens, chaves e credenciais não devem ser enviados ao GitHub.
-- O ambiente acadêmico deve utilizar dados fictícios.
-- Dados clínicos não devem ser armazenados indiscriminadamente em cache público do Service Worker.
-- O projeto não deve ser utilizado para armazenar prontuários ou dados reais sem as devidas bases legais, controles e autorizações institucionais.
+## Como executar
 
-## Critérios principais do MVP
-
-### Cadastro
-- [x] Nome social.
-- [x] Dois telefones.
-- [x] Indicador de WhatsApp por telefone.
-- [x] Consentimentos independentes.
-
-### Pré-triagem
-- [x] Dados pessoais.
-- [x] Contato de emergência.
-- [x] Motivo da consulta.
-- [x] Sintomas.
-- [x] Início e duração.
-- [x] Intensidade opcional.
-- [x] Observações.
-
-### Agendamento
-- [x] Especialidade.
-- [x] Profissional.
-- [x] Data e horário.
-- [x] Dados do paciente.
-- [x] Confirmação.
-
-### Configurações
-- [x] Conta.
-- [x] Segurança.
-- [x] Privacidade.
-
-### Administração
-- [x] Administradores.
-- [x] Auditoria.
-- [x] Recuperação.
-
-### Interface
-- [x] Footer em todas as telas.
-- [x] Aviso clínico.
-- [x] Tela de boas-vindas atualizada.
-- [x] Tela dedicada de privacidade.
-- [x] Seleção de perfil com autorização controlada pelo servidor.
-
-## Projeto acadêmico
-
-**Instituição:** Faculdade Senac Pernambuco, Recife, PE  
-**Curso:** Análise e Desenvolvimento de Sistemas  
-**Projeto:** Projeto Integrador, 3º período  
-**Período:** Agosto a dezembro de 2026  
-**Professor focal:** Prof. Ícaro Santos Ferreira  
-**Alunas:** Thayná Batista da Silva e Poliana Fontes
-
-## Fontes e referências
-
-- [LGPD, Lei nº 13.709/2018, Planalto](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm)
-- [ANPD, Direitos dos Titulares](https://www.gov.br/anpd/pt-br/assuntos/titular-de-dados-1/direito-dos-titulares)
-- [ANPD, Relatório de Impacto à Proteção de Dados, RIPD](https://www.gov.br/anpd/pt-br/canais_atendimento/agente-de-tratamento/relatorio-de-impacto-a-protecao-de-dados-pessoais-ripd)
-- [ANVISA, Software como Dispositivo Médico](https://www.gov.br/anvisa/pt-br/assuntos/noticias-anvisa/2022/software-como-dispositivo-medico-perguntas-e-respostas)
-- [W3C, WCAG 2.2](https://www.w3.org/TR/WCAG22/)
-- [React Native, Accessibility](https://reactnative.dev/docs/accessibility)
-- [Spring Security, Method Security](https://docs.spring.io/spring-security/reference/servlet/authorization/method-security.html)
-- [MDN, Progressive Web Apps](https://developer.mozilla.org/en-US/docs/Web/Progressive_web_apps/Reference)
-- [Ministério da Saúde, Segurança do Paciente](https://www.gov.br/saude/pt-br/composicao/saes/seguranca-do-paciente)
-
----
-
-**MedCall**, um MVP acadêmico de saúde digital com foco em UX, Mobile, arquitetura cliente servidor, acessibilidade, segurança, privacidade e governança.
-
-## 🎯 Problema
-
-O projeto busca melhorar a jornada digital do paciente, centralizando informações para pré-triagem informativa e agendamento de consultas em uma experiência simples, acessível e segura.
-
-## ✅ A Solução
-
-O **App MedCall** é um MVP acadêmico centrado no paciente, com cadastro, autenticação, pré-triagem informativa, agendamento, gerenciamento de consultas, privacidade, segurança e PWA.
-
-O aplicativo não realiza diagnóstico, prescrição ou decisão clínica automatizada.
-
-## 🖼️ Protótipos
-
-<div align="center">
-
-<a href="https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6"><img src="https://img.shields.io/badge/Ver%20Prot%C3%B3tipo%20no%20Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white" alt="Ver Protótipo no Figma"></a>
-
-<a href="https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2"><img src="https://img.shields.io/badge/Ver%20Reposit%C3%B3rio%20no%20GitHub-181717?style=for-the-badge&logo=github&logoColor=white" alt="Ver Repositório no GitHub"></a>
-
-</div>
-
-## 🌍 Impacto ESG
-
-- **Social:** jornada digital mais acessível e simples para o paciente.
-- **Governança:** privacidade, segurança, auditoria, controle de acesso e LGPD.
-- **Ambiental:** digitalização de etapas administrativas e redução de documentos físicos.
-
-## 📈 Mercado
-
-A proposta está inserida na digitalização de serviços de saúde, com foco na organização da jornada do paciente, agendamento e coleta estruturada de informações antes do atendimento.
-
-Este é um projeto acadêmico e não representa validação comercial ou clínica do produto.
-
-## 💼 Modelo de Negócio
-
-Como conceito de produto, a solução pode ser adaptada para clínicas e instituições de saúde interessadas em gestão digital da jornada de agendamento, pré-triagem informativa, organização de dados, comunicações e governança.
-
-Qualquer exploração comercial exigiria validação jurídica, regulatória, técnica, de segurança e de mercado.
-
-## 🧾 Análise de Custo e Viabilidade
-
-O MVP utiliza tecnologias amplamente adotadas e de código aberto, reduzindo custos iniciais de desenvolvimento. Em produção, os principais custos potenciais incluem infraestrutura, banco de dados, observabilidade, segurança, domínio, certificados, manutenção, suporte, conformidade e serviços externos.
-
-## 🎯 Público-Alvo
-
-**Público primário:** pacientes que precisam organizar informações e realizar agendamentos de forma digital.
-
-**Público institucional:** clínicas, instituições de saúde e equipes administrativas.
-
-## 🛠️ Tecnologias Utilizadas
-
-| Camada | Tecnologias |
-|---|---|
-| Frontend | React Native, TypeScript/JavaScript, React Native Web |
-| PWA | Web App Manifest, Service Worker, HTTPS |
-| Backend | Java, Spring Boot, Spring Security |
-| Persistência | Spring Data JPA, Hibernate |
-| Banco | PostgreSQL |
-| API | REST, JSON, OpenAPI/Swagger |
-| Testes | JUnit, Mockito, integração e acessibilidade |
-| Design | Figma |
-| Governança | LGPD, RBAC, auditoria e segurança |
-
-## 🚀 Como Executar Localmente
-
-### Pré-requisitos
-
-- Node.js e npm.
-- Java JDK compatível com o backend.
-- PostgreSQL.
-- Git.
-
-### Clonar
+Pré-requisitos, segundo [medcall/README.md](medcall/README.md): JDK 21 e Node.js 24. O primeiro `./gradlew` inicializa o submódulo.
 
 ```bash
-git clone https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
-cd App-MedCall-Senac-PE-2026.2
+git clone --recurse-submodules https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2.git
+cd App-MedCall-Senac-PE-2026.2/medcall
+./gradlew :server:run
+./gradlew :client:expo:startWeb
 ```
 
-### Backend
+O cliente de desenvolvimento abre em `http://localhost:8081`. O servidor responde em `http://localhost:8080/healthz`. Não versione `JWT_SECRET`, senha de banco nem `.env`. Em produção o código de recuperação sai por SMTP para o Mailpit do cluster, com `MAIL_PASSWORD` vazio. A porta 587 liga STARTTLS. A porta 1025, usada pelo Mailpit, fica sem STARTTLS. Sem `MAIL_HOST` e `MAIL_FROM`, a rota responde que o código não pode ser enviado. Os testes usam `MAIL_MODE=capture` e não abrem uma conexão de e-mail.
+
+Testes:
 
 ```bash
-cd backend
-./mvnw spring-boot:run
+./gradlew :common:allTests :server:test :client:app:jsNodeTest :client:worker:jsNodeTest
 ```
 
-No Windows:
+## Equipe
 
-```powershell
-mvnw.cmd spring-boot:run
-```
+Faculdade Senac Pernambuco, Recife-PE. Curso de Análise e Desenvolvimento de Sistemas. Projeto Integrador, agosto a dezembro de 2026. Professor focal: Ícaro Santos Ferreira.
 
-### Frontend
+- Thayná Batista da Silva: Scrum Master, requisitos, prototipação e desenvolvimento.
+- Polyana Fontes: modelagem de banco, documentação e desenvolvimento.
 
-```bash
-cd frontend
-npm install
-npm start
-```
+Contato de Thayná: [thaynabdstec@gmail.com](mailto:thaynabdstec@gmail.com).
 
-Use `.env.example` como referência e nunca versione credenciais reais. Os comandos podem variar conforme a configuração definitiva do projeto.
+## Fontes
 
-## 👥 Equipe
-
-### Polyana Fontes
-
-**Desenvolvedora Full Stack · Modelagem de Banco de Dados · Documentação Técnica**
-
-Aluna de Análise e Desenvolvimento de Sistemas  
-Faculdade Senac Pernambuco, Recife-PE
-
-### Thayná Batista da Silva
-
-**Gerente / Analista de Requisitos · Scrum Master**  
-**Product Designer · Prototipação de Alta Fidelidade (Figma)**
-
-Aluna de Análise e Desenvolvimento de Sistemas  
-Faculdade Senac Pernambuco, Recife-PE  
-Turma 2025 · Formação prevista: 2027
-
-## 📋 Documentação Técnica
-
-### 1. Definição do Problema
-Contexto, problema, objetivos, escopo e restrições do projeto.
-
-### 2. Backlog e Engenharia de Requisitos
-Requisitos funcionais e não funcionais, regras de negócio, critérios de aceitação, casos de uso e backlog.
-
-### 3. UX/UI para Interfaces Inteligentes
-Arquitetura de informação, fluxos, prototipação, acessibilidade, responsividade e experiência do paciente.
-
-### 4. Arquitetura de Software e Stack de Desenvolvimento
-Arquitetura cliente-servidor, API REST, Spring Boot, PostgreSQL, segurança, PWA e organização do código.
-
-### 5. Relato do Processo e Engenharia de Prompt
-Processo de desenvolvimento, decisões técnicas e uso responsável de ferramentas de IA.
-
-### 6. Análise de Custos e Viabilidade
-Estimativas, premissas, infraestrutura e viabilidade técnica e econômica.
-
-### 7. Evoluções Futuras
-Possíveis evoluções incluem integrações institucionais, notificações avançadas, observabilidade, acessibilidade ampliada e integrações com sistemas de saúde, após validação técnica e regulatória.
-
-## 📽️ Demonstrações
-
-- [🎨 Ver Protótipo no Figma](https://www.figma.com/make/HgsxSju4V0c9LixmfcUxm7/App-Recife-Saud%C3%A1vel-Development?fullscreen=1&t=qW8P0oS0T6RXnKZX-1&code-node-id=0-6)
-- [💻 Ver Repositório no GitHub](https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2)
-
-## 📄 Licença
-
-Projeto desenvolvido para fins acadêmicos. A licença definitiva deve ser definida no arquivo `LICENSE` do repositório.
-
-## 📞 Contato
-
-### Polyana Fontes
-
-Desenvolvedora Full Stack, Modelagem de Banco de Dados e Documentação Técnica.
-
-### Thayná Batista da Silva
-
-**Scrum Master · Product Designer · Requirements Analyst**  
-Senac Recife-PE, Análise e Desenvolvimento de Sistemas.
-
-📧 **Email:** [thaynabdstec@gmail.com](mailto:thaynabdstec@gmail.com)  
-📱 **Telefone:** +55 (81) 97912-6121
-
-## 🎓 Informações Acadêmicas
-
-**Nome do App:** 🏫 App MedCall  
-**Projeto iniciado em:** Agosto de 2026  
-**Instituição:** Faculdade Senac Pernambuco, Recife-PE, Brasil  
-**Curso:** Análise e Desenvolvimento de Sistemas  
-**Projeto:** Projeto Integrador, 3º período  
-**Professor focal do Projeto Integrador:** Prof. Ícaro Santos Ferreira  
-**Alunas:** Thayná Batista da Silva e Polyana Fontes
+- Código e comandos: [medcall/README.md](medcall/README.md), controllers em `medcall/server/src/main/kotlin/grupotp/medcall/server/controller/`.
+- Requisitos vigentes: [SPM-A-141](https://grupotp.youtrack.cloud/articles/SPM-A-141). A V7 está marcada como superada em [SPM-A-133](https://grupotp.youtrack.cloud/articles/SPM-A-133).
+- [LGPD, Lei nº 13.709/2018](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm).
+- [Ktor, development mode](https://ktor.io/docs/server-development-mode.html).
+- [WCAG 2.2](https://www.w3.org/TR/WCAG22/), requisito de acessibilidade do projeto. A cobertura de testes com leitores de tela não está concluída neste repositório.
+- [OWASP Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html): código de uso único, resposta igual para e-mail desconhecido e sessões encerradas depois da troca.
