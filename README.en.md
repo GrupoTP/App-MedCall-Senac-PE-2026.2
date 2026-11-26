@@ -145,7 +145,18 @@ Passwords use PBKDF2-HMAC-SHA256, 600,000 iterations. Format source: [medcall/RE
 - Clinic portal: the administrator sees indicators, the team, integrations, and the action log. The receptionist confirms, declines, reschedules, and records attendance on the agenda.
 - MedCall control panel: platform and per-clinic indicators, plus clinics, professionals, clinic users, integrations, and the action log. Those routes do not return an individual patient record.
 
-Both load the same AccessAbility Widget named in `medcall/client/accessability-widget.version`. Demo accounts and the local command are in [medcall/README.md](medcall/README.md).
+Both load the same AccessAbility Widget named in `medcall/client/accessability-widget.version`.
+
+The published demo opens at https://medcall.grupotp.polyclub.com.br/admin/ . These accounts sign in to the MedCall control panel and the clinic portal:
+
+| Role | User | Password |
+|---|---|---|
+| MedCall team, control panel | `admin@medcall.dev` | `medcall-dev-admin` |
+| MedCall team, control panel | `medcall@demo.medcall.dev` | `medcall-demo` |
+| Boa Vista clinic admin, clinic portal | `admin.boavista@demo.medcall.dev` | `medcall-demo` |
+| Boa Vista reception, clinic portal | `recepcao.boavista@demo.medcall.dev` | `medcall-demo` |
+
+The command to run the portals on this machine is in [medcall/README.md](medcall/README.md).
 
 ## Architecture
 
