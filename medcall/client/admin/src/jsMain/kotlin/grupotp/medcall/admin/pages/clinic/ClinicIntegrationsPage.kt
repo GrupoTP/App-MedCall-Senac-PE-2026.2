@@ -1,6 +1,6 @@
 package grupotp.medcall.admin.pages.clinic
 
-import grupotp.medcall.admin.api.AdminApi
+import grupotp.medcall.admin.AppConfig
 import grupotp.medcall.admin.api.ApiException
 import grupotp.medcall.admin.appScope
 import grupotp.medcall.admin.useSession
@@ -80,7 +80,7 @@ val ClinicIntegrationsPage = FC {
             }
             a {
                 className = ClassName("small")
-                href = AdminApi.apiBase() + "/api/public/docs"
+                href = AppConfig.apiBaseUrl + "/api/public/docs"
                 asDynamic().target = "_blank"
                 +"Documentação da API pública (OpenAPI)"
             }

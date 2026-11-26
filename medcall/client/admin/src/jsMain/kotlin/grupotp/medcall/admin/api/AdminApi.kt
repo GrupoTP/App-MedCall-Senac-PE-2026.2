@@ -1,5 +1,6 @@
 package grupotp.medcall.admin.api
 
+import grupotp.medcall.admin.AppConfig
 import grupotp.medcall.common.admin.AuditEntry
 import grupotp.medcall.common.admin.ChangeClinicStatusRequest
 import grupotp.medcall.common.admin.ManagedClinic
@@ -56,7 +57,6 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.int
 import kotlinx.serialization.json.jsonPrimitive
-import web.location.location
 
 /**
  * The portals' calls to the MedCall server. Every method throws [ApiException] on a refusal; a
@@ -295,15 +295,6 @@ class AdminApi(
         )
     }
 
-    private fun url(path: String): String = apiBase() + path
-
-    companion object {
-        /**
-         * Where the API is. Deployed, the portal is served at /admin/ on the API's own host. On the
-         * webpack dev server (port 8082) the API runs apart, on port 8080 of the same machine.
-         */
-        fun apiBase(): String =
-            if (location.port == "8082") "${location.protocol}//${location.hostname}:8080" else ""
-    }
+    private fun url(path: String): String = AppConfig.apiBaseUrl + path
 }
 

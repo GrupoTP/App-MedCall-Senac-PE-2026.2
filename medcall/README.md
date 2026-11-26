@@ -51,7 +51,7 @@ Em outro terminal:
 ./gradlew :client:admin:jsBrowserDevelopmentRun --continuous
 ```
 
-O portal abre em `http://localhost:8082` e chama o servidor na porta 8080 (a origem já está no CORS padrão). As tasks locais do servidor sobem com a base fictícia (`DEMO_SEED=true`) e com estas contas:
+O portal abre em `http://localhost:8082`. Ele chama a própria origem, e o servidor de desenvolvimento repassa `/api` ao `:server:run`. Para mudar as portas, use `ADMIN_DEV_PORT` (padrão 8082) e `ADMIN_DEV_API_URL` (padrão `http://localhost:8080`). As tasks locais do servidor sobem com a base fictícia (`DEMO_SEED=true`) e com estas contas:
 
 | Conta | Senha | Perfil |
 |---|---|---|
@@ -60,7 +60,14 @@ O portal abre em `http://localhost:8082` e chama o servidor na porta 8080 (a ori
 | `admin.boavista@demo.medcall.dev` | `medcall-demo` | Administrador da Clínica Boa Vista |
 | `recepcao.boavista@demo.medcall.dev` | `medcall-demo` | Recepcionista da Clínica Boa Vista |
 
-Há contas iguais para `derby` e `manaus`. Em produção, o portal é servido pela imagem web em `/admin/`, no mesmo host da API.
+Há contas iguais para `derby` e `manaus`. Em produção, o portal é servido pela imagem web em `/admin/`.
+
+O endereço da API dos portais não fica no bundle: ele vem do `admin/config.js`, lido em tempo de execução. Com `apiBaseUrl` vazio, os portais chamam a própria origem, e o Ingress leva `/api` ao servidor. Para a API em outro host, há dois caminhos:
+
+- a variável `ADMIN_API_BASE_URL` no container web, que reescreve o `config.js` na subida (`docker/admin-config.sh`);
+- um `config.js` próprio montado em `/usr/share/nginx/html/admin/config.js`, por exemplo um ConfigMap. Arquivo montado vale mais que a variável.
+
+Com a API em outro host, a origem dos portais precisa entrar em `CORS_ALLOWED_ORIGINS` do servidor.
 
 ## Módulos
 
@@ -166,7 +173,7 @@ A pasta `android/` é gerada pelo `expo prebuild` e não vai para o git. Ajustes
 O `Dockerfile` desta pasta gera duas imagens, publicadas no ghcr.io pelo workflow `.github/workflows/publish-images.yml` a cada push na `main`:
 
 - `ghcr.io/grupotp/medcall-server` (`--target server`): o servidor Ktor na porta 8080.
-- `ghcr.io/grupotp/medcall-web` (`--target web`): o PWA exportado (`:client:expo:exportWeb`), servido pelo nginx na porta 8080. O `API_BASE_URL` entra como `--build-arg`.
+- `ghcr.io/grupotp/medcall-web` (`--target web`): o PWA exportado (`:client:expo:exportWeb`), servido pelo nginx na porta 8080, e os portais em `/admin/`. O `API_BASE_URL` do PWA entra como `--build-arg`; o dos portais é `ADMIN_API_BASE_URL`, lido quando o container sobe (veja "Rodar os portais").
 
 ```bash
 git submodule update --init

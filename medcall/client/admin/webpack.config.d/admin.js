@@ -9,9 +9,19 @@ config.module.rules.push({
 config.output = config.output || {};
 config.output.publicPath = "auto";
 
-// Dev server on 8082 (the PWA's Metro uses 8081); the API stays on 8080.
+// Dev server only. The portals call their own origin (config.js leaves apiBaseUrl empty) and the
+// proxy sends the API routes to the server, so no address is compiled into the bundle.
+//   ADMIN_DEV_PORT     port of this dev server (8081 is taken by the patient PWA's Metro)
+//   ADMIN_DEV_API_URL  where :server:run listens
 if (config.devServer) {
-    config.devServer.port = 8082;
+    config.devServer.port = Number(process.env.ADMIN_DEV_PORT || 8082);
     config.devServer.historyApiFallback = true;
     config.devServer.open = false;
+    config.devServer.proxy = [
+        {
+            context: ["/api", "/healthz", "/readyz"],
+            target: process.env.ADMIN_DEV_API_URL || "http://localhost:8080",
+            changeOrigin: true,
+        },
+    ];
 }

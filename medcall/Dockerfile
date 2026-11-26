@@ -52,4 +52,6 @@ FROM nginx:1.30-alpine AS web
 COPY docker/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=web-build /src/client/expo/dist/ /usr/share/nginx/html/
 COPY --from=web-build /src/client/admin/build/dist/js/productionExecutable/ /usr/share/nginx/html/admin/
+# Endereço da API dos portais lido na subida (ADMIN_API_BASE_URL), não gravado no bundle.
+COPY --chmod=755 docker/admin-config.sh /docker-entrypoint.d/40-admin-config.sh
 EXPOSE 8080
