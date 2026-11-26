@@ -51,7 +51,7 @@ Em outro terminal:
 ./gradlew :client:admin:jsBrowserDevelopmentRun --continuous
 ```
 
-O portal abre em `http://localhost:8082`. A demonstração publicada abre em `https://medcall.grupotp.polyclub.com.br/admin/`. Ele chama a própria origem, e o servidor de desenvolvimento repassa `/api` ao `:server:run`. Para mudar as portas, use `ADMIN_DEV_PORT` (padrão 8082) e `ADMIN_DEV_API_URL` (padrão `http://localhost:8080`). As tasks locais do servidor sobem com a base fictícia (`DEMO_SEED=true`) e com estas contas, as mesmas da demonstração publicada:
+O portal abre em `http://localhost:8082`. A demonstração publicada abre em `https://medcall.grupotp.polyclub.com.br/admin/`. Ele chama a própria origem, e o servidor de desenvolvimento repassa `/api` ao `:server:run`. Para mudar as portas, use `ADMIN_DEV_PORT` (padrão 8082) e `ADMIN_DEV_API_URL` (padrão `http://localhost:8080`). As tasks locais do servidor sobem com a base fictícia (`DEMO_SEED=true`) e com estas contas. Em 26 de novembro de 2026, a demonstração publicada aceitou as três senhas `medcall-demo` e respondeu `WRONG_CREDENTIALS` para `admin@medcall.dev` com `medcall-dev-admin`:
 
 | Conta | Senha | Perfil |
 |---|---|---|
