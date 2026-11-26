@@ -2,6 +2,10 @@ openapi: 3.0.3
 info:
   title: API pública MedCall
   version: "1.0"
+  # "Pública" is about who calls it (the clinic's own system), not the code: all rights reserved.
+  license:
+    name: Todos os direitos reservados (Polyana Fontes e Thayná Batista da Silva)
+    url: https://github.com/GrupoTP/App-MedCall-Senac-PE-2026.2/blob/main/LICENSE
   description: |
     API para o **sistema da clínica** responder aos agendamentos feitos pelos pacientes no app MedCall.
 

@@ -200,6 +200,8 @@ val AppLayout = FC<AppLayoutProps> { props ->
             className = ClassName("app-footer small text-secondary")
             +"MedCall · Projeto Integrador ADS Senac 2026 · "
             +(if (account.role == StaffRole.MedcallAdmin) "Painel de Controle" else "Portal da Clínica")
+            // Same notice as the patient app's footer and the repository's LICENSE.
+            +" · © 2026 Polyana Fontes e Thayná Batista da Silva. Todos os direitos reservados."
         }
     }
 }
