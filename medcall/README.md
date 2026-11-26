@@ -183,6 +183,18 @@ docker build --target web --build-arg API_BASE_URL=https://medcall.grupotp.polyc
 
 Em produção o servidor usa MySQL: `DATABASE_DRIVER=com.mysql.cj.jdbc.Driver` e `DATABASE_JDBC_URL=jdbc:mysql://<host>:3306/<database>`. O driver entra só em tempo de execução; o H2 continua sendo o padrão no desenvolvimento e nos testes.
 
+#### Publicação no Kubernetes (`k8s/`)
+
+Depois do merge na `main`, o `publish-images.yml` constrói as duas imagens com a tag `sha-<7>` e o job `deploy` grava essa tag em `k8s/kustomization.yaml`; o ArgoCD leva a versão nova para o cluster. Os portais usam o mesmo host da API, então não há variável de build nem rota nova no Ingress (`/admin/` cai no `medcall-web`, `/api/v1/admin/*` e `/api/public/*` caem no servidor). O servidor cria no MySQL só as tabelas novas na subida (`SchemaUtils.create`); nenhuma tabela existente muda.
+
+Variáveis do servidor que dependem do ambiente:
+
+| Variável | Em produção | Onde fica |
+|---|---|---|
+| `MEDCALL_ADMIN_EMAIL`, `MEDCALL_ADMIN_PASSWORD` | Primeiro administrador do Painel MedCall, criado só se `staff_users` estiver vazia | SealedSecret `medcall-admin-bootstrap` (`k8s/sealedsecret-medcall-admin.yaml`) |
+| `RABBITMQ_URL` | Não definida: os webhooks usam a fila em memória; um evento já na fila e ainda não entregue se perde se o pod reiniciar (o que ainda não saiu do `outbox` no MySQL é publicado depois) | (futuro) SealedSecret |
+| `WEBHOOKS_ALLOW_PRIVATE`, `DEMO_SEED`, `DEMO_STAFF_PASSWORD` | Nunca definir | |
+
 ### Android no Windows
 
 O código C++ gerado pelo React Native para `react-native-svg` e `react-native-safe-area-context` produz caminhos de arquivo acima de 260 caracteres. O ninja do CMake 3.22.1, que o Android Gradle Plugin usa por padrão, não aceita caminhos assim, e o build falha com `Filename longer than 260 characters` ou `build.ninja still dirty after 100 tries`. Para compilar:
