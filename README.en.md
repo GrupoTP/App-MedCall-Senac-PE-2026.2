@@ -50,7 +50,7 @@ The app does not name a disease and does not replace a health professional. In a
 4. Tap schedule. Choose a specialty and a professional, then a date and a time, and confirm. The server checks the slot again.
 5. Open the appointments already booked. Without internet, that list stays on the screen. Booking another appointment needs a connection.
 6. In the account, update the profile, notification consent, or password, or request data deletion.
-7. The accessibility button (AccessAbility Widget) opens with a click or Alt+A on the web, and with the same button on Android and iOS. The version is the one in `medcall/client/accessability-widget.version`. Changing that number without updating web, Android, and iOS makes the GitHub test fail. On Android and iOS, contrast, type size, and reading from that panel apply to the widget document. The Kotlin interface keeps the app theme.
+7. The accessibility button (AccessAbility Widget) opens with a click or Alt+A on the patient web app, on `/admin/`, and with the same button on Android and iOS. The version is the one in `medcall/client/accessability-widget.version`. Changing that number without updating the web app, the portals, Android, and iOS makes the GitHub test fail. On Android and iOS, contrast, type size, and reading from that panel apply to the widget document. On the portals, which are HTML, those controls apply to the page. The patient app's Kotlin interface keeps the app theme.
 
 ## Interface resources
 
@@ -137,6 +137,15 @@ The clinic dashboard with AI risk pre-analysis is specified and is not in this c
 Outside the API: `GET /healthz` (process up, database not queried) and `GET /readyz` (database answers).
 
 Passwords use PBKDF2-HMAC-SHA256, 600,000 iterations. Format source: [medcall/README.md](medcall/README.md).
+
+## Staff portals
+
+`/admin/` on the same host is not the patient app. Two portals live in `medcall/client/admin` and ship in the web image:
+
+- Clinic portal: the administrator sees indicators, the team, integrations, and the action log. The receptionist confirms, declines, reschedules, and records attendance on the agenda.
+- MedCall control panel: platform and per-clinic indicators, plus clinics, professionals, clinic users, integrations, and the action log. Those routes do not return an individual patient record.
+
+Both load the same AccessAbility Widget named in `medcall/client/accessability-widget.version`. Demo accounts and the local command are in [medcall/README.md](medcall/README.md).
 
 ## Architecture
 
